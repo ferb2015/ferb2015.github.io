@@ -253,7 +253,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -272,7 +272,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2022/11/14/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/" itemprop="url">端到端合成论文——声学模型——Tacotron</a></h1>
+                <a class="post-title-link" href="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/" itemprop="url">端到端合成论文——声学模型——Tacotron</a></h1>
         
 
         <div class="post-meta">
@@ -379,8 +379,8 @@
 </ul>
 <h2 id="模型总体结构"><a href="#模型总体结构" class="headerlink" title="模型总体结构"></a>模型总体结构</h2><p>输入文本characters（不是音素序列，是字符序列），输出预测的逐帧的谱 raw linear spectrogram。</p>
 <p>模型总体结构包括一个encoder，一个attention-based 的 decoder，一个后处理网络post-processing net；</p>
-<p><img src="/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221107153002024.png" alt="image-20221107153002024"></p>
-<p><img src="/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108170533821.png" alt="image-20221108170533821"></p>
+<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221107153002024.png" alt="image-20221107153002024"></p>
+<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108170533821.png" alt="image-20221108170533821"></p>
 <h3 id="ENCODER"><a href="#ENCODER" class="headerlink" title="ENCODER"></a>ENCODER</h3><p>输入文本序列characters，one-hot -&gt; embedding -&gt; pre-net -&gt; CBHG module -&gt; attention</p>
 <h3 id="Encoder-pre-net"><a href="#Encoder-pre-net" class="headerlink" title="Encoder pre-net"></a>Encoder pre-net</h3><p>输入character序列，做embedding，经过非线性变换（激活函数），经过dropout，bottleneck层（加速收敛，减少过拟合，提高泛化性）；</p>
 <h3 id="CBHG-MODULE"><a href="#CBHG-MODULE" class="headerlink" title="CBHG MODULE"></a>CBHG MODULE</h3><p>CBHG是conv bank highway gru</p>
@@ -392,16 +392,16 @@
 <blockquote>
 <p>highway networks (Srivastava et al., 2015)  </p>
 </blockquote>
-<p><img src="/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108104125133.png" alt="image-20221108104125133"></p>
+<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108104125133.png" alt="image-20221108104125133"></p>
 <h3 id="DECODER"><a href="#DECODER" class="headerlink" title="DECODER"></a>DECODER</h3><p>自回归</p>
-<p><img src="/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108173745272.png" alt="image-20221108173745272"></p>
+<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108173745272.png" alt="image-20221108173745272"></p>
 <h3 id="Decoder-RNN"><a href="#Decoder-RNN" class="headerlink" title="Decoder RNN"></a>Decoder RNN</h3><p>输入是 Attention RNN的输出 和 context vector 拼接起来的向量，经过GRU，得到输出；</p>
 <p>而context vector来自Attention RNN的输出作为query，encoder作为key，做attention操作得到的向量；</p>
 <p>预测输出是80维的mel谱。不是直接输出频谱spectrogram，因为波形谱的可能性很多，size很大，256维？生成很耗时，而mel-spectrogram虽然损失了信息，但是相比spectrogram就小了很多，且由于它是针对人耳来设计的，因此对最终生成的波形的质量不会有很多影响。</p>
 <p>&#x3D;&#x3D;每个decoder step，不是预测一帧，而是预测多帧！输出多帧，并且是不重叠的帧；&#x3D;&#x3D;这样做的好处是可以大大缩减计算量（不减少的话，一个样本得输出几百帧），并且发现可以加速模型收敛（因为用的RNN预测，RNN对于几百帧的输出不友好，对于较少帧数的输出比较友好，并且帧数长了，产生需要的时间也是线性增加的）；每次预测r帧，decoder的序列长度变为1&#x2F;r长；</p>
 <p>&#x3D;&#x3D;推理过程开dropout&#x3D;&#x3D;模拟推理过程可能出错的情况！！不是每次都用RNNR概率最大的那个值，而是需要增加随机性；（其他比如GPT2，是通过在输出的概率分布的采样，来作为输出，来增加随机性）；</p>
 <p>怎么知道合成完了？通过一个二分类器（输出一个标量数值，通过阈值判断），每次把RNN输出送进分类器，判断是否结束；</p>
-<img src="合成论文笔记(1)/image-20221108174036419.png" alt="image-20221108174036419" style="zoom:50%;" />
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108174036419.png" alt="image-20221108174036419" style="zoom:50%;">
 
 
 
@@ -410,10 +410,10 @@
 <p>decoder CBHG可以替换成其他module来生成其他东西，比如换成wavnet那样的vocoder，就是直接输出波形了；</p>
 <p>之所以需要post-processing，而不是靠RNN来输出linear spectrogram，是因为RNN是从前向后的（单向）（预测到某一个step时，可能发现前面预测错了，但是没法改了），然后加一个CBHG，可以看从前向后和从后向前的信息，这样会更好；</p>
 <p>两个loss，都要最小化</p>
-<img src="合成论文笔记(1)/image-20221108174727511.png" alt="image-20221108174727511" style="zoom:50%;" />
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108174727511.png" alt="image-20221108174727511" style="zoom:50%;">
 
 <p>这里voceder理解成不在主模型外的，是单独的一个模块（单独训练好的）；</p>
-<h2 id="细节参数"><a href="#细节参数" class="headerlink" title="细节参数"></a>细节参数</h2><h3 id="模型参数"><a href="#模型参数" class="headerlink" title="模型参数"></a>模型参数</h3><p><img src="/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108110927345.png" alt="image-20221108110927345"></p>
+<h2 id="细节参数"><a href="#细节参数" class="headerlink" title="细节参数"></a>细节参数</h2><h3 id="模型参数"><a href="#模型参数" class="headerlink" title="模型参数"></a>模型参数</h3><p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108110927345.png" alt="image-20221108110927345"></p>
 <h3 id="训练参数"><a href="#训练参数" class="headerlink" title="训练参数"></a>训练参数</h3><h3 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h3><p>tacotron相比于wavenet，主要是在输入上需要的信息少了，也能起到好的效果，这对于人们训练一个语音合成系统减少了很多工作量，输入只要字符序列就可以了（训练时只要字符序列和音频pair）；</p>
 <hr>
 <blockquote>
@@ -428,9 +428,9 @@
 <h5 id="存在什么问题-1"><a href="#存在什么问题-1" class="headerlink" title="存在什么问题"></a>存在什么问题</h5><p>- </p>
 <h2 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h2><p>主要有两部分组成，Spectrogram Prediction Network  和 WaveNet Vocoder  。</p>
 <p>Spectrogram Prediction Network类似tacotron的结构，然后把tacotron的decoder重的CBHG替换成了wavenet vocoder；</p>
-<img src="合成论文笔记(1)/image-20221108123420015.png" alt="image-20221108123420015" style="zoom:67%;" />
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108123420015.png" alt="image-20221108123420015" style="zoom:67%;">
 
-<img src="合成论文笔记(1)/image-20221109102922783.png" alt="image-20221109102922783" style="zoom: 67%;" />
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221109102922783.png" alt="image-20221109102922783" style="zoom: 67%;">
 
 <h3 id="Spectrogram-Prediction-Network"><a href="#Spectrogram-Prediction-Network" class="headerlink" title="Spectrogram Prediction Network"></a>Spectrogram Prediction Network</h3><p>可以理解为声学模型</p>
 <h4 id="encoder"><a href="#encoder" class="headerlink" title="encoder"></a>encoder</h4><p>输入字符序列 👉 embedding(512维) 👉 固定滤波器长度的卷积(512个滤波器，滤波器长度5*1，3层卷积，(每次看5个character)) 👉 BN ReLu 👉 BLSTM</p>
@@ -445,13 +445,13 @@
 <p>（attention context在decoder中用了两次）</p>
 <p>输出有两种形式，一种是频谱帧，另一种是停止符的概率，后者是一个简单二分类问题，决定解码过程是否结束。为了能够有效加速计算，减小内存占用，引入缩减因子 r（Reduction Factor），即每一个时间步允许解码器预测 r 个频谱帧进行输出。解码完成后，送入后处理网络处理以生成最终的梅尔频谱；<br>$$<br>s_{f i n a l}&#x3D;s_i+s_i^{\prime}<br>$$<br>其中, $s_i$ 是解码器输出, $s_{\text {final }}$ 表示最终输出的梅尔频谱, $s_i^{\prime}$ 是后处理网络的输出, 解码器的输出经过后处 理网络之后获得 $s_i^{\prime}$ ；</p>
 <p>预测的target谱（mel谱）经过post-net(5层卷积)，生成频谱帧；</p>
-<img src="合成论文笔记(1)/image-20221109104613410.png" alt="image-20221109104613410" style="zoom:67%;" />
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221109104613410.png" alt="image-20221109104613410" style="zoom:67%;">
 
 <p>推理时，对decoder的pre-net开dropout！（本来网络里这个地方没有加dropout的，但是在推理过程中加了！）目的是为了在推理时输出能有变化；</p>
 <p>没有用tacotron1中的reduction factor  （$r$）</p>
 <h3 id="WaveNet-vocoder"><a href="#WaveNet-vocoder" class="headerlink" title="WaveNet vocoder"></a>WaveNet vocoder</h3><p>在 Tacotron-2 原始论文中，直接将梅尔频谱送入声码器 WaveNet 生成最终的时域波形。但是 WaveNet 计算复杂度过高，几乎无法实际使用，因此可以使用其它声码器，比如 Griffin-Lim、 HiFiGAN 等 。</p>
 <ul>
-<li><input disabled="" type="checkbox"> [TODO] [声码器还不是很懂，这块还要再看一下]</li>
+<li><input disabled type="checkbox"> [TODO] [声码器还不是很懂，这块还要再看一下]</li>
 </ul>
 <h3 id="loss-function"><a href="#loss-function" class="headerlink" title="loss function"></a>loss function</h3><ol>
 <li>进入后处理网络 post-net **前后 **的平方损失mse loss：</li>
@@ -473,7 +473,7 @@
 </ol>
 <p>$$<br>Loss &#x3D; MelLoss + LinearLoss + StopTokenLoss + RegulationLoss<br>$$</p>
 <h2 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h2><p>wavenet最好是用tacotron产生的谱作为输入进行训练，会比用真实谱进行训练的效果好（让wavenet知道tacotron产生的谱长什么样，才能得到最好的结果）；</p>
-<img src="合成论文笔记(1)/image-20221108175319842.png" alt="image-20221108175319842" style="zoom: 67%;" />
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108175319842.png" alt="image-20221108175319842" style="zoom: 67%;">
 
 
           
@@ -523,7 +523,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/03/%E7%94%A8typora%E5%86%99hexo%E5%8D%9A%E5%AE%A2/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%20set/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -542,7 +542,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2022/11/03/%E7%94%A8typora%E5%86%99hexo%E5%8D%9A%E5%AE%A2/" itemprop="url">用typora写hexo博客</a></h1>
+                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20set/" itemprop="url">C++ set</a></h1>
         
 
         <div class="post-meta">
@@ -554,127 +554,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-03T10:33:04+08:00">
-                2022-11-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/03/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ferb's 学习博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/11/03/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" itemprop="url">第一篇hexo博客</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-03T00:00:00+08:00">
-                2022-11-03
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
+                2022-11-14
               </time>
             
 
@@ -696,8 +577,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%85%B6%E4%BB%96/" itemprop="url" rel="index">
-                    <span itemprop="name">其他</span>
+                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
                   </a>
                 </span>
 
@@ -735,7 +616,10 @@
       
         
           
-            <p>今天学习用hexo建立自己的博客网站，在github服务器上发布。</p>
+            <h1 id="C-set"><a href="#C-set" class="headerlink" title="C++ set"></a>C++ set</h1><p><a target="_blank" rel="noopener" href="https://cplusplus.com/reference/set/set/find/">https://cplusplus.com/reference/set/set/find/</a></p>
+<h2 id="判断元素在不在set中"><a href="#判断元素在不在set中" class="headerlink" title="判断元素在不在set中"></a>判断元素在不在set中</h2><p>可以用count()函数，如果为0，则不在set中；大于0，在set中；</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">set&lt;<span class="type">int</span>&gt; ss;</span><br><span class="line">ss.<span class="built_in">insert</span>(<span class="number">1</span>);</span><br><span class="line">ss.<span class="built_in">insert</span>(<span class="number">2</span>);</span><br><span class="line">cout&lt;&lt;ss.<span class="built_in">count</span>(<span class="number">1</span>)&lt;&lt;<span class="string">&#x27; &#x27;</span>&lt;&lt;ss.<span class="built_in">count</span>(<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+
 
           
         
@@ -784,7 +668,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/02/hello-world/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%20queue/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -803,7 +687,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2022/11/02/hello-world/" itemprop="url">Hello World</a></h1>
+                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20queue/" itemprop="url">C++ queue</a></h1>
         
 
         <div class="post-meta">
@@ -815,8 +699,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-02T15:49:24+08:00">
-                2022-11-02
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
+                2022-11-14
               </time>
             
 
@@ -838,8 +722,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%85%B6%E4%BB%96/" itemprop="url" rel="index">
-                    <span itemprop="name">其他</span>
+                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
                   </a>
                 </span>
 
@@ -877,20 +761,7 @@
       
         
           
-            <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
+            <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">queue&lt;pair&lt;<span class="type">char</span>, <span class="type">int</span>&gt;&gt; q;</span><br></pre></td></tr></table></figure>
           
         
       
@@ -938,7 +809,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E7%AD%9B%E9%80%89%E6%96%87%E6%9C%AC%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(4)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -957,7 +828,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2022/07/22/%E7%AD%9B%E9%80%89%E6%96%87%E6%9C%AC%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/" itemprop="url">筛选文本来训练领域LM</a></h1>
+                <a class="post-title-link" href="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(4)/" itemprop="url">端到端合成论文——声学模型——FastSpeech</a></h1>
         
 
         <div class="post-meta">
@@ -969,8 +840,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-22T00:00:00+08:00">
-                2022-07-22
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
+                2022-11-14
               </time>
             
 
@@ -992,8 +863,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">语言模型</span>
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90/" itemprop="url" rel="index">
+                    <span itemprop="name">语音合成</span>
                   </a>
                 </span>
 
@@ -1031,348 +902,1123 @@
       
         
           
-            <h1 id="筛选文本-来训练领域LM"><a href="#筛选文本-来训练领域LM" class="headerlink" title="筛选文本 来训练领域LM"></a>筛选文本 来训练领域LM</h1><blockquote>
-<p>&#x3D;&#x3D;Moore, Robert C., and William Lewis. “Intelligent selection of language model training data.” <em>Proceedings of the ACL 2010 conference short papers</em>. 2010.&#x3D;&#x3D;citations：588</p>
+            <h1 id="端到端合成论文——声学模型——FastSpeech"><a href="#端到端合成论文——声学模型——FastSpeech" class="headerlink" title="端到端合成论文——声学模型——FastSpeech"></a>端到端合成论文——声学模型——FastSpeech</h1><blockquote>
+<p>&#x3D;&#x3D;Ren, Yi, et al. “Fastspeech: Fast, robust and controllable text to speech.” <em>Advances in Neural Information Processing Systems</em> 32 (2019).&#x3D;&#x3D;citations：575 浙大和微软</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/ming024/FastSpeech2">https://github.com/ming024/FastSpeech2</a></p>
+<p>试听音频：<a target="_blank" rel="noopener" href="https://speechresearch.github.io/fastspeech/">https://speechresearch.github.io/fastspeech/</a></p>
 </blockquote>
-<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>输出质量总是可以通过使用更多的语言模型训练数据来提高，这似乎是一个普遍的真理，但前提是训练数据与期望的输出相当匹配。</p>
-<p>结合领域数据和其他数据构建LM的常规方法：</p>
-<p>1）领域数据和其他数据结合训练LM；</p>
-<p>2）基于领域数据和其他数据的ngram count来结合（加权这个count）；</p>
-<p>2）领域LM和其他LM做权重的combine，（线性或log线性的）插值LM概率；</p>
-<p>机器翻译的模型的训练数据的常规做法是用尽可能多的数据，并依赖于特征权重优化来降低与翻译应用程序匹配较差的数据的影响。</p>
-<p>本文从数据入手，挑出领域的数据。</p>
-<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><p>主要方法是利用交叉熵原理，已有一个语料的文本分布，我们通过交叉熵去找跟这个语料的文本分布相近的文本，从而找到匹配的文本语料。</p>
-<p>前提假设：有足够多的领域数据来训练领域语言模型，用该模型来帮助对来自其他数据源的文本片段进行打分，并基于对域内数据进行优化的打分临界值score cutoff来选择文本片段，based on a score cutoff optimized on held-out in-domain data.  </p>
-<p>基于困惑度阈值的文本选择等价于基于交叉熵阈值的文本选择（困惑度和交叉熵是单调相关的）；LM记为M，文本片段记为s，困惑度为 $\large b^{H_M(s)}$，其中 $H_M(s)$ 是交叉熵，b是bits或nats的单位，比如10、e；</p>
 <ul>
-<li>打分原则：$H_I(s) - H_N(s)$</li>
+<li><p>解决什么问题</p>
+<p>相比于拼接和统计参数的合成方法，神经网络的端到端合成方法的有几个问题：</p>
+<ul>
+<li><ol>
+<li><strong>推理过程中mel谱生成的速度慢</strong>，这是因为mel谱产生是自回归方式；</li>
+</ol>
+</li>
+<li><ol start="2">
+<li><strong>合成语音不够鲁棒</strong>（一些词会跳读、重复读），这是因为error会传播、text和语音之间错误的attention alignments；</li>
+</ol>
+</li>
+<li><ol start="3">
+<li><strong>缺少可控性</strong>（语速控制或韵律控制），这是因为自回归的方法一帧帧生成mel谱，没有利用整条文本和整条语音之间的对齐关系；</li>
+</ol>
+</li>
 </ul>
-<p>其中 ：$H_I(s)$：领域数据集I训练的模型I，对文本片段s的交叉熵  ；$H_N(s)$：领域外文本集N训练的模型N，对文本片段s的交叉熵 （s是领域外文本集N的一个片段）</p>
-<p>差值作为分数，把分数小于阈值的挑出来，作为领域数据；</p>
-<p>其中，$H_I(s)&#x3D;-\frac{logP_I(s)}{S}$ ，S是文本s长度</p>
-<p>$\large log_{10}ppl&#x3D;交叉熵&#x3D;H(s)$</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ferb's 学习博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/" itemprop="url">语言模型 自回归</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-22T00:00:00+08:00">
-                2022-07-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">语言模型</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="语言模型-自回归"><a href="#语言模型-自回归" class="headerlink" title="语言模型 自回归"></a>语言模型 自回归</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://github.com/DengBoCong/nlp-paper">https://github.com/DengBoCong/nlp-paper</a></p>
-<p><a target="_blank" rel="noopener" href="https://github.com/infinitylogesh/mutate">https://github.com/infinitylogesh/mutate</a></p>
-</blockquote>
+</li>
+<li><p>用了什么方法</p>
+<ul>
+<li><p>以文本和语音是单调对齐作为出发点，提出一种输入文本（音素）序列，<strong>非自回归</strong>产生mel谱序列的方法（并行），解决了上面的问题1；</p>
+</li>
+<li><p>为了解决音素序列和mel谱序列不等长问题，根据每个音素的时长对相应的mel谱进行上采样，来扩大mel谱长度；调整每个音素时长length regulator的基础是音素时长预测器，它预测每个音素的时长；<strong>Phoneme duration predictor</strong> 和之前的 attention alignments一旦不好就会影响合成质量 很不同，因此解决了上面的问题2；</p>
+</li>
+<li><p>通过调整length regulator，很容易调整语速，还可以通过在相邻音素之间添加break来控制部分韵律，解决了上面的问题3；</p>
+</li>
+</ul>
+</li>
+<li><p>效果如何</p>
+<ul>
+<li>该并行模型在语音质量方面与自回归模型相匹配，几乎消除了特别困难情况下的跳过和重复的问题，并能平稳地调整语音速度。</li>
+<li>主要特点是合成速度快，使得端到端语音合成快了38倍，是mel谱生成快了270倍，因此叫 FastSpeech；</li>
+</ul>
+</li>
+<li><p>存在什么问题</p>
+<ul>
+<li>根据时长直接复制特征扩展特征长度，会不会一个音素的时长里特征都是一模一样的？</li>
+<li>要额外训练一个教师模型，比较耗时；</li>
+<li>从教师模型抽取的时长信息不是一定准确的；</li>
+<li>因为是用的模型蒸馏，教师模型生成的语音mel谱作为target，因为不是用真实音频提取的mel谱，因此丢失了一些音高、能量、韵律等变化信息，比训练数据中用真实音频相比简单得多，多样性也少得多。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><h3 id="Non-Autoregressive-Sequence-Generation"><a href="#Non-Autoregressive-Sequence-Generation" class="headerlink" title="Non-Autoregressive Sequence Generation"></a>Non-Autoregressive Sequence Generation</h3><p>非自回归序列生成的应用：</p>
+<p>neural machine translation  ：</p>
 <blockquote>
-<p>&#x3D;&#x3D;Sarzynska-Wawer, Justyna, et al. “Detecting formal thought disorder by deep contextualized word representations.” <em>Psychiatry Research</em> 304 (2021): 114135.&#x3D;&#x3D; citations：10182</p>
-<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/102091595">Deep contextualized word representations [文献阅读笔记]</a></p>
-<p><a target="_blank" rel="noopener" href="https://sh-tsang.medium.com/review-elmo-deep-contextualized-word-representations-8eb1e58cd25c">https://sh-tsang.medium.com/review-elmo-deep-contextualized-word-representations-8eb1e58cd25c</a></p>
+<p>Jiatao Gu, James Bradbury, Caiming Xiong, Victor OK Li, and Richard Socher. Non-autoregressive neural machine translation. arXiv preprint arXiv:1711.02281, 2017.  </p>
+<p>Junliang Guo, Xu Tan, Di He, Tao Qin, Linli Xu, and Tie-Yan Liu. Non-autoregressive neural machine translation with enhanced decoder input. In AAAI, 2019.  </p>
+<p>Yiren Wang, Fei Tian, Di He, Tao Qin, ChengXiang Zhai, and Tie-Yan Liu. Non-autoregressive machine translation with auxiliary regularization. In AAAI, 2019  </p>
 </blockquote>
-<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>提出一种新的深度上下文词表示（word embedding），能够建模</p>
+<p>audio synthesis  ：</p>
+<blockquote>
+<p>Aaron van den Oord, Yazhe Li, Igor Babuschkin, Karen Simonyan, Oriol Vinyals, Koray Kavukcuoglu, George van den Driessche, Edward Lockhart, Luis C Cobo, Florian Stimberg, et al. Parallel wavenet: Fast high-fidelity speech synthesis. arXiv preprint arXiv:1711.10433, 2017.  </p>
+<p>Wei Ping, Kainan Peng, and Jitong Chen. Clarinet: Parallel wave generation in end-to-end text-to-speech. In International Conference on Learning Representations, 2019.  </p>
+<p>Ryan Prenger, Rafael Valle, and Bryan Catanzaro. Waveglow: A flow-based generative network for speech synthesis. In ICASSP 2019-2019 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), pages 3617–3621. IEEE, 2019.  </p>
+</blockquote>
+<p>上面都是在推理阶段用非自回归，但是训练阶段还是自回归；</p>
+<p>非自回归vocoder：</p>
+<blockquote>
+<p>Parallel WaveNet [16]</p>
+<p>ClariNet [18] </p>
+<p>WaveGlow [20]   </p>
+</blockquote>
+<p>这些方法输入mel谱到输出waveform过程是并行的（非自回归），但是由于生成mel谱过程是自回归的，因此总的来说还是自回归的；</p>
+<p>完全非自回归的：</p>
+<blockquote>
+<p>Kainan Peng, Wei Ping, Zhao Song, and Kexin Zhao. Parallel neural text-to-speech. arXiv preprint arXiv:1905.08459, 2019.  </p>
+</blockquote>
+<p>这个和fastspeech一样都是完全自回归的，但是参数量比fastspeech大，因此推理速度没fastspeech快；</p>
+<h2 id="FastSpeech模型结构"><a href="#FastSpeech模型结构" class="headerlink" title="FastSpeech模型结构"></a>FastSpeech模型结构</h2><p>用了教师模型（相当于蒸馏）模型较小；</p>
+<p>训练和推理都是非自回归生成mel谱，mel谱到waveform也是并行的（非自回归）；</p>
+<p>模型总体结构：</p>
+<p>由FFT层、时长规整器、FFT、线性层堆叠而来，结构相比于tacotron来说简单很多，没有用到RNN，只有attention+conv就足够！</p>
+<p>FFT是先attention再conv；dutation predictor是只用conv；</p>
+<p>时长预测器比较巧妙，我们不知道音素实际时长groundtruth，可能可以通过识别方法获得，但是文章采用的是一个attention-based的合成模型获得，去学习音素和谱的时长关系，然后直接把特征复制几份，扩展特征长度了；</p>
+<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(4)/image-20221109181229366.png"></p>
+<h3 id="Feed-Forward-Transformer"><a href="#Feed-Forward-Transformer" class="headerlink" title="Feed-Forward Transformer"></a>Feed-Forward Transformer</h3><p>每个FFT Block组成：音素embedding输入 👉 multi-head attention 👉 conv 1D 👉 输出（最后是mel谱输出）</p>
+<p>多个FFT Block串联起来；</p>
+<p>multi-head attention作用：抽取cross-position information，抽取不同位置之间的关系信息；</p>
+<p>使用卷积的原因是：在语音任务中，相邻hidden state的字符&#x2F;音素和mel-谱图序列中很相关。</p>
+<h3 id="Length-Regulator"><a href="#Length-Regulator" class="headerlink" title="Length Regulator"></a>Length Regulator</h3><p>输入不同音素时长，复制对应帧数那么多份的变换函数</p>
+<p>length regulator  $\mathcal{L} \mathcal{R}$ 表示为：<br>$$<br>\mathcal{H}<em>{m e l}&#x3D;\mathcal{L} \mathcal{R}\left(\mathcal{H}</em>{p h o}, \mathcal{D}, \alpha\right)<br>$$<br>举例：音素序列的隐状态为 $$\mathcal{H}_{p h o}&#x3D;\left[h_1, h_2, h_3, h_4\right]$$  ，</p>
 <ol>
-<li>复杂的语意和语法信息。(比如 句法和语义)  ；</li>
-<li>同样的词在不同的语境中含义差距比较大， 所谓一词多义的情况。</li>
+<li><p>在没有加速减速(normal speed) 的情况下（$\alpha &#x3D; 1$ ）：对应的音素持续时长序列为 $$\mathcal{D}&#x3D;[2,2,3,1]$$（所有持续时长加起来的和等于mel谱序列长度），扩展序列 $\mathcal{H}_{m e l}$ 变成$$\left[h_1, h_1, h_2, h_2, h_3, h_3, h_3, h_4\right]$$；</p>
+</li>
+<li><p>在减速（slow speed）情况下（$\alpha&#x3D;1.3$）：对应的音素持续时长序列为 $$\mathcal{D}_{\alpha&#x3D;1.3}&#x3D;[2.6,2.6,3.9,1.3] \approx [3,3,4,1]$$ ，扩展序列变成 $$\left[h_1, h_1, h_1, h_2,h_2, h_2, h_3, h_3,h_3,h_3, h_4\right]$$；</p>
+</li>
+<li><p>在加速（fast speed）情况下（$\alpha&#x3D;0.5$）：对应的音素持续时长序列为 $$\mathcal{D}_{\alpha&#x3D;0.5}&#x3D;[1,1,1.5,0.5] \approx[1,1,2,1]$$，扩展序列变成 $$\left[h_1, h_2, h_3, h_3, h_4\right]$$；</p>
+</li>
 </ol>
-</li>
-<li><p>提出 <strong>ELMo (Embeddings from Language Models)</strong> 表示，它并不是学习上下文词向量的方法，而是学习一个网络（biLM）函数，使用bidirectional LSTM 使用包含上下文的整个句子作为语句进行训练和建模；</p>
-</li>
-<li><p>其高level隐层节点捕捉上下文相关的词义（可以用在语义消歧任务，直接用这部分特征），低level隐层节点捕捉语法的各个方面进行建模（可以用在词性标记）；</p>
-<p>我的理解是低level特征更容易捕捉输入的很小范围之间的不同之处，高level特征更容易捕捉上下文，较大范围之间的不同之处（小范围内的不敏感了）</p>
-</li>
-<li><p>模型特点：（1）深度很深（2）每一层学到的信息可以进行线性组合来适用于不同的下游任务。</p>
-</li>
-<li><p>效果：下游任务为nlp的六个任务，都是SOTA；</p>
-</li>
-<li><p>ELMo 中 biLM 不同层输出可根据不同的下游任务进行组合。 比如说对于输入序列中的一个词，使用L层的biLM模型映射后就得到一组2L+1种的映射组合：</p>
-<p>$\begin{aligned} R_k &amp;&#x3D;\left{\mathbf{x}<em>k^{L M}, \overrightarrow{\mathbf{h}}</em>{k, j}^{L M}, \overleftarrow{\mathbf{h}} \frac{L M}{k, j} \mid j&#x3D;1, \ldots, L\right} \ &amp;&#x3D;\left{\mathbf{h}_{k, j}^{L M} \mid j&#x3D;0, \ldots, L\right} \end{aligned}$</p>
-</li>
-<li><p>表达式为：其中j是不同layer，k是不同token position，s是softmax-normalized weights ，$\gamma$是缩放参数；每层后接layer norm；</p>
-<p>$\mathbf{E} \mathbf{L M} \mathbf{o}<em>k^{\text {task }}&#x3D;E\left(R_k ; \Theta^{\text {task }}\right)&#x3D;\gamma^{\text {task }} \sum</em>{j&#x3D;0}^L s_j^{\text {task }} \mathbf{h}_{k, j}^{L M}$</p>
-</li>
-<li><p>ELMo 的预训练模型结构基本就是一个两层的biLSTM, 每一层包含4096个unit， 每个词会被映射为512维的向量。 特殊的点是在一层和二层之间增加了残差连接。 一旦预训练模型训练好后就可以直接计算词向量用于下游任务，或者进行 fine-tuned用于下游任务。</p>
-</li>
-<li><p>训练ELMo就也可以当语言模型来训练，拿它的输出来用做语言模型也是可以的；</p>
-</li>
-</ul>
-<h3 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h3><ul>
-<li>双向biLSTM，使用独立训练的从左到右和从右到左lm的浅级联</li>
-<li>目标函数：分别以$\large P(w_i|w_1,…,w_{i-1})$ 和 $\large P(w_i|w_{i+1},…,w_n)$ 作为目标函数，独立训练两个representation然后拼接</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Howard, Jeremy, and Sebastian Ruder. “Universal language model fine-tuning for text classification.” <em>arXiv preprint arXiv:1801.06146</em> (2018).&#x3D;&#x3D; citations：2702</p>
-<p>开源预训练模型和代码：<a target="_blank" rel="noopener" href="http://nlp.fast.ai/ulmfit">http://nlp.fast.ai/ulmfit</a></p>
-<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/42618178">NLP之语言模型和迁移学习</a></p>
-</blockquote>
-<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>提出一种通用的语言模型，微调语言模型来适应下游任务，称为 <strong>Universal Language Model Fine-tuning (ULMFiT)</strong>  ，一种有效的迁移学习方法；</p>
-</li>
-<li><p>提出保留以前的知识，避免在微调时遗忘原本知识的方法：称为 区分式微调、斜的三角学习率、逐渐冻结。。？discriminative fine-tuning，slanted triangular learning rates, and gradual unfreezing</p>
-</li>
-<li><p>相关工作：</p>
-<ul>
-<li>CV领域里的迁移学习：近几年finetune的一种方法是微调预训练模型的最后一&#x2F;几层，前面层参数不变，来达到下游任务目的；</li>
-<li>NLP领域里的迁移学习：预训练模型通过其他任务捕获额外上下文的embedding。然后，不同层次的embedding被用作特征，与单词embedding或中间层的输入连接，来达到下游任务目的；该方法称为 <strong>hypercolumns</strong>  </li>
-<li>Multi-task learning ：语言模型作为目标函数之一，和主任务一起联合训练，多任务学习 ；但是MTL每次都要求从头开始训练任务，这使得它效率低下，并且经常需要仔细权衡任务特定的目标函数；</li>
-<li>Fine-tuning  ：在语言模型上进行微调，但是如果微调训练数据少，容易过拟合，数据量大，又不容易有那么多数据；</li>
-</ul>
-</li>
-<li><p>ULMFiT：分为三个步骤：</p>
+<p>可以通过调整空格字符的持续时长，来调整单词之间的停顿。比如增加单词间的停顿，就在音素持续时长序列里增加空格这个字符的持续时长，这样子很容易就能调整发音波形的韵律了！</p>
+<h3 id="Duration-Predictor"><a href="#Duration-Predictor" class="headerlink" title="Duration Predictor"></a>Duration Predictor</h3><p>预测时长和标签时长之间的均方误差作为loss之一，预测的时长是取log的时长；</p>
+<p>标签时长来自于自回归的教师模型；</p>
 <ol>
-<li>预训练通用领域的LM；</li>
-<li>target task LM fine-tuning；（该步骤运用的trick：Discriminative fine-tuning、Slanted triangular learning rates）</li>
-<li>target task下游任务fine-tuning；只更新后接层的参数，前面层参数冻结；（该步骤运用的trick：Discriminative fine-tuning、Slanted triangular learning rates、gradual unfreezing）</li>
+<li><p>首先先训练一个自回归的encoder-attention-decoder TTS模型</p>
+</li>
+<li><p>得到attention alignment</p>
+<p>decoder和encoder之间用attention连接，这个attention是multi-head attention，不是每个head都能有好的alignement，因此对多头里的每个头都计算attention alignment，选一个focus fate最大的作为对齐序列；</p>
+<p>这里把注意力对齐效果好坏（对齐结果越接近对角线越好） 用focus rate $F$来表示：$$F&#x3D;\frac{1}{S} \sum_{s&#x3D;1}^S \max <em>{1 \leq t \leq T} a</em>{s, t}$$</p>
+<p>其中，$S$是标签谱的时长，$T$是音素的时长，$\alpha_{s,t}$ 是注意力矩阵里第$s$行（谱），第$t$列（音素）的元素；注意力矩阵横坐标是decoder的谱（帧），纵坐标是encoder的音素序列，每次遍历音素序列，找到第s帧对应注意力最大值的音素，认为是该帧的音素，然后遍历所有帧，就能得到每一帧对应的音素，以及平均注意力值，叫做focus rate；（理想情况，一般在注意力矩阵作图看上去像对角线）</p>
+</li>
+<li><p>得到attention alignments之后，可以通过抽取每个音素的时长 $d_i&#x3D;\sum_{s&#x3D;1}^S[\arg \max_t\alpha_{s,t}&#x3D;i]$，因此得知音素序列持续时长 phoneme duration sequence $$\mathcal{D}&#x3D;[d_1,d_2,…,d_n]$$ 。一个音素的持续时间是根据上述步骤中选择的注意头关注到它的mel-谱图的数量。</p>
+</li>
 </ol>
-</li>
-</ul>
-<img src="image-20220615151145845.png" alt="image-20220615151145845" style="zoom: 67%;" />
-
-
-
-<ul>
-<li><p>文章提出了一些finetune种的训练方法（trick）：</p>
-<ul>
-<li><p><strong>Discriminative fine-tuning</strong>：（不是鉴别性训练），因为不同层提取的特征不同，所以给不同层不同的学习率是比较合适的；经验：finetune时最后一层学习率$\gamma$，其他层学习率$\gamma&#x2F;2.6$，（其他层学习率小一点，最后一层学习率大一点）；</p>
-</li>
-<li><p><strong>Slanted triangular learning rates</strong>  ：因为希望模型尽快收敛，所以修改不同迭代数时的学习率，先增后减；（这个和我之前的想法一样啊，我也觉得finetune需要先增加学习率，训练得比较好，再减小学习率）</p>
-<p>学习率的表示为：T为迭代数，经验：cut_frac &#x3D; 0.1, ratio &#x3D; 32 ，ηmax &#x3D; 0.01；</p>
-<p>和 aggressive cosine annealing 的学习率策略 有点像</p>
-<img src="image-20220615155537958.png" alt="image-20220615155537958" style="zoom:80%;" />
-
-<img src="image-20220615155458044.png" alt="image-20220615155458044" style="zoom:80%;" />
-</li>
-<li><p><strong>Gradual unfreezing</strong> ：应用于下游任务，因为怕遗忘之前LM的能力，因此从最后一层开始更新模型参数，逐渐往前面层更新，这是基于最后一层学到的知识最少的假设；逐渐解冻；这类似于chain-thaw (Felbo et al., 2017)</p>
-</li>
-<li><p><strong>BPTT for Text Classification (BPT3C)</strong>   ：为了在large documents上进行模型精调，作者将文档分为固定长度为b的batches，并在每个batch训练时记录mean和max池化，梯度会被反向传播到对最终预测有贡献的batches。(Merity et al., 2017a)；【？？】</p>
-</li>
-</ul>
-</li>
-<li><p>本文的下游任务是文本分类任务，因此第三步是在第二步的LM后接一个分类linear层，因为输入给线性层是多个词，因此取最后一个输出特征，和maxpooling和meanpooling的输出特征，concat作为总的特征，再接一个linear输出：</p>
-<p>$\mathbf{h}_c&#x3D;\left[\mathbf{h}_T, \operatorname{maxpool}(\mathbf{H})\right., \operatorname{meanpool} \left.(\mathbf{H})\right]$</p>
-</li>
-</ul>
-<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><ul>
-<li>用预训练语言模型AWD-LSTM  (Merity et al.,2017a)</li>
-</ul>
-<h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><p><strong>优点</strong>：</p>
-<p>对比其他迁移学习方法（ELMo）更适合以下任务：</p>
-<ul>
-<li><p>非英语语言，有标签训练数据很少</p>
-</li>
-<li><p>没有state-of-the-art模型的新NLP任务</p>
-</li>
-<li><p>只有部分有标签数据的任务</p>
-</li>
-</ul>
-<p><strong>缺点</strong>：</p>
-<ul>
-<li>对于分类和序列标注任务比较容易迁移，对于复杂任务（问答等）需要新的精调方法。</li>
-<li>模型用的LSTM，对于长距离的输入捕捉不好；</li>
-</ul>
+<h3 id="loss-function"><a href="#loss-function" class="headerlink" title="loss function"></a>loss function</h3><p>loss1：预测的时长和教师target的时长之间的mse loss；</p>
+<p>loss2：mel谱的，是教师模型（teacher模型）预测的mel谱作为fastspech模型（student模型）的target；（模型蒸馏）</p>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>todo</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>用了很特别的方法来解决文本和音频长度不匹配的问题，不是用自回归的，也许我们可能可以想到用一个时长预测器，来复制特征以扩大特征长度，但是用attention来对齐获得时长的方法还是比较巧妙。FastSpeech最巧妙的是时长预测器，我们不知道音素实际时长groundtruth，可能可以通过识别方法获得，但是文章采用的是一个attention-based的合成模型获得，去学习音素和谱的时长关系，然后直接把特征复制几份，扩展特征长度了；</p>
 <hr>
 <blockquote>
-<p>&#x3D;&#x3D;Radford, Alec, et al. “Improving language understanding by generative pre-training.” (2018).&#x3D;&#x3D;citations：3533 OpenAI</p>
+<p>&#x3D;&#x3D;Ren, Yi, et al. “Fastspeech 2: Fast and high-quality end-to-end text to speech.” <em>arXiv preprint arXiv:2006.04558</em> (2020).&#x3D;&#x3D;citations：481 浙大和微软</p>
+<p>试听音频：<a target="_blank" rel="noopener" href="https://speechresearch.github.io/fastspeech2">https://speechresearch.github.io/fastspeech2</a></p>
 </blockquote>
-<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><ul>
-<li>无标注数据多，过去研究发现即使在有相当多的监督可用的情况下，以无监督的方式学习良好的表示也可以提供显著的性能提升（代表研究：词向量）。</li>
-<li>利用无标注文本有两个挑战：<ol>
-<li>目前还不清楚哪种优化目标，在学习对迁移有用的文本表示时，最有效；可能是语言模型，也可能是机器翻译等等（来自<a target="_blank" rel="noopener" href="https://gluebenchmark.com/leaderboard">https://gluebenchmark.com/leaderboard</a>  ）</li>
-<li>对于如何最有效地将这些学习到的表征迁移到目标任务上，目前还没有达成共识。（现有的方案有：对模型进行target任务的更改；使用复杂的学习方案；添加辅助学习目标）</li>
-</ol>
-</li>
-</ul>
-<h3 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>提出Generative Pre-Training (GPT)，通过对不同corpus上的无标注文本训练生成式预训练语言模型，该语言模型能提高下游任务模型能力；</li>
-<li>微调中使用task-aware input transformations ，实现对模型最小的改动下，得到最佳的迁移效果；</li>
-<li>探索了一种半监督语言理解任务的方法，使用无监督的预训练和有监督的微调相结合。</li>
-<li>目标是学习一种通用的表示法，这种表示法几乎不需要适应广泛的任务，就能迁移？</li>
-<li>target task的corpus和预训练的unlabeled的corpus不在一个领域，也可以，比如英文的预训练模型，中文的LM任务；</li>
-<li><strong>Semi-supervised learning for NLP</strong> NLP中的半监督学习 ：一般是用无标注文本学习word embedding；词级别</li>
-<li><strong>Unsupervised pre-training</strong>  ：其目标是找到一个好的初始化点，而不是修改监督学习目标，作为后续任务的初始模型；预训练作用类似正则化，使模型有更好的泛化性；</li>
-<li><strong>Auxiliary training objectives</strong>  ：添加辅助无监督训练目标是半监督学习的另一种形式；</li>
-</ul>
-<h3 id="框架方法"><a href="#框架方法" class="headerlink" title="框架方法"></a>框架方法</h3><ul>
-<li>采用了两个步骤：1. 用无标注文本训练一个预训练LM（Unsupervised pre-training ）；2. 用有监督数据将预训练模型迁移到下游任务中（Supervised  fine-tuning）；</li>
-<li>迁移过程，用task-specific input adaptations derived from traversal-style approaches  ？？</li>
-<li><strong>Unsupervised pre-training  ：</strong>语言模型loss function为路径概率，为在前k个token发生时当前token发生的概率的乘积；</li>
-</ul>
-<img src="image-20220615194546564.png" alt="image-20220615194546564" style="zoom:80%;" />
-
 <ul>
-<li><strong>Supervised fine-tuning</strong>  ：</li>
+<li>解决什么问题<ul>
+<li>解决one-to-many mapping问题中存在的问题；</li>
+<li>自回归TTS唯一的输入信息是文本，这不足以完全预测语音中的方差。在这种情况下，模型容易对训练集中目标语音的变化进行过拟合，导致泛化能力较差。（语音太复杂 变化，只输入文本容易过拟合）</li>
 </ul>
-<img src="image-20220615195255249.png" alt="image-20220615195255249" style="zoom:80%;" />
-
-<p>​	将语言建模作为微调的辅助目标有助于(a)改进监督模型的泛化，(b)加快收敛速度。</p>
-<h3 id="模型结构-1"><a href="#模型结构-1" class="headerlink" title="模型结构"></a>模型结构</h3><ul>
-<li>transformer</li>
+</li>
+<li>用了什么方法<ul>
+<li>提出<strong>fastspeech2</strong>模型，直接用ground-truth目标训练时长模型（fastspeech1是用教师模型）；</li>
+<li>不仅只预测时长duration（时长预测器），还训练了pitch 预测器、energy预测器。推理时，模型预测出波形的duration、pitch、energy，使得生成的语音波形更真实；</li>
+<li>提出fastspeech 2s模块，训练中有一个分支是直接输出波形的，（不使用mel-谱图作为中间输出），在推理中直接从文本生成语音波形，推理延迟低。</li>
 </ul>
-<img src="image-20220615195439608.png" alt="image-20220615195439608" style="zoom:80%;" />
+</li>
+<li>效果如何<ul>
+<li>通过简化训练pipeline，训练比fastspeech快三倍；推理比fastspeech更快；</li>
+<li>音质超过fastspeech、也超过自回归方法的合成模型；</li>
+<li>解决了TTS中的一对多映射问题，实现了更好的语音质量；</li>
+<li>fastspeech 2s 更进一步简化推理pipeline，直接从text产生waveform；</li>
+</ul>
+</li>
+<li><h2 id="存在什么问题"><a href="#存在什么问题" class="headerlink" title="存在什么问题"></a>存在什么问题</h2></li>
+</ul>
+<h2 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h2><p>总体结构很简单，输入是<strong>音素序列</strong>，做embedding，然后encoder抽取高级特征，经过提取不同特征的模块variance adaptor，于positional encoding相加，经过decoder，输出波形和mel谱；</p>
+<p>输出不仅输出mel谱，同时也送入waveform decoder输出波形，这个模块称为FastSpeech 2s，在推理阶段就直接用这里的输出波形，使得合成速度很快，推理延迟低；</p>
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(4)/image-20221110112621377.png" alt="image-20221110112621377" style="zoom:67%;">
 
-<h3 id="优缺点-1"><a href="#优缺点-1" class="headerlink" title="优缺点"></a>优缺点</h3><p><strong>优点</strong>：</p>
-<ol>
-<li>循环神经网络所捕捉到的信息较少，而Transformer可以捕捉到更长范围的信息。</li>
-<li>计算速度比循环神经网络更快，易于并行化</li>
-<li>实验结果显示Transformer的效果比ELMo和LSTM网络更好</li>
+<h3 id="Encoder"><a href="#Encoder" class="headerlink" title="Encoder"></a>Encoder</h3><p>feed-forward Transformer block，就是self-attention和1D-conv的结构堆好几层；</p>
+<h3 id="Variance-adaptor"><a href="#Variance-adaptor" class="headerlink" title="Variance adaptor"></a>Variance adaptor</h3><p>由duration predictor、pitch predictor、energy predictor组成，对input分别抽取三类信息，然后再特征相加，相当于把input分离出它的某些特征分量，重视了这些特征，然后得到一个很容易就能起作用的特征，相当于人为帮带有冗余信息的input提了有用的稀疏特征；</p>
+<h3 id="duration-predictor"><a href="#duration-predictor" class="headerlink" title="duration predictor"></a>duration predictor</h3><p>音素持续时长的标签来自于强制对齐（识别方法），这比用attention map得到的更准；</p>
+<h3 id="pitch-predictor"><a href="#pitch-predictor" class="headerlink" title="pitch predictor"></a>pitch predictor</h3><p>prosody中pitch特征很重要，考虑到时间轴一长，pitch变化很大，使用连续小波变换将pitch轮廓转换为pitch谱图，并且在频域里预测；</p>
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>核心在于用了一些“物理”特征，先验地认为这几个物理量和合成效果最相关，然后训练这几个物理量的生成器，结果产生了很不错的效果；说明合成也许就和这几个物理量最相关，这几个物理量生成得好，合成效果自然就好；</p>
+<p>这几个物理量和合成最相关也许之前的研究者也很清楚，但是都没怎么用到，输入的只有文本，标签只有音频，让模型自己训，fastspeech2有点像是减轻模型工作量的思路，减轻模型训练的难度，先提取一些分别的物理量，让模型去训练，各个模块都有点分开的意思，再得到一个总体的模型；</p>
+<p>因此，从这个角度出发，如果能找到这几个物理量哪些性质对于合成韵律最重要，进一步抽取这些性质，也许能进一步减轻模型训练的难度；比方说pitch的变化大？短时周期性？等等，看看哪一个性质对韵律影响最大，进一步分别抽取，也许能合成出更好的音质；</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%20vector/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ferb's 学习博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20vector/" itemprop="url">C++ vector</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
+                2022-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>C++ vector</p>
+<h2 id="新建vector数组"><a href="#新建vector数组" class="headerlink" title="新建vector数组"></a>新建vector数组</h2><ol>
+<li><p>已知内容：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">vector&lt;<span class="type">int</span>&gt; a = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>&#125;;</span><br><span class="line"><span class="comment">// 注意，不是[1,2,3,4,5]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 或者</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> i[<span class="number">6</span>] = &#123;<span class="number">6</span>,<span class="number">1</span>,<span class="number">3</span>,<span class="number">2</span>,<span class="number">4</span>,<span class="number">7</span>&#125;;</span><br><span class="line"><span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">a</span><span class="params">(i,i+<span class="number">6</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化固定长度，初值为0</span></span><br><span class="line"><span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">vec</span><span class="params">(k, <span class="number">0</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化固定长度，无初值</span></span><br><span class="line"><span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">vec</span><span class="params">(k)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>不知道长度，每次用push进去</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vector&lt;<span class="type">int</span>&gt; a;</span><br><span class="line">a.<span class="built_in">push_back</span>(<span class="number">1</span>);</span><br><span class="line">a.<span class="built_in">push_back</span>(<span class="number">2</span>);</span><br></pre></td></tr></table></figure></li>
 </ol>
-<p><strong>缺点</strong>：</p>
-<p>对于某些类型的任务需要对输入数据的结构作调整</p>
-<h3 id="适用任务"><a href="#适用任务" class="headerlink" title="适用任务"></a>适用任务</h3><ul>
-<li>Natural Language Inference</li>
-<li>Question Answering and commonsense reasoning</li>
-<li>Classification</li>
-<li>Semantic Similarity</li>
+<h2 id="新建二维vector数组"><a href="#新建二维vector数组" class="headerlink" title="新建二维vector数组"></a>新建二维vector数组</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vector&lt;vector&lt;<span class="type">int</span>&gt;&gt; <span class="built_in">visited</span>(h, <span class="built_in">vector</span>&lt;<span class="type">int</span>&gt;(w));</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="得到vector最后一个元素"><a href="#得到vector最后一个元素" class="headerlink" title="得到vector最后一个元素"></a>得到vector最后一个元素</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">merged.<span class="built_in">back</span>()</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="计数"><a href="#计数" class="headerlink" title="计数"></a>计数</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// vector中0的个数</span></span><br><span class="line"><span class="type">int</span> s1 = <span class="built_in">accumulate</span>(students.<span class="built_in">begin</span>(), students.<span class="built_in">end</span>(), <span class="number">0</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>​	</p>
+<h2 id="新建一个"><a href="#新建一个" class="headerlink" title="新建一个"></a>新建一个</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ret.<span class="built_in">push_back</span>(vector &lt;<span class="type">int</span>&gt; ());</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="在末尾添加元素"><a href="#在末尾添加元素" class="headerlink" title="在末尾添加元素"></a>在末尾添加元素</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ret.<span class="built_in">back</span>().<span class="built_in">push_back</span>(node-&gt;val);</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="切片、截取部分"><a href="#切片、截取部分" class="headerlink" title="切片、截取部分"></a>切片、截取部分</h2><p>取vector区间的元素<br>取数组{1, 4, 3, 2, 5}在[1, 3]区间的元素为{4, 3, 2}</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">std::vector&lt;<span class="type">int</span>&gt; v&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>&#125;; </span><br><span class="line"><span class="function">std::vector&lt;<span class="type">int</span>&gt; <span class="title">result</span><span class="params">(v.begin() + <span class="number">1</span>,v.begin() + <span class="number">3</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//————————————————</span></span><br><span class="line"><span class="comment">//版权声明：本文为CSDN博主「thisiszdy」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。</span></span><br><span class="line"><span class="comment">//原文链接：https://blog.csdn.net/thisiszdy/article/details/120086664</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>以下有点麻烦啊。。。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; Arrs &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>&#125;; </span><br><span class="line">    <span class="comment">// 假设有这么个数组,要截取第2个元素到第6个元素：2，3，4,5,6对应索引分别为 1，2，3,4,5</span></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt;::const_iterator First = Arrs.<span class="built_in">begin</span>() + <span class="number">1</span>;  <span class="comment">// 找到第  2 个迭代器 （idx=1）</span></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt;::const_iterator Second = Arrs.<span class="built_in">begin</span>() + <span class="number">6</span>; <span class="comment">// 找到第  6 个迭代器 （idx=5）的下一个位置 </span></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; Arr2;</span><br><span class="line">    Arr2.<span class="built_in">assign</span>(First,Second);  <span class="comment">// [First,Second)  左闭右开区间</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">auto</span> i : Arr2)&#123;</span><br><span class="line">        cout &lt;&lt; i&lt;&lt;<span class="string">&quot;--&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// ————————————————</span></span><br><span class="line"><span class="comment">// 版权声明：本文为CSDN博主「索隆啊」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。</span></span><br><span class="line"><span class="comment">// 原文链接：https://blog.csdn.net/qq_36758461/article/details/120059080</span></span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%20%E5%93%88%E5%B8%8C%E8%A1%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ferb's 学习博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20%E5%93%88%E5%B8%8C%E8%A1%A8/" itemprop="url">C++ 哈希表</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
+                2022-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="C-哈希表"><a href="#C-哈希表" class="headerlink" title="C++ 哈希表"></a>C++ 哈希表</h1><p>哈希表在 C++ 中用 unordered_set 数据结构表示</p>
+<p>是<code>C++</code> 中的 <code>std::unordered_set</code>，<code>Java</code> 中的 <code>HashSet</code>，<code>Python</code> 中的 <code>set</code>, <code>JavaScript</code> 中的 <code>Set</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unordered_set&lt;vector&lt;<span class="type">int</span>&gt;*&gt; a;</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unordered_map&lt;State, unordered_map&lt;CharType, State&gt;&gt; transfer&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%20%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ferb's 学习博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url">C++数据结构</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
+                2022-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="C-数据结构"><a href="#C-数据结构" class="headerlink" title="C++数据结构"></a>C++数据结构</h1><blockquote>
+<p>中文版：	<a target="_blank" rel="noopener" href="http://c.biancheng.net/view/7250.html">http://c.biancheng.net/view/7250.html</a>    、 <a target="_blank" rel="noopener" href="http://c.biancheng.net/">http://c.biancheng.net/</a> 、 <a target="_blank" rel="noopener" href="http://c.biancheng.net/algorithm">http://c.biancheng.net/algorithm</a></p>
+<p>官方中文版：<a target="_blank" rel="noopener" href="https://zh.cppreference.com/w/cpp/container/vector">https://zh.cppreference.com/w/cpp/container/vector</a></p>
+<p>英文版：<a target="_blank" rel="noopener" href="https://cplusplus.com/reference/unordered_set/unordered_set/">https://cplusplus.com/reference/unordered_set/unordered_set/</a>  、 <a target="_blank" rel="noopener" href="https://en.cppreference.com/w/cpp/container/vector">https://en.cppreference.com/w/cpp/container/vector</a></p>
+<p>教程：<a target="_blank" rel="noopener" href="https://labuladong.gitee.io/algo/%E3%80%81https://labuladong.github.io/algo/">https://labuladong.gitee.io/algo/、https://labuladong.github.io/algo/</a></p>
+<p><a target="_blank" rel="noopener" href="https://zerotrac.github.io/leetcode_problem_rating/#/">https://zerotrac.github.io/leetcode_problem_rating/#/</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/fuxuemingzhu/article/details/105183554">https://blog.csdn.net/fuxuemingzhu/article/details/105183554</a></p>
+</blockquote>
+<p>要用一些STL容器：<a target="_blank" rel="noopener" href="http://c.biancheng.net/stl/">http://c.biancheng.net/stl/</a></p>
+<p>​                </p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%AA%97%E5%8F%A3%E8%BE%93%E5%85%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ferb's 学习博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%AA%97%E5%8F%A3%E8%BE%93%E5%85%A5/" itemprop="url">C++ 命令行窗口输入</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
+                2022-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="C-命令行窗口输入"><a href="#C-命令行窗口输入" class="headerlink" title="C++ 命令行窗口输入"></a>C++ 命令行窗口输入</h1><blockquote>
+<p>参考leetcode的playground <a target="_blank" rel="noopener" href="https://leetcode.cn/playground/new/empty/">https://leetcode.cn/playground/new/empty/</a></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">stringToInteger</span><span class="params">(string input)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">stoi</span>(input);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    string line;</span><br><span class="line">    <span class="keyword">while</span> (<span class="built_in">getline</span>(cin, line)) &#123;</span><br><span class="line">        <span class="type">int</span> a = <span class="built_in">stringToInteger</span>(line);</span><br><span class="line">        <span class="built_in">getline</span>(cin, line);</span><br><span class="line">        <span class="type">int</span> b = <span class="built_in">stringToInteger</span>(line);</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> ret = <span class="built_in">Solution</span>().<span class="built_in">add</span>(a, b);</span><br><span class="line"></span><br><span class="line">        string out = <span class="built_in">to_string</span>(ret);</span><br><span class="line">        cout &lt;&lt; out &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/leetcode/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ferb's 学习博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/leetcode/" itemprop="url">leetcode刷题</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
+                2022-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="leetcode刷题"><a href="#leetcode刷题" class="headerlink" title="leetcode刷题"></a>leetcode刷题</h1><ul>
+<li><input disabled type="checkbox"> <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/counting-bits/">338. 比特位计数</a>  动态规划解法[TODO]</li>
+<li><input disabled type="checkbox"> <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/majority-element/">169. 多数元素</a> 很多种解法 [TODO]</li>
+<li><input disabled type="checkbox"> <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/next-permutation/">31. 下一个排列</a> 感觉还是比较难的，不保证完全掌握</li>
 </ul>
-<hr>
+<h2 id="题型汇总"><a href="#题型汇总" class="headerlink" title="题型汇总"></a>题型汇总</h2><ol>
+<li><p>&#x3D;&#x3D;对于这类寻找所有可行解的题，我们都可以尝试用「搜索回溯」的方法来解决。&#x3D;&#x3D;</p>
+<p>回溯法：一种通过探索所有可能的候选解来找出所有的解的算法。如果候选解被确认不是一个解（或者至少不是最后一个解），回溯算法会通过在上一步进行一些变化抛弃该解，即回溯并且再次尝试。</p>
+</li>
+</ol>
+<p>要学会用递归</p>
+<h3 id="相关题目有："><a href="#相关题目有：" class="headerlink" title="相关题目有："></a>相关题目有：</h3><h4 id="39-组合总和"><a href="#39-组合总和" class="headerlink" title="39. 组合总和"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/combination-sum/">39. 组合总和</a></h4><p>难度中等2209收藏分享切换为英文接收动态反馈</p>
+<p>给你一个 <strong>无重复元素</strong> 的整数数组 <code>candidates</code> 和一个目标整数 <code>target</code> ，找出 <code>candidates</code> 中可以使数字和为目标数 <code>target</code> 的 <em>所有</em> <strong>不同组合</strong> ，并以列表形式返回。你可以按 <strong>任意顺序</strong> 返回这些组合。</p>
+<p><code>candidates</code> 中的 <strong>同一个</strong> 数字可以 <strong>无限制重复被选取</strong> 。如果至少一个数字的被选数量不同，则两种组合是不同的。 </p>
+<p>对于给定的输入，保证和为 <code>target</code> 的不同组合数少于 <code>150</code> 个。</p>
+<h4 id="46-全排列"><a href="#46-全排列" class="headerlink" title="46. 全排列"></a><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/permutations/">46. 全排列</a></h4><p>难度中等2262</p>
+<p>给定一个不含重复数字的数组 <code>nums</code> ，返回其 <em>所有可能的全排列</em> 。你可以 <strong>按任意顺序</strong> 返回答案。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：nums = [1,2,3]</span><br><span class="line">输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：nums = [0,1]</span><br><span class="line">输出：[[0,1],[1,0]]</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 3：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：nums = [1]</span><br><span class="line">输出：[[1]]</span><br></pre></td></tr></table></figure>
+
+
+
+<p>（dfs：深度优先遍历）</p>
+<p><img src="/2022/11/14/%E7%AE%97%E6%B3%95/leetcode/image-20221018171006175.png" alt="image-20221018171006175"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%92%8C%E7%AE%80%E5%8D%95%E6%8E%92%E5%BA%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ferb's 学习博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%92%8C%E7%AE%80%E5%8D%95%E6%8E%92%E5%BA%8F/" itemprop="url">时间复杂度和简单排序</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
+                2022-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="时间复杂度和简单排序"><a href="#时间复杂度和简单排序" class="headerlink" title="时间复杂度和简单排序"></a>时间复杂度和简单排序</h1><p>2022.8.26</p>
 <blockquote>
-<p>&#x3D;&#x3D;Radford, Alec, et al. “Language models are unsupervised multitask learners.” <em>OpenAI blog</em> 1.8 (2019): 9.&#x3D;&#x3D;citations：3193</p>
-<p><a target="_blank" rel="noopener" href="https://zhpmatrix.github.io/2019/02/16/transformer-multi-task/">https://zhpmatrix.github.io/2019/02/16/transformer-multi-task/</a></p>
+<p>b站 算法大神左神（左程云）带你一周刷爆LeetCode，数据结构算法-leetcode真题解析 P2 </p>
 </blockquote>
-<h3 id="思路-3"><a href="#思路-3" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>提出GPT2.0</li>
+<h3 id="异或"><a href="#异或" class="headerlink" title="异或"></a>异或</h3><p>异或性质：</p>
+<ul>
+<li>0 ^ N &#x3D; N, N ^ N &#x3D; 0</li>
+<li>满足交换律、结合律 a ^ b &#x3D; b ^ a ， a ^ b ^ c &#x3D; a ^ (b ^ c)</li>
+<li>同一批数异或起来，无论顺序，结果相同</li>
 </ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Chronopoulou, Alexandra, Christos Baziotis, and Alexandros Potamianos. “An embarrassingly simple approach for transfer learning from pretrained language models.” <em>arXiv preprint arXiv:1902.10547</em> (2019).&#x3D;&#x3D;citations：88</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/alexandra-chron/siatl">https://github.com/alexandra-chron/siatl</a></p>
+<h4 id="swap交换"><a href="#swap交换" class="headerlink" title="swap交换"></a>swap交换</h4><p>异或可以用来交换两个变量的值</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a = a ^ b</span><br><span class="line">b = a ^ b</span><br><span class="line">a = a ^ b</span><br></pre></td></tr></table></figure>
+
+<p>（前提是 两个变量在内存里是两个独立区域）</p>
+<h1 id="快排"><a href="#快排" class="headerlink" title="快排"></a>快排</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/MOBIN/p/4681369.html">图解快速排序</a></p>
+<p>runoob <a target="_blank" rel="noopener" href="https://www.runoob.com/w3cnote/quick-sort-2.html">快速排序</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/quick-sort/">https://www.geeksforgeeks.org/quick-sort/</a></p>
+<p><a target="_blank" rel="noopener" href="http://data.biancheng.net/view/117.html">http://data.biancheng.net/view/117.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/MOBIN/p/4681369.html">https://www.cnblogs.com/MOBIN/p/4681369.html</a></p>
 </blockquote>
-<blockquote>
-<p>Larger-Scale Transformers for Multilingual Masked Language Modeling</p>
-</blockquote>
+<p>挖空，填空，</p>
+<p>从右到左，遇到比基准小的就往靠左的空位放，然后自己空出来；</p>
+<p>再从左到右，遇到比御准大的就往靠右的空位放，然后自己空出来；</p>
+<p>再一直执行上述两个步骤，直到不满足左指针&lt;右指针；</p>
+<p>感觉就是小的一直填在左边，大的也一直填在右边；</p>
+<p><img src="/2022/11/14/%E7%AE%97%E6%B3%95/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%92%8C%E7%AE%80%E5%8D%95%E6%8E%92%E5%BA%8F/v2-39daebea8336b763eb087e6410ee576b_r.jpg" alt="img"></p>
 
           
         
@@ -1411,6 +2057,10 @@
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+  </nav>
+
 
 
           </div>
@@ -1454,7 +2104,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">18</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1465,7 +2115,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
