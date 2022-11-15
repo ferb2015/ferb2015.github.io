@@ -1025,7 +1025,7 @@
 <img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/51e33547d077a96de000bf42d8c40e61.jpg" alt="img" style="zoom: 25%;">
 
 <p>分母图fst：可以理解成word 并联序列，只不过添加了sil（不是loop，不能重复走）</p>
-<p>![image-20211029145733035](Alignment free LF-MMI小结.assets&#x2F;image-20211029145733035.png)</p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/image-20211029145733035.png" alt="image-20211029145733035"></p>
 <h4 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h4><ul>
 <li>负样本进行了分块chunk，&#x3D;&#x3D;chunk长度和正样本差不多&#x3D;&#x3D;，	</li>
 <li>负样本后继chunk重叠0.3s，使得前一个chunk被截掉的单词有机会在后继chunk全词出现</li>
@@ -1057,7 +1057,7 @@
 <h4 id="在线解码"><a href="#在线解码" class="headerlink" title="在线解码"></a>在线解码</h4><ul>
 <li>解码FST：其实长得有点像分母图，不同之处在于是起始状态和终止状态在同一个结点，使得可以生成词串，比如生成word后还可以生成freetext，再生成word等等，文本串；而分母图要不然就走freetext，要不然就走word，不能都串行出现。</li>
 </ul>
-<p>![image-20211029150244872](Alignment free LF-MMI小结.assets&#x2F;image-20211029150244872.png)</p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/image-20211029150244872.png" alt="image-20211029150244872"></p>
 <ul>
 <li><p>在线解码：一个chunk一个chunk解码，每次解码了一个chunk后，就去更新immortal token和prev_immortal token（在所有active tok里找公共祖先（emitting[0]，或者说tokenOne），作为immortal tok，把前一次的immortal tok作为prevImmortal tok），每次在两个immortal tokens之间的路径寻找（backtrace）是否有唤醒词，实现了逐chunk搜索。</p>
 </li>
@@ -1067,11 +1067,11 @@
 <li><p>伪代码 online decoding：</p>
 </li>
 </ul>
-<p>![image-20211029144006785](Alignment free LF-MMI小结.assets&#x2F;image-20211029144006785.png)</p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/image-20211029144006785.png" alt="image-20211029144006785"></p>
 <ul>
 <li>更新immortal token，用于回溯</li>
 </ul>
-<p>![image-20211029144433677](Alignment free LF-MMI小结.assets&#x2F;image-20211029144433677.png)</p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/image-20211029144433677.png" alt="image-20211029144433677"></p>
 <h4 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h4><p>The code and recipes are available in Kaldi [24]: <a target="_blank" rel="noopener" href="https://github.com/kaldi-asr/kaldi/tree/master/egs/%7Bsnips,mobvoi,mobvoihotwords%7D">https://github.com/kaldi-asr/kaldi/tree/master/egs/{snips,mobvoi,mobvoihotwords}</a>.  </p>
 <p>本文中引入了一种不需要对齐（Alignment-free）、不需要词图的（Lattice-Free MMI）鉴别性准则训练的模型<br>相比Lattice-free MMI准则需要额外修改一下发音字典、HMM拓扑结构</p>
 <p>1.HMM拓扑结构（KW和freetext）用的是5个状态；silence用的是2个状态，但是保持（Lattice-free MMI）的结构self-loop-pdf和forward-pdf对应两个不同的PDF-id，因此神经网络共82+21&#x3D;18个pdf</p>
