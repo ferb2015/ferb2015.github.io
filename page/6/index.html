@@ -287,182 +287,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E7%BC%96%E8%AF%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E7%BC%96%E8%AF%91/" itemprop="url">编译Wenet runtime</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
-                2022-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
-                    <span itemprop="name">语音识别</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E7%BC%96%E8%AF%91/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/Wenet编译/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="编译Wenet-runtime"><a href="#编译Wenet-runtime" class="headerlink" title="编译Wenet runtime"></a>编译Wenet runtime</h1><p>需要有cmake、g++</p>
-<p>在wenet&#x2F;runtime&#x2F;server&#x2F;x86 进行：mkdir build &amp;&amp; cd build &amp;&amp; cmake .. &amp;&amp; cmake –build .</p>
-<h1 id="调试wenet"><a href="#调试wenet" class="headerlink" title="调试wenet"></a>调试wenet</h1><p>需要有gdb（安装的gdb 9.2，.&#x2F;configure –prefix&#x3D;… &amp;&amp; make -j all &amp;&amp; make install）（安装gdb需要有texinfo（安装的texinfo 6.6，.&#x2F;configure –prefix&#x3D;… &amp;&amp; make -j all &amp;&amp; make install））</p>
-<h1 id="编译、调试成功"><a href="#编译、调试成功" class="headerlink" title="编译、调试成功"></a>编译、调试成功</h1><p>10.22.24.2（yelong port&#x3D;51720  password&#x3D;123）</p>
-<h1 id="调试decoder-main"><a href="#调试decoder-main" class="headerlink" title="调试decoder_main"></a>调试decoder_main</h1><p>用的cgdb调试</p>
-<p>首先之前编译cmake时，没有加可选debug的选项，因此不可调试，在<strong>CMakeLists.txt</strong>加入</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SET(CMAKE_BUILD_TYPE &quot;Debug&quot;) </span><br><span class="line">SET(CMAKE_CXX_FLAGS_DEBUG &quot;$ENV&#123;CXXFLAGS&#125; -O0 -Wall -g -ggdb&quot;)</span><br><span class="line">SET(CMAKE_CXX_FLAGS_RELEASE &quot;$ENV&#123;CXXFLAGS&#125; -O3 -Wall&quot;)</span><br></pre></td></tr></table></figure>
-
-<p>重新编译：在build里：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">cmake clean ..</span></span><br><span class="line">cmake  -DCMAKE_BUILD_TYPE=Debug ..</span><br><span class="line">cmake  -DCMAKE_BUILD_TYPE=Debug --build .</span><br><span class="line">make	# 记得还要一步 make</span><br></pre></td></tr></table></figure>
-
-<p>然后在Libtorch下调试：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">cgdb build/bin/decoder_main</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">然后在界面中打断点：比如</span> </span><br><span class="line">b asr_decoder.cc:194</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">无tlg</span></span><br><span class="line">run  --chunk_size -1 --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang.char.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">不调试运行就是：</span></span><br><span class="line">./build/bin/decoder_main --chunk_size -1 --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang.char.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">要打印n_best：加 --output_nbest <span class="literal">true</span></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">tlg</span></span><br><span class="line">run --acoustic_scale 5 --beam 5.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1  --fst_path /data_local/yelong/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_lin/TLG.fst  --wav_scp home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip  --dict_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_lin/words.txt --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang.char.txt</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="gdb调试报错warning-Error-disabling-address-space-randomization-Operation-not-permitted"><a href="#gdb调试报错warning-Error-disabling-address-space-randomization-Operation-not-permitted" class="headerlink" title="gdb调试报错warning: Error disabling address space randomization: Operation not permitted"></a>gdb调试报错warning: Error disabling address space randomization: Operation not permitted</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="https://gitee.com/openeuler/community/issues/I1KPAQ">https://gitee.com/openeuler/community/issues/I1KPAQ</a></p>
-</blockquote>
-<p>启动docker时加参数</p>
-<p>启动容器时加上–cap-add&#x3D;SYS_PTRACE –security-opt seccomp&#x3D;unconfined选项可以解决该问题</p>
-<p>docker run -it –cap-add&#x3D;SYS_PTRACE –security-opt seccomp&#x3D;unconfined mobvoiwenet&#x2F;wenet:latest bash</p>
-<p>在172.17.84.128的docker里编译，不加debug，是可以编译成功的，</p>
-<p>但是加debug后</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/bpe/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -882,7 +706,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/decoder_main/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20%E8%A7%A3%E7%A0%81/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -901,7 +725,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/decoder_main/" itemprop="url">调试decoder_main</a></h1>
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20%E8%A7%A3%E7%A0%81/" itemprop="url">Wenet脚本 解码</a></h1>
         
 
         <div class="post-meta">
@@ -954,9 +778,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/decoder_main/#comments" itemprop="discussionUrl">
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20%E8%A7%A3%E7%A0%81/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/decoder_main/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2022/01/04/识别/Wenet脚本 解码/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -986,33 +810,15 @@
       
         
           
-            <h1 id="调试decoder-main"><a href="#调试decoder-main" class="headerlink" title="调试decoder_main"></a>调试decoder_main</h1><p>用的cgdb调试</p>
-<p>首先之前编译cmake时，没有加可选debug的选项，因此不可调试，在<strong>CMakeLists.txt</strong>加入</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SET(CMAKE_BUILD_TYPE &quot;Debug&quot;) </span><br><span class="line"></span><br><span class="line">SET(CMAKE_CXX_FLAGS_DEBUG &quot;$ENV&#123;CXXFLAGS&#125; -O0 -Wall -g -ggdb&quot;)</span><br><span class="line">SET(CMAKE_CXX_FLAGS_RELEASE &quot;$ENV&#123;CXXFLAGS&#125; -O3 -Wall&quot;)</span><br></pre></td></tr></table></figure>
-
-<p>重新编译：在build里：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">cmake clean ..</span></span><br><span class="line">cmake  -DCMAKE_BUILD_TYPE=Debug ..</span><br><span class="line">cmake  -DCMAKE_BUILD_TYPE=Debug --build .</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
-
-<p>然后在Libtorch下调试：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">cgdb build/bin/decoder_main</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">然后在界面中打断点：比如</span> </span><br><span class="line">b asr_decoder.cc:194</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">无tlg</span></span><br><span class="line">run  --chunk_size -1 --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang.char.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">不调试运行就是：</span></span><br><span class="line">./build/bin/decoder_main --chunk_size -1 --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang.char.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">要打印n_best：加 --output_nbest <span class="literal">true</span></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">tlg</span></span><br><span class="line">run --acoustic_scale 5 --beam 15.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1  --fst_path /data_local/yelong/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_lin/TLG.fst  --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip  --dict_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_lin/words.txt --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_lin/units.txt</span><br><span class="line"></span><br><span class="line">run --acoustic_scale 5 --beam 15.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1  --fst_path /data_local/yelong/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/TLG.fst  --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip  --dict_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/words.txt --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/units.txt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p>172.17.84.128:root@067224ac4999:&#x2F;home&#x2F;newest_wenet&#x2F;wenet&#x2F;</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">cd /home/newest_wenet/wenet/runtime/LibTorch/</span><br><span class="line">gdb build/bin/decoder_main</span><br><span class="line">run --acoustic_scale 5 --beam 20.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1 --blank_skip_thresh 0.98 --fst_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/TLG.fst --wav_scp /home/data/yelong/docker_seewo/corpus/seewo/wav.scp --model_path /home/aban-c009/final.zip --dict_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/words.txt --unit_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/units.txt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">run --acoustic_scale 5 --beam 20.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1 --blank_skip_thresh 0.98 --fst_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/TLG.fst --wav_scp /home/data/yelong/docker_seewo/corpus/200/wav.scp.1 --model_path /home/aban-c009/final.zip --dict_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/words.txt --unit_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/units.txt</span><br><span class="line"></span><br><span class="line">./build/bin/decoder_main --acoustic_scale 5 --beam 20.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1 --blank_skip_thresh 0.98 --fst_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_30w_2017_seewo_eng_word_new/TLG.fst --wav_scp /home/data/yelong/docker_seewo/corpus/200/wav.scp.1 --model_path /home/aban-c009/final.zip --dict_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_30w_2017_seewo_eng_word_new/words.txt --unit_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_30w_2017_seewo_eng_word_new/units.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">no tlg</span></span><br><span class="line">./build/bin/decoder_main --chunk_size -1 --wav_scp /home/data/yelong/docker_seewo/corpus/200/wav.scp.1  --model_path /home/aban-c009/final.zip --unit_path /home/aban-c009/lang.char.txt</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="core-x2F-decoder-x2F-params-h"><a href="#core-x2F-decoder-x2F-params-h" class="headerlink" title="core&#x2F;decoder&#x2F;params.h"></a>core&#x2F;decoder&#x2F;params.h</h2><h3 id="参数解释："><a href="#参数解释：" class="headerlink" title="参数解释："></a>参数解释：</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DEFINE_double(beam, 16.0, &quot;beam in ctc wfst search&quot;);</span><br><span class="line">DEFINE_double(lattice_beam, 10.0, &quot;lattice beam in ctc wfst search&quot;);</span><br><span class="line">DEFINE_double(acoustic_scale, 1.0, &quot;acoustic scale for ctc wfst search&quot;);	# 这个是乘在am分数上的， graph_cost是语言模型分数，acoustic_cost是am*acoustic_scale得到的缩放声学分数，因此如果这个很大，总体分数会很高，但是声学模型作用会比语言模型大，这个是合理的，和kaldi的希望缩放因子是作用在lm上的不同，这里是作用在am上的</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">比如acoustic_scale = 1：graph_cost = 15.0703125, acoustic_cost = 32.8631744</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">比如acoustic_scale = 20：graph_cost = 15.0703125, acoustic_cost = 657.263489</span></span><br><span class="line">DEFINE_int32(nbest, 10, &quot;nbest for ctc wfst or prefix search&quot;);</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">读模型 model-&gt;Read(FLAGS_model_path); 进入core/decoder/torch_asr_model.cc的void TorchAsrModel::Read(const std::string&amp; model_path) &#123;</span><br><span class="line"></span><br><span class="line">decoder/asr_decoder.cc的void AsrDecoder::Rescoring() &#123;</span><br><span class="line"></span><br><span class="line">模型前向过程（输入声学特征，出来ctc的分类概率）这里用到的是libtorch，就是把特征转成torch格式，送给模型，模型得到输出</span><br><span class="line"></span><br><span class="line">core/bin/decoder_main.cc ： wenet::DecodeState state = decoder.Decode();跳到core/decoder/asr_decoder.cc的DecodeState AsrDecoder::Decode(bool block) &#123;跳到DecodeState AsrDecoder::AdvanceDecoding(bool block) &#123; </span><br><span class="line"></span><br><span class="line">跳到core/decoder/asr_model.cc的 void AsrModel::ForwardEncoder( 跳到 core/decoder/torch_asr_model.cc的void TorchAsrModel::ForwardEncoderFunc(</span><br><span class="line"></span><br><span class="line">得到encoder输出：</span><br><span class="line"></span><br><span class="line">auto outputs =</span><br><span class="line"></span><br><span class="line"><span class="meta prompt_">   model_-&gt;</span><span class="language-bash">get_method(<span class="string">&quot;forward_encoder_chunk&quot;</span>)(inputs).toTuple()-&gt;elements();</span></span><br><span class="line"></span><br><span class="line">得到ctc_log_probs：</span><br><span class="line"></span><br><span class="line">torch::Tensor ctc_log_probs =</span><br><span class="line"></span><br><span class="line"><span class="meta prompt_">   model_-&gt;</span><span class="language-bash">run_method(<span class="string">&quot;ctc_activation&quot;</span>, chunk_out).toTensor()[0];</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">返回core/decoder/asr_model.cc的model_-&gt;ForwardEncoder(chunk_feats, &amp;ctc_log_probs);得到ctc_log_probs的维度是362（T/4），11755（V）</span><br><span class="line"></span><br><span class="line">进入解码模块：searcher_-&gt;Search(ctc_log_probs); 跳到core/decoder/ctc_wfst_beam_search.cc的void CtcWfstBeamSearch::Search(const std::vector&lt;std::vector&lt;float&gt;&gt;&amp; logp) &#123;</span><br><span class="line"></span><br><span class="line">      // Get the best symbol</span><br><span class="line">      int cur_best =</span><br><span class="line">          std::max_element(logp[i].begin(), logp[i].end()) - logp[i].begin();？</span><br><span class="line"></span><br><span class="line">跳到decoder/lattice-faster-decoder.cc的void LatticeFasterDecoderTpl&lt;FST, Token&gt;::AdvanceDecoding(</span><br><span class="line">runeActiveTokens(config_.lattice_beam * config_.prune_scale);跳到core/kaldi/decoder/lattice-faster-decoder.cc的void LatticeFasterDecoderTpl&lt;FST, Token&gt;::PruneActiveTokens(BaseFloat delta) &#123;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">best path：</span></span><br><span class="line">core/decoder/ctc_wfst_beam_search.cc 的 decoder_.GetBestPath(&amp;lat, false);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">core/decoder/asr_decoder.ccd searcher_-&gt;Likelihood()</span><br><span class="line">/core/bin/decoder_main.cc：decoder.Rescoring();//做attention rescore</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<p>kaldi&#x2F;decoder&#x2F;lattice-faster-decoder.cc</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">```</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$\large c\in \mathbb R^&#123;F\times n&#125;$</span><br><span class="line"></span><br><span class="line">$\large x_i\in \mathbb R^&#123;F\times 1&#125;$</span><br><span class="line"></span><br><span class="line">设置输出log多还是少</span><br><span class="line"></span><br><span class="line">```shell</span><br><span class="line">export GLOG_logtostderr=1</span><br><span class="line">export GLOG_v=2	# 这里数值越大，当代码里的值小于该值，就输出log</span><br></pre></td></tr></table></figure>
+            <h1 id="解码"><a href="#解码" class="headerlink" title="解码"></a>解码</h1><h2 id="decode-main"><a href="#decode-main" class="headerlink" title="decode_main"></a>decode_main</h2><p>decode_main参数：</p>
+<ul>
+<li>rescoring_weight：如果为0，不需要rescore；不为0的任意值，要做rescore</li>
+<li>ctc_weight：rescore中，最终某条n-best分数 &#x3D; score_aed + ctc_weight * score_ctc</li>
+</ul>
+<h2 id="binding"><a href="#binding" class="headerlink" title="binding"></a>binding</h2><p>prefix beam search</p>
+<p>参考 <a target="_blank" rel="noopener" href="https://github.com/awni/speech">https://github.com/awni/speech</a></p>
+<p>之前的笔记中解码代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Author: Awni Hannun</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">This is an example CTC decoder written in Python. The code is</span></span><br><span class="line"><span class="string">intended to be a simple example and is not designed to be</span></span><br><span class="line"><span class="string">especially efficient.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">The algorithm is a prefix beam search for a model trained</span></span><br><span class="line"><span class="string">with the CTC loss function.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">For more details checkout either of these references:</span></span><br><span class="line"><span class="string">  https://distill.pub/2017/ctc/#inference</span></span><br><span class="line"><span class="string">  https://arxiv.org/abs/1408.2873</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> collections</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">NEG_INF = -<span class="built_in">float</span>(<span class="string">&quot;inf&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">make_new_beam</span>():</span><br><span class="line">    fn = <span class="keyword">lambda</span> : (NEG_INF, NEG_INF)</span><br><span class="line">    <span class="keyword">return</span> collections.defaultdict(fn)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">logsumexp</span>(<span class="params">*args</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Stable log sum exp.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">all</span>(a == NEG_INF <span class="keyword">for</span> a <span class="keyword">in</span> args):</span><br><span class="line">        <span class="keyword">return</span> NEG_INF</span><br><span class="line">    a_max = <span class="built_in">max</span>(args)</span><br><span class="line">    lsp = math.log(<span class="built_in">sum</span>(math.exp(a - a_max)</span><br><span class="line">                       <span class="keyword">for</span> a <span class="keyword">in</span> args))</span><br><span class="line">    <span class="keyword">return</span> a_max + lsp</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">decode</span>(<span class="params">probs, beam_size=<span class="number">3</span>, blank=<span class="number">0</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Performs inference for the given output probabilities.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Arguments:</span></span><br><span class="line"><span class="string">      probs: The output probabilities (e.g. post-softmax) for each</span></span><br><span class="line"><span class="string">        time step. Should be an array of shape (time x output dim).</span></span><br><span class="line"><span class="string">      beam_size (int): Size of the beam to use during inference.</span></span><br><span class="line"><span class="string">      blank (int): Index of the CTC blank label.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Returns the output label sequence and the corresponding negative</span></span><br><span class="line"><span class="string">    log-likelihood estimated by the decoder.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    T, S = probs.shape</span><br><span class="line">    probs = np.log(probs)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Elements in the beam are (prefix, (p_blank, p_no_blank))</span></span><br><span class="line">    <span class="comment"># Initialize the beam with the empty sequence, a probability of</span></span><br><span class="line">    <span class="comment"># 1 for ending in blank and zero for ending in non-blank</span></span><br><span class="line">    <span class="comment"># (in log space).</span></span><br><span class="line">    beam = [(<span class="built_in">tuple</span>(), (<span class="number">0.0</span>, NEG_INF))]  <span class="comment"># 一开始走blank, p_b = 1</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> t <span class="keyword">in</span> <span class="built_in">range</span>(T): <span class="comment"># Loop over time</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment"># A default dictionary to store the next step candidates.</span></span><br><span class="line">        next_beam = make_new_beam() <span class="comment"># 新建一个dict，dict里的每个元素初始都是(-INF，-INF)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> s <span class="keyword">in</span> <span class="built_in">range</span>(S): <span class="comment"># Loop over vocab</span></span><br><span class="line">            p = probs[t, s]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment"># The variables p_b and p_nb are respectively the</span></span><br><span class="line">            <span class="comment"># probabilities for the prefix given that it ends in a</span></span><br><span class="line">            <span class="comment"># blank and does not end in a blank at this time step.</span></span><br><span class="line">            <span class="keyword">for</span> prefix, (p_b, p_nb) <span class="keyword">in</span> beam: <span class="comment"># Loop over beam</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                <span class="comment"># If we propose a blank the prefix doesn&#x27;t change.</span></span><br><span class="line">                <span class="comment"># Only the probability of ending in blank gets updated.</span></span><br><span class="line">                <span class="comment"># n_p_b、n_p_nb：路径总概率，累加.  n_p_b: new_p_b, new一条新创建的路径</span></span><br><span class="line">                <span class="keyword">if</span> s == blank:</span><br><span class="line">                  <span class="comment"># 只更新n_p_b的概率，论文里remove blank，指的是没有连续的blank blank，也就是说不考虑n_prefix = prefix + (s,)当s为blank的情况</span></span><br><span class="line">                  n_p_b, n_p_nb = next_beam[prefix]</span><br><span class="line">                  n_p_b = logsumexp(n_p_b, p_b + p, p_nb + p) <span class="comment"># 合并前缀/规整前缀</span></span><br><span class="line">                  next_beam[prefix] = (n_p_b, n_p_nb)</span><br><span class="line">                  <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                <span class="comment"># Extend the prefix by the new character s and add it to</span></span><br><span class="line">                <span class="comment"># the beam. Only the probability of not ending in blank</span></span><br><span class="line">                <span class="comment"># gets updated.</span></span><br><span class="line">                <span class="comment"># 是否是aa还是ac，和前一个符号是否相等</span></span><br><span class="line">                end_t = prefix[-<span class="number">1</span>] <span class="keyword">if</span> prefix <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line">                n_prefix = prefix + (s,)</span><br><span class="line">                n_p_b, n_p_nb = next_beam[n_prefix] <span class="comment"># 先提出来，更新后，再赋回去</span></span><br><span class="line">                <span class="keyword">if</span> s != end_t:</span><br><span class="line">                  <span class="comment"># ac的情况</span></span><br><span class="line">                  n_p_nb = logsumexp(n_p_nb, p_b + p, p_nb + p)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                  <span class="comment"># aa的情况 a_a 输出 aa</span></span><br><span class="line">                  <span class="comment"># We don&#x27;t include the previous probability of not ending</span></span><br><span class="line">                  <span class="comment"># in blank (p_nb) if s is repeated at the end. The CTC</span></span><br><span class="line">                  <span class="comment"># algorithm merges characters not separated by a blank.</span></span><br><span class="line">                  n_p_nb = logsumexp(n_p_nb, p_b + p)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                <span class="comment"># *NB* this would be a good place to include an LM score.</span></span><br><span class="line">                next_beam[n_prefix] = (n_p_b, n_p_nb)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                <span class="comment"># If s is repeated at the end we also update the unchanged</span></span><br><span class="line">                <span class="comment"># prefix. This is the merging case.</span></span><br><span class="line">                <span class="keyword">if</span> s == end_t:</span><br><span class="line">                  <span class="comment"># aa的情况 aaa 输出a，这里把aaa情况合并到a情况（prefix=a）</span></span><br><span class="line">                  n_p_b, n_p_nb = next_beam[prefix]</span><br><span class="line">                  n_p_nb = logsumexp(n_p_nb, p_nb + p)</span><br><span class="line">                  next_beam[prefix] = (n_p_b, n_p_nb) <span class="comment"># next_beam[prefix]要更新</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment"># Sort and trim the beam before moving on to the</span></span><br><span class="line">        <span class="comment"># next time-step.</span></span><br><span class="line">        beam = <span class="built_in">sorted</span>(next_beam.items(),</span><br><span class="line">                key=<span class="keyword">lambda</span> x : logsumexp(*x[<span class="number">1</span>]),</span><br><span class="line">                reverse=<span class="literal">True</span>)</span><br><span class="line">        beam = beam[:beam_size]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    best = beam[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">return</span> best[<span class="number">0</span>], -logsumexp(*best[<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># np.random.seed(3)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># time = 50</span></span><br><span class="line">    <span class="comment"># output_dim = 20</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># probs = np.random.rand(time, output_dim)</span></span><br><span class="line">    <span class="comment"># probs = probs / np.sum(probs, axis=1, keepdims=True)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 0 3 3 0 3 4 =&gt; 3 3 4</span></span><br><span class="line">    probs=[[<span class="number">0.8</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>],[<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.8</span>,<span class="number">0.05</span>],[<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.8</span>,<span class="number">0.05</span>],[<span class="number">0.8</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>],[<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.8</span>,<span class="number">0.05</span>],[<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.8</span>]]</span><br><span class="line">    probs = np.array(probs)</span><br><span class="line">    probs = probs / np.<span class="built_in">sum</span>(probs, axis=<span class="number">1</span>, keepdims=<span class="literal">True</span>)</span><br><span class="line">    </span><br><span class="line">    labels, score = decode(probs)</span><br><span class="line">    <span class="built_in">print</span>(labels)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Score &#123;:.3f&#125;&quot;</span>.<span class="built_in">format</span>(score))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 
           
@@ -1254,7 +1060,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/decoder_main/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1273,7 +1079,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/" itemprop="url">kaldi实现迁移学习</a></h1>
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/decoder_main/" itemprop="url">调试decoder_main</a></h1>
         
 
         <div class="post-meta">
@@ -1326,9 +1132,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/#comments" itemprop="discussionUrl">
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/decoder_main/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/kaldi 迁移学习/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2022/01/04/识别/decoder_main/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1358,35 +1164,33 @@
       
         
           
-            <h1 id="kaldi实现迁移学习"><a href="#kaldi实现迁移学习" class="headerlink" title="kaldi实现迁移学习"></a>kaldi实现迁移学习</h1><blockquote>
-<p>speechhome 课程 Kaldi语音识别理论与实践 石颖 第9节 <a target="_blank" rel="noopener" href="https://edu.speechhome.com/p/t_pc/course_pc_detail/video/v_632490ece4b050af23b7c9e2">https://edu.speechhome.com/p/t_pc/course_pc_detail/video/v_632490ece4b050af23b7c9e2</a></p>
-</blockquote>
-<p>两种方式的迁移学习：</p>
-<ol>
-<li>较多训练数据训练好的模型的参数作为初始模型参数，更新 其他领域数据&#x2F;新模型结构（只有一些层不一样）的模型参数。</li>
-<li>固定训练好的模型的大部分参数，只更新部分层（新领域数据特别特别少时，用该方法）</li>
-</ol>
-<h2 id="方法1实现："><a href="#方法1实现：" class="headerlink" title="方法1实现："></a>方法1实现：</h2><p>以最后一层不一样举例，要调整最后一层结构，变成想要的输出维度。</p>
-<h3 id="步骤1-把初始模型的输出维度更换成想要的维度："><a href="#步骤1-把初始模型的输出维度更换成想要的维度：" class="headerlink" title="步骤1. 把初始模型的输出维度更换成想要的维度："></a>步骤1. 把初始模型的输出维度更换成想要的维度：</h3><p><strong>思路：</strong>准备一个config文件，只保留输出维度相关的component（其他component都不要），然后用该config文件重新初始化模型，这时候旧模型的输出component会被新config里的component覆盖，旧模型其余会保留；</p>
-<p><strong>做法：</strong>打开config文件，手动删除其他component，只保留输出维度相关的component</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009181943628.png" alt="image-20221009181943628"></p>
-<p>然后在vim中输入 <code>:%s/旧维度/新维度/g</code>进行替换，就是把config里的比如输出维度4368换成2000。</p>
-<p>然后在命令行输入：<code>nnet3-init final.mdl final.config final.change.output_dim.mdl</code></p>
-<p>就可以了。</p>
-<h3 id="步骤2-用新模型作为初始模型，在新数据集上进行训练："><a href="#步骤2-用新模型作为初始模型，在新数据集上进行训练：" class="headerlink" title="步骤2. 用新模型作为初始模型，在新数据集上进行训练："></a>步骤2. 用新模型作为初始模型，在新数据集上进行训练：</h3><p>在 run.sh中的 <code>steps/nnet3/chain/train.py --trainer.input-model final.change.output_dim.mdl</code></p>
-<h2 id="方法2实现："><a href="#方法2实现：" class="headerlink" title="方法2实现："></a>方法2实现：</h2><p>固定某些层参数名</p>
-<p>第一种粗暴的方法：打开mdl.txt，将component的名称手动更改为Fixed的component</p>
-<p>比如把<AffineComponent>改为<FixedAffineComponent></FixedAffineComponent></AffineComponent></p>
-<p>但是这样要改的地方很多。</p>
-<p>第二种方法 【推荐】：</p>
-<p>新建一个config文件（文件的第一个字段是要进行哪种操作，第二个字段是这个操作要应用在哪个component上）</p>
-<p>该图的意思是对tdnn1-5层的仿射变换层更改为参数不可变的仿射变换层。</p>
-<p>（比如保存在fix_config&#x2F;edit_config）</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009182908327.png" alt="image-20221009182908327"></p>
-<p>然后在命令行输入：<code>nnet3-copy --edits-config=fix_config/edit_config --binary=false final.raw final.fix.tdnn1-5.raw</code></p>
-<p>然后在 run.sh中的 <code>steps/nnet3/chain/train.py --trainer.input-model final.fix.tdnn1-5.raw</code></p>
-<hr>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009183631092.png" alt="image-20221009183631092" style="zoom:80%;">
+            <h1 id="调试decoder-main"><a href="#调试decoder-main" class="headerlink" title="调试decoder_main"></a>调试decoder_main</h1><p>用的cgdb调试</p>
+<p>首先之前编译cmake时，没有加可选debug的选项，因此不可调试，在<strong>CMakeLists.txt</strong>加入</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SET(CMAKE_BUILD_TYPE &quot;Debug&quot;) </span><br><span class="line"></span><br><span class="line">SET(CMAKE_CXX_FLAGS_DEBUG &quot;$ENV&#123;CXXFLAGS&#125; -O0 -Wall -g -ggdb&quot;)</span><br><span class="line">SET(CMAKE_CXX_FLAGS_RELEASE &quot;$ENV&#123;CXXFLAGS&#125; -O3 -Wall&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>重新编译：在build里：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">cmake clean ..</span></span><br><span class="line">cmake  -DCMAKE_BUILD_TYPE=Debug ..</span><br><span class="line">cmake  -DCMAKE_BUILD_TYPE=Debug --build .</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<p>然后在Libtorch下调试：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">cgdb build/bin/decoder_main</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">然后在界面中打断点：比如</span> </span><br><span class="line">b asr_decoder.cc:194</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">无tlg</span></span><br><span class="line">run  --chunk_size -1 --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang.char.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">不调试运行就是：</span></span><br><span class="line">./build/bin/decoder_main --chunk_size -1 --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang.char.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">要打印n_best：加 --output_nbest <span class="literal">true</span></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">tlg</span></span><br><span class="line">run --acoustic_scale 5 --beam 15.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1  --fst_path /data_local/yelong/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_lin/TLG.fst  --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip  --dict_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_lin/words.txt --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_lin/units.txt</span><br><span class="line"></span><br><span class="line">run --acoustic_scale 5 --beam 15.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1  --fst_path /data_local/yelong/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/TLG.fst  --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip  --dict_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/words.txt --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/units.txt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p>172.17.84.128:root@067224ac4999:&#x2F;home&#x2F;newest_wenet&#x2F;wenet&#x2F;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">cd /home/newest_wenet/wenet/runtime/LibTorch/</span><br><span class="line">gdb build/bin/decoder_main</span><br><span class="line">run --acoustic_scale 5 --beam 20.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1 --blank_skip_thresh 0.98 --fst_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/TLG.fst --wav_scp /home/data/yelong/docker_seewo/corpus/seewo/wav.scp --model_path /home/aban-c009/final.zip --dict_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/words.txt --unit_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/units.txt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">run --acoustic_scale 5 --beam 20.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1 --blank_skip_thresh 0.98 --fst_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/TLG.fst --wav_scp /home/data/yelong/docker_seewo/corpus/200/wav.scp.1 --model_path /home/aban-c009/final.zip --dict_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/words.txt --unit_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/units.txt</span><br><span class="line"></span><br><span class="line">./build/bin/decoder_main --acoustic_scale 5 --beam 20.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1 --blank_skip_thresh 0.98 --fst_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_30w_2017_seewo_eng_word_new/TLG.fst --wav_scp /home/data/yelong/docker_seewo/corpus/200/wav.scp.1 --model_path /home/aban-c009/final.zip --dict_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_30w_2017_seewo_eng_word_new/words.txt --unit_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_30w_2017_seewo_eng_word_new/units.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">no tlg</span></span><br><span class="line">./build/bin/decoder_main --chunk_size -1 --wav_scp /home/data/yelong/docker_seewo/corpus/200/wav.scp.1  --model_path /home/aban-c009/final.zip --unit_path /home/aban-c009/lang.char.txt</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="core-x2F-decoder-x2F-params-h"><a href="#core-x2F-decoder-x2F-params-h" class="headerlink" title="core&#x2F;decoder&#x2F;params.h"></a>core&#x2F;decoder&#x2F;params.h</h2><h3 id="参数解释："><a href="#参数解释：" class="headerlink" title="参数解释："></a>参数解释：</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DEFINE_double(beam, 16.0, &quot;beam in ctc wfst search&quot;);</span><br><span class="line">DEFINE_double(lattice_beam, 10.0, &quot;lattice beam in ctc wfst search&quot;);</span><br><span class="line">DEFINE_double(acoustic_scale, 1.0, &quot;acoustic scale for ctc wfst search&quot;);	# 这个是乘在am分数上的， graph_cost是语言模型分数，acoustic_cost是am*acoustic_scale得到的缩放声学分数，因此如果这个很大，总体分数会很高，但是声学模型作用会比语言模型大，这个是合理的，和kaldi的希望缩放因子是作用在lm上的不同，这里是作用在am上的</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">比如acoustic_scale = 1：graph_cost = 15.0703125, acoustic_cost = 32.8631744</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">比如acoustic_scale = 20：graph_cost = 15.0703125, acoustic_cost = 657.263489</span></span><br><span class="line">DEFINE_int32(nbest, 10, &quot;nbest for ctc wfst or prefix search&quot;);</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">读模型 model-&gt;Read(FLAGS_model_path); 进入core/decoder/torch_asr_model.cc的void TorchAsrModel::Read(const std::string&amp; model_path) &#123;</span><br><span class="line"></span><br><span class="line">decoder/asr_decoder.cc的void AsrDecoder::Rescoring() &#123;</span><br><span class="line"></span><br><span class="line">模型前向过程（输入声学特征，出来ctc的分类概率）这里用到的是libtorch，就是把特征转成torch格式，送给模型，模型得到输出</span><br><span class="line"></span><br><span class="line">core/bin/decoder_main.cc ： wenet::DecodeState state = decoder.Decode();跳到core/decoder/asr_decoder.cc的DecodeState AsrDecoder::Decode(bool block) &#123;跳到DecodeState AsrDecoder::AdvanceDecoding(bool block) &#123; </span><br><span class="line"></span><br><span class="line">跳到core/decoder/asr_model.cc的 void AsrModel::ForwardEncoder( 跳到 core/decoder/torch_asr_model.cc的void TorchAsrModel::ForwardEncoderFunc(</span><br><span class="line"></span><br><span class="line">得到encoder输出：</span><br><span class="line"></span><br><span class="line">auto outputs =</span><br><span class="line"></span><br><span class="line"><span class="meta prompt_">   model_-&gt;</span><span class="language-bash">get_method(<span class="string">&quot;forward_encoder_chunk&quot;</span>)(inputs).toTuple()-&gt;elements();</span></span><br><span class="line"></span><br><span class="line">得到ctc_log_probs：</span><br><span class="line"></span><br><span class="line">torch::Tensor ctc_log_probs =</span><br><span class="line"></span><br><span class="line"><span class="meta prompt_">   model_-&gt;</span><span class="language-bash">run_method(<span class="string">&quot;ctc_activation&quot;</span>, chunk_out).toTensor()[0];</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">返回core/decoder/asr_model.cc的model_-&gt;ForwardEncoder(chunk_feats, &amp;ctc_log_probs);得到ctc_log_probs的维度是362（T/4），11755（V）</span><br><span class="line"></span><br><span class="line">进入解码模块：searcher_-&gt;Search(ctc_log_probs); 跳到core/decoder/ctc_wfst_beam_search.cc的void CtcWfstBeamSearch::Search(const std::vector&lt;std::vector&lt;float&gt;&gt;&amp; logp) &#123;</span><br><span class="line"></span><br><span class="line">      // Get the best symbol</span><br><span class="line">      int cur_best =</span><br><span class="line">          std::max_element(logp[i].begin(), logp[i].end()) - logp[i].begin();？</span><br><span class="line"></span><br><span class="line">跳到decoder/lattice-faster-decoder.cc的void LatticeFasterDecoderTpl&lt;FST, Token&gt;::AdvanceDecoding(</span><br><span class="line">runeActiveTokens(config_.lattice_beam * config_.prune_scale);跳到core/kaldi/decoder/lattice-faster-decoder.cc的void LatticeFasterDecoderTpl&lt;FST, Token&gt;::PruneActiveTokens(BaseFloat delta) &#123;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">best path：</span></span><br><span class="line">core/decoder/ctc_wfst_beam_search.cc 的 decoder_.GetBestPath(&amp;lat, false);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">core/decoder/asr_decoder.ccd searcher_-&gt;Likelihood()</span><br><span class="line">/core/bin/decoder_main.cc：decoder.Rescoring();//做attention rescore</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>kaldi&#x2F;decoder&#x2F;lattice-faster-decoder.cc</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">```</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$\large c\in \mathbb R^&#123;F\times n&#125;$</span><br><span class="line"></span><br><span class="line">$\large x_i\in \mathbb R^&#123;F\times 1&#125;$</span><br><span class="line"></span><br><span class="line">设置输出log多还是少</span><br><span class="line"></span><br><span class="line">```shell</span><br><span class="line">export GLOG_logtostderr=1</span><br><span class="line">export GLOG_v=2	# 这里数值越大，当代码里的值小于该值，就输出log</span><br></pre></td></tr></table></figure>
 
 
           
@@ -1880,6 +1684,188 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/" itemprop="url">kaldi实现迁移学习</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/kaldi 迁移学习/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="kaldi实现迁移学习"><a href="#kaldi实现迁移学习" class="headerlink" title="kaldi实现迁移学习"></a>kaldi实现迁移学习</h1><blockquote>
+<p>speechhome 课程 Kaldi语音识别理论与实践 石颖 第9节 <a target="_blank" rel="noopener" href="https://edu.speechhome.com/p/t_pc/course_pc_detail/video/v_632490ece4b050af23b7c9e2">https://edu.speechhome.com/p/t_pc/course_pc_detail/video/v_632490ece4b050af23b7c9e2</a></p>
+</blockquote>
+<p>两种方式的迁移学习：</p>
+<ol>
+<li>较多训练数据训练好的模型的参数作为初始模型参数，更新 其他领域数据&#x2F;新模型结构（只有一些层不一样）的模型参数。</li>
+<li>固定训练好的模型的大部分参数，只更新部分层（新领域数据特别特别少时，用该方法）</li>
+</ol>
+<h2 id="方法1实现："><a href="#方法1实现：" class="headerlink" title="方法1实现："></a>方法1实现：</h2><p>以最后一层不一样举例，要调整最后一层结构，变成想要的输出维度。</p>
+<h3 id="步骤1-把初始模型的输出维度更换成想要的维度："><a href="#步骤1-把初始模型的输出维度更换成想要的维度：" class="headerlink" title="步骤1. 把初始模型的输出维度更换成想要的维度："></a>步骤1. 把初始模型的输出维度更换成想要的维度：</h3><p><strong>思路：</strong>准备一个config文件，只保留输出维度相关的component（其他component都不要），然后用该config文件重新初始化模型，这时候旧模型的输出component会被新config里的component覆盖，旧模型其余会保留；</p>
+<p><strong>做法：</strong>打开config文件，手动删除其他component，只保留输出维度相关的component</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009181943628.png" alt="image-20221009181943628"></p>
+<p>然后在vim中输入 <code>:%s/旧维度/新维度/g</code>进行替换，就是把config里的比如输出维度4368换成2000。</p>
+<p>然后在命令行输入：<code>nnet3-init final.mdl final.config final.change.output_dim.mdl</code></p>
+<p>就可以了。</p>
+<h3 id="步骤2-用新模型作为初始模型，在新数据集上进行训练："><a href="#步骤2-用新模型作为初始模型，在新数据集上进行训练：" class="headerlink" title="步骤2. 用新模型作为初始模型，在新数据集上进行训练："></a>步骤2. 用新模型作为初始模型，在新数据集上进行训练：</h3><p>在 run.sh中的 <code>steps/nnet3/chain/train.py --trainer.input-model final.change.output_dim.mdl</code></p>
+<h2 id="方法2实现："><a href="#方法2实现：" class="headerlink" title="方法2实现："></a>方法2实现：</h2><p>固定某些层参数名</p>
+<p>第一种粗暴的方法：打开mdl.txt，将component的名称手动更改为Fixed的component</p>
+<p>比如把<AffineComponent>改为<FixedAffineComponent></FixedAffineComponent></AffineComponent></p>
+<p>但是这样要改的地方很多。</p>
+<p>第二种方法 【推荐】：</p>
+<p>新建一个config文件（文件的第一个字段是要进行哪种操作，第二个字段是这个操作要应用在哪个component上）</p>
+<p>该图的意思是对tdnn1-5层的仿射变换层更改为参数不可变的仿射变换层。</p>
+<p>（比如保存在fix_config&#x2F;edit_config）</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009182908327.png" alt="image-20221009182908327"></p>
+<p>然后在命令行输入：<code>nnet3-copy --edits-config=fix_config/edit_config --binary=false final.raw final.fix.tdnn1-5.raw</code></p>
+<p>然后在 run.sh中的 <code>steps/nnet3/chain/train.py --trainer.input-model final.fix.tdnn1-5.raw</code></p>
+<hr>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009183631092.png" alt="image-20221009183631092" style="zoom:80%;">
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/lattice/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2048,7 +2034,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/mmi/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -2067,7 +2053,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/" itemprop="url">kaldi nnet3</a></h1>
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/" itemprop="url">mmi</a></h1>
         
 
         <div class="post-meta">
@@ -2120,9 +2106,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/#comments" itemprop="discussionUrl">
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/nnet3/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2022/01/04/识别/mmi/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -2152,33 +2138,204 @@
       
         
           
-            <h1 id="kaldi-nnet3"><a href="#kaldi-nnet3" class="headerlink" title="kaldi nnet3"></a>kaldi nnet3</h1><h2 id="nnet3-component"><a href="#nnet3-component" class="headerlink" title="nnet3 component"></a>nnet3 component</h2><blockquote>
-<p>参考 ：《Kaldi语音识别实战》P209</p>
+            <h1 id="mmi"><a href="#mmi" class="headerlink" title="mmi"></a>mmi</h1><p>Maximum  mutual information </p>
+<blockquote>
+<p>Bahl L, Brown P, De Souza P, et al. Maximum mutual information estimation of hidden Markov model parameters for speech recognition[C]&#x2F;&#x2F;ICASSP’86. IEEE International Conference on Acoustics, Speech, and Signal Processing. IEEE, 1986, 11: 49-52. citation:1212</p>
+<p>csdn blog <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_35742630/article/details/89004890">区分性训练和mmi（一）</a></p>
+<p>blog <a target="_blank" rel="noopener" href="https://liuyanfeier.github.io/2018/12/16/%E5%8C%BA%E5%88%86%E6%80%A7%E8%AE%AD%E7%BB%83%EF%BC%88Discriminative-Training%EF%BC%89%E5%8F%8A%E5%85%B6%E5%9C%A8%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%EF%BC%88ASR%EF%BC%89%E4%B8%8A%E7%9A%84%E8%BF%90%E7%94%A8/">区分性训练（Discriminative Training）及其在语音识别（ASR）上的运用</a></p>
+<p>Chen, Zhehuai, Yanmin Qian, and Kai Yu. “Sequence discriminative training for deep learning based acoustic keyword spotting.” <em>Speech Communication</em> 102 (2018): 100-111.</p>
 </blockquote>
-<p>基于计算图构建网络结构</p>
-<p>以component为标识的行定义了每个节点的类型和输入输出维度，以Component-node为标识的行定义了每个节点的输入。定义节点输入的方法被称为描述符（Descriptors），用于表示节点之间如何连接，默认情况下，直接取输入节点的输出作为输入。常用的描述符包括：</p>
-<ul>
-<li>节点名，这是最基本的描述符，即不做任何操作；</li>
-<li>拼接（Append），将给定描述符拼接在一起，维度相当于各描述符维度之和；</li>
-<li>求和（Sum），对给定描述符求和，要求各个描述符维度一致；</li>
-<li>常量（Const），不要求指定描述符，而是根据参数生成一个描述符，如Const(1.0,512)生成一个512维的单位矢量；</li>
-<li>缩放（Scale），对给定描述符的每一维进行缩放；</li>
-<li>偏移（Offset），对给定描述符在t轴或x轴上进行偏移；</li>
-<li>替换（Replace），用于将给定描述符的某个轴设为指定常量，例如，当有拼接时变（声学特征）和时不变（说话人特征）两组特征时，可以指定时不变特征的t轴为0（也就是不管什么时刻，说话人特征都是那100维固定向量）</li>
-<li>判断（IfDefined和Failover），用于根据不同的情况改变描述符的行为。</li>
+<h3 id="GMM与DT"><a href="#GMM与DT" class="headerlink" title="GMM与DT"></a>GMM与DT</h3><ul>
+<li><p>GMM-HMM，回顾最大似然准则（Maximum likelihood estimation ）：$F_{ML}&#x3D;\sum_{u&#x3D;1}^UlogP(X_u|W_u;\theta)$</p>
+</li>
+<li><p>其中，$W_u$是标注序列，$X_u$是语音信号，$\theta$是声学模型参数。</p>
+<p>$p(x)&#x3D;\sum_yp(x,y)$</p>
+<p>$p(x)&#x3D;\sum_yp(x)p(y)$</p>
+</li>
 </ul>
-<p>src&#x2F;nnet3&#x2F;nnet-descriptor.h ：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&lt;descriptor&gt;  ::=   &lt;node-name&gt;      ;; node name of kInput or kComponent node.</span><br><span class="line">&lt;descriptor&gt;  ::=   Append(&lt;descriptor&gt;, &lt;descriptor&gt; [, &lt;descriptor&gt; ... ] )</span><br><span class="line">&lt;descriptor&gt;  ::=   Sum(&lt;descriptor&gt;, &lt;descriptor&gt;)</span><br><span class="line">&lt;descriptor&gt;  ::=   Const(&lt;value&gt;, &lt;dimension&gt;)    ;; e.g. Const(1.0, 512)</span><br><span class="line">&lt;descriptor&gt;  ::=   Scale(&lt;scale&gt;, &lt;descriptor&gt;)   ;; e.g. Scale(-1.0, tdnn2)</span><br><span class="line">;; Failover or IfDefined might be useful for time t=-1 in a RNN, for instance.</span><br><span class="line">&lt;descriptor&gt;  ::=   Failover(&lt;descriptor&gt;, &lt;descriptor&gt;)   ;; 1st arg if computable, else 2nd</span><br><span class="line">&lt;descriptor&gt;  ::=   IfDefined(&lt;descriptor&gt;)     ;; the arg if defined, else zero.</span><br><span class="line">&lt;descriptor&gt;  ::=   Offset(&lt;descriptor&gt;, &lt;t-offset&gt; [, &lt;x-offset&gt; ] ) ;; offsets are integers</span><br><span class="line">;; Switch(...) is intended to be used in clockwork RNNs or similar schemes.  It chooses</span><br><span class="line">;; one argument based on the value of t (in the requested Index) modulo the number of</span><br><span class="line">;; arguments</span><br><span class="line">&lt;descriptor&gt;  ::=   Switch(&lt;descriptor&gt;, &lt;descriptor&gt; [, &lt;descriptor&gt; ...])</span><br><span class="line">;; For use in clockwork RNNs or similar, Round() rounds the time-index t of the</span><br><span class="line">;; requested Index to the next-lowest multiple of the integer &lt;t-modulus&gt;,</span><br><span class="line">;; and evaluates the input argument for the resulting Index.</span><br><span class="line">&lt;descriptor&gt;  ::=   Round(&lt;descriptor&gt;, &lt;t-modulus&gt;)  ;; &lt;t-modulus&gt; is an integer</span><br><span class="line">;; ReplaceIndex replaces some &lt;variable-name&gt; (t or x) in the requested Index</span><br><span class="line">;; with a fixed integer &lt;value&gt;.  E.g. might be useful when incorporating</span><br><span class="line">;; iVectors; iVector would always have time-index t=0.</span><br><span class="line">&lt;descriptor&gt;  ::=   ReplaceIndex(&lt;descriptor&gt;, &lt;variable-name&gt;, &lt;value&gt;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="最大互信息准则"><a href="#最大互信息准则" class="headerlink" title="最大互信息准则"></a>最大互信息准则</h4><ul>
+<li><p>熵：$H(X)\triangleq-\sum_xPr(X&#x3D;x)logPr(X&#x3D;x)$  （ps.$\triangleq$是定义为def的意思）（$P(X&#x3D;x)$也可以直接写成$P(x)$）</p>
+</li>
+<li><p>互信息 ：$I(X,Y)&#x3D;H(Y)-H(Y|X)$，熵-条件熵，互信息是描述两个随机变量的关联程度，于是在这里就是描述<strong>观测序列和文本的关联程度</strong></p>
+</li>
+<li><p>条件熵 $H(Y|X)&#x3D;\sum_{x\in{X}}p(x)H(Y|X&#x3D;x)&#x3D;-\sum_{x\in{X}}p(x)\sum_{y\in{Y}}p(y|x)logp(y|x)]&#x3D;-\sum_{x\in{X}}\sum_{y\in{Y}}p(x,y)logp(y|x)$</p>
+</li>
+<li><p>X,Y是变量，x,y是变量的取值，条件熵是指在给定某个数（某个变量为某个值）的情况下，另一个变量的熵是多少，变量的不确定性是多少？条件熵中X也是一个变量，意思是在一个变量X的条件下（变量X的每个值都会取），另一个变量Y熵对X的期望</p>
+</li>
+<li><p>我的理解是条件熵越小，相关性越大；或者说互信息越大，相关性越大。</p>
+<p>H(Y|X)相当于告诉Y一些已知信息X后Y的熵，对Y加了一些限制条件。所以$H(Y)\geq{H(Y|X)}$，H(Y)就是Y的熵，描述Y的混乱程度，他们的互信息实际上也就是去求X和Y到底什么关系，X对Y到底产生了多大的影响。</p>
+</li>
+<li><p>互信息$I(X;Y)\triangleq{H(X)-H(X|Y)}$，或者写成$I(X;Y)\triangleq{H(Y)-H(Y|X)}$，</p>
+</li>
+<li><p>互信息$\large{I(X;Y)&#x3D;\sum_{x,y}Pr(X&#x3D;x,Y&#x3D;y)log\frac{Pr(X&#x3D;x,Y&#x3D;y)}{Pr(X&#x3D;x)Pr(Y&#x3D;y)}}$</p>
+<p>（∵$I(X;Y)&#x3D;-\sum_xp(x)log(x)+\sum_{xy}p(x,y)logp(x|y)&#x3D;-\sum_{xy}p(x,y)log(x)+\sum_{xy}p(xy)log\frac{p(x,y)}{p(y)}$）</p>
+<p>可以看出，互信息会更关注因为引入的某个“文本”，对于观测序列的影响、变化。</p>
+</li>
+<li><p>MMI准则公式：$\large{F_{MMIE}(\lambda)&#x3D;\sum_{u&#x3D;1}^{U}logP(W_u|x_u;\theta)&#x3D;\sum_{u&#x3D;1}^Ulog\frac{P(X_u|W_u;\theta)P(W_u)}{\sum_{w’}P(X_u|w’;\theta)P(w’)}}$</p>
+</li>
+<li><p>其中$P(W_u)$是固定的语言模型</p>
+<p>分子上的$P(X_u|Wu;θ)$，正是ML的目标函数；而分母则是所有文本（包括训练文本和它的所有竞争者）产生训练语音的概率（按语言模型加权）和。</p>
+<p>分子Numerator表示的是正确单词序列的可能性，分母Denominator是所有可能单词序列的可能性之和。</p>
+<p>两者之间的区别在于条件概率不同。ML中只要训练文本产生训练语音的概率大就行，而MMI要求的是训练语音对应训练文本的概率大，就是要训练文本产生语音信号的概率与其它文本产生语音信号的概率之差大。</p>
+</li>
+</ul>
+<h3 id="DNN与DT"><a href="#DNN与DT" class="headerlink" title="DNN与DT"></a>DNN与DT</h3><h4 id="MMI损失函数"><a href="#MMI损失函数" class="headerlink" title="MMI损失函数"></a>MMI损失函数</h4><p>在DNN神经网络中，DT准则可以替换CE准则作为损失函数。</p>
+<ul>
+<li><p>MMI准则过程为：</p>
+<ul>
+<li>$\large{P(\textbf{W}_u|\textbf{O}_u)&#x3D;\frac{p(\textbf{O}_u|\textbf{W}_u)P(\textbf{W}_u)}{p(\textbf{O}_u)}}$</li>
+</ul>
+<p>其中，$P(\textbf{W}_u)$是语言模型概率（一整句话有一个语言模型概率），在kws中，是keyword序列和非keyword的先验概率。</p>
+<ul>
+<li>分子  $p(\textbf{O}_u|\textbf{W}<em>u)&#x3D;\sum</em>{L\in{\mathcal{L}(W)}}p(\textbf{O}|\textbf{L})P(\textbf{L}|\textbf{W})$</li>
+</ul>
+<p>其中，$p(\textbf{O}|\textbf{L})$由HMM给出，$L$是状态（或者说标签）序列；$\mathcal{L}$是词序列W到它的标签序列$L$的映射函数，也就是词典lexicon；$P(\textbf{L}|\textbf{W})$是发音概率，由词典和语言模型决定；</p>
+<p>所以，是在分子lattice上可能的L序列路径求和的过程（用前后向）</p>
+<ul>
+<li>分母 $p(\textbf{O}<em>u)&#x3D;\sum</em>{W}p(\textbf{O}_u,W)&#x3D;\sum_WP(\textbf{W})p(\textbf{O}_u|\textbf{W})$</li>
+</ul>
+<p>其中，$\textbf{W}$denotes one of the competing hypotheses, which are usually represented as a path in the decoding lattice  </p>
+<ul>
+<li>MMI准则公式为：$\large{\mathcal{F}_{MMI}&#x3D;\sum_ulog\frac{P(\textbf{O}_u|\textbf{W}_u)^kP(\textbf{W}<em>u)}{\sum</em>{\textbf{W}}P(\textbf{O}<em>u|\textbf{W})^kP(\textbf{W})}&#x3D;\sum_ulog\frac{\sum</em>{L\in{\mathcal{L}(W)}}p(\textbf{O}|\textbf{L})^kP(\textbf{L}|\textbf{W})^kP(\textbf{W}_u)}{\sum_Wp(\textbf{O}_u|\textbf{W})^kP(\textbf{W})}}$</li>
+</ul>
+<p>（$logp(w|o)&#x3D;logp(o,w)-log(o)&#x3D;log\sum_sp(o,s,w)-log(o)&#x3D;log\sum_sp(o|s,w)p(s|w)p(w)-logp(o)$）</p>
+</li>
+<li><p>u是某一条样本，就是w的状态序列s的引入，对音频观测序列o产生多大的影响，loss越大，条件熵越小，互信息越大，越相关。因此要最大化互信息。</p>
+</li>
+<li><p>MMI准则最大化单词序列分布和观察序列分布之间的互信息,，减小句子错误率。最大化分子， 最小化分母。 </p>
+</li>
+<li><p>DT训练之前需要使用CE准则生成alignments和lattices，DT的初始化模型为使用CE准则训练出的最好模型。</p>
+</li>
+<li><p>理论上说,，DT训练分母应该取遍所有可能的单词序列。不过在实际中，这个求和运算是限制在解码得到的lattice上做的，这样可以减少运算量。</p>
+</li>
+<li><p>DNN训练算法一般是用来最小化一个目标方程, 所以我们可以对MMI准则取反进行最小化，而不是最大化互信息。</p>
+</li>
+<li><p>最大互信息量估计准则（Maximum Mutual Information Estimation，MMIE）、最小分类错误准则（Minimum Classification Error，MCE），以及最小词&#x2F;音素错误准则(Minimum Word&#x2F;Phone Error)。而常用的参数优化准则算法则包括广义概率下降(Generalized Pmbability Descent，GPD)，以及扩展Baum-Welch(Extened Baum—Welch，EB)算法。</p>
+</li>
+</ul>
+<h4 id="MMI求导"><a href="#MMI求导" class="headerlink" title="MMI求导"></a>MMI求导</h4><p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211006170322880.png" alt="image-20211006170322880"></p>
+<h2 id="MMI详细求导过程"><a href="#MMI详细求导过程" class="headerlink" title="MMI详细求导过程"></a>MMI详细求导过程</h2><blockquote>
+<p>Veselý K, Ghoshal A, Burget L, et al. Sequence-discriminative training of deep neural networks[C]&#x2F;&#x2F;Interspeech. 2013, 2013: 2345-2349. citation：802 Daniel Povey</p>
+<p>[mmi推导]Note_on_MMI （Sequence-discriminative training of deep neural networks）.pdf</p>
+</blockquote>
+<ul>
+<li>得到反向传播的可导性（求偏导）</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211012153400589.png" alt="image-20211012153400589"></p>
+<ul>
+<li>分母用前后向求得</li>
+</ul>
+<h2 id="lattice"><a href="#lattice" class="headerlink" title="lattice"></a>lattice</h2><p>前向后向算法都是在lattice上进行的，下图是一个word级别的lattice：</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/1.png" alt="img"></p>
+<h4 id="kaldi中的DT实现"><a href="#kaldi中的DT实现" class="headerlink" title="kaldi中的DT实现"></a>kaldi中的DT实现</h4><p>kaldi nnet3中的DT计算过程</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/2.png" alt="img"></p>
+<ul>
+<li>lattice rescore是DNN前向计算出$P(s|o)$，除以先验概率$P(s)$，得到似然概率$P(o|s)$，替换lattice边上对应的$P(o|s)$</li>
+<li>其中<code>vector&lt;BaseFloat&gt; answers</code>是前面计算出来的DNN的输出对应参考pdf的概率。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// nnet3/discriminative-training.cc</span></span><br><span class="line"><span class="comment">// 对lattice进行声学校正, 将负（缩放）声学对数似然置于lattice的弧中</span></span><br><span class="line"><span class="function"><span class="type">size_t</span> <span class="title">DiscriminativeComputation::LatticeAcousticRescore</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">const</span> std::vector&lt;BaseFloat&gt; &amp;answers,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">size_t</span> index, Lattice *lat)</span> </span>&#123;</span><br><span class="line">  int32 num_states = lat-&gt;<span class="built_in">NumStates</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (StateId s = <span class="number">0</span>; s &lt; num_states; s++) &#123;</span><br><span class="line">    <span class="keyword">for</span> (fst::MutableArcIterator&lt;Lattice&gt; <span class="built_in">aiter</span>(lat, s);</span><br><span class="line">         !aiter.<span class="built_in">Done</span>(); aiter.<span class="built_in">Next</span>()) &#123;</span><br><span class="line">      Arc arc = aiter.<span class="built_in">Value</span>();</span><br><span class="line">      <span class="keyword">if</span> (arc.ilabel != <span class="number">0</span>) &#123; <span class="comment">// input-side has transition-ids, output-side empty</span></span><br><span class="line">        arc.weight.<span class="built_in">SetValue2</span>(-answers[index]);</span><br><span class="line">        <span class="comment">// graph cost: lm + transition + pronunciation</span></span><br><span class="line">        <span class="comment">// acoustic cost: -P(o|s)</span></span><br><span class="line">        index++;</span><br><span class="line">        aiter.<span class="built_in">SetValue</span>(arc);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    LatticeWeight <span class="keyword">final</span> = lat-&gt;<span class="built_in">Final</span>(s);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">final</span> != LatticeWeight::<span class="built_in">Zero</span>()) &#123;</span><br><span class="line">      <span class="keyword">final</span>.<span class="built_in">SetValue2</span>(<span class="number">0.0</span>); <span class="comment">// 确保在最终概率中没有声学项</span></span><br><span class="line">      lat-&gt;<span class="built_in">SetFinal</span>(s, <span class="keyword">final</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 用于rescore lattice的对数似然的索引个数</span></span><br><span class="line">  <span class="keyword">return</span> index;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在分母lattice上进行前向后向的计算函数为LatticeForwardBackward；在分子lattice的前向后向计算函数为AlignmentToPosterior。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lat/lattice-functions.cc</span></span><br><span class="line"><span class="comment">// 在lattice上执行前向后向算法并计算弧的后验概率</span></span><br><span class="line"><span class="function">BaseFloat <span class="title">LatticeForwardBackward</span><span class="params">(<span class="type">const</span> Lattice &amp;lat, Posterior *post,</span></span></span><br><span class="line"><span class="params"><span class="function">                                 <span class="type">double</span> *acoustic_like_sum)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 注意Posterior定义如下:  </span></span><br><span class="line">  <span class="comment">// Indexed [frame], then a list of (transition-id, posterior-probability) pairs.</span></span><br><span class="line">  <span class="comment">// typedef std::vector&lt;std::vector&lt;std::pair&lt;int32, BaseFloat&gt; &gt; &gt; Posterior;</span></span><br><span class="line">  <span class="keyword">using</span> <span class="keyword">namespace</span> fst;</span><br><span class="line">  <span class="keyword">typedef</span> Lattice::Arc Arc;</span><br><span class="line">  <span class="keyword">typedef</span> Arc::Weight Weight;</span><br><span class="line">  <span class="keyword">typedef</span> Arc::StateId StateId;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (acoustic_like_sum) *acoustic_like_sum = <span class="number">0.0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 确保lattices在拓扑上排序</span></span><br><span class="line">  <span class="keyword">if</span> (lat.<span class="built_in">Properties</span>(fst::kTopSorted, <span class="literal">true</span>) == <span class="number">0</span>)</span><br><span class="line">    KALDI_ERR &lt;&lt; <span class="string">&quot;Input lattice must be topologically sorted.&quot;</span>;</span><br><span class="line">  <span class="built_in">KALDI_ASSERT</span>(lat.<span class="built_in">Start</span>() == <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  int32 num_states = lat.<span class="built_in">NumStates</span>();</span><br><span class="line">  vector&lt;int32&gt; state_times;</span><br><span class="line">  <span class="comment">// 拓扑迭代den_lats中的每个state，并按顺序对每个state进行计数，结果</span></span><br><span class="line">  <span class="comment">// 保存在vector state_times中，最后一个state对应的计数时间应该为帧的数量值</span></span><br><span class="line">  int32 max_time = <span class="built_in">LatticeStateTimes</span>(lat, &amp;state_times);</span><br><span class="line">  <span class="function">std::vector&lt;<span class="type">double</span>&gt; <span class="title">alpha</span><span class="params">(num_states, kLogZeroDouble)</span></span>;</span><br><span class="line">  <span class="function">std::vector&lt;<span class="type">double</span>&gt; &amp;<span class="title">beta</span><span class="params">(alpha)</span></span>; </span><br><span class="line">  <span class="comment">// 重用相同的内存，beta是alpha的引用</span></span><br><span class="line">  <span class="type">double</span> tot_forward_prob = kLogZeroDouble;</span><br><span class="line"></span><br><span class="line">  post-&gt;<span class="built_in">clear</span>();</span><br><span class="line">  post-&gt;<span class="built_in">resize</span>(max_time);</span><br><span class="line"></span><br><span class="line">  alpha[<span class="number">0</span>] = <span class="number">0.0</span>;</span><br><span class="line">  <span class="comment">// Propagate alphas forward.</span></span><br><span class="line">  <span class="keyword">for</span> (StateId s = <span class="number">0</span>; s &lt; num_states; s++) &#123;</span><br><span class="line">    <span class="type">double</span> this_alpha = alpha[s];</span><br><span class="line">    <span class="comment">// alpha[]里面存储着从init state走到该state的所有路径中cost value加和最大值</span></span><br><span class="line">    <span class="keyword">for</span> (ArcIterator&lt;Lattice&gt; <span class="built_in">aiter</span>(lat, s); !aiter.<span class="built_in">Done</span>(); aiter.<span class="built_in">Next</span>()) &#123;</span><br><span class="line">      <span class="type">const</span> Arc &amp;arc = aiter.<span class="built_in">Value</span>();</span><br><span class="line">      <span class="comment">// arc_like = arc.weight.value1 + arc.weight.value2</span></span><br><span class="line">      <span class="type">double</span> arc_like = -<span class="built_in">ConvertToCost</span>(arc.weight);    </span><br><span class="line">      <span class="comment">// LogAdd返回两者之间较大的一个... + something else</span></span><br><span class="line">      alpha[arc.nextstate] = <span class="built_in">LogAdd</span>(alpha[arc.nextstate], this_alpha + arc_like);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// get状态s的final weight; if == Weight::Zero() =&gt; non-final</span></span><br><span class="line">    <span class="comment">// final state上面有单独的语言和声学分 </span></span><br><span class="line">    Weight f = lat.<span class="built_in">Final</span>(s);</span><br><span class="line">    <span class="keyword">if</span> (f != Weight::<span class="built_in">Zero</span>()) &#123;     </span><br><span class="line">      <span class="type">double</span> final_like = this_alpha - (f.<span class="built_in">Value1</span>() + f.<span class="built_in">Value2</span>());</span><br><span class="line">      tot_forward_prob = <span class="built_in">LogAdd</span>(tot_forward_prob, final_like);</span><br><span class="line">      <span class="built_in">KALDI_ASSERT</span>(state_times[s] == max_time &amp;&amp;</span><br><span class="line">                   <span class="string">&quot;Lattice is inconsistent (final-prob not at max_time)&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (StateId s = num_states<span class="number">-1</span>; s &gt;= <span class="number">0</span>; s--) &#123;</span><br><span class="line">    Weight f = lat.<span class="built_in">Final</span>(s);</span><br><span class="line">    <span class="comment">// 如果s不是final state, this_beta = 0</span></span><br><span class="line">    <span class="type">double</span> this_beta = -(f.<span class="built_in">Value1</span>() + f.<span class="built_in">Value2</span>());</span><br><span class="line">    <span class="comment">// beta[]里面存储的是从该state走到final state的所有路径中cost value加和最大值（加上final state的权值）</span></span><br><span class="line">    <span class="keyword">for</span> (ArcIterator&lt;Lattice&gt; <span class="built_in">aiter</span>(lat, s); !aiter.<span class="built_in">Done</span>(); aiter.<span class="built_in">Next</span>()) &#123;</span><br><span class="line">      <span class="type">const</span> Arc &amp;arc = aiter.<span class="built_in">Value</span>();</span><br><span class="line">      <span class="type">double</span> arc_like = -<span class="built_in">ConvertToCost</span>(arc.weight),</span><br><span class="line">          arc_beta = beta[arc.nextstate] + arc_like;</span><br><span class="line">      this_beta = <span class="built_in">LogAdd</span>(this_beta, arc_beta);</span><br><span class="line">      int32 transition_id = arc.ilabel;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 该if判断是一个优化，以避免不需要的exp()函数</span></span><br><span class="line">      <span class="keyword">if</span> (transition_id != <span class="number">0</span> || acoustic_like_sum != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="type">double</span> posterior = <span class="built_in">Exp</span>(alpha[s] + arc_beta - tot_forward_prob);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (transition_id != <span class="number">0</span>) <span class="comment">// 该弧上有tid，不是epsilon</span></span><br><span class="line">          <span class="comment">// (*post)[state_times[s]]是以时间帧为编号的vector</span></span><br><span class="line">          (*post)[state_times[s]].<span class="built_in">push_back</span>(std::<span class="built_in">make_pair</span>(transition_id,</span><br><span class="line">                                                           <span class="built_in">static_cast</span>&lt;kaldi::BaseFloat&gt;(posterior)));</span><br><span class="line">        <span class="keyword">if</span> (acoustic_like_sum != <span class="literal">NULL</span>)</span><br><span class="line">          *acoustic_like_sum -= posterior * arc.weight.<span class="built_in">Value2</span>();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (acoustic_like_sum != <span class="literal">NULL</span> &amp;&amp; f != Weight::<span class="built_in">Zero</span>()) &#123;</span><br><span class="line">      <span class="type">double</span> final_logprob = - <span class="built_in">ConvertToCost</span>(f),</span><br><span class="line">          posterior = <span class="built_in">Exp</span>(alpha[s] + final_logprob - tot_forward_prob);</span><br><span class="line">      *acoustic_like_sum -= posterior * f.<span class="built_in">Value2</span>();     <span class="comment">// value2声学分数 </span></span><br><span class="line">    &#125;</span><br><span class="line">    beta[s] = this_beta;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="type">double</span> tot_backward_prob = beta[<span class="number">0</span>];</span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">ApproxEqual</span>(tot_forward_prob, tot_backward_prob, <span class="number">1e-8</span>)) &#123;</span><br><span class="line">    KALDI_WARN &lt;&lt; <span class="string">&quot;Total forward probability over lattice = &quot;</span> &lt;&lt; tot_forward_prob</span><br><span class="line">              &lt;&lt; <span class="string">&quot;, while total backward probability = &quot;</span> &lt;&lt; tot_backward_prob;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 按照第一个元素排序，把tid(pdfid)相同的后验combine起来(posterior值加起来)</span></span><br><span class="line">  <span class="keyword">for</span> (int32 t = <span class="number">0</span>; t &lt; max_time; t++)</span><br><span class="line">    <span class="built_in">MergePairVectorSumming</span>(&amp;((*post)[t]));</span><br><span class="line">  <span class="keyword">return</span> tot_backward_prob;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="component和component-node："><a href="#component和component-node：" class="headerlink" title="component和component-node："></a>component和component-node：</h2><p>component 是类；</p>
-<p>component-node 是类的实例</p>
-<h2 id="kaldi-nnet3-写一个cnn："><a href="#kaldi-nnet3-写一个cnn：" class="headerlink" title="kaldi nnet3 写一个cnn："></a>kaldi nnet3 写一个cnn：</h2><p>kernel是用time-offsets和height-offsets设置得到的卷积核大小；</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/image-20221009190513492.png" alt="image-20221009190513492"></p>
-<h2 id="kaldi-nnet3写一个lstm"><a href="#kaldi-nnet3写一个lstm" class="headerlink" title="kaldi nnet3写一个lstm"></a>kaldi nnet3写一个lstm</h2><p>delay指的是进行几次循环</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/image-20221009190903142.png" alt="image-20221009190903142"> </p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/image-20221009191218981.png" alt="image-20221009191218981"></p>
+<h4 id="trick"><a href="#trick" class="headerlink" title="trick"></a>trick</h4><ul>
+<li>frame rejection<br>当分子alignment的状态没有在分母lattice中出现的时候，会导致梯度过大，舍弃该帧的梯度。这种情况对于silence帧尤其常见，因为silence经常出现在分子的lattice，但是很容易被分母的lattice忽略。<br>如果新的对齐和lattice在每轮训练后被重新生成，那么运算结果将得到进一步改进。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 如果两个post[i]的第一个元素(tid)没有交集，返回true</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">PosteriorEntriesAreDisjoint</span>(post1[i], post2[i])) &#123;</span><br><span class="line">      num_disjoint++;</span><br><span class="line">      <span class="keyword">if</span> (drop_frames)</span><br><span class="line">        (*post)[i].<span class="built_in">clear</span>();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>帧平滑  $J_{FS-SEQ}(\theta;S)&#x3D;(1-H)J_{CE}(\theta;S)+HJ_{SEQ}(\theta;S)$</p>
+<p>当训练dt准则函数持续改进时，只用DNN计算出的帧准确率却显著变差。帧&#x2F;序列的比从 1:4 (H &#x3D; 4&#x2F;s )到 1:10 (H &#x3D; 10&#x2F;11 )常常是有效的。</p>
+</li>
+<li><p>更小的lr，大数据集上smbr效果最好</p>
+</li>
+</ul>
+<hr>
+<blockquote>
+<p>七月在线的视频 07.第四课 序列判别式训练（视频），PPT:《asr_lecture4.pdf》</p>
+</blockquote>
+<ul>
+<li>之前是nbest求和，现在是用lattice，lattice上路径会有重合，也是求和</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211008150208238.png" alt="image-20211008150208238"></p>
+<ul>
+<li>用lattice估计全量量的W </li>
+<li>用最初的模型⽣生成lattice</li>
+<li>使用弱的语言模型，通常用1-gram的语言模型</li>
+<li>但是控制lattice⼤小，通过beam控制，以减小计算的复杂度</li>
+<li>继承解码后的边对应的phone</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211008160228044.png" alt="image-20211008160228044"></p>
+<p>生成分母FST代码： kaldi&#x2F;src&#x2F;chainbin&#x2F;chainmake-den-fst.cc  </p>
+<p>2016 paper仍需要用gmm进行预训练，进行对齐，对phone出现的帧进行限制，同分母的fst进行连接，那样就是带上语言模型概念</p>
+<hr>
+<p>区分性训练，其实应该说鉴别性训练，相对于生成式模型？<del>意思就是不是把所有样本一视同仁地训练，而是赋予不同权重训练</del></p>
+<ul>
+<li><p>LFMMI之前的MMI分母用的解码得到的lattice作为词空间</p>
+</li>
+<li><p>LFMMI分子用的对齐lattice，分母用的是phoneWFST构成的lattice，所有句子的分母lattice都相同，就一个，之前没用这个HCLG是因为用word得到的HCLG特别大</p>
+</li>
+</ul>
+<hr>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU4MTA0NDE5NQ==&mid=2247485166&idx=1&sn=8b16bf29ed1a40e5b6cb2ba7104a1f1d&chksm=fd4cd462ca3b5d7446b4893cee3a03015d2b91dd0013f61ed0586be79bc514ebdb85a14ee31c&mpshare=1&scene=1&srcid=&sharer_sharetime=1584408100044&sharer_shareid=2c567b07b642647cb9daac1b143684f9#rd">语音识别系列之区分性训练和LF-MMI</a></p>
+</blockquote>
+<ul>
+<li><p>普通MMI：MMI的训练依赖Lattice，Lattice又依赖已经训练好的声学模型，所以在DNN的声学模型中，我们要先基于ML准则先训练好DNN模型，然后做MMI的训练。并且，<strong>Lattice是一个解码过程，其生成代价很高</strong>，并且只能在CPU上进行解码生成。一般我们只生成一次Lattice，区分性训练的过程中我们并不根据当前更新后的声学模型实时生成Lattice，也就是不使用实时的Lattice做MMI训练。所以在这种方式中，<strong>Lattice是滞后的，和当前的声学模型并不同步</strong>。</p>
+<p>每句话生成一个lattice，这个lattice之后都不更新，并且这个lattice也许不能代表这句话的全部词空间</p>
+</li>
+<li><p>LFMMI的分母改进：提到W一定要是有限的，可枚举的，当MMI分母和语音识别解码图是一样时，即以词Word作为语言模型的单元，一般的语音识别系统词级别在数十万到百万之间，即使做个简单的bi-gram，其复杂度也非常非常高（HCLG的大小），训练代价非常高。为了降低复杂度，考虑以：</p>
+<ul>
+<li>Phone作为语言模型单元。识别系统中Phone的一般在几十个到一百多个，考虑到数据稀疏性，即使做tri-gram或者4-gram复杂度也在合理区间内。以Phone作为建模单元时，MMI的分母图为HCG(没有词典L了，并且G的单元是Phone）。</li>
+<li>State作为语言模型建模单元。识别系统中的State一般在几千个左右，考虑到数据稀疏性，做tri-gram复杂度也在合理区间内。以State作为建模单元时，MMI的分母图为G（G以State作为建模单元，这里State是指上下文相关的CD-State&#x2F;senone）。</li>
+</ul>
+</li>
+</ul>
+<p>其中，Phone和State的训练语料都可以由语音识别的训练数据通过对齐生成。<strong>合理的控制Phone和State的MMI分母的大小，可以将其前向后向计算塞进GPU进行计算，也就是将MMI训练迁移到GPU，从而大大提高了MMI的训练速度</strong>。在业界中，Phone和State的两者都有实际应用。Kaldi的chain model中，使用Phone作为MMI分母建模单元。在一些其他工作或文章中，如”Achieving Human Parity in Conversational Speech Recognition”这篇文章中，以State作为MMI分母的建模单元，该论文中的结果如下表所示，可以看到，LF-MMI也拿到了合理的收益，其收益和Lattice based的MMI收益相近。</p>
+<p>当使用语言模型的思想表示MMI的分母时，我们无需再对训练语料进行解码，无需生成Lattice，所以称之为Lattice Free MMI(LF-MMI)。对于所有训练语料来讲，MMI的分母图是以一样的，并且，因为我们限制了MMI分母图的空间，该前向后向算法是on-the-fly的，在训练过程中直接计算，其与声学模型是同步更新（声学模型更新后，lattice也更新（lattice更新里面的声学分数）（hclg不变，因为hclg里的信息就涉及声学模型只有转移））。</p>
+<h2 id="chain-model"><a href="#chain-model" class="headerlink" title="chain model"></a>chain model</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU4MTA0NDE5NQ==&mid=2247485166&idx=1&sn=8b16bf29ed1a40e5b6cb2ba7104a1f1d&chksm=fd4cd462ca3b5d7446b4893cee3a03015d2b91dd0013f61ed0586be79bc514ebdb85a14ee31c&mpshare=1&scene=1&srcid=&sharer_sharetime=1584408100044&sharer_shareid=2c567b07b642647cb9daac1b143684f9#rd">语音识别系列之区分性训练和LF-MMI</a></p>
+<p>2016 - Povey et al. - Purely sequence-trained neural networks for ASR based on lattice-free MMI </p>
+</blockquote>
+<p>chain model本质是LFMMI，用了一些trick</p>
+<p>chain model中比较重要的tirck有：</p>
+<ol>
+<li>HMM拓扑结构改变，从标准的三状态改为单状态的HMM。</li>
+<li>帧率从10ms降低到30ms。</li>
+<li>MMI分母使用Phone作为语言模型建模单元，最终表示为HCG，且为简化，C为bi-phone。</li>
+<li>训练数据均做等长(1.5s)切分，分子使用该句话的Lattice表示。且在分子Lattice上引入一定时间扰动。</li>
+<li>CE正则化。训练时同时引入CE作为第二个任务进行multi task learning。所以，最终chain model的网络结构如下图所示：</li>
+<li>L2正则化&#x2F;Leaky HMM等</li>
+</ol>
+<h2 id="区分性训练trick"><a href="#区分性训练trick" class="headerlink" title="区分性训练trick"></a>区分性训练trick</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xmdxcsj/article/details/52760111">声学模型学习笔记（五） SDT(MMI&#x2F;BMMI&#x2F;MPE&#x2F;sMBR)</a> xmdxcsj csdn blog</p>
+</blockquote>
+<h3 id="lattice-generation"><a href="#lattice-generation" class="headerlink" title="lattice generation"></a>lattice generation</h3><p>区分性训练时生成高质量的lattice很重要，需要使用最好的模型来生成对应的lattice，并且作为seed model。</p>
+<h3 id="lattice-compensation"><a href="#lattice-compensation" class="headerlink" title="lattice compensation"></a>lattice compensation</h3><p> 如果lattice产生的不合理的话，会导致计算出来的梯度异常，比如分子的标注路径没有在分母中的lattice出现，这种情况对于silience帧尤其常见，因为silience经常出现在分子的lattice，但是很容易被分母的lattice忽略。有一些方法可以解决这种问题：</p>
+<ul>
+<li>fame rejection，直接删除这些帧</li>
+<li>根据reference hypothesis修正lattice，比如在lattice中人为地添加一下silience边</li>
+</ul>
+<h3 id="frame-smoothing"><a href="#frame-smoothing" class="headerlink" title="frame smoothing"></a>frame smoothing</h3><p>SDT很容易出现overfitting，两方面原因</p>
+<ul>
+<li><p>sparse lattice</p>
+</li>
+<li><p>sdt的squence相比于frame增加了建模的维度，导致训练集的后验概率分布更容易跟测试集出现差异</p>
+</li>
+</ul>
+<p>可以修改训练准则来减弱overfitting，通过结合squence criteria和frame criteria来实现：<br>$$<br>J_{FS-SEQ}(\theta;S)&#x3D;(1-H)J_{CE}(\theta;S)+HJ_{SEQ}(\theta;S)<br>$$<br>其中，$H$成为smoothing factor，经验值设为4&#x2F;5或10&#x2F;11</p>
+<h3 id="learning-rate"><a href="#learning-rate" class="headerlink" title="learning rate"></a>learning rate</h3><p>SDT的学习率相比于CE要小，因为</p>
+<ul>
+<li>SDT的起点一般基于CE训练出来的model</li>
+<li>SDT训练容易出现overfitting</li>
+</ul>
+<h3 id="criterion-selection"><a href="#criterion-selection" class="headerlink" title="criterion selection"></a>criterion selection</h3><p>sMBR效果相比其他会好一点，MMI比较容易理解和实现。</p>
+<h3 id="noise-contrastIve-estimation"><a href="#noise-contrastIve-estimation" class="headerlink" title="noise contrastIve estimation"></a>noise contrastIve estimation</h3><p>NCE可以用于加速训练</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>[1]《automatic speech recognition a deep learning approach》 chapter8<br>[2]Sequence-discriminative training of deep neural networks<br>[3]Boosted MMI for model and feature-space discriminative training<br>[4]discriminative training for large vocabulary speech recognition {daniel povey的博士论文chapter6}</p>
 
           
         
