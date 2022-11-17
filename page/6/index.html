@@ -537,7 +537,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20%E8%A7%A3%E7%A0%81/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20LM/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -556,7 +556,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20%E8%A7%A3%E7%A0%81/" itemprop="url">Wenet脚本 解码</a></h1>
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20LM/" itemprop="url">Wenet脚本 LM</a></h1>
         
 
         <div class="post-meta">
@@ -609,9 +609,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20%E8%A7%A3%E7%A0%81/#comments" itemprop="discussionUrl">
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20LM/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/Wenet脚本 解码/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2022/01/04/识别/Wenet脚本 LM/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -641,185 +641,130 @@
       
         
           
-            <h1 id="解码"><a href="#解码" class="headerlink" title="解码"></a>解码</h1><h2 id="decode-main"><a href="#decode-main" class="headerlink" title="decode_main"></a>decode_main</h2><p>decode_main参数：</p>
+            <h1 id="语言模型"><a href="#语言模型" class="headerlink" title="语言模型"></a>语言模型</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://wenet.org.cn/wenet/lm.html">LM for WeNet</a></p>
+</blockquote>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20LM/lm_system.png" alt="img" style="zoom:80%;">
+
+<ol>
+<li>没有LM，用CTC prefix beam search来产生N-best</li>
+<li>有LM，用CTC WFST search来产生N-best，其中CTC WFST search是传统的基于WFST的decoder</li>
+</ol>
+<p>第一步是构建解码图，用建模单元T，词典L，语言模型G组合compose到统一一个解码图TLG里，其中T是端到端训练的建模单元，中文里是char，英文是char或BPE；L是词典，就是把词组分开成建模单元，比如把word“我们”分开成两个chars“我 们”，word“APPLE”分开成五个字母letters“A P P L E”，没有音素，词典不用特殊设计；G是语言模型，就是将n-gram编译成标准的WFST表示；</p>
+<p>第二步是解码，和传统方法一样，用Viterbi搜索算法；</p>
+<p>WeNet利用Kaldi中的解码器和相关工具来支持基于LM和WFST的解码。为了便于使用和保持独立性，我们在WeNet运行时直接将Kaldi中与解码相关的代码迁移到<a target="_blank" rel="noopener" href="https://github.com/wenet-e2e/wenet/tree/main/runtime/core/kaldi">此目录</a>。并按以下原则进行修改和组织:</p>
+<ol>
+<li>为了最小化更改，迁移后的代码保持与原始代码相同的目录结构。</li>
+<li>我们使用GLOG代替Kaldi的日志系统。</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_WARN \</span></span><br><span class="line"><span class="meta">  google::LogMessage(__FILE__, __LINE__, google::GLOG_WARNING).stream()</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ERR \</span></span><br><span class="line"><span class="meta">  google::LogMessage(__FILE__, __LINE__, google::GLOG_ERROR).stream()</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_INFO \</span></span><br><span class="line"><span class="meta">  google::LogMessage(__FILE__, __LINE__, google::GLOG_INFO).stream()</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_VLOG(v) VLOG(v)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ASSERT(condition) CHECK(condition)</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>我们修改了代码格式，以满足WeNet代码风格的lint要求。</li>
+</ol>
+<p>核心代码是 <a target="_blank" rel="noopener" href="https://github.com/wenet-e2e/wenet/blob/main/runtime/core/decoder/ctc_wfst_beam_search.cc">https://github.com/wenet-e2e/wenet/blob/main/runtime/core/decoder/ctc_wfst_beam_search.cc</a>  ,   它在Kaldi中包装wrap了LatticeFasterDecoder。我们使用空白帧跳转来加速解码。</p>
+<p>此外，WeNet还迁移了构建解码图的相关工具，如arpa2fst、fstdeterminizestar、fsttablecompose、fstminimizeencoded等工具。因此，所有与LM相关的工具都是内置工具，可以开箱即用。</p>
+<p>我们在不同的数据集上获得了一致的增益(3%~10%)，包括aishell、aishell2和librispeech</p>
+<h3 id="词典的构造："><a href="#词典的构造：" class="headerlink" title="词典的构造："></a>词典的构造：</h3><p>tools&#x2F;fst&#x2F;prepare_dict.py</p>
+<p>之前训练时，按字建模，没有词组，因此字一共有4232个字（训练集）（data&#x2F;dict&#x2F;lexicon.txt），加eos&#x2F;sos是4233个</p>
+<p>现在：把aishell里的一个自带的词典corpus&#x2F;aishell&#x2F;resource_aishell&#x2F;lexicon.txt（13万个词组），通过data&#x2F;dict&#x2F;lexicon.txt进行过滤，只保留训练集有的字的词组，</p>
+<p>得到的词典用字建模，组成词组，12万词的词典（data&#x2F;local&#x2F;dict&#x2F;lexicon.txt）；</p>
+<h3 id="训练LM："><a href="#训练LM：" class="headerlink" title="训练LM："></a>训练LM：</h3><p>local&#x2F;aishell_train_lms.sh</p>
+<p>用训练集训练LM：</p>
+<p>从corpus&#x2F;data_aishell&#x2F;transcript&#x2F;aishell_transcript_v0.8.txt（所有train&#x2F;dev&#x2F;test音频对应的文本，进行了分词）过滤出训练集对应的12万条分词文本（data&#x2F;local&#x2F;lm&#x2F;text）</p>
+<p>用分词过的12万条训练集文本、12万词的词典 训练语言模型，得到 16M的 3-gram的lm.arpa</p>
+<p>file data&#x2F;local&#x2F;lm&#x2F;heldout: 10000 sentences, 89496 words, 0 OOVs<br>0 zeroprobs, logprob&#x3D; -272791.2 ppl&#x3D; 551.7352 ppl1&#x3D; 1117.077</p>
+<p>可以看出，ppl&#x3D;500多，还不是特别好（300以内才好）</p>
+<h3 id="构建解码中使用的TLG"><a href="#构建解码中使用的TLG" class="headerlink" title="构建解码中使用的TLG"></a>构建解码中使用的TLG</h3><p>tools&#x2F;fst&#x2F;compile_lexicon_token_fst.sh</p>
+<p>tools&#x2F;fst&#x2F;make_tlg.sh </p>
+<p>TLG.fst &#x3D;  T compose（determini（L compose G））</p>
+<h3 id="TLG参与推理解码"><a href="#TLG参与推理解码" class="headerlink" title="TLG参与推理解码"></a>TLG参与推理解码</h3><p>.&#x2F;tools&#x2F;decode.sh</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">./tools/decode.sh --nj 16 \</span><br><span class="line">    --beam 15.0 --lattice_beam 7.5 --max_active 7000 \</span><br><span class="line">    --blank_skip_thresh 0.98 --ctc_weight 0.5 --rescoring_weight 1.0 \</span><br><span class="line">    --fst_path data/lang_test/TLG.fst \</span><br><span class="line">    data/test/wav.scp data/test/text <span class="variable">$dir</span>/final.zip \</span><br><span class="line">    data/lang_test/words.txt <span class="variable">$dir</span>/lm_with_runtime</span><br></pre></td></tr></table></figure>
+
+<p>.&#x2F;tools&#x2F;decode.sh 具体为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">decoder_main \</span><br><span class="line">   --rescoring_weight <span class="variable">$rescoring_weight</span> \</span><br><span class="line">   --ctc_weight <span class="variable">$ctc_weight</span> \</span><br><span class="line">   --reverse_weight <span class="variable">$reverse_weight</span> \</span><br><span class="line">   --chunk_size <span class="variable">$chunk_size</span> \</span><br><span class="line">   --wav_scp <span class="variable">$&#123;dir&#125;</span>/split<span class="variable">$&#123;nj&#125;</span>/wav.<span class="variable">$&#123;n&#125;</span>.scp \</span><br><span class="line">   --model_path <span class="variable">$model_file</span> \</span><br><span class="line">   --dict_path <span class="variable">$dict_file</span> \</span><br><span class="line">   <span class="variable">$wfst_decode_opts</span> \</span><br><span class="line">   --result <span class="variable">$&#123;dir&#125;</span>/split<span class="variable">$&#123;nj&#125;</span>/<span class="variable">$&#123;n&#125;</span>.text &amp;&gt; <span class="variable">$&#123;dir&#125;</span>/split<span class="variable">$&#123;nj&#125;</span>/<span class="variable">$&#123;n&#125;</span>.<span class="built_in">log</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>要到runtime&#x2F;server&#x2F;x86 进行编译：<code>mkdir build &amp;&amp; cd build &amp;&amp; cmake .. &amp;&amp; cmake --build .	</code>		[用docker的话，这步就不需要]</p>
+<p>cmake版本要3.14 ，我没有编译成功（3.12），错误报告见：&#x2F;home&#x2F;data&#x2F;yelong&#x2F;newest_wenet&#x2F;wenet&#x2F;runtime&#x2F;server&#x2F;x86&#x2F;build&#x2F;CMakeFiles&#x2F;CMakeOutput.log</p>
+<p>因此决定直接用 docker</p>
+<p>进入到container中：docker exec -it 5627fbb7b503 bash</p>
+<p>进入到&#x2F;home&#x2F;wenet&#x2F;runtime&#x2F;server&#x2F;x86</p>
+<p>用c进行解码</p>
+<h2 id="使用docker启动语音识别服务"><a href="#使用docker启动语音识别服务" class="headerlink" title="使用docker启动语音识别服务"></a>使用docker启动语音识别服务</h2><p>先要拉去最新的image</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> docker</span><br><span class="line">docker build --no-cache -t wenet:latest .</span><br><span class="line"><span class="comment"># 或者：</span></span><br><span class="line">docker run -it -p 10086:10086 -v <span class="variable">$model_dir</span>:/home/wenet/model wenetorg/wenet-mini:latest bash /home/run.sh</span><br><span class="line"><span class="comment"># 这里10086:10086是服务器端口，映射到容器的端口，内部端口:外部端口</span></span><br></pre></td></tr></table></figure>
+
+<p>最简单的使用 Wenet 的方式是通过官方提供的 docker 镜像 <code>wenetorg/wenet:mini</code> 来启动服务。</p>
+<p>（镜像默认都是放在<a target="_blank" rel="noopener" href="https://hub.docker.com/%E9%87%8C%EF%BC%8C%E7%84%B6%E5%90%8E%E8%99%BD%E7%84%B6%E6%B2%A1%E6%9C%89%E8%BF%99%E4%B8%AA%E5%89%8D%E7%BC%80%EF%BC%8C%E4%BD%86%E6%98%AF%E4%BC%9A%E5%8E%BB%E8%BF%99%E4%B8%8A%E9%9D%A2%E6%89%BE%E9%95%9C%E5%83%8F%EF%BC%8C%E9%95%9C%E5%83%8F%E5%90%8D%E5%8F%ABwenetorg/wenet-mini%EF%BC%89">https://hub.docker.com/里，然后虽然没有这个前缀，但是会去这上面找镜像，镜像名叫wenetorg/wenet-mini）</a></p>
+<p>下面的命令先下载官方提供的预训练模型，并启动 docker 服务，加载模型，提供 websocket 协议的语音识别服务。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> wenet/runtime/server/x86</span><br><span class="line">wget https://wenet-1256283475.cos.ap-shanghai.myqcloud.com/models/aishell/20210601_u2%2B%2B_conformer_libtorch.tar.gz</span><br><span class="line">tar -xf 20210602_u2++_conformer_libtorch.tar.gz</span><br><span class="line">model_dir=<span class="variable">$PWD</span>/20210602_u2++_conformer_libtorch</span><br><span class="line">docker run --<span class="built_in">rm</span> -it -p 10086:10086 -v <span class="variable">$model_dir</span>:/home/wenet/model wenetorg/wenet-mini:latest bash /home/run.sh</span><br><span class="line"><span class="comment"># 这里起一次就生成一个容器了，之后只要用：</span></span><br><span class="line">docker <span class="built_in">exec</span> -it .... bash <span class="comment"># 再次进入就好</span></span><br></pre></td></tr></table></figure>
+
+<p><code>$model_dir</code> 是模型在本机的目录，将被映射到容器的 <code>/home/wenet/model</code> 目录，然后启动 web 服务。</p>
+<h3 id="用网页的实时识别"><a href="#用网页的实时识别" class="headerlink" title="用网页的实时识别"></a>用网页的实时识别</h3><p>上面的docker容器中运行 <code>bash /home/run.sh</code></p>
+<p>&#x2F;home&#x2F;run.sh内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=/home/wenet/lib</span><br><span class="line"><span class="built_in">export</span> GLOG_logtostderr=1</span><br><span class="line"><span class="built_in">export</span> GLOG_v=2</span><br><span class="line"></span><br><span class="line">model=/home/wenet/model</span><br><span class="line">/home/wenet/websocket_server_main   --port 10086   --chunk_size 16   --model_path <span class="variable">$model</span>/final.zip   --dict_path <span class="variable">$model</span>/words.txt 2&gt;&amp;1 | <span class="built_in">tee</span> server.log</span><br></pre></td></tr></table></figure>
+
+
+
+<p>然后下载github的wenet整个项目到windows本地，使用浏览器打开文件<code>runtime/server/x86/web/templates/index.html</code>，在 <code>WebSocket URL：</code>填入 服务器的地址，端口号，比如<code>ws://10.22.23.14:10086</code></p>
+<p>就可以了！</p>
+<p>经我测试，识别非常慢，识别不准确。。？？</p>
+<h2 id="在-Docker-环境中使用"><a href="#在-Docker-环境中使用" class="headerlink" title="在 Docker 环境中使用"></a>在 Docker 环境中使用</h2><p>如果遇到问题比如无法编译，我们提供了 docker 镜像用于直接执行示例。需要先安装好 docker，运行如下命令，进入 docker 容器环境。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it mobvoiwenet/wenet:latest bash</span><br></pre></td></tr></table></figure>
+
+<p>该镜像包含了编译过程中所依赖的所有第三方库、编译好的文件和预训练模型。</p>
+<p>预训练模型在 <code>/home/model</code> 目录, 可执行程序在 <code>/home/wenet/runtime/server/x86/build</code> 目录。</p>
+<p>有了这个镜像后，平时需要的话，可以新建容器：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it mobvoiwenet/wenet:latest bash</span><br></pre></td></tr></table></figure>
+
+
+
+<p>如果修改了cc文件，要执行 <code>mkdir build &amp;&amp; cd build &amp;&amp; cmake .. &amp;&amp; cmake --build .</code>进行编译</p>
+<h2 id="自行编译运行时程序"><a href="#自行编译运行时程序" class="headerlink" title="自行编译运行时程序"></a>自行编译运行时程序</h2><p>&#x3D;&#x3D;该方式不推荐，因为本地编译麻烦，cmake升级版本还和gcc版本有关&#x3D;&#x3D;</p>
+<p>如果想使用非 docker 方式，需要自行编译。Wenet 支持 linux&#x2F;macos&#x2F;windows 三种平台上的编译。需要安装 cmake 3.14 或者更高版本。</p>
+<p>运行如下命令，完成编译。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 当前目录为 wenet/runtime/server/x86</span></span><br><span class="line"><span class="built_in">mkdir</span> build &amp;&amp; <span class="built_in">cd</span> build &amp;&amp; cmake .. &amp;&amp; cmake --build .</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>或者使用命令编译以支持 gRPC。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir build &amp;&amp; cd build &amp;&amp; cmake -DGRPC=ON .. &amp;&amp; cmake --build .</span><br></pre></td></tr></table></figure>
+
+<p>编译好的可执行程序在 <code>wenet/runtime/server/x86/build/</code> 下：</p>
 <ul>
-<li>rescoring_weight：如果为0，不需要rescore；不为0的任意值，要做rescore</li>
-<li>ctc_weight：rescore中，最终某条n-best分数 &#x3D; score_aed + ctc_weight * score_ctc</li>
+<li>decoder_main 本地文件识别工具</li>
+<li>websocket_server_main 基于websocket协议的识别服务端</li>
+<li>websocket_client_main 基于websocket协议的识别客户端</li>
 </ul>
-<h2 id="binding"><a href="#binding" class="headerlink" title="binding"></a>binding</h2><p>prefix beam search</p>
-<p>参考 <a target="_blank" rel="noopener" href="https://github.com/awni/speech">https://github.com/awni/speech</a></p>
-<p>之前的笔记中解码代码：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Author: Awni Hannun</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">This is an example CTC decoder written in Python. The code is</span></span><br><span class="line"><span class="string">intended to be a simple example and is not designed to be</span></span><br><span class="line"><span class="string">especially efficient.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">The algorithm is a prefix beam search for a model trained</span></span><br><span class="line"><span class="string">with the CTC loss function.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">For more details checkout either of these references:</span></span><br><span class="line"><span class="string">  https://distill.pub/2017/ctc/#inference</span></span><br><span class="line"><span class="string">  https://arxiv.org/abs/1408.2873</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> collections</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">NEG_INF = -<span class="built_in">float</span>(<span class="string">&quot;inf&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">make_new_beam</span>():</span><br><span class="line">    fn = <span class="keyword">lambda</span> : (NEG_INF, NEG_INF)</span><br><span class="line">    <span class="keyword">return</span> collections.defaultdict(fn)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">logsumexp</span>(<span class="params">*args</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Stable log sum exp.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">all</span>(a == NEG_INF <span class="keyword">for</span> a <span class="keyword">in</span> args):</span><br><span class="line">        <span class="keyword">return</span> NEG_INF</span><br><span class="line">    a_max = <span class="built_in">max</span>(args)</span><br><span class="line">    lsp = math.log(<span class="built_in">sum</span>(math.exp(a - a_max)</span><br><span class="line">                       <span class="keyword">for</span> a <span class="keyword">in</span> args))</span><br><span class="line">    <span class="keyword">return</span> a_max + lsp</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">decode</span>(<span class="params">probs, beam_size=<span class="number">3</span>, blank=<span class="number">0</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Performs inference for the given output probabilities.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Arguments:</span></span><br><span class="line"><span class="string">      probs: The output probabilities (e.g. post-softmax) for each</span></span><br><span class="line"><span class="string">        time step. Should be an array of shape (time x output dim).</span></span><br><span class="line"><span class="string">      beam_size (int): Size of the beam to use during inference.</span></span><br><span class="line"><span class="string">      blank (int): Index of the CTC blank label.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Returns the output label sequence and the corresponding negative</span></span><br><span class="line"><span class="string">    log-likelihood estimated by the decoder.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    T, S = probs.shape</span><br><span class="line">    probs = np.log(probs)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Elements in the beam are (prefix, (p_blank, p_no_blank))</span></span><br><span class="line">    <span class="comment"># Initialize the beam with the empty sequence, a probability of</span></span><br><span class="line">    <span class="comment"># 1 for ending in blank and zero for ending in non-blank</span></span><br><span class="line">    <span class="comment"># (in log space).</span></span><br><span class="line">    beam = [(<span class="built_in">tuple</span>(), (<span class="number">0.0</span>, NEG_INF))]  <span class="comment"># 一开始走blank, p_b = 1</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> t <span class="keyword">in</span> <span class="built_in">range</span>(T): <span class="comment"># Loop over time</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment"># A default dictionary to store the next step candidates.</span></span><br><span class="line">        next_beam = make_new_beam() <span class="comment"># 新建一个dict，dict里的每个元素初始都是(-INF，-INF)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> s <span class="keyword">in</span> <span class="built_in">range</span>(S): <span class="comment"># Loop over vocab</span></span><br><span class="line">            p = probs[t, s]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment"># The variables p_b and p_nb are respectively the</span></span><br><span class="line">            <span class="comment"># probabilities for the prefix given that it ends in a</span></span><br><span class="line">            <span class="comment"># blank and does not end in a blank at this time step.</span></span><br><span class="line">            <span class="keyword">for</span> prefix, (p_b, p_nb) <span class="keyword">in</span> beam: <span class="comment"># Loop over beam</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                <span class="comment"># If we propose a blank the prefix doesn&#x27;t change.</span></span><br><span class="line">                <span class="comment"># Only the probability of ending in blank gets updated.</span></span><br><span class="line">                <span class="comment"># n_p_b、n_p_nb：路径总概率，累加.  n_p_b: new_p_b, new一条新创建的路径</span></span><br><span class="line">                <span class="keyword">if</span> s == blank:</span><br><span class="line">                  <span class="comment"># 只更新n_p_b的概率，论文里remove blank，指的是没有连续的blank blank，也就是说不考虑n_prefix = prefix + (s,)当s为blank的情况</span></span><br><span class="line">                  n_p_b, n_p_nb = next_beam[prefix]</span><br><span class="line">                  n_p_b = logsumexp(n_p_b, p_b + p, p_nb + p) <span class="comment"># 合并前缀/规整前缀</span></span><br><span class="line">                  next_beam[prefix] = (n_p_b, n_p_nb)</span><br><span class="line">                  <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                <span class="comment"># Extend the prefix by the new character s and add it to</span></span><br><span class="line">                <span class="comment"># the beam. Only the probability of not ending in blank</span></span><br><span class="line">                <span class="comment"># gets updated.</span></span><br><span class="line">                <span class="comment"># 是否是aa还是ac，和前一个符号是否相等</span></span><br><span class="line">                end_t = prefix[-<span class="number">1</span>] <span class="keyword">if</span> prefix <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line">                n_prefix = prefix + (s,)</span><br><span class="line">                n_p_b, n_p_nb = next_beam[n_prefix] <span class="comment"># 先提出来，更新后，再赋回去</span></span><br><span class="line">                <span class="keyword">if</span> s != end_t:</span><br><span class="line">                  <span class="comment"># ac的情况</span></span><br><span class="line">                  n_p_nb = logsumexp(n_p_nb, p_b + p, p_nb + p)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                  <span class="comment"># aa的情况 a_a 输出 aa</span></span><br><span class="line">                  <span class="comment"># We don&#x27;t include the previous probability of not ending</span></span><br><span class="line">                  <span class="comment"># in blank (p_nb) if s is repeated at the end. The CTC</span></span><br><span class="line">                  <span class="comment"># algorithm merges characters not separated by a blank.</span></span><br><span class="line">                  n_p_nb = logsumexp(n_p_nb, p_b + p)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                <span class="comment"># *NB* this would be a good place to include an LM score.</span></span><br><span class="line">                next_beam[n_prefix] = (n_p_b, n_p_nb)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                <span class="comment"># If s is repeated at the end we also update the unchanged</span></span><br><span class="line">                <span class="comment"># prefix. This is the merging case.</span></span><br><span class="line">                <span class="keyword">if</span> s == end_t:</span><br><span class="line">                  <span class="comment"># aa的情况 aaa 输出a，这里把aaa情况合并到a情况（prefix=a）</span></span><br><span class="line">                  n_p_b, n_p_nb = next_beam[prefix]</span><br><span class="line">                  n_p_nb = logsumexp(n_p_nb, p_nb + p)</span><br><span class="line">                  next_beam[prefix] = (n_p_b, n_p_nb) <span class="comment"># next_beam[prefix]要更新</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment"># Sort and trim the beam before moving on to the</span></span><br><span class="line">        <span class="comment"># next time-step.</span></span><br><span class="line">        beam = <span class="built_in">sorted</span>(next_beam.items(),</span><br><span class="line">                key=<span class="keyword">lambda</span> x : logsumexp(*x[<span class="number">1</span>]),</span><br><span class="line">                reverse=<span class="literal">True</span>)</span><br><span class="line">        beam = beam[:beam_size]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    best = beam[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">return</span> best[<span class="number">0</span>], -logsumexp(*best[<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># np.random.seed(3)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># time = 50</span></span><br><span class="line">    <span class="comment"># output_dim = 20</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># probs = np.random.rand(time, output_dim)</span></span><br><span class="line">    <span class="comment"># probs = probs / np.sum(probs, axis=1, keepdims=True)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 0 3 3 0 3 4 =&gt; 3 3 4</span></span><br><span class="line">    probs=[[<span class="number">0.8</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>],[<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.8</span>,<span class="number">0.05</span>],[<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.8</span>,<span class="number">0.05</span>],[<span class="number">0.8</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>],[<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.8</span>,<span class="number">0.05</span>],[<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.8</span>]]</span><br><span class="line">    probs = np.array(probs)</span><br><span class="line">    probs = probs / np.<span class="built_in">sum</span>(probs, axis=<span class="number">1</span>, keepdims=<span class="literal">True</span>)</span><br><span class="line">    </span><br><span class="line">    labels, score = decode(probs)</span><br><span class="line">    <span class="built_in">print</span>(labels)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Score &#123;:.3f&#125;&quot;</span>.<span class="built_in">format</span>(score))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>下载预训练模型</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 当前目录为 wenet/runtime/server/x86</span><br><span class="line">wget https://wenet-1256283475.cos.ap-shanghai.myqcloud.com/models/aishell/20210601_u2%2B%2B_conformer_libtorch.tar.gz</span><br><span class="line">tar -xf 20210602_u2++_conformer_libtorch.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>以上不推荐，因为本地编译麻烦，cmake升级版本还和gcc版本有关</p>
+<hr>
+<h2 id="本地wav文件识别"><a href="#本地wav文件识别" class="headerlink" title="本地wav文件识别"></a>本地wav文件识别</h2><p>本地文件识别，即程序每次运行时，给定一个语音文件或者一组语音文件列表，输出识别结果，然后结束程序。</p>
+<p>下载好模型后，执行如下的命令进行本地wav文件识别，将 <code>wav_path</code> 设为你想测试的 wav 文件地址，将 <code>model_dir</code> 设为你的模型目录地址。</p>
+<p>进入到镜像为mobvoiwenet&#x2F;wenet:latest的容器里</p>
+<p>cd &#x2F;home&#x2F;wenet&#x2F;runtime&#x2F;server&#x2F;x86</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 当前目录为 wenet/runtime/server/x86</span></span><br><span class="line"><span class="comment"># 已经下载并解压20210602_unified_transformer_server.tar.gz到当前目录</span></span><br><span class="line"><span class="comment"># 准备好一个16k采样率，单通道，16bits的音频文件test.wav</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> GLOG_logtostderr=1</span><br><span class="line"><span class="built_in">export</span> GLOG_v=2</span><br><span class="line"><span class="comment"># 如果要显示多一点LOG，比如RTF信息，要设置为：</span></span><br><span class="line"><span class="built_in">export</span> GLOG_logtostderr=</span><br><span class="line"><span class="built_in">export</span> GLOG_v=</span><br><span class="line"></span><br><span class="line">wav_path=test.wav</span><br><span class="line">model_dir=./20210602_unified_transformer_server</span><br><span class="line">./build/decoder_main \</span><br><span class="line">    --chunk_size -1 \</span><br><span class="line">    --wav_path <span class="variable">$wav_path</span> \</span><br><span class="line">    --model_path <span class="variable">$model_dir</span>/final.zip \</span><br><span class="line">    --dict_path <span class="variable">$model_dir</span>/words.txt 2&gt;&amp;1 | <span class="built_in">tee</span> log.txt</span><br><span class="line">    </span><br><span class="line">./build/decoder_main --chunk_size -1 --wav_path <span class="variable">$wav_path</span> --model_path <span class="variable">$model_dir</span>/final.zip --dict_path <span class="variable">$model_dir</span>/words.txt 2&gt;&amp;1 | <span class="built_in">tee</span> log.txt</span><br><span class="line"><span class="comment">#或者</span></span><br><span class="line">./build/decoder_main --chunk_size -1 --wav_scp ./wav_scp --model_path <span class="variable">$model_dir</span>/final.zip --dict_path <span class="variable">$model_dir</span>/words.txt</span><br></pre></td></tr></table></figure>
+
+<p><code>decoder_main</code>工具支持两种wav文件模式：</p>
+<ul>
+<li>使用<code>--wav_path</code>指定单个文件，一次识别单个wav文件。</li>
+<li>使用<code>--wav_scp</code>指定一个.scp格式的wav列表，一次识别多个wav文件。</li>
+</ul>
+<p>执行 <code>./build/decoder_main --help</code> 可以了解更多的参数意义。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -v /home/data/yelong/newest_wenet/wenet/runtime/server/x86/docker/docker_resource:/home/data/yelong/newest_wenet/wenet/runtime/server/x86/docker_resource -it wenet bash</span><br><span class="line"></span><br><span class="line">docker  exec -it 276e2d438bf6 bash</span><br></pre></td></tr></table></figure>
 
 
-          
-        
-      
-    </div>
-    
-    
-    
 
-    
+<h2 id="测试不同解码方法的rtf"><a href="#测试不同解码方法的rtf" class="headerlink" title="测试不同解码方法的rtf"></a>测试不同解码方法的rtf</h2><p>测试集、模型在：10.22.24.3:&#x2F;home&#x2F;data&#x2F;to_yelong&#x2F;rtf-test</p>
+<p>在空机器10.22.23.14，cpu，单线程测试</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">grep Decoded exp/hua/xueyuan_0.0_1.0/split1/1.log | awk &#x27;&#123;print$6&#125;&#x27; | sed s&#x27;/ms//g&#x27; | awk &#x27;&#123;sum+=$1&#125; END &#123;print sum&#125;&#x27;</span><br><span class="line">grep Decoded exp/hua/xueyuan_0.0_1.0/split1/1.log | awk &#x27;&#123;print$9&#125;&#x27; | sed s&#x27;/ms.//g&#x27; | awk &#x27;&#123;sum+=$1&#125; END &#123;print sum&#125;&#x27;</span><br><span class="line"></span><br><span class="line">grep Decoded exp/140-models/xueyuan_0.0_1.0/split1/1.log | awk &#x27;&#123;print$6&#125;&#x27; | sed s&#x27;/ms//g&#x27; | awk &#x27;&#123;sum+=$1&#125; END &#123;print sum&#125;&#x27;</span><br><span class="line">grep Decoded exp/140-models/xueyuan_0.0_1.0/split1/1.log | awk &#x27;&#123;print$9&#125;&#x27; | sed s&#x27;/ms.//g&#x27; | awk &#x27;&#123;sum+=$1&#125; END &#123;print sum&#125;&#x27;</span><br><span class="line"></span><br><span class="line">grep Decoded exp/140-models/xueyuan_0.0_0.0/split1/1.log | awk &#x27;&#123;print$6&#125;&#x27; | sed s&#x27;/ms//g&#x27; | awk &#x27;&#123;sum+=$1&#125; END &#123;print sum&#125;&#x27;</span><br><span class="line">grep Decoded exp/140-models/xueyuan_0.0_0.0/split1/1.log | awk &#x27;&#123;print$9&#125;&#x27; | sed s&#x27;/ms.//g&#x27; | awk &#x27;&#123;sum+=$1&#125; END &#123;print sum&#125;&#x27;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/chain%20model/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/chain%20model/" itemprop="url">chain model</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
-                2022-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
-                    <span itemprop="name">语音识别</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/chain%20model/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/chain model/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="chain-model"><a href="#chain-model" class="headerlink" title="chain model"></a>chain model</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/65557682">kaldi中的chain model(LFMMI)详解</a></p>
-</blockquote>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/chain%20model/v2-df4fab74a246b6935e20ecf7e1ccff8b_720w.jpg" alt="img"></p>
-<p>对应kaldi中的结构定义为：</p>
-<blockquote>
-<Topology>
-<TopologyEntry>
-<ForPhones>
-1 2 3 4 5 6 7 8 …
-</ForPhones>
-<State> 0 <**ForwardPdfClass**> 0 <**SelfLoopPdfClass**> 1 <Transition> 0 0.5 <Transition> 1 0.5 </Transition></Transition></**SelfLoopPdfClass**></**ForwardPdfClass**></State>
-<State> 1 </State>
-</TopologyEntry>
-</Topology>
-</blockquote>
-<p>在kaldi中，把Sp和Sb看做同一个状态(都对应state 0)，只是pdfclass不同。ForwardPdfClass表示Sp，SelfLoopPdfClass表示Sb。</p>
+<p>decoder_main 单线程测试，n-best&#x3D;10，无LM，解码方式CTC prefix beam search （+rescore）：</p>
+<ul>
+<li><p>37.pt（195M模型，大概50M参数）：rtf&#x3D;0.08475（有rescore）</p>
+</li>
+<li><p>4.pt（500M模型，140M参数）：rtf&#x3D;0.2759（有rescore）；rtf&#x3D;0.1377（无rescore）</p>
+</li>
+</ul>
 
           
         
@@ -1048,6 +993,175 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/chain%20model/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/chain%20model/" itemprop="url">chain model</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/chain%20model/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/chain model/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="chain-model"><a href="#chain-model" class="headerlink" title="chain model"></a>chain model</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/65557682">kaldi中的chain model(LFMMI)详解</a></p>
+</blockquote>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/chain%20model/v2-df4fab74a246b6935e20ecf7e1ccff8b_720w.jpg" alt="img"></p>
+<p>对应kaldi中的结构定义为：</p>
+<blockquote>
+<Topology>
+<TopologyEntry>
+<ForPhones>
+1 2 3 4 5 6 7 8 …
+</ForPhones>
+<State> 0 <**ForwardPdfClass**> 0 <**SelfLoopPdfClass**> 1 <Transition> 0 0.5 <Transition> 1 0.5 </Transition></Transition></**SelfLoopPdfClass**></**ForwardPdfClass**></State>
+<State> 1 </State>
+</TopologyEntry>
+</Topology>
+</blockquote>
+<p>在kaldi中，把Sp和Sb看做同一个状态(都对应state 0)，只是pdfclass不同。ForwardPdfClass表示Sp，SelfLoopPdfClass表示Sb。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/decoder_main%E4%BF%AE%E6%94%B9blank%E6%A6%82%E7%8E%87/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1192,188 +1306,6 @@
 
 
 <p>5gram的RTF更快（结点的出边更少）但是加载TLG特别耗时，5gram的TLG是3gram的10多倍</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/" itemprop="url">kaldi实现迁移学习</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
-                2022-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
-                    <span itemprop="name">语音识别</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/kaldi 迁移学习/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="kaldi实现迁移学习"><a href="#kaldi实现迁移学习" class="headerlink" title="kaldi实现迁移学习"></a>kaldi实现迁移学习</h1><blockquote>
-<p>speechhome 课程 Kaldi语音识别理论与实践 石颖 第9节 <a target="_blank" rel="noopener" href="https://edu.speechhome.com/p/t_pc/course_pc_detail/video/v_632490ece4b050af23b7c9e2">https://edu.speechhome.com/p/t_pc/course_pc_detail/video/v_632490ece4b050af23b7c9e2</a></p>
-</blockquote>
-<p>两种方式的迁移学习：</p>
-<ol>
-<li>较多训练数据训练好的模型的参数作为初始模型参数，更新 其他领域数据&#x2F;新模型结构（只有一些层不一样）的模型参数。</li>
-<li>固定训练好的模型的大部分参数，只更新部分层（新领域数据特别特别少时，用该方法）</li>
-</ol>
-<h2 id="方法1实现："><a href="#方法1实现：" class="headerlink" title="方法1实现："></a>方法1实现：</h2><p>以最后一层不一样举例，要调整最后一层结构，变成想要的输出维度。</p>
-<h3 id="步骤1-把初始模型的输出维度更换成想要的维度："><a href="#步骤1-把初始模型的输出维度更换成想要的维度：" class="headerlink" title="步骤1. 把初始模型的输出维度更换成想要的维度："></a>步骤1. 把初始模型的输出维度更换成想要的维度：</h3><p><strong>思路：</strong>准备一个config文件，只保留输出维度相关的component（其他component都不要），然后用该config文件重新初始化模型，这时候旧模型的输出component会被新config里的component覆盖，旧模型其余会保留；</p>
-<p><strong>做法：</strong>打开config文件，手动删除其他component，只保留输出维度相关的component</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009181943628.png" alt="image-20221009181943628"></p>
-<p>然后在vim中输入 <code>:%s/旧维度/新维度/g</code>进行替换，就是把config里的比如输出维度4368换成2000。</p>
-<p>然后在命令行输入：<code>nnet3-init final.mdl final.config final.change.output_dim.mdl</code></p>
-<p>就可以了。</p>
-<h3 id="步骤2-用新模型作为初始模型，在新数据集上进行训练："><a href="#步骤2-用新模型作为初始模型，在新数据集上进行训练：" class="headerlink" title="步骤2. 用新模型作为初始模型，在新数据集上进行训练："></a>步骤2. 用新模型作为初始模型，在新数据集上进行训练：</h3><p>在 run.sh中的 <code>steps/nnet3/chain/train.py --trainer.input-model final.change.output_dim.mdl</code></p>
-<h2 id="方法2实现："><a href="#方法2实现：" class="headerlink" title="方法2实现："></a>方法2实现：</h2><p>固定某些层参数名</p>
-<p>第一种粗暴的方法：打开mdl.txt，将component的名称手动更改为Fixed的component</p>
-<p>比如把<AffineComponent>改为<FixedAffineComponent></FixedAffineComponent></AffineComponent></p>
-<p>但是这样要改的地方很多。</p>
-<p>第二种方法 【推荐】：</p>
-<p>新建一个config文件（文件的第一个字段是要进行哪种操作，第二个字段是这个操作要应用在哪个component上）</p>
-<p>该图的意思是对tdnn1-5层的仿射变换层更改为参数不可变的仿射变换层。</p>
-<p>（比如保存在fix_config&#x2F;edit_config）</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009182908327.png" alt="image-20221009182908327"></p>
-<p>然后在命令行输入：<code>nnet3-copy --edits-config=fix_config/edit_config --binary=false final.raw final.fix.tdnn1-5.raw</code></p>
-<p>然后在 run.sh中的 <code>steps/nnet3/chain/train.py --trainer.input-model final.fix.tdnn1-5.raw</code></p>
-<hr>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009183631092.png" alt="image-20221009183631092" style="zoom:80%;">
-
 
           
         
@@ -1710,7 +1642,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/lattice/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1729,7 +1661,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/lattice/" itemprop="url">lattice</a></h1>
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/" itemprop="url">kaldi实现迁移学习</a></h1>
         
 
         <div class="post-meta">
@@ -1782,9 +1714,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/lattice/#comments" itemprop="discussionUrl">
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/lattice/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2022/01/04/识别/kaldi 迁移学习/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1814,22 +1746,36 @@
       
         
           
-            <h1 id="lattice"><a href="#lattice" class="headerlink" title="lattice"></a>lattice</h1><h2 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h2><p>词格，用topN中的路径重新生成一个图，这个图就叫lattice，就是在hclg进行解码，然后根据topN的解码结果，取出在hclg具体走的路径，构成的图，可以理解成从hclg只保留所需要的值，大部分无用的信息舍弃，最后是topN的word序列构成的fst；</p>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/yutianzuijin/article/details/77621511">语音识别中的lattice与confusion network</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36782366/article/details/102847110">kaldi理解WFST，HCLG，lattice</a></p>
+            <h1 id="kaldi实现迁移学习"><a href="#kaldi实现迁移学习" class="headerlink" title="kaldi实现迁移学习"></a>kaldi实现迁移学习</h1><blockquote>
+<p>speechhome 课程 Kaldi语音识别理论与实践 石颖 第9节 <a target="_blank" rel="noopener" href="https://edu.speechhome.com/p/t_pc/course_pc_detail/video/v_632490ece4b050af23b7c9e2">https://edu.speechhome.com/p/t_pc/course_pc_detail/video/v_632490ece4b050af23b7c9e2</a></p>
 </blockquote>
-<h3 id="生成lattice"><a href="#生成lattice" class="headerlink" title="生成lattice"></a>生成lattice</h3><p>在生成one best结果时，只需要从最优结果处回溯，但是为了生成lattice，我们需要保留更多信息。具体就是在生成每一个hist的时候保留多个候选alt，这样在回溯best hist的时候也访问alt来生成lattice。</p>
-<p>在lattice上从左向右的任何一条路径，就构成一个识别结果，路径上每条边的声学得分相加，再加上路径对应的语言得分，就是整条路径的得分，通常取得分最大的前 N 条路径对应的词串作为识别的 N-Best 结果输出。上面lattice的生成用的语言模型往往不够精确，通常还需要在lattice上用更大的语言模型进rescore。</p>
-<h3 id="lattice含义"><a href="#lattice含义" class="headerlink" title="lattice含义"></a>lattice含义</h3><p>在实际的语音识别系统中，最优路径不一定与实际字序列匹配，我们一般希望能够得到得分最靠前的多条候选路径，即N-best。为了紧凑地保存候选路径，防止占用过多内存空间，我们一般采用lattice（又叫词图）来保存识别的候选序列。lattice本质上是一个有向无环（directed acyclic graph）图。图上的每个节点代表一个词的结束时间点，每条边代表一个可能的词，以及该词发生的声学得分和语言模型得分。<br><img src="/2022/01/04/%E8%AF%86%E5%88%AB/lattice/SouthEast.png" alt="img"></p>
-<h3 id="Lattice结构"><a href="#Lattice结构" class="headerlink" title="Lattice结构"></a>Lattice结构</h3><p>FST的形式，weight包括两部分（graph cost和acoustic cost），输入是transition-ids，输出是words。<br>其中weight的graph cost包含LM+transition+pronunciation三部分。</p>
-<h3 id="CompactLattice结构"><a href="#CompactLattice结构" class="headerlink" title="CompactLattice结构"></a>CompactLattice结构</h3><p>和lattice相似，区别在于它是接收机FSA，输入和输出一样（都是words），weight包含两部分（权重和transition-ids），相比于Lattice，CompactLattice把输入的transition-ids转移到weight上面。</p>
-<p>lattice保证每一个word-sequence只对应lattice中的一条路径。</p>
-<h3 id="lattice剪枝"><a href="#lattice剪枝" class="headerlink" title="lattice剪枝"></a>lattice剪枝</h3><p>原始lattice可能会非常庞大，这时我们可以对lattice进行剪枝但是不影响最终的准确率。一种剪枝方法是对lattice进行前后向打分，计算每条边的后验概率，然后删除后验概率很低的边。</p>
-<h2 id="confusion-network"><a href="#confusion-network" class="headerlink" title="confusion network"></a>confusion network</h2><p>混淆网络是一种特殊的lattice，由原始lattice经过变换生成。它要求lattice中的每条路径都必须经过所有的节点。如下图所示：</p>
-<p><img src="https://img-blog.csdn.net/20170827170427344?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXV0aWFuenVpamlu/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="img"></p>
-<p>简单描述一个近似于srilm中采用的混淆网络生成算法：首先进行前后向概率打分计算每条边的后验概率；其次根据后验概率对lattice进行剪枝；再次从原始lattice中选择一条得分最高的路径当作初始混淆网络（路径中的节点即为混淆网络中的节点）；最后就开始逐步将其他的边对齐添加到上述初始混淆网络中。特别地，如果在添加某条边到某节点中时发现已经有边指向该边并且也添加到该节点之后，则创建一个新的节点，让之前的边都指向新节点，要添加的边则从新节点指向之前的老节点。<br>相比于lattice，我们可以很容易从混淆网络中获取one best结果，只需要从每一段中选择后验概率最大的边即可。混淆网络作为lattice的简化版，会引入原始lattice中不存在的路径。但是通常情况下，用混淆网络获取的one best结果要好于原始的one best。混淆网络还有一个好处，我们可以很容易获取每个时刻相互竞争的词有哪些，怀疑苹果自带的输入法即采用了混淆网络来修改候选词。</p>
-<h2 id="kaldi"><a href="#kaldi" class="headerlink" title="kaldi"></a>kaldi</h2><p>生成 lattice 的唯一解码器是定义在 decoder&#x2F;lattice-simple-decoder.h 中的类 LatticeSimpleDecoder，它被 gmm-latgen-simple.cc中调用。</p>
+<p>两种方式的迁移学习：</p>
+<ol>
+<li>较多训练数据训练好的模型的参数作为初始模型参数，更新 其他领域数据&#x2F;新模型结构（只有一些层不一样）的模型参数。</li>
+<li>固定训练好的模型的大部分参数，只更新部分层（新领域数据特别特别少时，用该方法）</li>
+</ol>
+<h2 id="方法1实现："><a href="#方法1实现：" class="headerlink" title="方法1实现："></a>方法1实现：</h2><p>以最后一层不一样举例，要调整最后一层结构，变成想要的输出维度。</p>
+<h3 id="步骤1-把初始模型的输出维度更换成想要的维度："><a href="#步骤1-把初始模型的输出维度更换成想要的维度：" class="headerlink" title="步骤1. 把初始模型的输出维度更换成想要的维度："></a>步骤1. 把初始模型的输出维度更换成想要的维度：</h3><p><strong>思路：</strong>准备一个config文件，只保留输出维度相关的component（其他component都不要），然后用该config文件重新初始化模型，这时候旧模型的输出component会被新config里的component覆盖，旧模型其余会保留；</p>
+<p><strong>做法：</strong>打开config文件，手动删除其他component，只保留输出维度相关的component</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009181943628.png" alt="image-20221009181943628"></p>
+<p>然后在vim中输入 <code>:%s/旧维度/新维度/g</code>进行替换，就是把config里的比如输出维度4368换成2000。</p>
+<p>然后在命令行输入：<code>nnet3-init final.mdl final.config final.change.output_dim.mdl</code></p>
+<p>就可以了。</p>
+<h3 id="步骤2-用新模型作为初始模型，在新数据集上进行训练："><a href="#步骤2-用新模型作为初始模型，在新数据集上进行训练：" class="headerlink" title="步骤2. 用新模型作为初始模型，在新数据集上进行训练："></a>步骤2. 用新模型作为初始模型，在新数据集上进行训练：</h3><p>在 run.sh中的 <code>steps/nnet3/chain/train.py --trainer.input-model final.change.output_dim.mdl</code></p>
+<h2 id="方法2实现："><a href="#方法2实现：" class="headerlink" title="方法2实现："></a>方法2实现：</h2><p>固定某些层参数名</p>
+<p>第一种粗暴的方法：打开mdl.txt，将component的名称手动更改为Fixed的component</p>
+<p>比如把<AffineComponent>改为<FixedAffineComponent></FixedAffineComponent></AffineComponent></p>
+<p>但是这样要改的地方很多。</p>
+<p>第二种方法 【推荐】：</p>
+<p>新建一个config文件（文件的第一个字段是要进行哪种操作，第二个字段是这个操作要应用在哪个component上）</p>
+<p>该图的意思是对tdnn1-5层的仿射变换层更改为参数不可变的仿射变换层。</p>
+<p>（比如保存在fix_config&#x2F;edit_config）</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009182908327.png" alt="image-20221009182908327"></p>
+<p>然后在命令行输入：<code>nnet3-copy --edits-config=fix_config/edit_config --binary=false final.raw final.fix.tdnn1-5.raw</code></p>
+<p>然后在 run.sh中的 <code>steps/nnet3/chain/train.py --trainer.input-model final.fix.tdnn1-5.raw</code></p>
+<hr>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009183631092.png" alt="image-20221009183631092" style="zoom:80%;">
+
 
           
         
@@ -1986,6 +1932,174 @@
 <p>这是概率&#x3D;0.5，这里取-log表示在FST中</p>
 <p>$0.693147182&#x3D;-log_e(0.5)$</p>
 <img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%E7%9A%84%E8%AF%8D%E5%85%B8L.fst/image-20211230105520591.png" alt="image-20211230105520591" style="zoom:80%;">
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/lattice/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/lattice/" itemprop="url">lattice</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/lattice/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/lattice/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="lattice"><a href="#lattice" class="headerlink" title="lattice"></a>lattice</h1><h2 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h2><p>词格，用topN中的路径重新生成一个图，这个图就叫lattice，就是在hclg进行解码，然后根据topN的解码结果，取出在hclg具体走的路径，构成的图，可以理解成从hclg只保留所需要的值，大部分无用的信息舍弃，最后是topN的word序列构成的fst；</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/yutianzuijin/article/details/77621511">语音识别中的lattice与confusion network</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36782366/article/details/102847110">kaldi理解WFST，HCLG，lattice</a></p>
+</blockquote>
+<h3 id="生成lattice"><a href="#生成lattice" class="headerlink" title="生成lattice"></a>生成lattice</h3><p>在生成one best结果时，只需要从最优结果处回溯，但是为了生成lattice，我们需要保留更多信息。具体就是在生成每一个hist的时候保留多个候选alt，这样在回溯best hist的时候也访问alt来生成lattice。</p>
+<p>在lattice上从左向右的任何一条路径，就构成一个识别结果，路径上每条边的声学得分相加，再加上路径对应的语言得分，就是整条路径的得分，通常取得分最大的前 N 条路径对应的词串作为识别的 N-Best 结果输出。上面lattice的生成用的语言模型往往不够精确，通常还需要在lattice上用更大的语言模型进rescore。</p>
+<h3 id="lattice含义"><a href="#lattice含义" class="headerlink" title="lattice含义"></a>lattice含义</h3><p>在实际的语音识别系统中，最优路径不一定与实际字序列匹配，我们一般希望能够得到得分最靠前的多条候选路径，即N-best。为了紧凑地保存候选路径，防止占用过多内存空间，我们一般采用lattice（又叫词图）来保存识别的候选序列。lattice本质上是一个有向无环（directed acyclic graph）图。图上的每个节点代表一个词的结束时间点，每条边代表一个可能的词，以及该词发生的声学得分和语言模型得分。<br><img src="/2022/01/04/%E8%AF%86%E5%88%AB/lattice/SouthEast.png" alt="img"></p>
+<h3 id="Lattice结构"><a href="#Lattice结构" class="headerlink" title="Lattice结构"></a>Lattice结构</h3><p>FST的形式，weight包括两部分（graph cost和acoustic cost），输入是transition-ids，输出是words。<br>其中weight的graph cost包含LM+transition+pronunciation三部分。</p>
+<h3 id="CompactLattice结构"><a href="#CompactLattice结构" class="headerlink" title="CompactLattice结构"></a>CompactLattice结构</h3><p>和lattice相似，区别在于它是接收机FSA，输入和输出一样（都是words），weight包含两部分（权重和transition-ids），相比于Lattice，CompactLattice把输入的transition-ids转移到weight上面。</p>
+<p>lattice保证每一个word-sequence只对应lattice中的一条路径。</p>
+<h3 id="lattice剪枝"><a href="#lattice剪枝" class="headerlink" title="lattice剪枝"></a>lattice剪枝</h3><p>原始lattice可能会非常庞大，这时我们可以对lattice进行剪枝但是不影响最终的准确率。一种剪枝方法是对lattice进行前后向打分，计算每条边的后验概率，然后删除后验概率很低的边。</p>
+<h2 id="confusion-network"><a href="#confusion-network" class="headerlink" title="confusion network"></a>confusion network</h2><p>混淆网络是一种特殊的lattice，由原始lattice经过变换生成。它要求lattice中的每条路径都必须经过所有的节点。如下图所示：</p>
+<p><img src="https://img-blog.csdn.net/20170827170427344?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXV0aWFuenVpamlu/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="img"></p>
+<p>简单描述一个近似于srilm中采用的混淆网络生成算法：首先进行前后向概率打分计算每条边的后验概率；其次根据后验概率对lattice进行剪枝；再次从原始lattice中选择一条得分最高的路径当作初始混淆网络（路径中的节点即为混淆网络中的节点）；最后就开始逐步将其他的边对齐添加到上述初始混淆网络中。特别地，如果在添加某条边到某节点中时发现已经有边指向该边并且也添加到该节点之后，则创建一个新的节点，让之前的边都指向新节点，要添加的边则从新节点指向之前的老节点。<br>相比于lattice，我们可以很容易从混淆网络中获取one best结果，只需要从每一段中选择后验概率最大的边即可。混淆网络作为lattice的简化版，会引入原始lattice中不存在的路径。但是通常情况下，用混淆网络获取的one best结果要好于原始的one best。混淆网络还有一个好处，我们可以很容易获取每个时刻相互竞争的词有哪些，怀疑苹果自带的输入法即采用了混淆网络来修改候选词。</p>
+<h2 id="kaldi"><a href="#kaldi" class="headerlink" title="kaldi"></a>kaldi</h2><p>生成 lattice 的唯一解码器是定义在 decoder&#x2F;lattice-simple-decoder.h 中的类 LatticeSimpleDecoder，它被 gmm-latgen-simple.cc中调用。</p>
 
           
         
@@ -2340,7 +2454,7 @@
 
   
     <span class="site-uv">
-      访问人
+      访问数
       <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
       人
     </span>
