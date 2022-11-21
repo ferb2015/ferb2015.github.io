@@ -288,6 +288,393 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/" itemprop="url">识别论文笔记（四）语言模型</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/识别论文笔记（四）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="语言模型"><a href="#语言模型" class="headerlink" title="语言模型"></a>语言模型</h1><blockquote>
+<p>&#x3D;&#x3D;Dauphin Y N, Fan A, Auli M, et al. Language modeling with gated convolutional networks[C]&#x2F;&#x2F;International conference on machine learning. PMLR, 2017: 933-941.&#x3D;&#x3D; citations：1542 1Facebook  </p>
+</blockquote>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
+<li>用于语言模型建模中，用stacked conv，gated temporal convolutions  代替rnn，用了gated linear units（GLU），比RNN低延迟，效果好；</li>
+<li>门控线性单元通过为梯度提供线性路径，同时保持非线性能力，减少了深度架构的梯度消失问题；</li>
+<li>提出新的gated convolutional networks，卷积网络可以通过堆叠来表示较大的上下文大小，并在越来越大的上下文中提取具有更抽象特征的层次特征</li>
+<li>$\text{GLU}(a, b) &#x3D; a \otimes \sigma(b)$</li>
+<li>：<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531121501451.png" alt="image-20220531121501451" style="zoom:80%;"></li>
+</ul>
+<p>输出 $\large h\in \mathbb R^{N\times n}$</p>
+<p>通过两个仿射变换，其中一个仿射变化通过激活函数，然后二者再做对应位置相乘</p>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531121429219.png" alt="image-20220531121429219" style="zoom:80%;">
+
+
+
+<ul>
+<li><p><strong>Gating Mechanisms</strong>  ：RNN中，没有input门和forget门，信息很容易通过每个时间步的转换消失。但是卷积网络不存在同样的消失梯度，我们通过实验发现它们不需要遗忘门。因此只需要考虑output gate输出门</p>
+<ul>
+<li>考虑只拥有输出门的模型，它允许网络控制哪些信息应该通过层的层次传播。</li>
+</ul>
+</li>
+<li><p>gated linear unit  梯度：<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531144046865.png" alt="image-20220531144046865" style="zoom:80%;"></p>
+</li>
+<li><p>之前的那种，lstm式门控的梯度gated tanh unit  （GTU）： <img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531144405468.png" alt="image-20220531144405468" style="zoom:80%;"></p>
+</li>
+</ul>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Yan H, Deng B, Li X, et al. TENER: adapting transformer encoder for named entity recognition[J]. arXiv preprint arXiv:1911.04474, 2019.&#x3D;&#x3D;</p>
+</blockquote>
+<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><ul>
+<li>为什么位置编码只加在attention层的输入是不够的，说的是输入位置编码PE经过W后，$PEWqWk^TPE^T$会失去了位置信息（不同位置的关系不明显了），即使网络更新了W参数，位置信息也不明显，所以要给位置信息单独的参数来更新，不和输入E的参数共享</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220602114200130.png" alt="image-20220602114200130" style="zoom:80%;">
+
+
+
+
+
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Shaw, Peter, Jakob Uszkoreit, and Ashish Vaswani. “Self-attention with relative position representations.” <em>arXiv preprint arXiv:1803.02155</em> (2018).&#x3D;&#x3D;citation 988 Google </p>
+<p><a target="_blank" rel="noopener" href="https://medium.com/@_init_/how-self-attention-with-relative-position-representations-works-28173b8c245a">How Self-Attention with Relative Position Representations works</a></p>
+<p>github：tensor2tensor：<a target="_blank" rel="noopener" href="https://github.com/tensorflow/tensor2tensor/blob/9e0a894034d8090892c238df1bd9bd3180c2b9a3/tensor2tensor/layers/common_attention.py#L1556-L1587">https://github.com/tensorflow/tensor2tensor/blob/9e0a894034d8090892c238df1bd9bd3180c2b9a3/tensor2tensor/layers/common_attention.py#L1556-L1587</a></p>
+<p>[好] 知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/105001610">Transformer改进之相对位置编码(RPE)</a></p>
+<p>博客园：[<a target="_blank" rel="noopener" href="https://www.cnblogs.com/shiyublog/p/11185625.html">NLP] 相对位置编码(一) Relative Position Representatitons (RPR) - Transformer </a></p>
+<p>csdn <a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/107939242">论文阅读笔记：Self-Attention with Relative Position Representations</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/364828960">https://zhuanlan.zhihu.com/p/364828960</a></p>
+</blockquote>
+<h3 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h3><ul>
+<li><p>为什么只在输入加位置信息是不够的：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/105001610%EF%BC%8C%E5%9B%A0%E4%B8%BA%E8%BE%93%E5%85%A5%E6%9C%89%E4%BD%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%EF%BC%8C%E7%BB%8F%E8%BF%87%E4%BB%BF%E5%B0%84%E5%8F%98%E6%8D%A2W%E5%90%8E%E4%BD%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%E5%B0%B1%E6%B2%A1%E4%BA%86%EF%BC%8C%E5%B9%B6%E4%B8%94%E8%AE%AD%E7%BB%83%E6%9B%B4%E6%96%B0%E5%8F%82%E6%95%B0%E5%90%8E%EF%BC%8C%E6%89%93%E5%8D%B0%E5%87%BA%E6%9D%A5%E7%9C%8B%E4%BE%9D%E7%84%B6%E6%B2%A1%E6%9C%89%E4%BA%86%E4%BD%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%EF%BC%9B">https://zhuanlan.zhihu.com/p/105001610，因为输入有位置信息，经过仿射变换W后位置信息就没了，并且训练更新参数后，打印出来看依然没有了位置信息；</a></p>
+</li>
+<li><p>提出相对位置编码 Relative Position Representations  (RPR)，之前的transformer的位置编码只在encoder和decoder的输入，现在在模型中加入可训练的位置编码，表示距离；</p>
+</li>
+<li><p>Relation-aware Self-Attention  ：对attention里的k，v引入输入pair之间的edge信息；将输入建模为一个标记的、有向的、完全连通的图</p>
+</li>
+<li><p>具体做法是在计算attention score和weighted value时各加入一个可训练的表示相对位置的参数，并且multi head之间可以共享。具体的：</p>
+<p>输入元素 $x_i$ 和 $x_j$ 之间的edge记为向量 $\large \alpha _{ij}^V, \alpha _{ij}^K \in \mathbb{R}^{d_a} $， 可以在关注头head之间共享</p>
+<p>有2个RPR的表征</p>
+<p>attention机制里的<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519103208774.png" alt="image-20220519103208774" style="zoom: 80%;">变为：<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519103224268.png" alt="image-20220519103224268" style="zoom: 80%;"></p>
+<p>attention机制里的<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519103257357.png" alt="image-20220519103257357" style="zoom: 80%;">变为<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519103321485.png" alt="image-20220519103321485" style="zoom: 80%;"></p>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519102007123.png" alt="image-20220519102007123" style="zoom:80%;">
+
+
+
+<ul>
+<li><p>对于线性序列，边缘可以捕获输入元素之间相对位置差的信息。本文的最大相对位置被裁剪到k的最大绝对值。这是基于假设：精确的相对位置信息在一定距离以外是没有用的。剪切最大距离还可以使模型推广到训练中没有看到的序列长度。因此，本文只考虑2k + 1个unique edge labels  唯一边标签</p>
+<p>最大单词数被clipped在一个绝对的值k以内。向左k个, 再左边均为0， 向右k个，再右边均为k, 所表示的index范围</p>
+<p>$a_{ik}^K$   ， $a_{ik}^V$  就表示了xi和xj的相对位置信息，所以他们只和 i 和 j 的差值k有关。具体如下：</p>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519102853385.png" alt="image-20220519102853385" style="zoom:80%;">
+
+<ul>
+<li>实现：</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519104753501.png" alt="image-20220519104753501" style="zoom:80%;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Dai, Zihang, et al. “Transformer-xl: Attentive language models beyond a fixed-length context.” <em>arXiv preprint arXiv:1901.02860</em> (2019).&#x3D;&#x3D; citations：1864 Google Brain  </p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/kimiyoung/transformer-xl">https://github.com/kimiyoung/transformer-xl</a>  </p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/huggingface/transformers/blob/0a6b9048d1d5de5b965a8757dd56fef87ed9d7e1/src/transformers/models/transfo_xl/modeling_transfo_xl.py">https://github.com/huggingface/transformers/blob/0a6b9048d1d5de5b965a8757dd56fef87ed9d7e1/src/transformers/models/transfo_xl/modeling_transfo_xl.py</a></p>
+<p><a target="_blank" rel="noopener" href="https://towardsdatascience.com/transformer-xl-explained-combining-transformers-and-rnns-into-a-state-of-the-art-language-model-c0cfe9e5a924">Transformer-XL Explained: Combining Transformers and RNNs into a State-of-the-art Language Model</a></p>
+<p>博客园 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/jiangxinyang/p/11534492.html">NLP中的预训练语言模型（三）—— XL-Net和Transformer-XL</a></p>
+<p><a target="_blank" rel="noopener" href="https://jaketae.github.io/study/relative-positional-encoding/">https://jaketae.github.io/study/relative-positional-encoding/</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_34914551/article/details/119866975">https://blog.csdn.net/qq_34914551/article/details/119866975</a></p>
+<p>科学空间：<a target="_blank" rel="noopener" href="https://kexue.fm/archives/8130">让研究人员绞尽脑汁的Transformer位置编码</a></p>
+<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/334355417">相对位置编码和绝对位置编码原理及源码</a></p>
+<p>[很不错]  博客园：[<a target="_blank" rel="noopener" href="https://www.cnblogs.com/shiyublog/p/11236212.html">NLP] 相对位置编码(二) Relative Positional Encodings - Transformer-XL </a></p>
+<p>&#x3D;&#x3D;知乎 chao yang：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/344604604">Conformer ASR中的Relative Positional Embedding&#x3D;&#x3D;</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/397269153">https://zhuanlan.zhihu.com/p/397269153</a></p>
+<p><a target="_blank" rel="noopener" href="https://gudgud96.github.io/2020/04/01/annotated-music-transformer/">https://gudgud96.github.io/2020/04/01/annotated-music-transformer/</a></p>
+<p>公众号 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI5MDUyMDIxNA==&mid=2247571522&idx=3&sn=5220cd96db90f5e5a180ae04be755c66&chksm=ec1d35bbdb6abcad5af3f387e0a55c76f8a9ff21f27c9c1a6d20ecb1af5b8e316b565d210328&mpshare=1&scene=1&srcid=0518S7ex1MAJiZw3NGDWc5RB&sharer_sharetime=1653906114213&sharer_shareid=7dfde0689a805163a3af5547f5e7bbff&version=4.0.0.6023&platform=win#rd">实践教程 | PyTorch中相对位置编码的理解</a></p>
+</blockquote>
+<h5 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
+<li>让transformer模型有机会学习更长的依赖关系；</li>
+</ul>
+<h5 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
+<li>提出一个叫Tansformer-XL的结构，组成由segment-level recurrence mechanism 和 a novel positional encoding scheme</li>
+</ul>
+<h5 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
+<li>80% longer than RNNs and 450% longer than vanilla Transformers</li>
+</ul>
+<h5 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><p>- </p>
+<h3 id="思路-3"><a href="#思路-3" class="headerlink" title="思路"></a>思路</h3><ul>
+<li>Transformers模型可以学会很长的依赖关系，但是由于训练集的长度不是很长，一般没有机会学会很长的依赖，本文提出一种Transformer-XL架构，不干扰时序相关性的前提下，能够学习超出固定长度的更长的依赖性。Transformer-XL 由segment-level 分段递归结构和novel 位置编码组成；</li>
+<li>之前的transformer训练时是固定长度（固定长度比如512个字符，一篇文章截断成固定长度片段），并且固定长度的片段是通过选择连续的符号块来创建的，而不考虑句子或任何其他语义边界，预测前面几个symbols时能用到的上下文信息就很少，该问题称为context fragmentation 。因此，在self-attention network  中引入 <strong>recurrence</strong> 递归的思想，复用previous segments的隐状态作为当前current segment的记忆（<strong>memory</strong>）模块；并且传递来自上一段的信息也可以解决上下文碎片context fragmentation的问题。</li>
+<li>建模语言模型：Given a corpus of tokens $x&#x3D;(x_1,…,x_T)$, 语言模型的任务是估计联合概率$P(x)$，其中，$\large P(x)&#x3D;\prod_tP(x_t|x_{&lt;t})$</li>
+<li>之前的transormer： vanilla Transformer model   （Al-Rfou et al. (2018)  ）：信息只在segment内部流动（其实这个segment长度也是很长的，但是对于特别特别长，篇章级别的文本，就无法处理，因为训练时把篇章截断成segment了）</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220516170152731.png" alt="image-20220516170152731" style="zoom:80%;">
+
+<ul>
+<li>Transformer-XL：<strong>segment-level recurrence mechanism</strong></li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220516170208952.png" alt="image-20220516170208952" style="zoom:80%;">
+
+
+
+<p>第n层，第$\tau$个segment（d维）$s_{\tau}$，其神经元结点 $h_{\tau}^n \in R^{L\times d}$ ，则 下一个segment $s_{\tau+1}$为：</p>
+<p>(extended context)  ：$\large \tilde h_{\tau+1}^{n-1}&#x3D;[SG(h_{\tau}^{n-1}) \circ h_{\tau+1}^{n-1}]$</p>
+<p>(query, key, value vectors)  ：$\large q_{\tau + 1}^n , k_{\tau+1}^n, v_{\tau+1}^n &#x3D; h_{\tau+1}^{n-1}W_q^T, \tilde h_{\tau+1}^{n-1}W_k^T, \tilde h_{\tau+1}^{n-1}W_v^T$</p>
+<p>(self-attention + feed-forward)  ：$\large h_{\tau+1}^{n}&#x3D;TransformerLayer(q_{\tau+1}^n,k_{\tau+1}^n,v_{\tau+1}^n)$</p>
+<p>其中，SG(·) 表示 stop-gradient，就是里面的参数不更新了 ，[hu ◦ hv] 表示沿着length维度，把两个隐层序列concatenate起来；</p>
+<p>由于扩展上下文$\tilde h_{\tau+1}^{n-1}$是和前一个segment $h_{\tau}^{n-1}$有关的（因为拼接了前一个segment的h），因此计算当前segment的qkv，也是和前一个segment有关的；[recurrence 递归、循环]</p>
+<p>（RNN-LM是接收前一个符号，层都是当前层，这个transformer-xl是接收前一segment符号<strong>序列</strong>，并且是作用到下一层）</p>
+<p>复杂度$O(N\times L)$，L是每个segment长度，N是层数</p>
+<ul>
+<li><p>faster evaluation ： 计算下一个segment时，可以reuse上一个segment信息，上一个segment信息已经有了，当前segment不需要重新计算，因此比 vanilla model在推理时快了1800倍；</p>
+</li>
+<li><p>&#x3D;&#x3D;relative position embedding scheme&#x3D;&#x3D;：之前的位置编码，对于不同segment，同一内部的位置编码结果都是一样的，这区分不开不同segment位置，因此用相对位置编码（其实绝对位置编码，相对位置编码，对于不同segment编码还是一样的，相对位置编码感觉并没有解决不同segment内部的编码位置结果可以做到不一样）；</p>
+<ul>
+<li><p>之前的：$\large h_{\tau+1}&#x3D;f(h_\tau,    E_{s_{\tau+1}}+U_{1:L})$              、        $\large h_{\tau}&#x3D;f(h_{\tau-1}, E_{s_{\tau}}+U_{1:L})$   </p>
+<p>其中，$E_{s_{\tau}}\in \mathbb R^{d\times L}$表示$s_{\tau}$的词向量，$f$表示transformation函数，$\large U\in  R^{L_{max},d}$，   可以看出位置编码是一样的，</p>
+<p><strong>绝对位置编码</strong>，计算attention分数 ：</p>
+<p>$\large A_{i,j}^{abs}&#x3D;E_{x_i}^TW_q^TW_kE_{x_j} + E_{x_i}^TW_q^TW_kU_j + U_i^TW_q^TW_kE_{x_j} + U_i^TW_q^TW_kU_j&#x3D;(E_{x_i}^T+U_i^T)W_q^TW_k(E_{x_i}+U_i)$</p>
+</li>
+</ul>
+<p>​       其中，$ E_{x_i} \in \mathbb{R}^{d\times 1}$，$ W \in \mathbb{R}^{d\times d}$</p>
+<p>​	 绝对位置编码中，Q、K、V都要加位置编码；</p>
+<p>​	（相对位置编码，V没做）</p>
+<ul>
+<li><p>下面提出改进绝对位置编码的“相对位置编码”，感觉并不是为了不同segment，而是就是想用一个相对值，并且$R_{i,j}$也不是本文提出的，但是本文提出了不依赖位置的$u$，$v$ ；</p>
+</li>
+<li><p><strong>相对位置编码</strong>：它是每个注意力模块的一部分（有参数需要更新），而不是仅在第一层之前编码位置，并且基于标记之间的相对距离而不是它们的绝对位置。</p>
+</li>
+<li><p>要知道 $k_{\tau,j}$ 和 $q_{\tau,i}$ 的相对距离，即 $i-j$</p>
+</li>
+<li><p>相对位置编码，计算attention分数：</p>
+<p>$\large A_{i,j}^{rel}&#x3D;E_{x_i}^TW_q^TW_{k,E}E_{x_j} + E_{x_i}^TW_q^TW_{k,R}R_{i-j} + u^TW_{k,E}E_{x_j} + v^TW_{k,R}R_{i-j}$</p>
+<p>$\large &#x3D;(E_{x_i}^TW_q^T+u^T)W_{k,E}E_{x_j} + (E_{x_i}^TW_q^T + v^T )W_{k,R}R_{i-j}  $</p>
+<p>输出维度 $\in \mathbb{R}^{L\times L}$</p>
+<p>其中，$\large R \in \mathbb{R}^{L_{max}\times d}$是正弦函数矩阵sinusoid encoding matrix，这个是直接计算出来的，里面没有要学习&#x2F;更新的参数；</p>
+<p>（感觉公式里是反过来的，E是d * L而不是L *  d）</p>
+<p>$u \in \mathbb{R}^d$ ，是一个向量，代替query   $U_i^TW_q^T$     ，所有query位置的query向量都是相同的，这意味着无论查询位置如何，对不同单词的attentive bias都应该是相同的；</p>
+<p>$v \in \mathbb{R}^d$ 代替   $U_i^TW_q^T$  ；（不需要给query位置编码）</p>
+<p>引入了上一片段的隐层表示只会用在key和value上，对于query还是保持原来的样子，query只是表示查询的词，而key，value表示的是表示这个查询的词的相关信息，我们要改变的是只是信息；</p>
+<p>因为是相对位置，所以query的绝对位置信息U_i就不需要了</p>
+<p>$W_{k,E} \in \mathbb{R}^{d\times d}$：content-based key vectors；$W_{k,R} \in \mathbb{R}^{d\times d}$：location-based key vectors；</p>
+<p>因此要学习&#x2F;更新的参数是：u，v，$W_{k,E}$、$W_{k,R}$</p>
+<p>相对位置编码计算attention分数的公式中</p>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220517170411148.png" alt="image-20220517170411148" style="zoom:80%;">
+
+<p>　　a）基于内容的“寻址”，即没有添加位置向量，词对词的分数。</p>
+<p>　　b）基于内容的位置偏置，相当于当前内容的位置偏差。</p>
+<p>　　c）全局的内容偏置，用于衡量key的重要性。</p>
+<p>　　d）全局的位置偏置，根据key和query调整位置的重要性。</p>
+<p>a）部分基本不变，只是对于key的位置向量的权重矩阵和词向量的权重矩阵不再共享；b）部分引入了相对位置向量$R_{i−j}$，是一个的预先给定好的正弦编码矩阵，不需要学习；c）对于query的位置向量采用可以学习的初始化向量来表示，$u^T$表示对key中词E的位置向量，d）同上，$v^T$表示对key中位置R的位置向量；</p>
+</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220518201007774.png" alt="image-20220518201007774" style="zoom:80%;">
+
+<ul>
+<li><p>一个N层Transformer-XL 的前向过程（以单头注意力机制为例）：</p>
+<p>$\large \tilde h_{\tau}^{n-1}&#x3D;[SG(m_{\tau}^{n-1}) \circ h_{\tau}^{n-1}]$</p>
+<p>$\large q_{\tau }^n , k_{\tau}^n, v_{\tau}^n &#x3D; h_{\tau}^{n-1}W{<em>q^n}^T, \tilde h</em>{\tau}^{n-1}W{<em>{k,E}^n}^T, \tilde h</em>{\tau}^{n-1}W{_v^n}^T$</p>
+<p>$\large A_{\tau,i,j}^n&#x3D;{q_{\tau,i}^n}^Tk$………………….没写完，看下面：</p>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220517170434999.png" alt="image-20220517170434999" style="zoom:80%;">
+</li>
+<li><p>简化相对位置编码计算过程：</p>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531104156028.png" alt="image-20220531104156028" style="zoom:80%;">
+
+
+
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531104230759.png" alt="image-20220531104230759" style="zoom:80%;">
+
+
+
+
+
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220518210923007.png" alt="image-20220518210923007" style="zoom:80%;">
+
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220517151401322.png" alt="image-20220517151401322" style="zoom:80%;">
+
+
+
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/1453927-20191008092720538-235885034.png" alt="img" style="zoom:80%;">
+
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/1453927-20191008092738028-1669727199.png" alt="img" style="zoom:80%;">
+
+<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><p>数据集：WikiText-103   </p>
+<p>评价指标：困惑度：20.5 to 18.3  </p>
+<p>等等</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2409,427 +2796,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E4%B8%93%E5%88%A9/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E4%B8%93%E5%88%A9/" itemprop="url">命令词专利</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
-                2021-06-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E4%B8%93%E5%88%A9/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2021/06/29/命令词/命令词专利/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="命令词专利"><a href="#命令词专利" class="headerlink" title="命令词专利"></a>命令词专利</h1><blockquote>
-<p>CN201811475797-语音唤醒方法及装置、处理器、音箱和电视机-申请公开.pdf 阿里巴巴  陈梦喆 薛少飞 雷鸣  2018</p>
-</blockquote>
-<h4 id="思想"><a href="#思想" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>前端信号处理和kws串联 训练（前端信号处理、kws都用的网络）</li>
-<li>前端信号处理的输出信号与原始信号 一起送入kws的am</li>
-</ul>
-<h4 id="存在问题"><a href="#存在问题" class="headerlink" title="存在问题"></a>存在问题</h4><ul>
-<li>前端信号处理用网络了，功耗大</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E4%B8%93%E5%88%A9/image-20210629164653786.png" alt="image-20210629164653786" style="zoom: 67%;">
-
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E4%B8%93%E5%88%A9/image-20210629164713634.png" alt="image-20210629164713634" style="zoom:67%;">
-
-
-
-<hr>
-<blockquote>
-<p>CN201910094806-唤醒模型的确定方法及装置-审定授权.pdf  声智科技	靳源 陈孝良 冯大航 苏少炜 常乐     2019</p>
-</blockquote>
-<h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><ul>
-<li>由于唤醒模块的建立，一般是特地录制关于唤醒词的语音信息，用于训练神经网络。且在神经网络的训练过程中，更新整个神经网络每一层的各个参数。这样一般花费较多的时间，成本较高，且神经网络的训练运算量太大，容易出现误差，因此，得到的唤醒模型的精确度也不高 。</li>
-</ul>
-<h4 id="思想-1"><a href="#思想-1" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>提出一种模型参数更新的方法</li>
-<li>将训练集中的任一批次训练唤醒数据输入至一基于神经网络的识别模型，确定所述神经网络的隐层的最后一层的当前状态的参数，所述参数包括权重与偏移量；  （更新了一次iter），对所述识别模型的隐层的最后一层的前一个iter的状态的参数与当前状态的参数进行插值处理，确定一插值，并将所述插值更新为当前状态的参数。</li>
-<li>也就是说，更新了iter的模型参数后，没有马上把这个参数用于下一个iter的训练，而是把这个参数与前一次iter的参数进行插值，得到新的参数。</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN201910095418-语音唤醒的优化装置及方法-申请公开.pdf 声智科技   冯大航 陈孝良 苏少炜 常乐  2019</p>
-</blockquote>
-<h4 id="思想-2"><a href="#思想-2" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>两个阈值Y1,Y2，客户端一个唤醒模型A，云端一个唤醒模型B，经过A的输出Y：<ul>
-<li>Y&lt;Y1：没唤醒</li>
-<li>Y&gt;Y2：唤醒</li>
-<li>Y1&lt;Y&lt;Y2，送入B，得到Y’：<ul>
-<li>Y’&lt;Y1：没唤醒</li>
-<li>Y’&gt;Y1：唤醒</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN201910815261-一种语音唤醒的识别方法、装置及电子设备-审定授权.pdf  声智科技   陈孝良 靳源 冯大航 常乐  2019</p>
-</blockquote>
-<h4 id="思想-3"><a href="#思想-3" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>检测到唤醒时，取出唤醒词边界，多帧后验概率，送入二分类器，判断是否唤醒</li>
-<li>二分类器：基于预先训练的唤醒模型，计算每个目标数据帧属于预设的第一语音段的概率；所述预设的第一语音段为属于语音信号且不包括唤醒词的数据。总概率低于阈值：唤醒；总高率高于阈值：误唤醒</li>
-<li>概率：每个目标数据帧的短时能量和过零率  ；第一个字的各个音素的后验概率相加，得到每个数据帧属于所述唤醒词的第一字的后验概率值；</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN201910872875-一种语音唤醒方法及装置-申请公开.pdf   声智科技 陈天峰 冯大航 陈孝良 常乐  2019</p>
-</blockquote>
-<h4 id="思想-4"><a href="#思想-4" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>唤醒后，把非唤醒词（<gbg>）的边界抽出，非唤醒词边界内的音频能量和声学特征 送入神经网络，得到一个分数，唤醒词分数和非唤醒词分数，得到一个置信度，再根据阈值判断是否唤醒</gbg></li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202010268839-一种命令词识别方法及装置-申请公开.pdf   声智科技  张猛 冯大航 陈孝良   2020</p>
-</blockquote>
-<h4 id="思想-5"><a href="#思想-5" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>构造命令词的解码图进行缩减大小，相同的字进行复用，比如去XX楼，去和楼的状态是复用的，去XX楼，只需在去增加arc到XX，XX增加arc到楼</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202010537664-音频数据的存储方法、装置、终端及存储介质-申请公开.pdf  OPPO   陈喆  2020</p>
-</blockquote>
-<h4 id="思想-6"><a href="#思想-6" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>多级模型，从而得知是哪个地方拦住了唤醒</li>
-<li>第一级语音唤醒识别模型筛选后，可以去除采集到的无效音频；  </li>
-<li>第二级语音唤醒识别模型用于识别音频数据是否包含完整唤醒词，用于去除包含与唤醒词较接近的其他关键词的音频数据</li>
-<li>得到第n级语音唤醒识别模型输出的音频特征向量，与预先设置的标准特征向量进行比较</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202010573699-一种语音唤醒系统及方法-申请公开.pdf  长虹电器  朱海 王昆 周琳岷  2020</p>
-</blockquote>
-<h4 id="思想-7"><a href="#思想-7" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>模型：LSTM、WaveNet、CNN、CRNN  中之一</li>
-<li>有三类：激活、待激活、非激活。预测每一帧为非激活、待激活、激活标记的概率，采用滑动窗口，只在激活词的尾部进行唤醒 </li>
-<li>正样本末尾特殊标记方式为以尾部端点为中心，在前后各一个窗口大小的范围内标记为激活，其余范围标记为待激活，负样本则全部标记为非激活  </li>
-<li>若滑动窗口内平均值大于激活阈值，则判决为唤醒；</li>
-<li>若滑动窗口内平均值介于激活阈值与待激活阈值，  并且此后窗口小于待激活阈值，则将待激活的语音帧片段用语音唤醒网络做二次判定，再判决是否唤醒。</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E4%B8%93%E5%88%A9/image-20210630205600129.png" alt="image-20210630205600129"></p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E4%B8%93%E5%88%A9/image-20210630205636115.png" alt="image-20210630205636115"></p>
-<hr>
-<blockquote>
-<p>CN202010634922-语音唤醒方法及装置-申请公开.pdf  声智科技  杨晓帆 冯大航 陈孝良  2020</p>
-</blockquote>
-<h4 id="思想-8"><a href="#思想-8" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>两个模型，一个命令词模型，输出每帧后验，音素后验和，大于一个阈值，送入第二个模型；第二个模型，图片识别模型，输入边界的语谱图和后验概率图</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202010672496-一种基于多命令词的语音唤醒方法及其系统-申请公开.pdf   芯声智能   王蒙 姜黎 胡奎 付志勇  2020</p>
-</blockquote>
-<h4 id="思想-9"><a href="#思想-9" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>PCEN特征-&gt;神经网络-&gt;每帧概率分数-&gt;概率连续大于阈值20帧-&gt;检测到关键词</li>
-<li>神经网络组成：CNN-&gt;GRU-&gt;Attention</li>
-<li>CNN：对应特征数量，生成大小固定的等量卷积核；  拼接卷积核内积的结果，得到CNN层的输出特征  </li>
-<li>label：命令词&#x2F;非命令词；或者：命令词1&#x2F;命令词2&#x2F;…&#x2F;非命令词</li>
-<li>每次送入20帧：获取连续20帧的预测概率值，并解码；  累计预测概率值的大小和次数，当预测概率值连续几帧都大于设定的测试阈值时判定为检测到关键词。这种方案相比与滑窗机制，在预测方面识别率会稍有下降，但是计算量缩小将近百倍</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E4%B8%93%E5%88%A9/image-20210701095859623.png" alt="image-20210701095859623"></p>
-<h4 id="存在问题-1"><a href="#存在问题-1" class="headerlink" title="存在问题"></a>存在问题</h4><ul>
-<li>20帧就能够判断是否命令词了吗？读一个小源岂不是也能唤醒，误唤醒是否会很高</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202010795017-语音唤醒方法、装置、电子设备和存储介质-申请公开.pdf   小米    张秀云  2020</p>
-</blockquote>
-<h4 id="思想-10"><a href="#思想-10" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>多级唤醒处理，每一级准确度递增，前面几级准确度低，但是功耗低，也能排除一部分，判断为误唤醒就不会进入下一级</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E4%B8%93%E5%88%A9/image-20210701102615617.png" alt="image-20210701102615617"></p>
-<hr>
-<blockquote>
-<p>CN202010801109-一种语音处理方法及装置、存储介质-申请公开.pdf  OPPO  陈喆 曹冰 胡宁宁   2020</p>
-</blockquote>
-<hr>
-<blockquote>
-<p>CN202110437391-一种语音唤醒方法及装置-申请公开.pdf 中国科学院声学研究所   黎塔 刘作桢 张鹏远 颜永红   2021</p>
-</blockquote>
-<ul>
-<li>attention的RNN-T，输出每一帧的分类后验，每个音素逐帧概率求和与阈值比较，贪心解码，最小编辑距离</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202110168131-语音唤醒方法、装置、芯片、电子设备及存储介质-申请公开.pdf  汇顶科技  何婷婷 王乐临 王鑫山 朱虎   2021</p>
-</blockquote>
-<ul>
-<li>VAD-&gt;声纹-&gt;唤醒词识别</li>
-</ul>
-<hr>
-<blockquote>
-<p>[好]CN202011630785-语音唤醒方法和装置-申请公开.pdf  思必驰   薛少飞   2021</p>
-</blockquote>
-<ul>
-<li><p>sinc函数构造带通滤波器</p>
-</li>
-<li><p>CNN不适合低功耗唤醒设备的原因：</p>
-<ul>
-<li>计算量大，一维卷积核长度a，音频长度L，步长1，计算量至少a*L</li>
-<li>对时间序列缺乏“ 记忆”：CNN由于结构的限制，对于之前的输入缺乏“ 记忆”功能，当前的输出仅和当前的输入有关。<ul>
-<li>对时间序列缺乏“ 记忆”主要是由于CNN网络对时间序列缺乏“ 记忆”是由它的网络结构决定的。一方面，对于卷积层来说，卷积只对卷积核覆盖到的区域进行计算，因此卷积核外的语音信息不会对当前卷积核内语音信息的处理产生影响  </li>
-<li>尽管由于全连接层的存在，各卷积核之间的信息仍会相互影响，但这种影响仅限于网络输入的总时长(通常为30ms)以内，无法在较长的时间尺度上进行信息传递。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>FSMN缺点：无法对原始语音信号直接进行处理，直接用原始语音信号作为模型输入进行训练，效果会很差。  FSMN模型缺乏直接从原始音频数据中学习有用信息的能力，因此通常在使用FSMN模型之前需对原始音频进行特征提取。  </p>
-</li>
-<li><p>sinc函数来构造带通滤波器，形成一种特殊的卷积层，该滤波器的参数为最高和最低截止频率，而这两个参数的值由网络学习得到</p>
-</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202011599330-语音唤醒方法、装置、计算机设备和存储介质-申请公开.pdf 杰理科技  匡勇建  2021</p>
-</blockquote>
-<ul>
-<li>解码完，根据解码分数，提出引入一个建模单元时长相关的惩罚函数，音素常规时长区间以外的音素，乘以惩罚函数，得到新的解码分数，根据分数与阈值判断是否唤醒</li>
-<li>惩罚函数，采用gamma曲线函数，$f(t)&#x3D;1,t\geq{t1},and,t\leq{t2}$,   $f(t)&#x3D;Gramma(t),t&lt;t1,or,t&gt;t2$</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202011568957-语音处理方法和电子设备-申请公开.pdf vivo 李俊潓  2021</p>
-</blockquote>
-<ul>
-<li>减少误唤醒方法：唤醒后进行声纹识别</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202011565487-一种唤醒方法、装置及终端-申请公开.pdf 思必驰 王文成 董芳芳 樊冰玉 吴翔   2021</p>
-</blockquote>
-<ul>
-<li>减少误唤醒方法：唤醒后进行周围是否有人检测</li>
-<li>周围是否有人检测：距离传感器得到距离，得到声音强度，查找声音强度-距离对应关系表；红外特征信息是否符合人体红外特征信息，查找声音强度‑人体红外特征强度对应关系表</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202011547352-一种命令词识别方法及设备-申请公开.pdf 地平线 单长浩  2021</p>
-</blockquote>
-<ul>
-<li>在声学模型上做文章，TDNN引入残差网络，第二层送入第三层与第五层，第三层送入第四层与第六层</li>
-<li>引入注意力机制，多级输出？</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E4%B8%93%E5%88%A9/image-20210922171204879.png" alt="image-20210922171204879"></p>
-<hr>
-<blockquote>
-<p>CN202011453041-语音唤醒方法及装置、可读存储介质、电子设备-申请公开.pdf 单长浩 2021</p>
-</blockquote>
-<ul>
-<li><p>普通的注意力机制训练的模型由于对其学习到的知识过度自信，导致语音唤醒系统的性能相对较低，误唤醒率相对较高  </p>
-</li>
-<li><p>用识别模型，提取bottlenect特征，无监督？，作为第二个模型的输入，第二个模型结构用了注意力机制，输出字，。。。。</p>
-</li>
-<li><p>基于多个第一语音特征的时序，通过多个第一语音特征分别对应的音素 概率分布形成音素概率分布序列，之后，确定出该音素概率分布序列中的目标音素序列，基 于该目标音素序列，确定第一唤醒概率。作为一种可能的情况，目标音素序列为唤醒词音素 序列，目标音素序列的概率为第一唤醒概率。举例来说，唤醒词是小爱同学，则唤醒词音素 序列(目标音素序列)为“ x iao3 ai4 t ong2 x ue2”，其中，数字3、4、2分别表示汉语音节 中的三声调、四声调和二声调，确定音素概率分布序列中存在唤醒词音素序列(目标音素序 列)的概率，并将该概率确定为第一唤醒概率。作为另一种可能的情况，针对每个音素概率 分布，确定音素概率分布中最大匹配概率值对应的示例音素，通过每个音素概率分布分别 对应的示例音素组成目标音素序列。作为一种可行的实现方式，计算目标音素序列与唤醒 词音素序列之间的相似度，并将该相似度确定为第一唤醒概率。作为另一种可行的实现方 式，构建词级别的声学模型，其中，词级别的声学模型确定语音波形中每个词的概率，基于 词级别的声学模型，得到目标音素序列对应的词序列，计算词序列与唤醒词序列之间的相 似度，并将该相似度确定为第一唤醒概率，这里，需要将连续多个第一语音特征进行拼接， 将拼接后的特征输入至词级声学模型中进行识别。</p>
-</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202011502794-语音唤醒方法、装置、电子设备及可读存储介质-申请公开.pdf 百度 周毅 左声勇  2021</p>
-</blockquote>
-<ul>
-<li>避免误唤醒，常见的方法是：采集能够导致误唤醒的音频，利用该些音频对语音助手中的语音识别模型进行训练，以使得语音助手识别出误唤醒的声音后，不会进入唤醒状态。  但这样效率很低</li>
-<li>核心思想：不同的环境音量对应不同的唤醒精度 ，根据环境音量的大小，调整唤醒精度。当前环境越嘈杂，语音助手越难被唤醒。比如，用户想要唤醒语音助手，就得清晰、大声的发出“ 小黑小黑”</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202011474857-一种语音唤醒方法、装置、电子设备及存储介质-申请公开.pdf 有竹居网络（字节跳动）  田垚 姚海涛 蔡猛  2021</p>
-</blockquote>
-<ul>
-<li><p>用RNNT网络，由于RNN‑T中预测网络prediction network 的角色类似于语音识别中语言模型的角色，通过输入上一个字(词)来预测下一个字(词)，由于训练数据中存在非常多唤醒词的数据，这些数据对应的文本都是一样的，会导致预测模型出现过拟合，从而利用模型进行语音唤醒时会出现非常多的误唤醒现象，影响语音唤醒的准确性。</p>
-</li>
-<li><p>在种子RNN‑T模型的基础上添加前向神经FFNN网络，其中，FFNN（Feed Forward Neural Networks ）网络与编码器网络连接；将种子RNN‑T模型（通用识别数据训）作为第一分支，将FFNN网络和编码器网络（识别数据+唤醒数据训）作为第二分支；根据第一分支和第二分支获得自适应唤醒模型。  loss：加权和，多任务学习。</p>
-</li>
-<li><p>并不是分两部分走，唤醒数据只用来finetune，先用通用识别数据训一个模型，再用识别数据+唤醒数据进行finetune（自适应）  的多任务学习方法。</p>
-</li>
-<li><p>在对自适应唤醒模型进行训练时，唤醒词数据不会经过预测网络，从而可以解决由于唤醒词所对应的文本都是一样的，而导致预测网络出现过拟合的情况。  </p>
-</li>
-<li><p>测试时，得到两个分支概率，概率和和阈值关系判断是否唤醒</p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E4%B8%93%E5%88%A9/image-20210924120140454.png" alt="image-20210924120140454"></p>
-</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202011436338-命令的识别方法、装置及计算机可读存储介质-申请公开.pdf 鹏城实验室 黄炜 钟晓雄 张伟哲 束建钢  艾建文 黄兴森  2021</p>
-</blockquote>
-<ul>
-<li>google推荐的MnasNet(google搜索建立模型的方法)的最优骨干网络搭建方式，建立由输入端到输出端的网络  </li>
-<li>由于矩阵中大部分为负样例，正样本对Loss的贡献度非常的小，这样会导致均值平均精度(mAP，mean Average Precision)训练不充分，为此引入处理正负样本不均衡的方法，将原有的交叉熵损失改进为如下公式，  $CrossEntropy(t,p)&#x3D;-(e^{a(1-p)}<em>t</em>log(p)+(1-t)*log(1-p))$ ，类似Focal Loss  ，为了提高正样本对Loss的贡献，其中α为控制该指数的上升速度，t为对应的标签，p为模型输出的值  </li>
-<li>利用了声纹特征</li>
-<li>判断特征向量与特征向量库是否匹配</li>
-</ul>
-<hr>
-<blockquote>
-<p>CN202011302212-语音唤醒方法及装置-申请公开.pdf 思必驰  王蒙 薛少飞  </p>
-</blockquote>
-<ul>
-<li>在滑动窗口内对所获取的音频数据进行归一化处理，以生成相应的目标特征数据；将所述目标特征数据提供给语音唤醒模型  ，可以避免突变的声场环境因归一化操作而被削弱的影响，有助于提高终端设备在较嘈杂的声学环境中的唤醒率。  这不就是sliding cmvn？</li>
-<li>PCEN（Per-Channel Energy Normalization , 单通道能量归一化算法）是一种能量泛化算法，其可以对没有取对数的音频特征进行单通道能量归一化处理，能够替代特征提取部分的取对数运算，具有较强的声学自适应性。此外，通过测试结果显示，在远场测试环境下具有提升唤醒率的效果  </li>
-<li>在声音产生突变时，可能导致配置有PCEN算法的语音识别模型无法唤醒的情况，其一般是基于IIR（infinite impulse response , 无限脉冲响应）滤波器的，导致初始状态会一直对当前状态产生影响，而在声场环境突变时，特征的值会产生较大的改变，经过归一化处理后，这个改变被削弱，从而对唤醒结果产生一定影响。</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;CN202011238207-一种语音唤醒方法、装置、介质和设备-申请公开.pdf 声智科技  冯大航 陈孝良 韩赞 常乐   2021&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>每一级唤醒模块确定是否应唤醒智能设备的时长均不大于对应的设定值，从而可以通过负载均衡的方式，减轻每一级唤醒模块的计算量，降低每一级唤醒模块的功耗，避免计算能力不足的问题。</li>
-</ul>
-<hr>
-<blockquote>
-<p>[好] &#x3D;&#x3D;CN111816165A-语音识别方法、装置及电子设备.pdf 声智科技 陈孝良 冯大航 郭震  2020&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>提出在不同的语言模型上进行两次解码，一个是命令词的语言模型，一个是通用数据语言模型，得到识别解码序列，根据解码分数，确定解码结果是来自哪个解码网络的结果；</li>
-<li>提出识别模型训练方法，用要训练模型的预测概率向量和已训练模型的预测概率向量的KL散度，放进loss函数；</li>
-</ul>
-<blockquote>
-<p>&#x3D;&#x3D;D1-CN112133294A-语音识别方法、装置和系统及存储介质-公开.PDF 标贝 王杰 李秀林 2020&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>不是直接用transformer的beam search输出作为识别结果，而是受语言模型限制，把语言模型构建wfst，用声学分数在里面搜索，才得到识别路径</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2880,7 +2846,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">98</span>
+                  <span class="site-state-item-count">99</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -2891,7 +2857,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -2902,7 +2868,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

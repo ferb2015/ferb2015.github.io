@@ -9168,4 +9168,89 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>语言模型</tag>
       </tags>
   </entry>
+  <entry>
+    <title>GAN提出论文</title>
+    <url>/2022/11/21/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/</url>
+    <content><![CDATA[<h1 id="GAN提出论文"><a href="#GAN提出论文" class="headerlink" title="GAN提出论文"></a>GAN提出论文</h1><blockquote>
+<p>&#x3D;&#x3D;Creswell, Antonia, et al. “Generative adversarial networks: An overview.” <em>IEEE signal processing magazine</em> 35.1 (2018): 53-65.&#x3D;&#x3D;citation：51486</p>
+<p>github：<a href="http://www.github.com/goodfeli/adversarial">http://www.github.com/goodfeli/adversarial</a>  </p>
+<p>跟着李沐学AI视频 <a href="https://www.bilibili.com/video/BV1rb4y187vD/?spm_id_from=333.999.0.0&vd_source=5e9891722f2b62adca440a5e92121b5b">GAN论文逐段精读【论文精读】</a> </p>
+</blockquote>
+<h4 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h4><ul>
+<li>解决了深度学习在生成模型上效果不够好的问题；不够好的原因是最大化似然函数时需要对概率分布进行很多近似，近似带来很多计算；不需要用马尔科夫链中采样，方法更简单；（其实看不太懂到底解决什么问题，相比之前的方法不一样，主要是之前的方法我也不熟）；</li>
+<li>不再去近似 似然函数，而是用其他方法来得到生成模型；</li>
+</ul>
+<h4 id="提出什么方法"><a href="#提出什么方法" class="headerlink" title="提出什么方法"></a>提出什么方法</h4><ul>
+<li>提出了一个通过对抗过程来生成模型的新<strong>框架</strong>，叫GAN；同时训练两个模型，一个叫生成器 $G$，一个叫判别器 $D$；生成器捕捉数据的分布，目标是最大化判别器出错的概率（通过神经网络传递随机噪声，来生成样本）；判别器估计样本有多大的概率来自于真实数据（判断该样本是来自模型分布还是数据分布）；训练好的生成器是一个能够恢复训练样本分布的模型，训练好的判别器输出等于1&#x2F;2的（分不出是生成还是真实）；</li>
+<li>判别器的训练逻辑：对于判别器而言，当输入为真实音频x时，应该输出数值1；当输入为合成音频G(z)时，应该输出数值0。生成器的训练逻辑：当生成器的输出G(z)作为判别器的输入时，使得判别器的输出为1；</li>
+</ul>
+<h4 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h4><p>- </p>
+<h4 id="存在什么问题"><a href="#存在什么问题" class="headerlink" title="存在什么问题"></a>存在什么问题</h4><ul>
+<li>难训练，生成器和判别器要均衡好，收敛不稳定；</li>
+<li>loss会有数值问题；</li>
+</ul>
+<h2 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h2><ul>
+<li><p>在提出该框架之前的做法：之前的方法总是想构造一个分布函数出来，分布函数提供一些参数让它可以学习，这些参数通过最大化似然函数来做（学习一些分布 使得知道是什么分布，学习参数，比如均值、方差）；这样的坏处是采样一个分布的时候算起来比较难，特别是当维度比较高的时候；因为这些方   法计算困难，最近有一些工作提出了“generative machines”，不再去构造分布，而是学一个模型来去近似这个结果，好处是算起来容易，坏处是不知道是什么分布；</p>
+</li>
+<li><p>与该框架很像的一些工作：</p>
+<ul>
+<li>VAE</li>
+<li>predictability minimization  </li>
+<li>adversarial examples：构造一些假样本，和真样本很像，来糊弄判别器，从而测试算法稳定性</li>
+</ul>
+</li>
+</ul>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>生成器是一个MLP的情况下，输入是随机噪声（通常是高斯分布），它可以映射到任何一个我们想去拟合的分布；</p>
+<p>判别器是一个MLP的情况下，。。</p>
+<p>输入多维随机变量 $x$，生成器输出分布 $p_G$，假设输入噪声分布 $p_z(z)$，生成器的传递函数为 $G(z;\theta_g)$ （学习从 $z$ 到 $x$ 的映射）；判别器传递函数 $D(x;\theta_d)$ ，输出一个概率数值（一个标量），表示有多大概率输入$x$是来自真实数据（而不是 $p_g$）；训练判别器，最大化判别是训练样本还是从生成器采样的样本的正确率，同时训练生成器，生成器的目标是：最小化 $log(1-D(G(z)))$ （$D(G(z))$是生成器采样送入判别器，判别器输出为0（判断成真实样本）的概率，$D(G(z))$越接近0，$log(1-D(G(z)))$ 就越接近0；$D(G(z))$越接近1，$log(1-D(G(z)))$ 就越接近负无穷，因此生成器的目标是最小化 $log(1-D(G(z)))$，也就是尽可能让判别器出错；</p>
+<p>two-player minmax game with value function $V(D, G)$：<br>$$<br>\min <em>G \max <em>D V(D, G)&#x3D;\mathbb{E}</em>{\boldsymbol{x} \sim p</em>{\text {data }}(\boldsymbol{x})}[\log D(\boldsymbol{x})]+\mathbb{E}<em>{\boldsymbol{z} \sim p</em>{\boldsymbol{z}}(\boldsymbol{z})}[\log (1-D(G(\boldsymbol{z})))]<br>$$<br>最大化D，假设D训练得很好，$D(x)$ 接近1，所以$logD(x)$接近0，$D(G(z))$ 接近0，$log(1-D(G(z)))$ 接近0；而只要D训练得不好，就是负数，因此D的目标是最大化value function；</p>
+<p>最小化G，假设G训练得很好，$D(G(z))$ 接近1， $log(1-D(G(z)))$ 接近负无穷（最小了）；而只要G训练得不好，就接近0，因此G的目标是最小化value function；</p>
+<p>达到均衡：到某个点都无法提高了，对于G来说 $p_g&#x3D;p_{data}$ 后就无法提高了，对于D来说是 $D(x)&#x3D;\frac{1}{2}$ 附近（判别器区分不出来了，输入什么输出都是1&#x2F;2）；</p>
+<img src="/2022/11/21/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20221118162014687.png" alt="image-20221118162014687">
+
+
+
+<h2 id="目标函数及求解"><a href="#目标函数及求解" class="headerlink" title="目标函数及求解"></a>目标函数及求解</h2><p>伪代码：</p>
+<p>Algorithm 1  ：</p>
+<p><img src="/2022/11/21/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20221121103640372.png" alt="image-20221121103640372"></p>
+<p>判别器迭代k步，生成器迭代1步；k：让判别器有足够的更新（k不能太小），但也别更新太好了（k也不能太大），因为如果判别器没有足够更新，loss负无穷大，这个G更新意义不大；而如果判别器更新得太充分，loss为0，参数不更新了；</p>
+<p>训练早期：一开始D很容易判断正确，因此一开始 $log(1-D(G(z)))$ 等于0，G难更新，因此训练早期更新G别用最小化 $log(1-D(G(z)))$，用最大化 $logD(G(z))$ （但是早期 $logD(G(z))$ 等于负无穷大，也会有数值问题，后续工作会改进）；</p>
+<p>怎么判断GAN收敛了呢？一个收敛，另一个还没收敛算收敛吗？两个都在抖动算收敛吗？整体来说<strong>GAN收敛很不稳定</strong>，后续也有很多改进工作；</p>
+<h2 id="理论结果"><a href="#理论结果" class="headerlink" title="理论结果"></a>理论结果</h2><p>目标有全局最优解，当且仅当生成器学到的分布和真实数据分布相等 $p_g&#x3D;p_{data}$，</p>
+<h3 id="Global-Optimality-of-pg-x3D-p-data"><a href="#Global-Optimality-of-pg-x3D-p-data" class="headerlink" title="Global Optimality of $pg &#x3D; p_{data}$"></a>Global Optimality of $pg &#x3D; p_{data}$</h3><p>假设判别器D已训练好，任意的生成器G。</p>
+<p><strong>Proposition 1</strong>.  给定G，最优的D为：<br>$$<br>D_G^*(x)&#x3D;\frac{p_{data}(x)}{p_{data}(x)+p_g(x)}<br>$$<br>其中，$p_{data}(x)$  是真实分布下输出概率值，$p_g(x)$ 是生成器拟合分布下，输入x后输出概率值；</p>
+<p>对任意x，最优判别器输出概率为1&#x2F;2（ $p_{data}(x)$ 和 $p_g(x)$ 完全相等时）；表示判别器什么都分不开，表示这两个分布是重合的；</p>
+<p>（这个思路在工程上很有意义：如何判断两块数据是不是来自同一分布：只要训练一个二分类器，如果能区分开，则不是一个分布，如果区分不开，则是一个分布。举例子来说，我们想知道训练的模型在新环境适不适用，只需要采集新环境的数据，通过训练一个二分类器，看原本的训练数据，与新环境的数据是不是同一个分布（通过看分类器能不能区分）就知道模型适不适用了）</p>
+<h4 id="证明Proposition-1"><a href="#证明Proposition-1" class="headerlink" title="证明Proposition 1"></a>证明Proposition 1</h4><p>证明公式(2)： 对任意生成器G下的 判别器D的训练准则 是 最大化value fucntion $V(G,D)$</p>
+<p>期望定义公式： $\mathbb{E}_{\boldsymbol{x} \sim p}f(x)&#x3D;\int_xp(x)f(x)dx$ ，带入上面的公式(1)后：</p>
+<p>如果生成器训练得好，$x&#x3D;g(z)$，$p_g(x)&#x3D;p_z(z)$<br>$$<br>\begin{equation}<br>\begin{aligned}<br>V(G, D)&amp;&#x3D;\int_{\boldsymbol{x}} p_{\text {data }}(\boldsymbol{x}) \log (D(\boldsymbol{x})) d x+\int_{\boldsymbol{z}} p_{\boldsymbol{z}}(\boldsymbol{z}) \log (1-D(g(\boldsymbol{z}))) d z \<br>&amp;&#x3D;\int_{\boldsymbol{x}} p_{\text {data }}(\boldsymbol{x}) \log (D(\boldsymbol{x})) + p_{\boldsymbol{g}}(\boldsymbol{x}) \log (1-D(\boldsymbol{x})) d x<br>\end{aligned}<br>\end{equation}<br>$$<br>$p_{data}(x)$ 替换为 $a$，$p_g(x)$ 替换为 $b$，$D(x)$ 替换为 $y$，则表达式为 $a\log y+b\log (1-y)$ ，可以画出是一个凸函数（横轴为y），有一个最大值，求最大值，在[0,1]间最大值为 $y &#x3D; \large \frac{a}{a+b}$（通过求导可知），也就是上面的公式(2)；</p>
+<p>带入D的最优解到value function中，现在是一个关于G的函数了（D用的最优解），value function要最大化D：<br>$$<br>\begin{aligned}<br>C(G) &amp;&#x3D;\max <em>D V(G, D) \<br>&amp;&#x3D;\mathbb{E}</em>{\boldsymbol{x} \sim p_{\text {data }}}\left[\log D_G^*(\boldsymbol{x})\right]+\mathbb{E}<em>{\boldsymbol{z} \sim p</em>{\boldsymbol{z}}}\left[\log \left(1-D_G^*(G(\boldsymbol{z}))\right)\right] \<br>&amp;&#x3D;\mathbb{E}<em>{\boldsymbol{x} \sim p</em>{\text {data }}}\left[\log D_G^*(\boldsymbol{x})\right]+\mathbb{E}<em>{\boldsymbol{x} \sim p_g}\left[\log \left(1-D_G^*(\boldsymbol{x})\right)\right] \<br>&amp;&#x3D;\mathbb{E}</em>{\boldsymbol{x} \sim p_{\text {data }}}\left[\log \frac{p_{\text {data }}(\boldsymbol{x})}{p_{\text {data }}(\boldsymbol{x})+p_g(\boldsymbol{x})}\right]+\mathbb{E}<em>{\boldsymbol{x} \sim p_g}\left[\log \frac{p_g(\boldsymbol{x})}{p</em>{\text {data }}(\boldsymbol{x})+p_g(\boldsymbol{x})}\right]<br>\end{aligned}<br>$$<br>现在要最小化G；</p>
+<p><strong>理论1 Theorem 1</strong>.  全局最小值C(G)，当且仅当 $p_g(x)&#x3D;p_{data}(x)$ ，此时 $C(G)&#x3D;-\log 4$ ；</p>
+<h4 id="证明-Theorem-1"><a href="#证明-Theorem-1" class="headerlink" title="证明 Theorem 1"></a>证明 Theorem 1</h4><p>证明 对于 $p_g(x)&#x3D;p_{data}(x)$，$D_G^*(x)&#x3D;\frac{1}{2}$，带入C(G)公式得到 $C(G)&#x3D;\log(\frac{1}{2})+\log(\frac{1}{2})&#x3D;-\log(4)$，这也是C(G)的最优值；</p>
+<p>$$\mathbb{E}<em>{\boldsymbol{x} \sim p</em>{\text {data }}}[-\log2]+\mathbb{E}<em>{\boldsymbol{x} \sim p</em>{\text {g }}}[-\log2]&#x3D;-\log4$$</p>
+<p>KL散度可以衡量两个分布，定义为 $KL(p|q)&#x3D;\mathbb E_{x\sim p}\log \frac{p(x)}{q(x)}$ ，已知p的情况下，需要多少bit能把q描述出来；对任意x采样自p分布，用该公式可以衡量两分布距离；</p>
+<p>$p_{data}(x)+p_g(x)$不是一个分布，因为积分&#x3D;2，而$\frac{1}{2}(p_{data}(x)+p_g(x))$是一个分布，因为积分&#x3D;1，把上面公式(4)写为 </p>
+<p>$C(G)&#x3D;\mathbb{E}<em>{x\sim p</em>{data}}[\log\frac{p_{data}(x)}{\frac{1}{2}(p_{data}(x)+p_g(x))}]-log(2)+\mathbb{E}<em>{x\sim p</em>{g}}[\log\frac{p_{g}(x)}{\frac{1}{2}(p_{data}(x)+p_g(x))}]-log(2)$</p>
+<p>$p_{data}(x)$、$p_{g}(x)$、$p_{data}(x)+p_{g}(x)$ 都是分布，因此可以用KL散度公式，得到：<br>$$<br>C(G)&#x3D;-\log (4)+K L\left(p_{\text {data }} | \frac{p_{\text {data }}+p_g}{2}\right)+K L\left(p_g | \frac{p_{\text {data }}+p_g}{2}\right)<br>$$<br>该形式叫Jensen–Shannon divergence  ，JS散度，琴森香农散度，与KL散度区别是，JS散度里的p、q分布是对称的，可互换，KL散度不能；</p>
+<p>KL散度值大于等于0，等于0的情况是两分布相等，即 $p_{data}&#x3D; \large \frac{p_{data}(x)+p_{g}(x)}{2}$ 、  $p_{g}&#x3D;\large \frac{p_{data}(x)+p_{g}(x)}{2}$ ，最优解等价于 $p_{data}&#x3D;p_g$</p>
+<h3 id="Convergence-of-Algorithm-1"><a href="#Convergence-of-Algorithm-1" class="headerlink" title="Convergence of Algorithm 1"></a>Convergence of Algorithm 1</h3><p>算法1的收敛性证明。</p>
+<p>如果G和D有足够的容量，在算法1的每一步，都允许判别器在给定G的情况下达到最优，并更新 $p_g$ ，</p>
+<p>$\mathbb{E}<em>{\boldsymbol{x} \sim p</em>{\text {data }}}\left[\log D_G^*(\boldsymbol{x})\right]+\mathbb{E}<em>{\boldsymbol{x} \sim p_g}\left[\log \left(1-D_G^*(\boldsymbol{x})\right)\right]$ ，那么 $p_g$ 会收敛到 $p</em>{data}$ 。</p>
+<p>证明：证明过程是泛函分析里的知识点，我看不很懂；凸函数什么的。TODO</p>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>todo</p>
+<h2 id="后续工作"><a href="#后续工作" class="headerlink" title="后续工作"></a>后续工作</h2><ol>
+<li>conditional GAN，条件GAN。由于该方法没有限制，随便给一个z去生成，因此后续可以给一些限制，去更可控地得到想要的输出，$p(x|c)$ ，给G和D的输入是在一定条件下的；</li>
+<li>Learned approximate inference 通过训练辅助网络对给定x的z进行预测。这类似于wake-sleep algorithm，但优点是在生成器训练完成后，可以对固定的生成器训练？；</li>
+<li>。。</li>
+<li>Semi-supervised learning  半监督学习。从判别器或者推理网提取的特征可以用来改善模型；</li>
+<li>提高效率方向。通过设计更好的方法来协调G和D，或者在训练过程中确定样本z更好的分布，可以大大加快训练的速度。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>深度学习</category>
+      </categories>
+      <tags>
+        <tag>深度学习</tag>
+      </tags>
+  </entry>
 </search>
