@@ -288,7 +288,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E9%A2%84%E8%AE%AD%E7%BB%83/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -307,7 +307,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/" itemprop="url">语音识别预训练技术的发展和应用 分享</a></h1>
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E9%A2%84%E8%AE%AD%E7%BB%83/" itemprop="url">预训练模型</a></h1>
         
 
         <div class="post-meta">
@@ -360,9 +360,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/#comments" itemprop="discussionUrl">
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/%E9%A2%84%E8%AE%AD%E7%BB%83/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/语音识别预训练技术/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2022/01/04/识别/预训练/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -392,44 +392,57 @@
       
         
           
-            <h1 id="预训练技术"><a href="#预训练技术" class="headerlink" title="预训练技术"></a>预训练技术</h1><blockquote>
-<p>狗熊会 <a target="_blank" rel="noopener" href="https://www.xiong99.com.cn/detail/v_62874489e4b09dda126b08e7/3?from=p_5efd4ce4779bc_hgZJtgAY&type=8&parent_pro_id=p_62635f3ce4b01c509aa7070f">腾讯云小微曹松军研究员：语音识别预训练技术的发展和应用</a></p>
+            <h1 id="预训练模型"><a href="#预训练模型" class="headerlink" title="预训练模型"></a>预训练模型</h1><p>预训练模型 wav2vec2.0、datavec</p>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Schneider, Steffen, et al. “wav2vec: Unsupervised pre-training for speech recognition.” <em>arXiv preprint arXiv:1904.05862</em> (2019).&#x3D;&#x3D;Facebook</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/pytorch/fairseq">https://github.com/pytorch/fairseq</a></p>
 </blockquote>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523182802701.png" alt="image-20220523182802701"></p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523182828056.png" alt="image-20220523182828056" style="zoom:80%;">
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
+<li>提出一种用无监督预训练来改善有监督语音识别的方法；训练一个无监督预训练模型，用来给下游的语音识别任务作为输入；</li>
+<li>该无监督预训练模型叫做wav2vec；该模型输入是原始音频，输出是embedding，这个embedding是用大量无标签音频训练得到的，能表示一定的输入音频信息，模型结构用的CNN；loss function是contrastive loss，从negative中鉴别出哪个是真实的 future audio sample；</li>
+</ul>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><ul>
+<li><p>输入原始音频x通过encoder网络，得到具有上下文表示的输出z；</p>
+<p>The encoder layers have kernel sizes (10; 8; 4; 4; 4) and strides (5; 4; 2; 2; 2).   </p>
+<p>causal convolution with 512 channels, a group normalization layer and a ReLU nonlinearity.   </p>
+<p>输入30ms窗长，10ms窗移，16kHz音频，输出低频特征；</p>
+</li>
+<li><p>然后经过一个context network $g:Z -&gt;   C$ ，把encoder的输出z，多个z concat起来经过g得到c：$\large c_i&#x3D;g(z_i…z_{i-v})$，其中v是感受野，是一个超参；</p>
+<p>The context network has nine layers with kernel size three and stride one  ，感受野210ms；</p>
+<p>causal convolution with 512 channels, a group normalization layer and a ReLU nonlinearity.   </p>
+<p>group norm：我们发现选择一种对输入的缩放和偏移量无关的归一化方案是很重要的，该归一化方法对于跨数据集泛化性更好；</p>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E9%A2%84%E8%AE%AD%E7%BB%83/image-20220626160341868.png" alt="image-20220626160341868" style="zoom: 40%;">
 
-
-
-
-
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523182914852.png" alt="image-20220523182914852" style="zoom:80%;">
-
-
-
-
-
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523182943370.png" alt="image-20220523182943370" style="zoom:80%;">
-
-
-
-
-
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523183036908.png" alt="image-20220523183036908"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523183116550.png" alt="image-20220523183116550"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523183154447.png" alt="image-20220523183154447"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523183238154.png" alt="image-20220523183238154"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523183326735.png" alt="image-20220523183326735"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523183446589.png" alt="image-20220523183446589"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523183526190.png" alt="image-20220523183526190"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523183545577.png" alt="image-20220523183545577"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523183614384.png" alt="image-20220523183614384"></p>
-<h2 id="腾讯云小微"><a href="#腾讯云小微" class="headerlink" title="腾讯云小微"></a>腾讯云小微</h2><p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523183714332.png" alt="image-20220523183714332"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523183749436.png" alt="image-20220523183749436"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523183927787.png" alt="image-20220523183927787"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523184007633.png" alt="image-20220523184007633"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523184050847.png" alt="image-20220523184050847"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523184153121.png" alt="image-20220523184153121"></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E9%A2%84%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF/image-20220523184254195.png" alt="image-20220523184254195"></p>
+<ul>
+<li><p>loss function：we optimize our model (§2.1) to predict future samples from a given signal context.   </p>
+<p>不是对 $p(x)$ 建模，而是在时间轴建模 $\large p(z_{i+k}|z_i…z_{i-r})&#x2F;p(z_{i+k})$</p>
+<p><strong>loss function：</strong></p>
+<p>作者利用了负采样技术，作者从一个概率分布 $p_n$ 中采样出负样本 $\tilde z$，，最终模型的loss为区分正例和反例的contrastive loss：</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E9%A2%84%E8%AE%AD%E7%BB%83/image-20220626163406378.png" alt="image-20220626163406378"></p>
+</li>
+</ul>
+<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><hr>
+<blockquote>
+<p>&#x3D;&#x3D;Baevski, Alexei, et al. “wav2vec 2.0: A framework for self-supervised learning of speech representations.” <em>Advances in Neural Information Processing Systems</em> 33 (2020): 12449-12460.&#x3D;&#x3D;</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Baevski, Alexei, et al. “Data2vec: A general framework for self-supervised learning in speech, vision and language.” <em>arXiv preprint arXiv:2202.03555</em> (2022).&#x3D;&#x3D;</p>
+<p><a target="_blank" rel="noopener" href="https://ai.facebook.com/research/data2vec-a-general-framework-for-self-supervised-learning-in-speech-vision-and-language/">https://ai.facebook.com/research/data2vec-a-general-framework-for-self-supervised-learning-in-speech-vision-and-language/</a></p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/pytorch/fairseq/tree/main/examples/data2vec">https://github.com/pytorch/fairseq/tree/main/examples/data2vec</a></p>
+</blockquote>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Chen, Sanyuan, et al. “Wavlm: Large-scale self-supervised pre-training for full stack speech processing.” <em>arXiv preprint arXiv:2110.13900</em> (2021).&#x3D;&#x3D;</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/microsoft/unilm/tree/master/wavlm">https://github.com/microsoft/unilm/tree/master/wavlm</a></p>
+</blockquote>
+<h2 id="中文预训练模型"><a href="#中文预训练模型" class="headerlink" title="中文预训练模型"></a>中文预训练模型</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/wenet-e2e/wenet/blob/main/docs/pretrained_models.md">https://github.com/wenet-e2e/wenet/blob/main/docs/pretrained_models.md</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/wenet-e2e/wenet/tree/main/examples/openasr2021/s0">https://github.com/wenet-e2e/wenet/tree/main/examples/openasr2021/s0</a></p>
+</blockquote>
 
           
         
@@ -2198,182 +2211,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/triplet%20loss/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/triplet%20loss/" itemprop="url">triplet loss keyword spotting 代码</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
-                2021-06-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/triplet%20loss/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2021/06/29/命令词/triplet loss/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="triplet-loss-keyword-spotting-代码"><a href="#triplet-loss-keyword-spotting-代码" class="headerlink" title="triplet loss keyword spotting 代码"></a>triplet loss keyword spotting 代码</h1><p>以 google speech commands为例</p>
-<blockquote>
-<p>Vygon, Roman, and Nikolay Mikhaylovskiy. “Learning efficient representations for keyword spotting with triplet loss.” <em>International Conference on Speech and Computer</em>. Springer, Cham, 2021.ciations：12</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/roman-vygon/triplet_loss_kws"> Learning Efficient Representations for Keyword Spotting with Triplet Loss</a></p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/NVIDIA/NeMo/blob/v0.10.1/examples/asr/notebooks/3_Speech_Commands_using_NeMo.ipynb">https://github.com/NVIDIA/NeMo/blob/v0.10.1/examples/asr/notebooks/3_Speech_Commands_using_NeMo.ipynb</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.codeleading.com/article/61624664033/">https://www.codeleading.com/article/61624664033/</a></p>
-<p><a target="_blank" rel="noopener" href="https://bindog.github.io/blog/2019/10/23/why-triplet-loss-works/">https://bindog.github.io/blog/2019/10/23/why-triplet-loss-works/</a></p>
-<p>github人脸检测：<a target="_blank" rel="noopener" href="https://github.com/kuaikuaikim/DFace">https://github.com/kuaikuaikim/DFace</a></p>
-<p>facenet：<a target="_blank" rel="noopener" href="https://github.com/davidsandberg/facenet">https://github.com/davidsandberg/facenet</a></p>
-</blockquote>
-<p>&#x2F;home&#x2F;data&#x2F;yelong&#x2F;triplet_loss_kws&#x2F;loss&#x2F;utils.py</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">RandomNegativeTripletSelector</span>(<span class="params">margin, cpu=<span class="literal">False</span></span>): <span class="keyword">return</span> FunctionNegativeTripletSelector(margin=margin,</span><br><span class="line">                                                                                             negative_selection_fn=random_hard_negative,</span><br><span class="line">                                                                                             cpu=cpu)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FunctionNegativeTripletSelector</span>(<span class="title class_ inherited__">TripletSelector</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    For each positive pair, takes the hardest negative sample (with the greatest triplet loss value) to create a triplet</span></span><br><span class="line"><span class="string">    Margin should match the margin used in triplet loss.</span></span><br><span class="line"><span class="string">    negative_selection_fn should take array of loss_values for a given anchor-positive pair and all negative samples</span></span><br><span class="line"><span class="string">    and return a negative index for that pair</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p>找triplet三元组：</p>
-<p>方法：找出所有同类a,p对，而a,n对根据不同策略选出不同a,n，我这里用的随机，就是在所有d(a,p)-d(a,n)+margin大于0的组合中，随机选一个a,n作为三元组(a,p,n)的n index</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> combinations</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pdist</span>(<span class="params">vectors</span>):</span><br><span class="line">    distance_matrix = -<span class="number">2</span> * vectors.mm(torch.t(vectors)) + vectors.<span class="built_in">pow</span>(<span class="number">2</span>).<span class="built_in">sum</span>(dim=<span class="number">1</span>).view(<span class="number">1</span>, -<span class="number">1</span>) + vectors.<span class="built_in">pow</span>(<span class="number">2</span>).<span class="built_in">sum</span>(</span><br><span class="line">        dim=<span class="number">1</span>).view(-<span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> distance_matrix</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TripletSelector</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Implementation should return indices of anchors, positive and negative samples</span></span><br><span class="line"><span class="string">    return np array of shape [N_triplets x 3]</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_triplets</span>(<span class="params">self, embeddings, labels</span>):</span><br><span class="line">        <span class="keyword">raise</span> NotImplementedError</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">random_hard_negative</span>(<span class="params">loss_values</span>):</span><br><span class="line">    hard_negatives = np.where(loss_values &gt; <span class="number">0</span>)[<span class="number">0</span>]   <span class="comment">#index</span></span><br><span class="line">    <span class="keyword">return</span> np.random.choice(hard_negatives) <span class="keyword">if</span> <span class="built_in">len</span>(hard_negatives) &gt; <span class="number">0</span> <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FunctionNegativeTripletSelector</span>(<span class="title class_ inherited__">TripletSelector</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    For each positive pair, takes the hardest negative sample (with the greatest triplet loss value) to create a triplet</span></span><br><span class="line"><span class="string">    Margin should match the margin used in triplet loss.</span></span><br><span class="line"><span class="string">    negative_selection_fn should take array of loss_values for a given anchor-positive pair and all negative samples</span></span><br><span class="line"><span class="string">    and return a negative index for that pair</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, margin, negative_selection_fn, cpu=<span class="literal">True</span></span>):</span><br><span class="line">        <span class="built_in">super</span>(FunctionNegativeTripletSelector, self).__init__()</span><br><span class="line">        self.cpu = cpu</span><br><span class="line">        self.margin = margin</span><br><span class="line">        self.negative_selection_fn = negative_selection_fn</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_triplets</span>(<span class="params">self, embeddings, labels</span>):</span><br><span class="line">        <span class="keyword">if</span> self.cpu:</span><br><span class="line">            embeddings = embeddings.cpu()</span><br><span class="line">        distance_matrix = pdist(embeddings)</span><br><span class="line">        distance_matrix = distance_matrix.cpu()</span><br><span class="line"></span><br><span class="line">        labels = labels.cpu().data.numpy()</span><br><span class="line">        triplets = []</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> label <span class="keyword">in</span> <span class="built_in">set</span>(labels):   <span class="comment">#多少种种类</span></span><br><span class="line">            label_mask = (labels == label)</span><br><span class="line">            label_indices = np.where(label_mask)[<span class="number">0</span>] <span class="comment">#同类的index</span></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(label_indices) &lt; <span class="number">2</span>:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            negative_indices = np.where(np.logical_not(label_mask))[<span class="number">0</span>]  <span class="comment">#逻辑非（取反） # 不同类的index</span></span><br><span class="line">            anchor_positives = <span class="built_in">list</span>(combinations(label_indices, <span class="number">2</span>))  <span class="comment"># All anchor-positive pairs    # 列出所有anchor_positives对</span></span><br><span class="line">            anchor_positives = np.array(anchor_positives)</span><br><span class="line"></span><br><span class="line">            ap_distances = distance_matrix[anchor_positives[:, <span class="number">0</span>], anchor_positives[:, <span class="number">1</span>]]  <span class="comment"># 在distance_matrix(batch*batch)里找到(a,p)对的距离</span></span><br><span class="line">            <span class="keyword">for</span> anchor_positive, ap_distance <span class="keyword">in</span> <span class="built_in">zip</span>(anchor_positives, ap_distances):</span><br><span class="line">                loss_values = ap_distance - distance_matrix[</span><br><span class="line">                    torch.LongTensor(np.array([anchor_positive[<span class="number">0</span>]])), torch.LongTensor(negative_indices)] + self.margin <span class="comment">#和所有不同类的距离</span></span><br><span class="line">                loss_values = loss_values.data.cpu().numpy()    <span class="comment"># 一个向量当前a,p和所有不同类a,n的距离</span></span><br><span class="line">                hard_negative = self.negative_selection_fn(loss_values) <span class="comment">#在loss大于0的众多loss中选一个，作为hard_negative</span></span><br><span class="line">                <span class="keyword">if</span> hard_negative <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                    hard_negative = negative_indices[hard_negative]</span><br><span class="line">                    triplets.append([anchor_positive[<span class="number">0</span>], anchor_positive[<span class="number">1</span>], hard_negative])</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(triplets) == <span class="number">0</span>:</span><br><span class="line">            triplets.append([anchor_positive[<span class="number">0</span>], anchor_positive[<span class="number">1</span>], negative_indices[<span class="number">0</span>]])</span><br><span class="line"></span><br><span class="line">        triplets = np.array(triplets)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> torch.LongTensor(triplets)</span><br><span class="line"></span><br><span class="line">a=FunctionNegativeTripletSelector(margin=<span class="number">0.5</span>,negative_selection_fn=random_hard_negative,cpu=<span class="literal">True</span>)</span><br><span class="line">embeddings=torch.randn(<span class="number">6</span>,<span class="number">3</span>)</span><br><span class="line">labels=torch.Tensor([<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>])</span><br><span class="line">b = a.get_triplets(embeddings,labels)</span><br></pre></td></tr></table></figure>
-
-
-
-<p>计算triplet loss</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, margin, triplet_selector</span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.margin = margin</span><br><span class="line">        self.triplet_selector = triplet_selector</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_loss</span>(<span class="params">self, embeddings, target</span>):</span><br><span class="line">        embeddings = torch.flatten(embeddings, start_dim=-<span class="number">2</span>)</span><br><span class="line">        triplets = self.triplet_selector.get_triplets(embeddings, target)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> embeddings.is_cuda:</span><br><span class="line">            triplets = triplets.cuda()</span><br><span class="line"></span><br><span class="line">        ap_distances = (embeddings[triplets[:, <span class="number">0</span>]] - embeddings[triplets[:, <span class="number">1</span>]]).<span class="built_in">pow</span>(<span class="number">2</span>).<span class="built_in">sum</span>(<span class="number">1</span>)  <span class="comment"># .pow(.5)</span></span><br><span class="line">        an_distances = (embeddings[triplets[:, <span class="number">0</span>]] - embeddings[triplets[:, <span class="number">2</span>]]).<span class="built_in">pow</span>(<span class="number">2</span>).<span class="built_in">sum</span>(<span class="number">1</span>)  <span class="comment"># .pow(.5)</span></span><br><span class="line">        losses = F.relu(ap_distances - an_distances + self.margin)</span><br><span class="line">        </span><br><span class="line">triplet_loss = OnlineTripletLoss(args.margin, RandomNegativeTripletSelector(args.margin))        </span><br><span class="line">encoded = l2_regularizer(embeds=encoded)</span><br><span class="line">train_loss = triplet_loss(embeds=encoded, targets=commands)</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/tdnn%20tdnnf%E5%88%86%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2513,6 +2350,182 @@
 <ul>
 <li>改进：不用1的拼帧，只用3的拼帧</li>
 </ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/triplet%20loss/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/triplet%20loss/" itemprop="url">triplet loss keyword spotting 代码</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
+                2021-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/triplet%20loss/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/06/29/命令词/triplet loss/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="triplet-loss-keyword-spotting-代码"><a href="#triplet-loss-keyword-spotting-代码" class="headerlink" title="triplet loss keyword spotting 代码"></a>triplet loss keyword spotting 代码</h1><p>以 google speech commands为例</p>
+<blockquote>
+<p>Vygon, Roman, and Nikolay Mikhaylovskiy. “Learning efficient representations for keyword spotting with triplet loss.” <em>International Conference on Speech and Computer</em>. Springer, Cham, 2021.ciations：12</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/roman-vygon/triplet_loss_kws"> Learning Efficient Representations for Keyword Spotting with Triplet Loss</a></p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/NVIDIA/NeMo/blob/v0.10.1/examples/asr/notebooks/3_Speech_Commands_using_NeMo.ipynb">https://github.com/NVIDIA/NeMo/blob/v0.10.1/examples/asr/notebooks/3_Speech_Commands_using_NeMo.ipynb</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.codeleading.com/article/61624664033/">https://www.codeleading.com/article/61624664033/</a></p>
+<p><a target="_blank" rel="noopener" href="https://bindog.github.io/blog/2019/10/23/why-triplet-loss-works/">https://bindog.github.io/blog/2019/10/23/why-triplet-loss-works/</a></p>
+<p>github人脸检测：<a target="_blank" rel="noopener" href="https://github.com/kuaikuaikim/DFace">https://github.com/kuaikuaikim/DFace</a></p>
+<p>facenet：<a target="_blank" rel="noopener" href="https://github.com/davidsandberg/facenet">https://github.com/davidsandberg/facenet</a></p>
+</blockquote>
+<p>&#x2F;home&#x2F;data&#x2F;yelong&#x2F;triplet_loss_kws&#x2F;loss&#x2F;utils.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">RandomNegativeTripletSelector</span>(<span class="params">margin, cpu=<span class="literal">False</span></span>): <span class="keyword">return</span> FunctionNegativeTripletSelector(margin=margin,</span><br><span class="line">                                                                                             negative_selection_fn=random_hard_negative,</span><br><span class="line">                                                                                             cpu=cpu)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FunctionNegativeTripletSelector</span>(<span class="title class_ inherited__">TripletSelector</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    For each positive pair, takes the hardest negative sample (with the greatest triplet loss value) to create a triplet</span></span><br><span class="line"><span class="string">    Margin should match the margin used in triplet loss.</span></span><br><span class="line"><span class="string">    negative_selection_fn should take array of loss_values for a given anchor-positive pair and all negative samples</span></span><br><span class="line"><span class="string">    and return a negative index for that pair</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>找triplet三元组：</p>
+<p>方法：找出所有同类a,p对，而a,n对根据不同策略选出不同a,n，我这里用的随机，就是在所有d(a,p)-d(a,n)+margin大于0的组合中，随机选一个a,n作为三元组(a,p,n)的n index</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> combinations</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pdist</span>(<span class="params">vectors</span>):</span><br><span class="line">    distance_matrix = -<span class="number">2</span> * vectors.mm(torch.t(vectors)) + vectors.<span class="built_in">pow</span>(<span class="number">2</span>).<span class="built_in">sum</span>(dim=<span class="number">1</span>).view(<span class="number">1</span>, -<span class="number">1</span>) + vectors.<span class="built_in">pow</span>(<span class="number">2</span>).<span class="built_in">sum</span>(</span><br><span class="line">        dim=<span class="number">1</span>).view(-<span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> distance_matrix</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TripletSelector</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Implementation should return indices of anchors, positive and negative samples</span></span><br><span class="line"><span class="string">    return np array of shape [N_triplets x 3]</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_triplets</span>(<span class="params">self, embeddings, labels</span>):</span><br><span class="line">        <span class="keyword">raise</span> NotImplementedError</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">random_hard_negative</span>(<span class="params">loss_values</span>):</span><br><span class="line">    hard_negatives = np.where(loss_values &gt; <span class="number">0</span>)[<span class="number">0</span>]   <span class="comment">#index</span></span><br><span class="line">    <span class="keyword">return</span> np.random.choice(hard_negatives) <span class="keyword">if</span> <span class="built_in">len</span>(hard_negatives) &gt; <span class="number">0</span> <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FunctionNegativeTripletSelector</span>(<span class="title class_ inherited__">TripletSelector</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    For each positive pair, takes the hardest negative sample (with the greatest triplet loss value) to create a triplet</span></span><br><span class="line"><span class="string">    Margin should match the margin used in triplet loss.</span></span><br><span class="line"><span class="string">    negative_selection_fn should take array of loss_values for a given anchor-positive pair and all negative samples</span></span><br><span class="line"><span class="string">    and return a negative index for that pair</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, margin, negative_selection_fn, cpu=<span class="literal">True</span></span>):</span><br><span class="line">        <span class="built_in">super</span>(FunctionNegativeTripletSelector, self).__init__()</span><br><span class="line">        self.cpu = cpu</span><br><span class="line">        self.margin = margin</span><br><span class="line">        self.negative_selection_fn = negative_selection_fn</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_triplets</span>(<span class="params">self, embeddings, labels</span>):</span><br><span class="line">        <span class="keyword">if</span> self.cpu:</span><br><span class="line">            embeddings = embeddings.cpu()</span><br><span class="line">        distance_matrix = pdist(embeddings)</span><br><span class="line">        distance_matrix = distance_matrix.cpu()</span><br><span class="line"></span><br><span class="line">        labels = labels.cpu().data.numpy()</span><br><span class="line">        triplets = []</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> label <span class="keyword">in</span> <span class="built_in">set</span>(labels):   <span class="comment">#多少种种类</span></span><br><span class="line">            label_mask = (labels == label)</span><br><span class="line">            label_indices = np.where(label_mask)[<span class="number">0</span>] <span class="comment">#同类的index</span></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(label_indices) &lt; <span class="number">2</span>:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            negative_indices = np.where(np.logical_not(label_mask))[<span class="number">0</span>]  <span class="comment">#逻辑非（取反） # 不同类的index</span></span><br><span class="line">            anchor_positives = <span class="built_in">list</span>(combinations(label_indices, <span class="number">2</span>))  <span class="comment"># All anchor-positive pairs    # 列出所有anchor_positives对</span></span><br><span class="line">            anchor_positives = np.array(anchor_positives)</span><br><span class="line"></span><br><span class="line">            ap_distances = distance_matrix[anchor_positives[:, <span class="number">0</span>], anchor_positives[:, <span class="number">1</span>]]  <span class="comment"># 在distance_matrix(batch*batch)里找到(a,p)对的距离</span></span><br><span class="line">            <span class="keyword">for</span> anchor_positive, ap_distance <span class="keyword">in</span> <span class="built_in">zip</span>(anchor_positives, ap_distances):</span><br><span class="line">                loss_values = ap_distance - distance_matrix[</span><br><span class="line">                    torch.LongTensor(np.array([anchor_positive[<span class="number">0</span>]])), torch.LongTensor(negative_indices)] + self.margin <span class="comment">#和所有不同类的距离</span></span><br><span class="line">                loss_values = loss_values.data.cpu().numpy()    <span class="comment"># 一个向量当前a,p和所有不同类a,n的距离</span></span><br><span class="line">                hard_negative = self.negative_selection_fn(loss_values) <span class="comment">#在loss大于0的众多loss中选一个，作为hard_negative</span></span><br><span class="line">                <span class="keyword">if</span> hard_negative <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                    hard_negative = negative_indices[hard_negative]</span><br><span class="line">                    triplets.append([anchor_positive[<span class="number">0</span>], anchor_positive[<span class="number">1</span>], hard_negative])</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(triplets) == <span class="number">0</span>:</span><br><span class="line">            triplets.append([anchor_positive[<span class="number">0</span>], anchor_positive[<span class="number">1</span>], negative_indices[<span class="number">0</span>]])</span><br><span class="line"></span><br><span class="line">        triplets = np.array(triplets)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> torch.LongTensor(triplets)</span><br><span class="line"></span><br><span class="line">a=FunctionNegativeTripletSelector(margin=<span class="number">0.5</span>,negative_selection_fn=random_hard_negative,cpu=<span class="literal">True</span>)</span><br><span class="line">embeddings=torch.randn(<span class="number">6</span>,<span class="number">3</span>)</span><br><span class="line">labels=torch.Tensor([<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>])</span><br><span class="line">b = a.get_triplets(embeddings,labels)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>计算triplet loss</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, margin, triplet_selector</span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.margin = margin</span><br><span class="line">        self.triplet_selector = triplet_selector</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_loss</span>(<span class="params">self, embeddings, target</span>):</span><br><span class="line">        embeddings = torch.flatten(embeddings, start_dim=-<span class="number">2</span>)</span><br><span class="line">        triplets = self.triplet_selector.get_triplets(embeddings, target)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> embeddings.is_cuda:</span><br><span class="line">            triplets = triplets.cuda()</span><br><span class="line"></span><br><span class="line">        ap_distances = (embeddings[triplets[:, <span class="number">0</span>]] - embeddings[triplets[:, <span class="number">1</span>]]).<span class="built_in">pow</span>(<span class="number">2</span>).<span class="built_in">sum</span>(<span class="number">1</span>)  <span class="comment"># .pow(.5)</span></span><br><span class="line">        an_distances = (embeddings[triplets[:, <span class="number">0</span>]] - embeddings[triplets[:, <span class="number">2</span>]]).<span class="built_in">pow</span>(<span class="number">2</span>).<span class="built_in">sum</span>(<span class="number">1</span>)  <span class="comment"># .pow(.5)</span></span><br><span class="line">        losses = F.relu(ap_distances - an_distances + self.margin)</span><br><span class="line">        </span><br><span class="line">triplet_loss = OnlineTripletLoss(args.margin, RandomNegativeTripletSelector(args.margin))        </span><br><span class="line">encoded = l2_regularizer(embeds=encoded)</span><br><span class="line">train_loss = triplet_loss(embeds=encoded, targets=commands)</span><br></pre></td></tr></table></figure>
+
 
           
         
