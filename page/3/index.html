@@ -288,6 +288,174 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/Fusion%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/Fusion%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/" itemprop="url">Fusion论文笔记（一）语言模型融合声学模型</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-22T00:00:00+08:00">
+                2022-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">语言模型</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/Fusion%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/07/22/语言模型/Fusion论文笔记（一）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="语言模型融合声学模型"><a href="#语言模型融合声学模型" class="headerlink" title="语言模型融合声学模型"></a>语言模型融合声学模型</h1><p>Fusion解释：fusing E2E models with LMs trained with text data (usually referred to this as fusion)  </p>
+<blockquote>
+<p>&#x3D;&#x3D;Gulcehre, Caglar, et al. “On using monolingual corpora in neural machine translation.” <em>arXiv preprint arXiv:1503.03535</em> (2015).&#x3D;&#x3D; citations：474</p>
+</blockquote>
+<h4 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h4><p>用于机器翻译中，提出一种方法，将仅在单语言数据(目标语言)上训练的语言模型(LM)集成到NMT系统中；</p>
+<h4 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h4><p>集成LM到NMT模型的方法：</p>
+<ul>
+<li><p>方法1. shallow fusion  ：每个时间步，NMT模型有一系列个候选词（每个候选词是一个类别），通过LM分+NMT输出分+路径分，取nbest路径分，新来一个word，它的分数计算为：</p>
+<p>$\large \log p(y_t&#x3D;k)&#x3D;\log p_{TM}(y_t&#x3D;k)+\beta \log p_{LM}(y_t&#x3D;k)$</p>
+<p>得到这个word的分数，然后再加上路径分数，再从路径中取n-best路径，（再把路径送入LM，）</p>
+</li>
+<li><p>方法2. deep fusion  ：</p>
+</li>
+</ul>
+<img src="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/Fusion%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220726161726854.png" alt="image-20220726161726854" style="zoom:80%;">
+
+<h4 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h4><h4 id="还有什么问题"><a href="#还有什么问题" class="headerlink" title="还有什么问题"></a>还有什么问题</h4>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/LM%20fusion/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2189,174 +2357,6 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%E7%BB%8F%E9%AA%8C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%E7%BB%8F%E9%AA%8C/" itemprop="url">ngram经验</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-22T00:00:00+08:00">
-                2022-07-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">语言模型</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%E7%BB%8F%E9%AA%8C/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/07/22/语言模型/ngram经验/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="BIGO的端到端语音识别技术"><a href="#BIGO的端到端语音识别技术" class="headerlink" title="BIGO的端到端语音识别技术"></a>BIGO的端到端语音识别技术</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/mDyBDcOSYLdZE167uCeJtA#at">BIGO的端到端语音识别技术</a></p>
-</blockquote>
-<p>在缺乏成对语音文本数据的任务中，浅层融合对识别率提升有很大的帮助。但一般的融合技术仅会选用一种外部LM，RNNLM (Recurrent Neural Network, RNNLM) 或n-gram LM。由于n-gram LM和RNNLM的固有特性不同，对不同场景的建模能力也不同。为了让模型更好地学习不同场景的上下文信息，BIGO设计two-pass机制汲取RNNLM及n-gram LM两者各自优势在不同场景彼此互补。</p>
-<p>当有大量训练数据可用时，使用n-gram LM可以获得良好的泛化性能。但统计语言建模的关键问题是，对远程上下文相关性进行建模时往往会伴随数据稀疏问题。为解决此问题，可用基于连续和较低维向量空间中表示较长跨度历史环境的语言建模技术，例如RNNLM。</p>
-<p>基于统计信息的语言模型用固定长度上下文，但是递归神经网络不使用有限的上下文。通过使用循环连接，信息可以在这些网络中循环任意长时间。基于递归神经网络的语言模型 (RNNLM) 提供了进一步的概括：代替仅考虑几个先前的单词，具有来自递归连接的输入的神经元被认为代表了短期记忆。这种神经网络方法可以解决稀疏问题，并且与n元语法模型相比，在困惑方面也能很好地概括。但是，这种方法的主要缺点是训练和测试时间很长。这个实际问题限制了RNNLM的数据量和可能的应用区域数量。</p>
-<p>由于n-gram LM和RNNLM的固有特性不同的， BIGO设计two-pass机制汲取两者各自优势在不同场景可彼此互补。&#x3D;&#x3D;在第一遍解码中，解码器仅使用通用模型来生成多个识别假设，从中提取n-best列表&#x3D;&#x3D;。在第二遍解码中，使用特定领域的LM（例如&#x3D;&#x3D;高阶n-gram LM或RNNLM&#x3D;&#x3D;）&#x3D;&#x3D;对n-最佳列表的假设进行重新评分&#x3D;&#x3D;，然后获得最佳新假设。使用 n-gram 作为 E2E ASR 重打分。n-gram 作为一个统计模型，其最大的好处是，权重作为显式的表征，可以方便的做灵活的微调以适应各个不同的场景，以及实现不同用户的个性化识别结果。</p>
-<p>集束搜索算法的每个解码步上，Attention-Decoder 和 CTC 根据编码结果<em>h</em>和之前的解码结果y&lt;给出当前解码步的语言学单位的后验概率，而RNNLM也根据之前的解码结果 给出当前解码步的语言学单位的后验概率，而后这两者的结果根据浅层融合架构结合。其过程表示为：</p>
-<img src="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%E7%BB%8F%E9%AA%8C/640.jpeg" alt="img" style="zoom:80%;">
-
-<img src="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%E7%BB%8F%E9%AA%8C/image-20220718165315866.png" alt="image-20220718165315866" style="zoom:80%;">
-
-<p>在 CTC-ATT 实现的基础之上，&#x3D;&#x3D;得到的的 shallow fusion 的 N-best 结果送入 n-gram 做 context bias re-score&#x3D;&#x3D;，然后得到 1-best，故式3可以重写为： </p>
-<img src="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%E7%BB%8F%E9%AA%8C/image-20220718165345863.png" alt="image-20220718165345863" style="zoom:80%;">
-
-<p>这个其中需要特别指出的是，CTC和传统的HMM系统其实都是时间对齐的模型，也就是说输出的语言学序列标签长度是正比于特征序列长度的。但是attention-decoder 和 RNNLM 输出确是标签对齐的模型，输出的语言学序列的期望长度确是等于语言学序列长度的。故这两个联合模型需要统一CTC这个时间对齐的输出到标签对齐。这个算法在 [3] 给出过完整的解释，如何将CTC给出的标签分类，然后前向结合变成标签对齐的。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2407,7 +2407,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">101</span>
+                  <span class="site-state-item-count">102</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

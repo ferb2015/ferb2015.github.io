@@ -288,6 +288,167 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/06/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url">唤醒小记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-07T00:00:00+08:00">
+                2021-06-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/06/07/命令词/命令词/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>我们的命令词检索方法：</p>
+<p>用HMM filler model的方法，先识别，识别出一段语音内的phone序列，如果有命令词对应的phone序列，则提取DNN对应命令词起止时间内的后验概率等特征，几十维，送入二级DNN判断，做二分类判断，二次确认是否是命令词。</p>
+<p>对于相像的关键词，比如“清洗”、“清洗衣服”，到了“清洗”就唤醒，是不是唤醒了再进行后处理，看看“清洗衣服”是否唤醒，才决定是“请洗衣服”or“清洗”；也就是说，多了一层逻辑</p>
+<p>现在的瓶颈在于，说话说着说着突然喊一声唤醒词&#x2F;高噪声环境下喊唤醒词，因为此时VAD很早就工作了，就一直在录音，截一段判断一次，因此可能没截全唤醒词，这时候filler model的分数很高，keyword model的分数不高，因此就容易唤不醒。</p>
+<p>雷博说，filler model要做的比较复杂，多个filler model</p>
+<p>雷博说：一个企业做的TWS耳机上的命令词（12个命令词）结果：<br>大概是这个水平 -5到0db 67%，0-5db大约80+%，5-10db 85+%，10-15db 94%+，安静97%。<br>误识别大概是44小时新闻联播等说话语料，大概3~5次。</p>
+<p>先用端到端（64K，就是个片段分类的模型）做1级，不用解码，全部在深度学习专有芯片上运行，功耗很低。然后二级用了一个TDNN的FST解码的方案，模型也是64K。建模单元是合并的音素，大概有六七十个。<br>由于需要解码必须需要在MCU或者DSP上进行解码。</p>
+<p>一些经验；<br>1）端到端的模型虽说识别率比较高，到误识别很难控制。<br>2）使用空洞卷积TDNN，看到更多上下文信息，准备batch的时候，控制好帧级别正负样本比例。我们没有用序列模型，所以训练TDNN并不是给句子，而且按帧（扩展TDNN所需要的上下文帧数）给，控制正负样本比例大概4：1</p>
+<p>我的目标：10db 唤醒率95%，误唤醒&lt;1~2次&#x2F;12h，内存300k ~ 500k</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/05/18/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E9%9B%86%E5%A4%96%E8%AF%8D%E5%A4%84%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -500,7 +661,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">101</span>
+                  <span class="site-state-item-count">102</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
