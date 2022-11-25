@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="语音合成," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="端到端合成论文——声码器——Melgan Kumar, Kundan, et al. “Melgan: Generative adversarial networks for conditional waveform synthesis.” Advances in neural information processing systems 32 (2019). citations：561 Lyre">
+<meta property="og:type" content="article">
+<meta property="og:title" content="端到端合成论文——声码器——Melgan">
+<meta property="og:url" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="端到端合成论文——声码器——Melgan Kumar, Kundan, et al. “Melgan: Generative adversarial networks for conditional waveform synthesis.” Advances in neural information processing systems 32 (2019). citations：561 Lyre">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221123155537151.png">
+<meta property="og:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125110534986.png">
+<meta property="og:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125110607376.png">
+<meta property="og:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125112732176.png">
+<meta property="og:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125113723721.png">
+<meta property="og:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125115634115.png">
+<meta property="article:published_time" content="2022-11-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-25T04:09:52.387Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="语音合成">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221123155537151.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/11/25/合成/Melgan论文/"/>
+
+
+
+
+
+  <title>端到端合成论文——声码器——Melgan | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">端到端合成论文——声码器——Melgan</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-25T00:00:00+08:00">
+                2022-11-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90/" itemprop="url" rel="index">
+                    <span itemprop="name">语音合成</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/11/25/合成/Melgan论文/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="端到端合成论文——声码器——Melgan"><a href="#端到端合成论文——声码器——Melgan" class="headerlink" title="端到端合成论文——声码器——Melgan"></a>端到端合成论文——声码器——Melgan</h1><blockquote>
+<p>Kumar, Kundan, et al. “Melgan: Generative adversarial networks for conditional waveform synthesis.” <em>Advances in neural information processing systems</em> 32 (2019). citations：561 Lyrebird AI  、蒙特利尔大学</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/descriptinc/melgan-neurips">https://github.com/descriptinc/melgan-neurips</a>  </p>
+<p>试听音频：<a target="_blank" rel="noopener" href="https://melgan-neurips.github.io/">https://melgan-neurips.github.io</a>  </p>
+<p>相关应用：<a target="_blank" rel="noopener" href="https://www.descript.com/overdub">https://www.descript.com/overdub</a>  </p>
+<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/291009155">MelGAN解构与分析</a></p>
+</blockquote>
+<h4 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h4><p>基于GAN的vocoder合成waveform效果不好的问题；</p>
+<h4 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h4><p>提出一个基于GAN的vocoder，叫melgan，在语音合成、音乐翻译（music domain translation）和 unconditional 音乐合成领域都有好的效果，说明该vocoder的适用性很广；  </p>
+<h4 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h4><p>轻量级架构，全卷积结构；</p>
+<p>合成速度快，在GTX 1080Ti GPU上运行是realtime的100倍快，在CPU上运行是realtime的2倍快；</p>
+<h4 id="存在什么问题"><a href="#存在什么问题" class="headerlink" title="存在什么问题"></a>存在什么问题</h4><p>音质不够好，MOS&#x3D;3.09；</p>
+<h2 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h2><p>vocoder分三类：</p>
+<ol>
+<li><p><strong>Pure signal processing approaches</strong> </p>
+<p>代表为 Griffin-Lim (Griffin &amp; Lim, 1984)  、WORLD vocoder (MORISE et al., 2016)  ，world vocoder是attention based的RNN结构，用于Char2Wav 等模型；</p>
+</li>
+<li><p><strong>Autoregressive neural-networks-based models</strong>  </p>
+<p>代表为 WaveNet (Van Den Oord et al., 2016)  、SampleRNN (Mehri et al., 2016)   、WaveRNN (Kalchbrenner et al., 2018)  、FFTNet（wavnenet的改进）</p>
+</li>
+<li><p><strong>Non autoregressive models</strong>   </p>
+<ol>
+<li>flow-based：Parallel Wavenet (Oord et al., 2017)   、Clarinet (Ping et al., 2018) ，蒸馏一个自回归教师模型，基于flow的卷积学生模型，loss为学生教师分布之间的KL散度； </li>
+<li>based on Glow  ：WaveGlow (Prenger et al., 2019)  基于Glow的flow-based生成模型，模型较大；</li>
+</ol>
+</li>
+</ol>
+<p>这篇论文提出之前的GAN用于合成vocoder的做法：有使用GANs通过建模STFT的幅值和相位角来生成音乐音色，而不是直接建模原始波形、有用GAN映射mel谱到幅度谱、有用GAN蒸馏自回归模型；</p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><ul>
+<li>提出MelGAN，这是第一个成功训练基于GAN输出波形的模型，不需要通过蒸馏手段或感知loss作为辅助；</li>
+<li>通过在通用音乐翻译、文本到语音生成和无条件音乐合成方面的实验，我们表明自回归模型可以很容易地被快速并行的MelGAN解码器取代，用于生成原始波形，尽管质量略有下降。</li>
+<li>合成速度快，比目前最快的model快10倍；</li>
+</ul>
+<h2 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h2><h3 id="生成器"><a href="#生成器" class="headerlink" title="生成器"></a>生成器</h3><h4 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h4><p>输入mel谱（mel-spectrogram）s，输出波形x，因为输入维度小于输出维度（时间分辨率低256倍），因此堆叠一堆卷积层进行上采样；</p>
+<p>结构全由卷积层构成：转置卷积 👉 残差结构的空洞卷积 ，作为一个block，堆叠N个block；</p>
+<p>和传统GAN不同，不是用噪声作为输入，也不是用噪声作为辅助输入，因为发现辅助噪声对波形没帮助，这很反直觉，因为一般合成输入到输出是一到多映射，因此加点噪声有助于合成音频，但是可能因为mel谱信息太丰富，噪声没什么用了；</p>
+<h4 id="Induced-receptive-field"><a href="#Induced-receptive-field" class="headerlink" title="Induced receptive field"></a>Induced receptive field</h4><p>在conv神经网络的生成器中，由于诱导感受野之间的高度重叠，存在一种诱导偏差，即空间上靠近的像素点是相关的。我们设计我们的生成器架构，把一个归纳偏差，在音频时间步之间有长范围的相关性。在每个上采样层之后，我们添加了带有膨胀dilated的residual block，以便每个后续层的远端输出激活具有显著的重叠输入。dilated conv layer叠加的感受野随层数呈指数增长。因此，生成器允许有效地增加每个输出时间步的诱导接受野，即在相隔很远的时间步的诱导感受野中有更大的重叠，从而导致更好的长范围相关性。</p>
+<h4 id="Checkerboard-artifacts"><a href="#Checkerboard-artifacts" class="headerlink" title="Checkerboard artifacts"></a>Checkerboard artifacts</h4><p>棋盘效应，repeated patterns  会导致高频有嘶嘶声，要小心选择解卷积层的kernel-size和stride、dilated，即kernel-size是stride的整数倍，dilation是kerenl-size的幂次；</p>
+<h4 id="Normalization-technique"><a href="#Normalization-technique" class="headerlink" title="Normalization technique"></a>Normalization technique</h4><p>选择不同的归一化方法直接影响合成质量；图像GAN里用的instance normalization，但音频GAN里instance normalization会冲掉pitch信息，使音频听起来像金属声；用谱归一化spectral normalization   效果也不好，用 <strong>Weight normalization</strong> (Salimans &amp; Kingma, 2016)   效果好；Weight normalization通过解耦权重向量的尺度与方向解耦来重新参数化权重矩阵；</p>
+<p><img src="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221123155537151.png" alt="image-20221123155537151"></p>
+<h3 id="判别器"><a href="#判别器" class="headerlink" title="判别器"></a>判别器</h3><h4 id="Multi-Scale-Architecture-多尺度判别器"><a href="#Multi-Scale-Architecture-多尺度判别器" class="headerlink" title="Multi-Scale Architecture  多尺度判别器"></a>Multi-Scale Architecture  多尺度判别器</h4><p>判别器用的MSD，这个在后续工作hifigan中使用了；用的3个子判别器，第一个判别器输入是生成器的输出waveform，第二个判别器输入是下采样（平均池化）2倍的waveform，第三个判别器是下采样（平均池化）4倍后的waveform作为输入；三个输入表示了不同尺度的音频特征，即<strong>不同频带特征</strong>；下采样的后的音频就没有高频了，因此输入是下采样过的子判别器会倾向于学习低频；（由傅里叶变换可知，信号是由无数个正弦波信号叠加而成的，多个子判别器的设置，分别处理不同降采样倍率的信号，以学习音频中不同频段的“模式”，假设采样频率为22k（信号频率最大11k）：第一个MSD判别器能采的信号频率为0 ~ 11K；第二个为0 ~ 5.5K；第三个为0 ~ 2.25K;）</p>
+<h3 id="Window-based-objective"><a href="#Window-based-objective" class="headerlink" title="Window-based objective"></a>Window-based objective</h3><p>之前的判别器分类的对象是整条音频样本，而用窗口判别器，分类的是音频片段，窗口是overlap的窗口，每个窗口长度等于判别器的感受野，判别器的特点是卷积层的kernel-size很大（window长度也不短，不然不好分类音频了）（用group conv让卷积层参数量不会很大）；</p>
+<p>windows判别器的优势是可以捕捉高频特征？；</p>
+<p>结构上也用的weight norm；</p>
+<h2 id="目标函数"><a href="#目标函数" class="headerlink" title="目标函数"></a>目标函数</h2><p>GAN的loss，采用的是 hinge loss 版本的GAN目标，并用的最小二乘 least-squares (LSGAN) 来改善原始的hinge loss；</p>
+<h3 id="GAN-loss"><a href="#GAN-loss" class="headerlink" title="GAN loss"></a>GAN loss</h3><p>$$<br>\begin{aligned}<br>&amp;\min <em>{D_k} \mathbb{E}<em>x\left[\min \left(0,1-D_k(x)\right)\right]+\mathbb{E}</em>{s, z}\left[\min \left(0,1+D_k(G(s, z))\right)\right], \forall k&#x3D;1,2,3 \<br>&amp;\min <em>G \mathbb{E}</em>{s, z}\left[\sum</em>{k&#x3D;1,2,3}-D_k(G(s, z))\right]<br>\end{aligned}<br>$$</p>
+<p>​		其中 $x$ 表示真实波形，$s$ 表示conditioning information（比如mel谱），$z$ 表示高斯噪声向量；</p>
+<h3 id="Feature-Matching"><a href="#Feature-Matching" class="headerlink" title="Feature Matching"></a>Feature Matching</h3><p>feature matching objective用来辅助生成器更新，注意这里和hifi-gan不同，hifi-gan用的是mel谱之间的L1距离（频域），这里用的判别器输出的L1距离，应该算是时域（波形）；但是如果直接用x和G(s)计算L1距离作为辅助loss，合成的音质反而会有噪声，会更差！（这个图像领域的gan的结论相反）因此这里是用判别器输出来计算L1距离；<br>$$<br>\mathcal{L}<em>{FM}(G,D_k)&#x3D;\mathbb{E}</em>{x, s\sim p_{data}}\left[\sum_{i&#x3D;1}^T \frac{1}{N_i}\left|D_k^i(x)-D_k^i(G(s))\right|_1\right]<br>$$</p>
+<p>​		其中，$D_k^{(i)}$ 表示第 $k$ 个判别器的第 $i$ 层 feature map输出（中间层）；$N_i$ 表示每层的神经元梳理；Feature matching  和感知loss（perceptual loss）很像；</p>
+<h3 id="生成器的Final-loss"><a href="#生成器的Final-loss" class="headerlink" title="生成器的Final loss"></a>生成器的Final loss</h3><p>$$<br>\min <em>G \left(\mathbb{E}</em>{s, z}\left[\sum_{k&#x3D;1,2,3}-D_k(G(s, z))\right]+\lambda\sum_{k&#x3D;1}^3\mathcal L_{FM}(G,D_k) \right)<br>$$</p>
+<p>​		其中，$\lambda&#x3D;10$ ；</p>
+<h2 id="参数量和推理速度"><a href="#参数量和推理速度" class="headerlink" title="参数量和推理速度"></a>参数量和推理速度</h2><p>在GTX1080 Ti GPU in full precision 上的合成速度为 2500kHz，在CPU上的合成速度为 50kHz</p>
+<p>Speed of n kHz means that the model can generate n × 1000 raw audio samples per second.   </p>
+<p><img src="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125110534986.png" alt="image-20221125110534986"></p>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><h3 id="Ground-truth-mel-spectrogram-inversion"><a href="#Ground-truth-mel-spectrogram-inversion" class="headerlink" title="Ground truth mel-spectrogram inversion"></a>Ground truth mel-spectrogram inversion</h3><h4 id="Ablation-study"><a href="#Ablation-study" class="headerlink" title="Ablation study"></a>Ablation study</h4><p>数据集 LJ Speech dataset  ，训练 400k次迭代；</p>
+<p>MOS分比较：</p>
+<p><img src="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125110607376.png" alt="image-20221125110607376"></p>
+<p>可以看出，有spec norm和L1 loss(audio space)都会影响音质，其中melgan里的Window-based Discriminator  对音质的帮助最大；</p>
+<h5 id="根据实验结果有几个结论"><a href="#根据实验结果有几个结论" class="headerlink" title="根据实验结果有几个结论"></a>根据实验结果有几个结论</h5><ol>
+<li>生成器没有dilated conv stack，或少了weight norm，会导致高频伪影（high frequency artifacts）；</li>
+<li>只使用单个判别器（而不是多尺度判别器）会产生金属声音（metallic audio）（当说话人有呼吸声就会更明显），并且会跳过一些单词没读！</li>
+<li>用spec norm或不用window-based 判别器 loss，会很难学到sharp高频pattern，导致音频听起来有明显噪声；</li>
+<li>添加波形的L1 loss使得合成音频听起来像金属声，并且有额外的高频伪影 high frequency artifacts（高频伪影可以通过denoiser降噪器去除）；</li>
+</ol>
+<h4 id="Benchmarking-competing-models"><a href="#Benchmarking-competing-models" class="headerlink" title="Benchmarking competing models"></a>Benchmarking competing models</h4><p>不同的vocoder之间进行比较，输入为真实音频的mel谱，melgan训练了2.5M次迭代：</p>
+<img src="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125112732176.png" alt="image-20221125112732176" style="zoom: 67%;">
+
+<p>melgan音质相比于wavenet、waveglow来说都差了一些；</p>
+<h4 id="Generalization-to-unseen-speakers"><a href="#Generalization-to-unseen-speakers" class="headerlink" title="Generalization to unseen speakers"></a>Generalization to unseen speakers</h4><p>用说话人的数据集训练melgan，模型可以生成训练集没有的说话人声音，该实验表明了melgan可以学到的是说话人不变的（speaker -invariant）mel谱到waveform的映射；</p>
+<h3 id="End-to-end-speech-synthesis"><a href="#End-to-end-speech-synthesis" class="headerlink" title="End-to-end speech synthesis"></a>End-to-end speech synthesis</h3><p>用声学模型+不同声码器，验证该声码器效果</p>
+<p>MOS分对比如下：</p>
+<img src="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125113723721.png" alt="image-20221125113723721" style="zoom:67%;">
+
+<p>其中，Text2mel是一个开源的char2wav model；</p>
+<p>图上没有wavenet的实验结果，因为text2mel+wavenet的mos为3.4，可能是开源的模型有点问题？</p>
+<p>图上的tacotron2+waveglow是开源的，作为对比，并没有实现tacotron2+melgan的实验，感觉这篇论文实验不是很充分；</p>
+<h3 id="Non-autoregressive-decoder-for-music-translation"><a href="#Non-autoregressive-decoder-for-music-translation" class="headerlink" title="Non autoregressive decoder for music translation"></a>Non autoregressive decoder for music translation</h3><p>为了表现melgan的普适性，在music translation领域上的表现。</p>
+<h3 id="Non-autoregressive-decoder-for-VQ-VAE"><a href="#Non-autoregressive-decoder-for-VQ-VAE" class="headerlink" title="Non-autoregressive decoder for VQ-VAE"></a>Non-autoregressive decoder for VQ-VAE</h3><p>为了进一步表现melgan的普适性，与Vector-Quantized VAEs (van den Oord et al., 2017) 进行对比。</p>
+<p>TODO</p>
+<p><img src="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125115634115.png" alt="image-20221125115634115"></p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>提出一种条件语音合成（条件指的是mel谱）架构，基于GAN，叫melgan，定性定量分析了它，melgan有以下几个特点：lightweight轻量级，训练在单GPU上也能很快收敛，有较快的推理速度；但它受到时间对齐条件信息要求的限制；</p>
+<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2><p>提出一个基于GAN的vocoder，是一篇改进模型和loss的论文，主要特点我觉得是用了multi-scale判别器，window-based objective，从音质出发，实验了对模型和目标的哪些改变能改进音质，这里音质不好包括了高频伪影、金属声、噪声，我们训练模型时出现了这些问题，可以从文章提出的解决思路去尝试；</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90/" rel="tag"># 语音合成</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/11/23/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(7)/" rel="next" title="端到端合成论文——声码器——HiFi-GAN">
+                <i class="fa fa-chevron-left"></i> 端到端合成论文——声码器——HiFi-GAN
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">101</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AB%AF%E5%88%B0%E7%AB%AF%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E2%80%94%E2%80%94%E5%A3%B0%E7%A0%81%E5%99%A8%E2%80%94%E2%80%94Melgan"><span class="nav-number">1.</span> <span class="nav-text">端到端合成论文——声码器——Melgan</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">解决什么问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E4%BA%86%E4%BB%80%E4%B9%88%E6%96%B9%E6%B3%95"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">用了什么方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%88%E6%9E%9C%E5%A6%82%E4%BD%95"><span class="nav-number">1.0.0.3.</span> <span class="nav-text">效果如何</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%98%E5%9C%A8%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.0.4.</span> <span class="nav-text">存在什么问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.1.</span> <span class="nav-text">相关工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.3.</span> <span class="nav-text">模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E5%99%A8"><span class="nav-number">1.3.1.</span> <span class="nav-text">生成器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%93%E6%9E%84"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Induced-receptive-field"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">Induced receptive field</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Checkerboard-artifacts"><span class="nav-number">1.3.1.3.</span> <span class="nav-text">Checkerboard artifacts</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Normalization-technique"><span class="nav-number">1.3.1.4.</span> <span class="nav-text">Normalization technique</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A4%E5%88%AB%E5%99%A8"><span class="nav-number">1.3.2.</span> <span class="nav-text">判别器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Multi-Scale-Architecture-%E5%A4%9A%E5%B0%BA%E5%BA%A6%E5%88%A4%E5%88%AB%E5%99%A8"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">Multi-Scale Architecture  多尺度判别器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Window-based-objective"><span class="nav-number">1.3.3.</span> <span class="nav-text">Window-based objective</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E5%87%BD%E6%95%B0"><span class="nav-number">1.4.</span> <span class="nav-text">目标函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GAN-loss"><span class="nav-number">1.4.1.</span> <span class="nav-text">GAN loss</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Feature-Matching"><span class="nav-number">1.4.2.</span> <span class="nav-text">Feature Matching</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E5%99%A8%E7%9A%84Final-loss"><span class="nav-number">1.4.3.</span> <span class="nav-text">生成器的Final loss</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E9%87%8F%E5%92%8C%E6%8E%A8%E7%90%86%E9%80%9F%E5%BA%A6"><span class="nav-number">1.5.</span> <span class="nav-text">参数量和推理速度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">1.6.</span> <span class="nav-text">实验</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Ground-truth-mel-spectrogram-inversion"><span class="nav-number">1.6.1.</span> <span class="nav-text">Ground truth mel-spectrogram inversion</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Ablation-study"><span class="nav-number">1.6.1.1.</span> <span class="nav-text">Ablation study</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AE%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C%E6%9C%89%E5%87%A0%E4%B8%AA%E7%BB%93%E8%AE%BA"><span class="nav-number">1.6.1.1.1.</span> <span class="nav-text">根据实验结果有几个结论</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Benchmarking-competing-models"><span class="nav-number">1.6.1.2.</span> <span class="nav-text">Benchmarking competing models</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Generalization-to-unseen-speakers"><span class="nav-number">1.6.1.3.</span> <span class="nav-text">Generalization to unseen speakers</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#End-to-end-speech-synthesis"><span class="nav-number">1.6.2.</span> <span class="nav-text">End-to-end speech synthesis</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Non-autoregressive-decoder-for-music-translation"><span class="nav-number">1.6.3.</span> <span class="nav-text">Non autoregressive decoder for music translation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Non-autoregressive-decoder-for-VQ-VAE"><span class="nav-number">1.6.4.</span> <span class="nav-text">Non-autoregressive decoder for VQ-VAE</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA"><span class="nav-number">1.7.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%84%E4%BB%B7"><span class="nav-number">1.8.</span> <span class="nav-text">评价</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/';
+          this.page.identifier = '2022/11/25/合成/Melgan论文/';
+          this.page.title = '端到端合成论文——声码器——Melgan';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
