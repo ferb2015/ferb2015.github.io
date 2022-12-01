@@ -9566,34 +9566,34 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 </blockquote>
 <p>李宏毅的视频中说的生成器：</p>
 <p>输入z，输出生成的样本x，比如人脸生成，经过生成器输出的是一张人脸（x是高维向量，里面每个元素是pixel）；（我们常见的network一般是x到y之间的映射，输出的是p(y|x)，这里的network（generator）代表的是概率分布p，输出的是x）；</p>
-<p>![image-20221129170650732](Flow 视频 李宏毅.assets&#x2F;image-20221129170650732.png)</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170650732.png" alt="image-20221129170650732"></p>
 <h2 id="Math-background"><a href="#Math-background" class="headerlink" title="Math background"></a>Math background</h2><h3 id="Jacobian"><a href="#Jacobian" class="headerlink" title="Jacobian"></a>Jacobian</h3><p>如果 $f$ 和 $f^{-1}$ 是可逆关系Invertible  ，即 $ff^{-1}&#x3D;I$ ，则他们各自的jacobian也有可逆关系，即 $J_fJ_{f^{-1}}&#x3D;I$ 。</p>
 <p>jacobian定义是，输入z向量，输出x向量（输入输出维度不用相同），则jacobian为每个输出对每个输入的偏导数，jacobian的不同行是不同输出，不同列是不同输入；</p>
-<p>![image-20221129170211549](Flow 视频 李宏毅.assets&#x2F;image-20221129170211549.png)</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170211549.png" alt="image-20221129170211549"></p>
 <h3 id="Determinant"><a href="#Determinant" class="headerlink" title="Determinant"></a>Determinant</h3><p>行列式的关系有 $det(A)&#x3D;1&#x2F;det(A^{-1})$ ，因此jacobian矩阵也适用，得到 $det(J_f)&#x3D;1&#x2F;det(J_{f^{-1}})$ ；</p>
-<p>![image-20221129170154700](Flow 视频 李宏毅.assets&#x2F;image-20221129170154700.png)</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170154700.png" alt="image-20221129170154700"></p>
 <p><strong>行列式物理意义</strong>：行列式绝对值 想象成<strong>高维空间的体积</strong></p>
-<p>![image-20221129170145425](Flow 视频 李宏毅.assets&#x2F;image-20221129170145425.png)</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170145425.png" alt="image-20221129170145425"></p>
 <h3 id="Change-of-Variable-Theorem"><a href="#Change-of-Variable-Theorem" class="headerlink" title="Change of Variable Theorem"></a>Change of Variable Theorem</h3><p>样本z（服从 $\pi(z)$ 分布）送入生成器&#x2F;变换后得到样本x，$x&#x3D;f(z)$，x也有一个分布，叫$p(x)$，我们想知道 $p(x)$ 与 $\pi(z)$ 之间有什么关系。</p>
-<p>![image-20221129170135548](Flow 视频 李宏毅.assets&#x2F;image-20221129170135548.png)</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170135548.png" alt="image-20221129170135548"></p>
 <p>假设z服从简单的均匀分布（这里上下界为0和1，也就是在[0,1]之间有值）；</p>
 <p>这里 $p(x)$ 与 $\pi(z)$ 是概率密度函数；</p>
 <p>积分&#x3D;1；</p>
 <h4 id="想知道一维-p-x-与-pi-z-之间的关系："><a href="#想知道一维-p-x-与-pi-z-之间的关系：" class="headerlink" title="想知道一维 $p(x)$ 与 $\pi(z)$ 之间的关系："></a>想知道一维 $p(x)$ 与 $\pi(z)$ 之间的关系：</h4><p>矩形面积为 $p(x’)\Delta x$ ，当 $\Delta x$ 很小时，写为 $\delta x$，因此可以得到 $\large p(x’)&#x3D;\pi(z’)|\frac{dz}{dx}|$ ；</p>
 <p>加绝对值是因为微分出来可能有正有负，但是 $p(x)$ 与 $\pi(z)$关系不变，因此就直接加绝对值了；</p>
-<p>![image-20221129170038835](Flow 视频 李宏毅.assets&#x2F;image-20221129170038835.png)</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170038835.png" alt="image-20221129170038835"></p>
 <p>上述是x、z一维的情况；当x、z是二维时：</p>
 <h4 id="想知道二维-p-x-与-pi-z-之间的关系："><a href="#想知道二维-p-x-与-pi-z-之间的关系：" class="headerlink" title="想知道二维 $p(x)$ 与 $\pi(z)$ 之间的关系："></a>想知道二维 $p(x)$ 与 $\pi(z)$ 之间的关系：</h4><p>积分这里看成体积，等于面积乘以概率密度（想成是高），这里面积就是行列式，左右两边积分都等于1，所以有：<br>$$<br>p\left(x^{\prime}\right)\left|\operatorname{det}\left[\begin{array}{ll}<br>\Delta x_{11} &amp; \Delta x_{21} \<br>\Delta x_{12} &amp; \Delta x_{22}<br>\end{array}\right]\right|&#x3D;\pi\left(z^{\prime}\right) \Delta z_1 \Delta z_2<br>$$<br>原始分布还是均匀分布（矩形）</p>
-<p>![image-20221129165952183](Flow 视频 李宏毅.assets&#x2F;image-20221129165952183.png)</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129165952183.png" alt="image-20221129165952183"></p>
 <p>其中，$\Delta x_{11}$ 表示 $z_1$ 改变时，$x_1$ 的改变量；$\Delta x_{21}$ 表示 $z_1$ 改变时，$x_2$ 的改变量；$\Delta x_{12}$ 表示 $z_1$ 改变时，$x_2$ 的改变量；$\Delta x_{22}$ 表示 $z_2$ 改变时，$x_2$ 的改变量；</p>
 <p><strong>想知道 $p(x)$ 与 $\pi(z)$ 之间的关系：</strong></p>
 <p>矩阵做转置transpose，不会改变行列式</p>
 <p>公式变换后：</p>
-<p>![image-20221129171236957](Flow 视频 李宏毅.assets&#x2F;image-20221129171236957.png)</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129171236957.png" alt="image-20221129171236957"></p>
 <p>$p(x)$ 与 $\pi(z)$ 之间的关系为：<br>$$<br>p(x’)|det(J_f)|&#x3D;\pi(z’)<br>$$</p>
 <p>$$<br>p(x’)&#x3D;\pi(z’)|det(J_{f^-1})|<br>$$</p>
 <h2 id="Flow-1"><a href="#Flow-1" class="headerlink" title="Flow"></a>Flow</h2><p>Flow-based generative models 目标是最大似然估计，根据变量变换关系，可以得到：</p>
-<p>![image-20221129222418689](Flow 视频 李宏毅.assets&#x2F;image-20221129222418689.png)</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129222418689.png" alt="image-20221129222418689"></p>
 <p>（i是第i个样本）</p>
 <p>但是这里有一个问题，就是维度一高，计算行列式会很困难，我们虽然能知道jacobian（就是z的变换对x的影响），但是行列式很难求；因此需要好好设计生成器，让生成器的jacobian很容易求行列式；</p>
 <p>因为要用到 $G^{-1}$ 所以生成器要是可逆的，并且是好算的、能算的；为了确保G是可逆的，输入z和输出w的维度要是一样的；</p>
@@ -9611,10 +9611,10 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <p>先考虑一个G的情况：</p>
 <p>实际上训练（目标）的是G的逆，而不是G，训练的时候，从真实数据中采样的x作为输入，简单的分布采样z作为输出，训练x到z的映射，然后实际用时，生成器取逆，输入简单分布z，输出样本x；</p>
 <p>要最大化似然，第一项、第二项都要最大。第一项最大发生在 $\pi(z)$ 等于0，由于是正态分布（normal distribution）（这里z是正态分布，也是简单分布，不是前面例子的均匀分布），当z等于0时，概率密度 $\pi(z)$ 最大。当z是0向量时，不管输入x是什么，输出z都是0，那么就没有梯度回传，因此G逆的jacobian $J_{G^{-1}}$ 等于0矩阵，因此行列式等于0，$log|det(J_{G^{-1}})|$ 等于负无穷大。</p>
-<p>![image-20221130004025703](Flow 视频 李宏毅.assets&#x2F;image-20221130004025703.png)</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221130004025703.png" alt="image-20221130004025703"></p>
 <p>因此，要给予某种限制，使得第二项 $log|det(J_{G^{-1}})|$  不会接近负无穷大，也就是 $det(J_{G^{-1}})$ 不接近0；</p>
 <h3 id="Coupling-layer"><a href="#Coupling-layer" class="headerlink" title="Coupling layer"></a>Coupling layer</h3><p>这里有两篇论文（NICE、Real NVP）提出了解决思路：通过一个coupling layer，其中，这个coupling layer是这样的：z的第1维到第d维直接copy到x，作为x的第1维到第d维，同时也通过两个变换 F 和 H ，得到和z的第d+1维到D维同样维度大小的两个向量，记作 $\beta$ 和 $\gamma$ ，再将z的第d+1维到D维与 $\beta$ element-wise 乘，再加上 $\gamma$，也是element-wise 加，得到x的第d+1维到第D维；</p>
-<p>![image-20221201094831393](Flow 视频 李宏毅.assets&#x2F;image-20221201094831393.png)</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201094831393.png" alt="image-20221201094831393"></p>
 <p>其中，z有一部分直接复制给x，因此是可逆的，F和H不要求是不是可逆，可以非常复杂；</p>
 <p>因此，从x推到z的表达式为：<br>$$<br>\begin{aligned}<br>z_{i\le d}&#x3D;&amp; x_i \<br>z_{i&gt; d}&#x3D;&amp;\frac{x_i-\gamma_i}{\beta_i}<br>\end{aligned}<br>$$</p>
 <img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201095626840.png" alt="image-20221201095626840" style="zoom:50%;">
