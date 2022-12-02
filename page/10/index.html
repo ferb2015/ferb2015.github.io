@@ -288,6 +288,227 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B9%9D%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B9%9D%EF%BC%89/" itemprop="url">命令词论文笔记（九）Spoken Term Detection</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
+                2021-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B9%9D%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/06/29/命令词/命令词论文笔记（九）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Spoken-Term-Detection"><a href="#Spoken-Term-Detection" class="headerlink" title="Spoken Term Detection"></a>Spoken Term Detection</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://kaldi-asr.org/doc/kws.html">Keyword Search in Kaldi</a></p>
+<p>语音检索.md</p>
+</blockquote>
+<p>基于大词汇量连续语音识别系统的关键词检测主要是用于音频文档检索任务。首先使用语音识别系统将语音转化为某种形式的文本，然后建立索引，供用户索引。</p>
+<p>与一般文本索引不同的是，语音关键词检索中的索引需要包含每一个<strong>词的时间</strong>位置信息（词的开始时间和结束时间），方便用户定位检索到词的位置。另外一点就是，语音识别结果可能包含一些错误，导致关键词不能找到，所以希望索引将语音识别出的次优候选结果也包含进来，提高检索的召回率。针对这两点的主要方法是，将语音识别出的词格（Lattice）建立为索引。词格是一种保存语音识别候选结果的紧凑形式，还可以包含时间位置信息。</p>
+<h2 id="FT"><a href="#FT" class="headerlink" title="FT"></a>FT</h2><blockquote>
+<p>&#x3D;&#x3D;Dogan Can and Murat Saraclar. “Lattice Indexing for Spoken Term Detection” IEEE Transactions on Audio, Speech, and Language Processing 19 (2011): 2338-2347.&#x3D;&#x3D;</p>
+<p>jarvan wang 博客园 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/JarvanWang/p/9152660.html">Kaldi的关键词搜索（Keyword Search，KWS）</a></p>
+</blockquote>
+<h3 id="思想"><a href="#思想" class="headerlink" title="思想"></a>思想</h3><ul>
+<li>提出改进的因子转换器factor transducer，</li>
+<li>这个因子转换器实际上是lattice中看到的所有单词序列的倒排索引</li>
+<li>索引的对象分别有句子ID，开始时间，结束时间，分数</li>
+<li>把时间信息放在output labels上</li>
+</ul>
+<p>本文为spoken term detection技术构建反向索引，具体的，在确定的WFST中存储软命中（soft-hit）信息（utterance-id, start time, end time, posterior score四元组，用于与目标词匹配）。展示了如何在多个Lattice中（多个语句中）生成所有子字符串的索引。  ASR候选解码结果通常储存在带权有向无环图——即lattices中。由于有限状态转换器框架提供了通用的搜索、优化、合并算法，通常使用有限状态转换器来表示ASR Lattice。对以WFST形式的lattice进行索引和搜索的问题，可以被看作是在文本文档中对模式进行搜索的扩展。搜索问题的有限解决办法使用了一种称为因子转换器的结构[12]。一个因子转换器是一个组成一篇文档的字符串集合中子字符串集合的倒排索引。因子转换器是一个非常有效的顺序索引，并且十分适用于需要确切序列匹配的话语检出应用。话语段和口语词检测是两种话语应用，分别用于找到语句以及包含查询词确切序列的语句中的时间间隔。</p>
+<p>[TODO]：一些凸优化里面半群的相关公式，看不懂</p>
+<h2 id="OOV"><a href="#OOV" class="headerlink" title="OOV"></a>OOV</h2><p>代理关键字是模糊搜索方法之一，用来处理OOV。</p>
+<p>由于语音识别的结果都是在词表内的词，这样如果待查的关键词是集外词，就不可能被查找到了。然而，用户喜欢查找的，往往是人名、地名、组织机构名这样的命名实体，这些词往往都是集外词。解决这一问题的一个方法是代理词：即用一个发音相近的集内词作为待查集外词的“代理”，检索的时候查找“代理”，如果找到了代理，就认为待查的集外词找到了。</p>
+<blockquote>
+<p>&#x3D;&#x3D;Chen G, Yilmaz O, Trmal J, et al. Using proxies for OOV keywords in the keyword search task[C]. ieee automatic speechrecognition and understanding workshop, 2013: 416-421.&#x3D;&#x3D;</p>
+</blockquote>
+<h3 id="思想-1"><a href="#思想-1" class="headerlink" title="思想"></a>思想</h3><ul>
+<li>之前处理oov的方法使用的是sub-word units的方法，找比如解码phone&#x2F;syllable序列，根据phone序列从而找到oov；</li>
+<li>提出代理词proxy keywords，代理词是包含oov的集内词串，把oov事先标出其lexicon，然后根据其与其他已知lexicon的phone组成的编辑距离（作为边的cost？），构建WFST网路，然后在WFST里进行解码；比如，oov是balloon，集内词有samba、loon，当发音some balloon时，代理词是samba loon或者loon。</li>
+<li>构建代理词WFST方法：$K’ &#x3D; Project(ShortestPath(K\circ{L_{2}}\circ{E}\circ({L^{*}_1})^{-1}))$<ul>
+<li>K是oov keyword的FSA（G）</li>
+<li>L2是oov keyword 的lexicon的FSA（L）</li>
+<li>E是phone序列之间的编辑距离（wieght&#x2F;cost）</li>
+<li>L1是LVCSR的lexicon（L）</li>
+<li>K’是代理词的FSA</li>
+</ul>
+</li>
+<li>oov 发音lexicon用G2P得到</li>
+<li>边上权重来源：ASR解码序列与参考对齐序列比较，记下替换错误的后验概率，统计，得到每个音素与其他混淆音素的相似度，得到混淆矩阵E的FSA：</li>
+</ul>
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B9%9D%EF%BC%89/image-20211224105441016.png" alt="image-20211224105441016" style="zoom:80%;">
+
+<ul>
+<li>优点：多OOV词下，可以并行查找这些OOV？</li>
+</ul>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Guoguo Chen et al. “Quantifying the value of pronunciation lexicons for keyword search in lowresource languages” International Conference on Acoustics, Speech, and Signal Processing (2013).&#x3D;&#x3D;</p>
+<p>jarvan wang 博客园 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/JarvanWang/p/9152660.html">Kaldi的关键词搜索（Keyword Search，KWS）</a></p>
+</blockquote>
+<ul>
+<li>KWS系统：根据[2]，为Lattice进行索引分为以下几步：</li>
+</ul>
+<ol>
+<li>为测试集（eval, evalution，评估）中每一语句的有限状态转换器（FST）转换为（如何转换？）泛化因子转换器结构。该结构中，每个词的实例都拥有一个三元组（词的开始时间，词的结束时间，后验概率）。因子转换器，隐含了测试集中所有词序列的逆序（以后验概率排序）列表。可以使用Google OpenFST对其进行进一步的处理。</li>
+<li>要在上述因子转换器中对某个词或短语进行检索，首先构建该词的有限状态机，然后与因子转换器进行组合（如何组合？），即得到了上述词的逆序列表。</li>
+<li>使用[20]提出的方法，通过最大化所有关键词的期望词权重值（expected term weighted value，ETWV）（是啥？），估计一个决策阈值（如何估计），用于对各个结果作出Yes&#x2F;No的决策。</li>
+<li>最后，所有关键词命中集合将通过NIST 2006 Spoken Term Detection评估协议计算实际词权重值（actual term weighted value）（如何计算）。</li>
+</ol>
+<p>某个关键词在测试集中的出现次数&#x3D;所有预测命中的后验概率。</p>
+<ul>
+<li><p>词典扩充对LVCSR和KWS的影响：提高发音词典词汇量，能提升1-4％的识别率，能提升KWS中实际的词加权值约60％的效果。在LVCSR阶段的词典扩充大大优于KWS阶段。</p>
+<p>词典扩充只能适度降低WER，但是能很大程度地提高随后的ATWV。</p>
+</li>
+</ul>
+<h3 id="TODO"><a href="#TODO" class="headerlink" title="[TODO]"></a>[TODO]</h3><p>这篇看得不是很明白</p>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;语音关键词检测中的置信度研究_王朋.caj 解放军信息工程大学 2015 硕士论文&#x3D;&#x3D;</p>
+</blockquote>
+<h3 id="模糊匹配（早期处理OOV方法）"><a href="#模糊匹配（早期处理OOV方法）" class="headerlink" title="模糊匹配（早期处理OOV方法）"></a>模糊匹配（早期处理OOV方法）</h3><p>模糊匹配是一种常见的解决集外词问题方法，其主要应用声学信息，通过在连续语音识别结果中进行动态匹配，检测可能的集外词候选结果，并在匹配期间允许存在一定程度的音素替换、插入和删除错误。虽然该方法能够有效解决集外词召回率低的问题，但由于模糊匹配计算中的不精准性，也易导致部分集内词被误匹配为集外词，并产生集外词虚警 。</p>
+<p>理解为：在允许的插入删除错误程度内，看匹配了吗</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3360,277 +3581,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E7%89%87%E6%AE%B5%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E7%89%87%E6%AE%B5%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92/" itemprop="url">片段语音唤醒</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
-                2021-06-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E7%89%87%E6%AE%B5%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2021/06/29/命令词/片段语音唤醒/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="片段语音唤醒"><a href="#片段语音唤醒" class="headerlink" title="片段语音唤醒"></a>片段语音唤醒</h1><h2 id="实现方式"><a href="#实现方式" class="headerlink" title="实现方式"></a>实现方式</h2><ol>
-<li>输入长度为T帧的语音片段，输出1个类别向量（每个类是一个唤醒词），超过阈值则唤醒；✔<ol>
-<li>如果只有一个命令词（唤醒任务），可以只输出一个概率值；</li>
-<li>适用模型：感受野较大的模型（CNN）（因为唤醒词持续数帧）、RNN</li>
-</ol>
-</li>
-<li>输入长度为T帧的语音片段，输出T帧类别向量（每个类是一个唤醒词）；计算唤醒词类别的平滑后验概率等后处理方式，超过阈值则唤醒；<ol>
-<li>适用模型：与上下文有关的RNN</li>
-</ol>
-</li>
-<li>输入长度为T帧的语音片段，输出T帧类别向量（每个类是是唤醒词的子词、音节、音素），后处理唤醒词组成单元的概率，超过阈值则唤醒；✔<ol>
-<li>适用模型：无限制（一帧语音特征可表示一个组成单元）</li>
-</ol>
-</li>
-<li>输入长度为T帧的语音片段，输出T帧类别向量（每个类是是唤醒词的子词、音节、音素、以及非唤醒词），WFST解码，搜索最优路径，最优路径是否出现唤醒词则唤醒；✔<ol>
-<li>适用模型：HMM模型</li>
-</ol>
-</li>
-<li>输入长度为T帧的语音片段，输出N个类别向量（每个类是是唤醒词或子词、字符），搜索最优路径，最优路径是否出现唤醒词则唤醒；<ol>
-<li>适用模型：transformer模型、RNN-T模型、CTC模型</li>
-</ol>
-</li>
-</ol>
-<p>[✔表示已做过实验]</p>
-<h2 id="基于CNN的片段语音唤醒"><a href="#基于CNN的片段语音唤醒" class="headerlink" title="基于CNN的片段语音唤醒"></a>基于CNN的片段语音唤醒</h2><h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><ul>
-<li>CNN结构、depthwise卷积、pointwise卷积、dialted卷积；</li>
-<li>感受野1.84s，无padding（输入N帧，输出N-184帧）；</li>
-<li>残差结构，不同感受野的特征层element-wise add；</li>
-</ul>
-<h4 id="模型图"><a href="#模型图" class="headerlink" title="模型图"></a>模型图</h4><p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E7%89%87%E6%AE%B5%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92/02.png" alt="02"></p>
-<h4 id="模型对比"><a href="#模型对比" class="headerlink" title="模型对比"></a>模型对比</h4><ul>
-<li>对比论文“Small-Footprint Keyword Spotting with Multi-Scale Temporal Convolution”的模型结构，上述模型结果更好；</li>
-</ul>
-<h3 id="训练、推理特征输入方式"><a href="#训练、推理特征输入方式" class="headerlink" title="训练、推理特征输入方式"></a>训练、推理特征输入方式</h3><ol>
-<li><p>offline cmvn</p>
-<p>​	1.1 语音特征文件做好offline cmvn后</p>
-<p>​				1.1.1 训练时封装batch时pad_sequence补零，batch内最大长度不足1.84s的也补零至1.84s，训练时不再做cmvn；</p>
-<p>​				1.1.2 训练时封装batch时pad_sequence复制第一帧，batch内最大长度不足1.84s的也复制第一帧至1.84s，训练时不再做cmvn；✔</p>
-<p>​	（前期做了cmvn，训练中不用做cmvn，训练速度快）</p>
-<p>​	1.2 语音特征文件没做cmvn</p>
-<p>​				1.2.1 训练时封装batch时pad_sequence补零，batch内最大长度不足1.84s的也补零至1.84s</p>
-<p>​							1.2.1.1	训练时根据实际长度做offline cmvn；（与1.1.1特征相同）</p>
-<p>​							1.2.1.2	训练时根据pad_sequence后长度做offline cmvn；</p>
-<p>​				1.2.2 训练时封装batch时pad_sequence复制第一帧，batch内最大长度不足1.84s的也复制第一帧至1.84s，训练时再做offline cmvn；</p>
-<p>​							1.2.2.1	训练时根据实际长度做offline cmvn；（与1.1.2特征相同）</p>
-<p>​							1.2.2.2	训练时根据pad_sequence后长度做offline cmvn；</p>
-</li>
-<li><p>sliding cmvn，将上述offline cmvn换成sliding cmvn</p>
-</li>
-<li><p>global cmvn，将上述offline cmvn换成global cmvn</p>
-<ol>
-<li>语音特征文件没做cmvn，利用训练集统计出的全局均值方差，训练时封装batch时pad_sequence补零，再做cmvn后，pad_sequence部分值不为0，作用于网络中，但它们没有物理含义，espnet和wenet框架都是这样做的，会有问题吗？</li>
-</ol>
-</li>
-</ol>
-<h3 id="训练目标函数"><a href="#训练目标函数" class="headerlink" title="训练目标函数"></a>训练目标函数</h3><ol>
-<li><p>max_pooling loss 只取最大概率帧 </p>
-<ol>
-<li><p>target &#x3D; filler时：$loss&#x3D;\min\limits_T(1-P_{keyword})$	（min pooling）</p>
-<p>target &#x3D; keyword时：$loss&#x3D;\max\limits_TP_{keyword}$	（max pooling）</p>
-</li>
-<li><p>取正样本某帧的最大正类概率值，让这帧概率越大越好，取负样本某帧的最小负类概率值，让这帧的概率越大越好；</p>
-</li>
-</ol>
-</li>
-<li><p>more_label loss 逐输出分类（每个输出都有标签）（普通的逐帧分类）</p>
-<ol>
-<li>扩充正负样本标签数量，取正样本输出时间轴所有帧，让所有时间帧的正类概率越大越好，取负样本输出时间轴所有帧，让所有时间帧的负类概率越小越好；</li>
-<li>由于输入输出不等长，标签序列未知，要求训练数据片段内尽可能是一个分类（比如输入2s，输出16帧，16帧都要是正样本，因此2s尽可能是唤醒词，并且前后静音短）</li>
-</ol>
-</li>
-<li><p>mean_pooling loss 平均概率</p>
-<ol>
-<li>取输出实际片段内平均概率，求bceloss</li>
-</ol>
-</li>
-</ol>
-<h4 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h4><p>最好结果：more_label loss训练得到初始模型，再用max_pooling loss训练；</p>
-<h3 id="输出概率层"><a href="#输出概率层" class="headerlink" title="输出概率层"></a>输出概率层</h3><ul>
-<li>单唤醒词，一个分类，用sigmoid</li>
-</ul>
-<h2 id="数据"><a href="#数据" class="headerlink" title="数据"></a>数据</h2><h4 id="训练集"><a href="#训练集" class="headerlink" title="训练集"></a>训练集</h4><ul>
-<li>train_p522h_n4000h：筛选出满足唤醒词对齐区间在2.5s内正样本数据，负样本segment为2s语音。正样本101万条，负样本717万条。</li>
-</ul>
-<h4 id="训练数据数据增广"><a href="#训练数据数据增广" class="headerlink" title="训练数据数据增广"></a>训练数据数据增广</h4><ul>
-<li>正样本：原始“小源小源”音频14万条，加噪、速度扰动、扩充为102万条（667小时），筛选出满足唤醒词对齐区间在2.5s内正样本数据，得到101万条，522小时；</li>
-<li>负样本：原始4000小时负样本、300小时mobvoihotwords，加噪900小时（5类噪声、NoiseX_92_carcafenoise、两两混合制造重叠说话人的效果），切割为2s音频，舍弃小于2s的，的搭配717万条，4000小时；</li>
-</ul>
-<h4 id="验证集"><a href="#验证集" class="headerlink" title="验证集"></a>验证集</h4><ul>
-<li>训练的几个初始模型经过测试集，从测试集中选取far高、recall低作为cv；</li>
-<li>正样本：0.6-6.5s，4k条，3h；</li>
-<li>负样本：1.1-3.1s，15k条，11h；</li>
-</ul>
-<h3 id="推理过程"><a href="#推理过程" class="headerlink" title="推理过程"></a>推理过程</h3><ul>
-<li>窗长200帧，窗移30帧的滑动窗口语音特征送入网路进行前向计算，输出16帧内，若同时满足最大概率值高于阈值1和平均概率高于阈值2，则唤醒；<ul>
-<li>送入整句语音，实际长度小于1.85s，复制第一帧直到总长度为1.85s，计算概率（输出一帧）；实际长度在1.85s-2s之间，按实际长度计算概率，不用滑动；实际长度大于2s，进行滑动</li>
-</ul>
-</li>
-<li>FLOPS &#x3D; 2M（未复用）、模型参数33k</li>
-</ul>
-<h2 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h2><ul>
-<li>tdnnf[2]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph_add_two2；</li>
-<li>tdnn[3]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_multitask&#x2F;graph；</li>
-<li>tdnn10：keyword_lib&#x2F;data&#x2F;asr_config_xiaoyuan&#x2F;tdnn_10&#x2F;xyxyxy_2gram；</li>
-<li>n10：exp_1&#x2F;mdtc_offline_cmvn_p382h_n4000h_max_pooling&#x2F;6.pt；</li>
-</ul>
-<h2 id="C-api"><a href="#C-api" class="headerlink" title="C++ api"></a>C++ api</h2><ul>
-<li><p>模型pt格式转为onnx格式，用onnxruntime的动态链接库进行调用；</p>
-</li>
-<li><p>每次读入包大小（0.32s&#x2F;0.3s）的语音片段，</p>
-<ul>
-<li>到达最后一个包并且累计语音片段长度小于1.85s，复制第一帧直到总长度为1.85s，计算概率（输出一帧）；</li>
-<li>到达最后一个包并且累计语音片段长度在1.85s-2s之间，按实际长度计算概率，不用滑动；</li>
-<li>未到达最后一个包并且累计语音片段长度大于2s，计算概率，若唤醒，则向后滑动1s，1s内不检测，若未唤醒，则向滑动0.3s，继续判断；</li>
-</ul>
-</li>
-<li><p>RTF在原来1&#x2F;3~1&#x2F;2；</p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3681,7 +3631,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">103</span>
+                  <span class="site-state-item-count">104</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

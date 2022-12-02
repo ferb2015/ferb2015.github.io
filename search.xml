@@ -9672,4 +9672,75 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>深度学习</tag>
       </tags>
   </entry>
+  <entry>
+    <title>GLOW论文</title>
+    <url>/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/</url>
+    <content><![CDATA[<h1 id="GLOW"><a href="#GLOW" class="headerlink" title="GLOW"></a>GLOW</h1><blockquote>
+<p>Kingma, Durk P., and Prafulla Dhariwal. “Glow: Generative flow with invertible 1x1 convolutions.” <em>Advances in neural information processing systems</em> 31 (2018). citations：1977  openai</p>
+<p>github：<a href="https://github.com/openai/glow">https://github.com/openai/glow</a></p>
+<p><a href="https://www.bilibili.com/video/BV1Gb411n7dE?p=59">【李宏毅深度学习】P59 Flow-based Generative Model </a></p>
+<p>csdn ：<a href="https://blog.csdn.net/daydayjump/article/details/87924066?spm=1001.2101.3001.6650.12&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-12-87924066-blog-115493648.pc_relevant_3mothn_strategy_and_data_recovery&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-12-87924066-blog-115493648.pc_relevant_3mothn_strategy_and_data_recovery&utm_relevant_index=13">论文笔记（六）【Glow: Generative Flow with Invertible 1 x 1 Convolutions】</a></p>
+</blockquote>
+<h4 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h4><p>生成高分辨率自然图像，以及其他生成任务；</p>
+<h4 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h4><p>基于flow的生成方法，提出基于1×1卷积的flow方法，叫做glow；</p>
+<h4 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h4><p>第一个可以有效生成高分辨率自然图像的基于似然的模型。</p>
+<h4 id="存在什么问题"><a href="#存在什么问题" class="headerlink" title="存在什么问题"></a>存在什么问题</h4><p>生成质量不够高？</p>
+<h2 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h2><p>生成模型的方法统称为likelihood-based method，可以分为三类：</p>
+<ol>
+<li>Autoregressive models 自回归模型，优点是简单，缺点是不能并行处理，计算量和输入长度成正比，不适用于输入长度很高的常见；</li>
+<li>Variational autoencoders（VAEs），目标是lower bound on the log-likelihoood of the data，可以并行，优化比较麻烦；</li>
+<li>Flow-based generative models 相比于前两种，有几个优点：<ol>
+<li>Exact latent-variable inference and log-likelihood evaluation. 精确隐变量推断和对数似然估计。在VAE中，只能推断出与数据点对应的隐变量的近似值，而GAN没有encoder，不能进行latent的推断。由于flow-based model可逆，输出是一个精确值（而不是一个分布，再采样），优化目标也是数据的似然值，而不是lower bound。</li>
+<li>Efficient inference and efficient synthesis. 相比于自回归模型，flow在训练和生成过程都可以并行化。</li>
+<li>Useful latent space for downstream tasks.   </li>
+<li>Significant potential for memory savings.  计算梯度的计算量在不同深度是constant，而不是linear；</li>
+</ol>
+</li>
+</ol>
+<h2 id="背景：Flow-based-Generative-Models"><a href="#背景：Flow-based-Generative-Models" class="headerlink" title="背景：Flow-based Generative Models"></a>背景：Flow-based Generative Models</h2><p>对于一个不知道分布情况的数据，我们希望数据经过模型出来的概率值尽可能大，说明模型的输出分布接近数据分布。</p>
+<p>数据x，x是高维任意向量，服从某个未知分布，模型输出 $p_\theta (x)$，数据集 $D$ ，log似然目标函数等于最小化：</p>
+<ul>
+<li>对于离散变量 x：</li>
+</ul>
+<p>$$<br>\mathcal{L}(\mathcal{D})&#x3D;\frac{1}{N} \sum_{i&#x3D;1}^N-\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right)<br>$$</p>
+<ul>
+<li>对于连续变量 x：</li>
+</ul>
+<p>$$<br>\mathcal{L}(\mathcal{D}) \simeq \frac{1}{N} \sum_{i&#x3D;1}^N-\log p_{\boldsymbol{\theta}}\left(\tilde{\mathbf{x}}^{(i)}\right)+c<br>$$</p>
+<p>其中 $\tilde{\mathbf{x}}^{(i)}&#x3D;\mathbf{x}^{(i)}+u$ ，$u$ 是服从 $u \sim \mathcal{U}(0, a)$ 的均匀分布； $c&#x3D;-M \cdot \log a$，$a$ 取决于数据的离散程度；$M$ 是 $\mathbf{x}$ 的维度；</p>
+<p>对于大部分flow模型来说，生成过程可以定义为：<br>$$<br>\begin{array}{r}<br>\mathbf{z} \sim p_{\boldsymbol{\theta}}(\mathbf{z}) \<br>\end{array}<br>$$<br>$$<br>\mathbf{x}&#x3D;\mathbf{g}_{\boldsymbol{\theta}}(\mathbf{z})<br>$$</p>
+<p>其中，$\mathbf{z}$ 是latent variable，隐变量；$p_{\boldsymbol{\theta}}(\mathbf{z})$ 一个很简单、常见的密度函数，比如球形多高斯分布 $p_{\boldsymbol{\theta}}(\mathbf{z})&#x3D;\mathcal{N}(\mathbf{z} ; 0, \mathbf{I})$ ；$\mathbf{g}_{\boldsymbol{\theta}}(..)$ 是可逆的，也被称为 <strong>bijective</strong> 双射（？），因此给一个数据点 $\mathbf{x}$ ，就可以推断出 隐变量 $z$，通过 $\mathbf{z}&#x3D;\mathbf{f}<em>\theta(\mathbf{x})&#x3D;\mathbf{g}<em>\theta^{-1}(\mathbf{x})$ ；为了简化，下面 $\mathrm{f}</em>{\boldsymbol{\theta}}$ 和 $\mathbf{g}</em>{\boldsymbol{\theta}}$ 的公式都省略 $\theta$；</p>
+<p>$\mathbf{f}$ （$\mathbf{g}$ 也是）是由一系列transform组成的函数：$\mathbf{f}&#x3D;\mathbf{f}_1 \circ \mathbf{f}_2 \circ \cdots \circ \mathbf{f}_K$ ，因此 $\mathbf{x}$ 和 $\mathbf{z}$ 之间的关系可以写为：<br>$$<br>\mathbf{x} \stackrel{\mathbf{f}_1}{\longleftrightarrow} \mathbf{h}_1 \stackrel{\mathbf{f}_2}{\longleftrightarrow} \mathbf{h}_2 \cdots \stackrel{\mathbf{f}_K}{\longleftrightarrow} \mathbf{z}<br>$$<br>这样的可逆变换序列也称为（归一化）流 <strong>flow</strong>。</p>
+<p>通过变换下公式4，数据 $\mathbf{x}$ 的概率密度函数（pdf）可以写成：（参考李宏毅视频里的 $p_\theta (x)&#x3D;p_\theta (z)|det(dz&#x2F;dx)|$ ）<br>$$<br>\begin{aligned}<br>\log p_{\boldsymbol{\theta}}(\mathbf{x}) &amp;&#x3D;\log p_{\boldsymbol{\theta}}(\mathbf{z})+\log |\operatorname{det}(d \mathbf{z} &#x2F; d \mathbf{x})| \<br>&amp;&#x3D;\log p_{\boldsymbol{\theta}}(\mathbf{z})+\sum_{i&#x3D;1}^K \log \left|\operatorname{det}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|<br>\end{aligned}<br>$$</p>
+<p>其中，定义 $\mathbf{h}_0 \triangleq \mathbf{x}$ ， $\mathbf{h}_K \triangleq \mathbf{z}$ ， 标量值 $\log \left|\operatorname{det}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|$ 是 jacobian矩阵 $\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)$ 的行列式绝对值 取log，也叫 log-determinant；</p>
+<p>思路是只选择那些 jacobian $d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}$ 是三角阵的transform，对于这些transform来说，log-determinant 就会很简单，可以写作：<br>$$<br>\log \left|\operatorname{det}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|&#x3D;\operatorname{sum}\left(\log \left|\operatorname{diag}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|\right)<br>$$<br>其中，sum() 是所有vector元素求和，log()是element-wise log，diag()是jacobian矩阵的对角阵；</p>
+<h2 id="Glow"><a href="#Glow" class="headerlink" title="Glow"></a>Glow</h2><p>基于flow-based的生成模型，但是它不是像之前flow-based模型中的生成器结构做了改进，没用coupling layer，而是用的1×1卷积；</p>
+<p><img src="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221201161933655.png" alt="image-20221201161933655"></p>
+<p>multi-scale architecture，结构包含actnorm 👉 invertible 1 × 1 convolution  👉 coupling layer ；</p>
+<h3 id="Actnorm-scale-and-bias-layer-with-data-dependent-initialization"><a href="#Actnorm-scale-and-bias-layer-with-data-dependent-initialization" class="headerlink" title="Actnorm: scale and bias layer with data dependent initialization"></a>Actnorm: scale and bias layer with data dependent initialization</h3><p>作用是normalization，但是用batch norm会不可逆，因此用activation norm；对每个channel进行缩放和bias（缩放和bias通过仿射变换实现），和BN一样有参数，初始化0均值单位方差；</p>
+<p>an actnorm layer (for activation normalizaton), that performs an affine transformation of the activations using a scale and bias parameter per channel,  </p>
+<p>。。</p>
+<h3 id="Invertible-1-×-1-convolution"><a href="#Invertible-1-×-1-convolution" class="headerlink" title="Invertible 1 × 1 convolution"></a>Invertible 1 × 1 convolution</h3><p>之前生成器堆叠都是固定的排列、堆叠顺序，这里提出一个代替固定排列的方法，是用参数可更新的可逆1×1卷积实现排列，并且这个排列不是固定的，因为里头的参数是会变化、会更新、会学习的。这里1×1卷积起到的作用打乱channel各个维度数据；</p>
+<p>这里需要输入输出的channel数量一样。</p>
+<p>输入是 $h \times w \times c$ 的tensor，卷积权重矩阵 $\mathbf{W}$ 是 $c \times c$ 的，则 可逆的 $1 \times 1$ convolution 的 log-determinant计算公式为：<br>$$<br>\log \left|\operatorname{det}\left(\frac{d \operatorname{conv} 2 \mathrm{D}(\mathbf{h} ; \mathbf{W})}{d \mathbf{h}}\right)\right|&#x3D;h \cdot w \cdot \log |\operatorname{det}(\mathbf{W})|<br>$$<br>$\operatorname{det}(\mathbf{W})$ 的计算复杂度为 $\mathcal{O}\left(c^3\right)$， 而计算conv2D的复杂度为 $\mathcal{O}\left(h \cdot w \cdot c^2\right)$ ，初始化det为0？，收敛也是到0.</p>
+<p>The cost of computing or differentiating $\operatorname{det}(\mathbf{W})$ is $\mathcal{O}\left(c^3\right)$, which is often comparable to the cost computing conv2D $(\mathbf{h} ; \mathbf{W})$ which is $\mathcal{O}\left(h \cdot w \cdot c^2\right)$. We initialize the weights $\mathbf{W}$ as a random rotation matrix, having a log-determinant of 0 ; after one SGD step these values start to diverge from 0 .</p>
+<h4 id="LU-Decomposition"><a href="#LU-Decomposition" class="headerlink" title="LU Decomposition"></a>LU Decomposition</h4><p>$\operatorname{det}(\mathbf{W})$ 的计算复杂度为 $\mathcal{O}\left(c^3\right)$ 可以通过LU分解减少到 $\mathcal{O}(c)$ ：<br>$$<br>\mathbf{W}&#x3D;\mathbf{P L}(\mathbf{U}+\operatorname{diag}(\mathbf{s}))<br>$$<br>其中 $\mathbf{P}$ is a permutation matrix, $\mathbf{L}$ 是对角线上有1的下三角矩阵， $\mathbf{U}$ 是一个对角线上为零的上三角矩阵，  $\mathbf{s}$  是一个 vector。</p>
+<p>log-determinant公式简化为：<br>$$<br>\log |\operatorname{det}(\mathbf{W})|&#x3D;\operatorname{sum}(\log |\mathbf{s}|)<br>$$</p>
+<h2 id="Affine-Coupling-Layers"><a href="#Affine-Coupling-Layers" class="headerlink" title="Affine Coupling Layers"></a>Affine Coupling Layers</h2><p>下表列出了三个component的函数关系、逆函数的表达式，以及行列式的计算公式；（可参考李宏毅flow视频）</p>
+<p>可以看出，行列式计算公式很简单，因此p(x)到p(z)关系很好求；</p>
+<p><img src="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202093107174.png" alt="image-20221202093107174"></p>
+<h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><p>基于IAF的MAF不能并行，自回归AR也不能并行，合成速度慢；GAN缺少latent-space encoders，输入不是特征x，并且优化困难；</p>
+<h2 id="Quantitative-Experiments"><a href="#Quantitative-Experiments" class="headerlink" title="Quantitative Experiments"></a>Quantitative Experiments</h2><p>评价指标是平均负log似然 the average negative log-likelihood (bits per dimension) on the CIFAR-10  （越小越好）</p>
+<p><img src="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202095427969.png" alt="image-20221202095427969"></p>
+<h2 id="Qualitative-Experiments"><a href="#Qualitative-Experiments" class="headerlink" title="Qualitative Experiments"></a>Qualitative Experiments</h2><p>todo</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><h3 id="Simple-python-implementation-of-the-invertible-1-×-1-convolution"><a href="#Simple-python-implementation-of-the-invertible-1-×-1-convolution" class="headerlink" title="Simple python implementation of the invertible 1 × 1 convolution"></a>Simple python implementation of the invertible 1 × 1 convolution</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Invertible 1x1 conv</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">invertible_1x1_conv</span>(<span class="params">z, logdet, forward=<span class="literal">True</span></span>):</span><br><span class="line">    <span class="comment"># Shape</span></span><br><span class="line">    h, w, c = z.shape[<span class="number">1</span>:]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Sample a random orthogonal matrix to initialise weights</span></span><br><span class="line">    w_init = np.linalg.qr(np.random.randn(c, c))[<span class="number">0</span>]</span><br><span class="line">    w = tf.get_variable(<span class="string">&quot;W&quot;</span>, initializer=w_init)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Compute log determinant</span></span><br><span class="line">    dlogdet = h * w * tf.log(<span class="built_in">abs</span>(tf.matrix_determinant(w)))</span><br><span class="line">    <span class="keyword">if</span> forward:</span><br><span class="line">        <span class="comment"># Forward computation</span></span><br><span class="line">        _w = tf.reshape(w, [<span class="number">1</span>, <span class="number">1</span>, c, c])</span><br><span class="line">        z = tf.nn.conv2d(z, _w, [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], <span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line">        logdet += dlogdet</span><br><span class="line">        <span class="keyword">return</span> z, logdet</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># Reverse computation</span></span><br><span class="line">        _w = tf.matrix_inverse(w)</span><br><span class="line">        _w = tf.reshape(_w, [<span class="number">1</span>, <span class="number">1</span>, c, c])</span><br><span class="line">        z = tf.nn.conv2d(z, _w, [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], <span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line">        logdet -= dlogdet</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> z, logdet</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>深度学习</category>
+      </categories>
+      <tags>
+        <tag>深度学习</tag>
+      </tags>
+  </entry>
 </search>
