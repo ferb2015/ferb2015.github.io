@@ -87,10 +87,10 @@
 <meta property="og:description" content="GLOW Kingma, Durk P., and Prafulla Dhariwal. “Glow: Generative flow with invertible 1x1 convolutions.” Advances in neural information processing systems 31 (2018). citations：1977  openai github：https:">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221201161933655.png">
-<meta property="og:image" content="http://example.com/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202093107174.png">
+<meta property="og:image" content="http://example.com/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202103230674.png">
 <meta property="og:image" content="http://example.com/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202095427969.png">
 <meta property="article:published_time" content="2022-12-01T16:00:00.000Z">
-<meta property="article:modified_time" content="2022-12-02T02:09:00.019Z">
+<meta property="article:modified_time" content="2022-12-02T02:34:34.057Z">
 <meta property="article:author" content="Long Ye">
 <meta property="article:tag" content="深度学习">
 <meta name="twitter:card" content="summary">
@@ -413,7 +413,7 @@
 <h4 id="存在什么问题"><a href="#存在什么问题" class="headerlink" title="存在什么问题"></a>存在什么问题</h4><p>生成质量不够高？</p>
 <h2 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h2><p>生成模型的方法统称为likelihood-based method，可以分为三类：</p>
 <ol>
-<li>Autoregressive models 自回归模型，优点是简单，缺点是不能并行处理，计算量和输入长度成正比，不适用于输入长度很高的常见；</li>
+<li>Autoregressive models 自回归模型，优点是简单，缺点是不能并行处理，计算量和输入长度成正比，不适用于输入长度很高的任务；</li>
 <li>Variational autoencoders（VAEs），目标是lower bound on the log-likelihoood of the data，可以并行，优化比较麻烦；</li>
 <li>Flow-based generative models 相比于前两种，有几个优点：<ol>
 <li>Exact latent-variable inference and log-likelihood evaluation. 精确隐变量推断和对数似然估计。在VAE中，只能推断出与数据点对应的隐变量的近似值，而GAN没有encoder，不能进行latent的推断。由于flow-based model可逆，输出是一个精确值（而不是一个分布，再采样），优化目标也是数据的似然值，而不是lower bound。</li>
@@ -440,7 +440,7 @@
 <p>通过变换下公式4，数据 $\mathbf{x}$ 的概率密度函数（pdf）可以写成：（参考李宏毅视频里的 $p_\theta (x)&#x3D;p_\theta (z)|det(dz&#x2F;dx)|$ ）<br>$$<br>\begin{aligned}<br>\log p_{\boldsymbol{\theta}}(\mathbf{x}) &amp;&#x3D;\log p_{\boldsymbol{\theta}}(\mathbf{z})+\log |\operatorname{det}(d \mathbf{z} &#x2F; d \mathbf{x})| \<br>&amp;&#x3D;\log p_{\boldsymbol{\theta}}(\mathbf{z})+\sum_{i&#x3D;1}^K \log \left|\operatorname{det}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|<br>\end{aligned}<br>$$</p>
 <p>其中，定义 $\mathbf{h}_0 \triangleq \mathbf{x}$ ， $\mathbf{h}_K \triangleq \mathbf{z}$ ， 标量值 $\log \left|\operatorname{det}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|$ 是 jacobian矩阵 $\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)$ 的行列式绝对值 取log，也叫 log-determinant；</p>
 <p>思路是只选择那些 jacobian $d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}$ 是三角阵的transform，对于这些transform来说，log-determinant 就会很简单，可以写作：<br>$$<br>\log \left|\operatorname{det}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|&#x3D;\operatorname{sum}\left(\log \left|\operatorname{diag}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|\right)<br>$$<br>其中，sum() 是所有vector元素求和，log()是element-wise log，diag()是jacobian矩阵的对角阵；</p>
-<h2 id="Glow"><a href="#Glow" class="headerlink" title="Glow"></a>Glow</h2><p>基于flow-based的生成模型，但是它不是像之前flow-based模型中的生成器结构做了改进，没用coupling layer，而是用的1×1卷积；</p>
+<h2 id="Glow"><a href="#Glow" class="headerlink" title="Glow"></a>Glow</h2><p>基于flow-based的生成模型，它没用之前flow-based模型中的生成器排列方式，在排列方式做了改进，用的1×1卷积；</p>
 <p><img src="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221201161933655.png" alt="image-20221201161933655"></p>
 <p>multi-scale architecture，结构包含actnorm 👉 invertible 1 × 1 convolution  👉 coupling layer ；</p>
 <h3 id="Actnorm-scale-and-bias-layer-with-data-dependent-initialization"><a href="#Actnorm-scale-and-bias-layer-with-data-dependent-initialization" class="headerlink" title="Actnorm: scale and bias layer with data dependent initialization"></a>Actnorm: scale and bias layer with data dependent initialization</h3><p>作用是normalization，但是用batch norm会不可逆，因此用activation norm；对每个channel进行缩放和bias（缩放和bias通过仿射变换实现），和BN一样有参数，初始化0均值单位方差；</p>
@@ -449,12 +449,11 @@
 <h3 id="Invertible-1-×-1-convolution"><a href="#Invertible-1-×-1-convolution" class="headerlink" title="Invertible 1 × 1 convolution"></a>Invertible 1 × 1 convolution</h3><p>之前生成器堆叠都是固定的排列、堆叠顺序，这里提出一个代替固定排列的方法，是用参数可更新的可逆1×1卷积实现排列，并且这个排列不是固定的，因为里头的参数是会变化、会更新、会学习的。这里1×1卷积起到的作用打乱channel各个维度数据；</p>
 <p>这里需要输入输出的channel数量一样。</p>
 <p>输入是 $h \times w \times c$ 的tensor，卷积权重矩阵 $\mathbf{W}$ 是 $c \times c$ 的，则 可逆的 $1 \times 1$ convolution 的 log-determinant计算公式为：<br>$$<br>\log \left|\operatorname{det}\left(\frac{d \operatorname{conv} 2 \mathrm{D}(\mathbf{h} ; \mathbf{W})}{d \mathbf{h}}\right)\right|&#x3D;h \cdot w \cdot \log |\operatorname{det}(\mathbf{W})|<br>$$<br>$\operatorname{det}(\mathbf{W})$ 的计算复杂度为 $\mathcal{O}\left(c^3\right)$， 而计算conv2D的复杂度为 $\mathcal{O}\left(h \cdot w \cdot c^2\right)$ ，初始化det为0？，收敛也是到0.</p>
-<p>The cost of computing or differentiating $\operatorname{det}(\mathbf{W})$ is $\mathcal{O}\left(c^3\right)$, which is often comparable to the cost computing conv2D $(\mathbf{h} ; \mathbf{W})$ which is $\mathcal{O}\left(h \cdot w \cdot c^2\right)$. We initialize the weights $\mathbf{W}$ as a random rotation matrix, having a log-determinant of 0 ; after one SGD step these values start to diverge from 0 .</p>
 <h4 id="LU-Decomposition"><a href="#LU-Decomposition" class="headerlink" title="LU Decomposition"></a>LU Decomposition</h4><p>$\operatorname{det}(\mathbf{W})$ 的计算复杂度为 $\mathcal{O}\left(c^3\right)$ 可以通过LU分解减少到 $\mathcal{O}(c)$ ：<br>$$<br>\mathbf{W}&#x3D;\mathbf{P L}(\mathbf{U}+\operatorname{diag}(\mathbf{s}))<br>$$<br>其中 $\mathbf{P}$ is a permutation matrix, $\mathbf{L}$ 是对角线上有1的下三角矩阵， $\mathbf{U}$ 是一个对角线上为零的上三角矩阵，  $\mathbf{s}$  是一个 vector。</p>
 <p>log-determinant公式简化为：<br>$$<br>\log |\operatorname{det}(\mathbf{W})|&#x3D;\operatorname{sum}(\log |\mathbf{s}|)<br>$$</p>
 <h2 id="Affine-Coupling-Layers"><a href="#Affine-Coupling-Layers" class="headerlink" title="Affine Coupling Layers"></a>Affine Coupling Layers</h2><p>下表列出了三个component的函数关系、逆函数的表达式，以及行列式的计算公式；（可参考李宏毅flow视频）</p>
 <p>可以看出，行列式计算公式很简单，因此p(x)到p(z)关系很好求；</p>
-<p><img src="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202093107174.png" alt="image-20221202093107174"></p>
+<p><img src="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202103230674.png" alt="image-20221202103230674"></p>
 <h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><p>基于IAF的MAF不能并行，自回归AR也不能并行，合成速度慢；GAN缺少latent-space encoders，输入不是特征x，并且优化困难；</p>
 <h2 id="Quantitative-Experiments"><a href="#Quantitative-Experiments" class="headerlink" title="Quantitative Experiments"></a>Quantitative Experiments</h2><p>评价指标是平均负log似然 the average negative log-likelihood (bits per dimension) on the CIFAR-10  （越小越好）</p>
 <p><img src="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202095427969.png" alt="image-20221202095427969"></p>
