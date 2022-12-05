@@ -288,6 +288,186 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/decoder_main/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/decoder_main/" itemprop="url">调试decoder_main</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/decoder_main/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/decoder_main/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="调试decoder-main"><a href="#调试decoder-main" class="headerlink" title="调试decoder_main"></a>调试decoder_main</h1><p>用的cgdb调试</p>
+<p>首先之前编译cmake时，没有加可选debug的选项，因此不可调试，在<strong>CMakeLists.txt</strong>加入</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SET(CMAKE_BUILD_TYPE &quot;Debug&quot;) </span><br><span class="line"></span><br><span class="line">SET(CMAKE_CXX_FLAGS_DEBUG &quot;$ENV&#123;CXXFLAGS&#125; -O0 -Wall -g -ggdb&quot;)</span><br><span class="line">SET(CMAKE_CXX_FLAGS_RELEASE &quot;$ENV&#123;CXXFLAGS&#125; -O3 -Wall&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>重新编译：在build里：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">cmake clean ..</span></span><br><span class="line">cmake  -DCMAKE_BUILD_TYPE=Debug ..</span><br><span class="line">cmake  -DCMAKE_BUILD_TYPE=Debug --build .</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<p>然后在Libtorch下调试：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">cgdb build/bin/decoder_main</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">然后在界面中打断点：比如</span> </span><br><span class="line">b asr_decoder.cc:194</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">无tlg</span></span><br><span class="line">run  --chunk_size -1 --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang.char.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">不调试运行就是：</span></span><br><span class="line">./build/bin/decoder_main --chunk_size -1 --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang.char.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">要打印n_best：加 --output_nbest <span class="literal">true</span></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">tlg</span></span><br><span class="line">run --acoustic_scale 5 --beam 15.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1  --fst_path /data_local/yelong/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_lin/TLG.fst  --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip  --dict_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_lin/words.txt --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_lin/units.txt</span><br><span class="line"></span><br><span class="line">run --acoustic_scale 5 --beam 15.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1  --fst_path /data_local/yelong/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/TLG.fst  --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip  --dict_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/words.txt --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/units.txt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p>172.17.84.128:root@067224ac4999:&#x2F;home&#x2F;newest_wenet&#x2F;wenet&#x2F;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">cd /home/newest_wenet/wenet/runtime/LibTorch/</span><br><span class="line">gdb build/bin/decoder_main</span><br><span class="line">run --acoustic_scale 5 --beam 20.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1 --blank_skip_thresh 0.98 --fst_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/TLG.fst --wav_scp /home/data/yelong/docker_seewo/corpus/seewo/wav.scp --model_path /home/aban-c009/final.zip --dict_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/words.txt --unit_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/units.txt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">run --acoustic_scale 5 --beam 20.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1 --blank_skip_thresh 0.98 --fst_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/TLG.fst --wav_scp /home/data/yelong/docker_seewo/corpus/200/wav.scp.1 --model_path /home/aban-c009/final.zip --dict_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/words.txt --unit_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_hua_lexicon_eng/units.txt</span><br><span class="line"></span><br><span class="line">./build/bin/decoder_main --acoustic_scale 5 --beam 20.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1 --blank_skip_thresh 0.98 --fst_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_30w_2017_seewo_eng_word_new/TLG.fst --wav_scp /home/data/yelong/docker_seewo/corpus/200/wav.scp.1 --model_path /home/aban-c009/final.zip --dict_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_30w_2017_seewo_eng_word_new/words.txt --unit_path /home/aban-c009/lang_test_aban-c009_ngram_7g_train_30w_2017_seewo_eng_word_new/units.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">no tlg</span></span><br><span class="line">./build/bin/decoder_main --chunk_size -1 --wav_scp /home/data/yelong/docker_seewo/corpus/200/wav.scp.1  --model_path /home/aban-c009/final.zip --unit_path /home/aban-c009/lang.char.txt</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="core-x2F-decoder-x2F-params-h"><a href="#core-x2F-decoder-x2F-params-h" class="headerlink" title="core&#x2F;decoder&#x2F;params.h"></a>core&#x2F;decoder&#x2F;params.h</h2><h3 id="参数解释："><a href="#参数解释：" class="headerlink" title="参数解释："></a>参数解释：</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DEFINE_double(beam, 16.0, &quot;beam in ctc wfst search&quot;);</span><br><span class="line">DEFINE_double(lattice_beam, 10.0, &quot;lattice beam in ctc wfst search&quot;);</span><br><span class="line">DEFINE_double(acoustic_scale, 1.0, &quot;acoustic scale for ctc wfst search&quot;);	# 这个是乘在am分数上的， graph_cost是语言模型分数，acoustic_cost是am*acoustic_scale得到的缩放声学分数，因此如果这个很大，总体分数会很高，但是声学模型作用会比语言模型大，这个是合理的，和kaldi的希望缩放因子是作用在lm上的不同，这里是作用在am上的</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">比如acoustic_scale = 1：graph_cost = 15.0703125, acoustic_cost = 32.8631744</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">比如acoustic_scale = 20：graph_cost = 15.0703125, acoustic_cost = 657.263489</span></span><br><span class="line">DEFINE_int32(nbest, 10, &quot;nbest for ctc wfst or prefix search&quot;);</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">读模型 model-&gt;Read(FLAGS_model_path); 进入core/decoder/torch_asr_model.cc的void TorchAsrModel::Read(const std::string&amp; model_path) &#123;</span><br><span class="line"></span><br><span class="line">decoder/asr_decoder.cc的void AsrDecoder::Rescoring() &#123;</span><br><span class="line"></span><br><span class="line">模型前向过程（输入声学特征，出来ctc的分类概率）这里用到的是libtorch，就是把特征转成torch格式，送给模型，模型得到输出</span><br><span class="line"></span><br><span class="line">core/bin/decoder_main.cc ： wenet::DecodeState state = decoder.Decode();跳到core/decoder/asr_decoder.cc的DecodeState AsrDecoder::Decode(bool block) &#123;跳到DecodeState AsrDecoder::AdvanceDecoding(bool block) &#123; </span><br><span class="line"></span><br><span class="line">跳到core/decoder/asr_model.cc的 void AsrModel::ForwardEncoder( 跳到 core/decoder/torch_asr_model.cc的void TorchAsrModel::ForwardEncoderFunc(</span><br><span class="line"></span><br><span class="line">得到encoder输出：</span><br><span class="line"></span><br><span class="line">auto outputs =</span><br><span class="line"></span><br><span class="line"><span class="meta prompt_">   model_-&gt;</span><span class="language-bash">get_method(<span class="string">&quot;forward_encoder_chunk&quot;</span>)(inputs).toTuple()-&gt;elements();</span></span><br><span class="line"></span><br><span class="line">得到ctc_log_probs：</span><br><span class="line"></span><br><span class="line">torch::Tensor ctc_log_probs =</span><br><span class="line"></span><br><span class="line"><span class="meta prompt_">   model_-&gt;</span><span class="language-bash">run_method(<span class="string">&quot;ctc_activation&quot;</span>, chunk_out).toTensor()[0];</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">返回core/decoder/asr_model.cc的model_-&gt;ForwardEncoder(chunk_feats, &amp;ctc_log_probs);得到ctc_log_probs的维度是362（T/4），11755（V）</span><br><span class="line"></span><br><span class="line">进入解码模块：searcher_-&gt;Search(ctc_log_probs); 跳到core/decoder/ctc_wfst_beam_search.cc的void CtcWfstBeamSearch::Search(const std::vector&lt;std::vector&lt;float&gt;&gt;&amp; logp) &#123;</span><br><span class="line"></span><br><span class="line">      // Get the best symbol</span><br><span class="line">      int cur_best =</span><br><span class="line">          std::max_element(logp[i].begin(), logp[i].end()) - logp[i].begin();？</span><br><span class="line"></span><br><span class="line">跳到decoder/lattice-faster-decoder.cc的void LatticeFasterDecoderTpl&lt;FST, Token&gt;::AdvanceDecoding(</span><br><span class="line">runeActiveTokens(config_.lattice_beam * config_.prune_scale);跳到core/kaldi/decoder/lattice-faster-decoder.cc的void LatticeFasterDecoderTpl&lt;FST, Token&gt;::PruneActiveTokens(BaseFloat delta) &#123;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">best path：</span></span><br><span class="line">core/decoder/ctc_wfst_beam_search.cc 的 decoder_.GetBestPath(&amp;lat, false);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">core/decoder/asr_decoder.ccd searcher_-&gt;Likelihood()</span><br><span class="line">/core/bin/decoder_main.cc：decoder.Rescoring();//做attention rescore</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>kaldi&#x2F;decoder&#x2F;lattice-faster-decoder.cc</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">```</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$\large c\in \mathbb R^&#123;F\times n&#125;$</span><br><span class="line"></span><br><span class="line">$\large x_i\in \mathbb R^&#123;F\times 1&#125;$</span><br><span class="line"></span><br><span class="line">设置输出log多还是少</span><br><span class="line"></span><br><span class="line">```shell</span><br><span class="line">export GLOG_logtostderr=1</span><br><span class="line">export GLOG_v=2	# 这里数值越大，当代码里的值小于该值，就输出log</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/decoder_main%E4%BF%AE%E6%94%B9blank%E6%A6%82%E7%8E%87/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2158,169 +2338,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E6%96%B9%E5%90%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E6%96%B9%E5%90%91/" itemprop="url">识别方向</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
-                2022-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
-                    <span itemprop="name">语音识别</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E6%96%B9%E5%90%91/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/识别方向/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>方向：</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E6%96%B9%E5%90%91/image-20220512174709926.png" alt="image-20220512174709926" style="zoom:80%;">
-
-<p>会议：</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E6%96%B9%E5%90%91/image-20220512175109288.png" alt="image-20220512175109288"></p>
-<p>数据：<a target="_blank" rel="noopener" href="http://yqli.tech/page/data.html#row-5">http://yqli.tech/page/data.html#row-5</a></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E6%96%B9%E5%90%91/image-20220512175309644.png" alt="image-20220512175309644"></p>
-<p>论文列表：<a target="_blank" rel="noopener" href="http://yqli.tech/page/asr_paper.html">http://yqli.tech/page/asr_paper.html</a></p>
-<p>C++：<a target="_blank" rel="noopener" href="http://yqli.tech/page/pro.html">http://yqli.tech/page/pro.html</a></p>
-<p>python：<a target="_blank" rel="noopener" href="http://www.pythondoc.com/">http://www.pythondoc.com/</a></p>
-<p>课程：<a target="_blank" rel="noopener" href="https://nndl.github.io/">https://nndl.github.io/</a> 、 <a target="_blank" rel="noopener" href="https://atcold.github.io/pytorch-Deep-Learning/zh/">https://atcold.github.io/pytorch-Deep-Learning/zh/</a>  、 <a target="_blank" rel="noopener" href="http://jalammar.github.io/illustrated-transformer/">http://jalammar.github.io/illustrated-transformer/</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2371,7 +2388,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">104</span>
+                  <span class="site-state-item-count">105</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
