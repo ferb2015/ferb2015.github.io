@@ -288,6 +288,207 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/" itemprop="url">VAE论文</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-06T00:00:00+08:00">
+                2022-12-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/12/06/深度学习/VAE论文/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="VAE"><a href="#VAE" class="headerlink" title="VAE"></a>VAE</h1><blockquote>
+<p>Kingma, Diederik P., and Max Welling. “Auto-encoding variational bayes.” <em>arXiv preprint arXiv:1312.6114</em> (2013). citations：23824 阿姆斯特丹大学</p>
+</blockquote>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>目的是想要在有连续隐变量的条件下估计数据分布。提出基于自编码器和基于变分贝叶斯的方法，能够通过梯度下降的变分贝叶斯就能实现估计数据分布。</p>
+<p>两个贡献：</p>
+<ol>
+<li>证明了变分下界的重参数化产生一个可以使用标准随机梯度方法直接优化的下界估计量。</li>
+<li>证明了对于每个数据点具有连续潜在变量的独立同分布数据集，通过使用所提出的下限估计量将近似推理模型(也称为识别模型)拟合到棘手的后验，可以使后验推理特别有效。</li>
+</ol>
+<h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><p>概念：variational  ，变分，我理解就是在观测值x的条件下的隐变量z的某个特性；比如变分估计，就是 $q(z|x)$ 。</p>
+<h3 id="Problem-scenario"><a href="#Problem-scenario" class="headerlink" title="Problem scenario"></a>Problem scenario</h3><ol>
+<li><p>Intractability:  想要求的是数据分布 marginal likelihood   $p_\theta (x)&#x3D;\int p_\theta(z)p_\theta(x|z)dz$  这是intractable，应该是很难求的、很难估计的（用mean-field VB  方法不好求解），真实后验密度函数pdf $p_\theta(z|x)&#x3D;p_\theta(x|z)p_\theta(z)&#x2F;p_\theta (x)$ 也是intractable （所以不能用em求解这种带隐变量的概率分布问题）。但在NN里很常见。</p>
+</li>
+<li><p>A large dataset:   用minibatch进行参数更新，才不会使得参数更新太慢，相比于Monte Carlo EM  这种逐数据更新的方式来说要快得多。</p>
+</li>
+</ol>
+<p>解决了相关问题：</p>
+<ol>
+<li>有效近似了ML最大似然估计、MAP最大后验估计里面的参数 $\theta$ 。</li>
+<li>在给定观测值 $x$ 的条件下，有效近似了隐变量 $z$ 的后验概率 $p(z|x)$ 。</li>
+<li>有效近似了 $x$ 的 marginal inference ，因此可以生成样本 $x$ ， 估计了 $p(x)$ 。（在计算机视觉的应用包括图像去噪、图像插值和超分辨）</li>
+</ol>
+<p>为了解决以上3个问题，需要引入一个recognition model   $q_\phi(z|x)$ ，它是 $p_\theta(z|x)$ 的近似（ $p_\theta(z|x)$ 很难算）（mean-field variational inference  方法里也提过用一个近似q，但是这个近似q的参数是单独算出来的），VAE提出了一种新的计算方法、目标，是把 $\phi$ （recognition model 的参数）和 $\theta$ （generative model 的参数）在一个目标里学习、更新参数。</p>
+<p>把隐变量 $z$ 向量称为“code”，把 recognition model $q_\phi(z|x)$ 称为probabilistic encoder  ，把 generative model  $p_\theta(x|z)$ 称为probabilistic decoder  。</p>
+<p>encoder $q_\phi(z|x)$：给定一个数据点 $x$ ，它服从一个分布（比如高斯分布），从中采样出向量code $z$；</p>
+<p>decoder $p_\theta(x|z)$：给定向量code $z$ ，服从一个分布，从中采样出 $x$ ；</p>
+<h3 id="The-variational-bound"><a href="#The-variational-bound" class="headerlink" title="The variational bound"></a>The variational bound</h3><p>开始进行公式推导。</p>
+<p>参考李宏毅PPT的推导：</p>
+<p>1</p>
+<img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206114625872.png" alt="image-20221206114625872" style="zoom:50%;">
+
+
+
+<p>2</p>
+<img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206114438846.png" alt="image-20221206114438846" style="zoom:50%;">
+
+<p>3</p>
+<img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206114417218.png" alt="image-20221206114417218" style="zoom:50%;">
+
+<p>总marginal likelihood  由多个独立样本点的marginal likelihood 组成：$\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(1)}, \cdots, \mathbf{x}^{(N)}\right)&#x3D;\sum_{i&#x3D;1}^N \log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right)$ 。可以写成：（参考李宏毅的推导）<br>$$<br>\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right)&#x3D;D_{K L}\left(q_{\boldsymbol{\phi}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right) | p_{\boldsymbol{\theta}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right)\right)+\mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)<br>$$</p>
+<p>（ $\mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)$ 即李宏毅PPT的 $L_b$ ）</p>
+<p>第一项是近似分布和真实分布之间的KL散度距离，非负的；第二项称为 (variational) lower bound，是数据点i的marginal likelihood 的下界，写成：</p>
+<p>​		variational lower bound：<br>$$<br>\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right) \geq \mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)&#x3D;\mathbb{E}<em>{q</em>{\boldsymbol{\phi}}(\mathbf{z} \mid \mathbf{x})}\left[-\log q_{\boldsymbol{\phi}}(\mathbf{z} \mid \mathbf{x})+\log p_{\boldsymbol{\theta}}(\mathbf{x}, \mathbf{z})\right]<br>$$<br>也可以写成：<br>$$<br>\mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)&#x3D;-D_{K L}\left(q_{\boldsymbol{\phi}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right) | p_{\boldsymbol{\theta}}(\mathbf{z})\right)+\mathbb{E}<em>{q</em>{\boldsymbol{\phi}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right)}\left[\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)} \mid \mathbf{z}\right)\right]<br>$$<br>想求偏导、最优化 $\mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)$  ，同时更新variational parameters $\phi$ 和 generative parameters $\theta$ 。但是lower bound的梯度（即 $\phi$）算起来有点问题，</p>
+<p> The usual (naïve) Monte Carlo gradient estimator for this type of problem is: $\nabla_{\boldsymbol{\phi}} \mathbb{E}<em>{q_\phi(\mathbf{z})}[f(\mathbf{z})]&#x3D;\mathbb{E}</em>{q_\phi(\mathbf{z})}\left[f(\mathbf{z}) \nabla_{q_{\boldsymbol{\phi}}(\mathbf{z})} \log q_{\boldsymbol{\phi}}(\mathbf{z})\right] \simeq \frac{1}{L} \sum_{l&#x3D;1}^L f(\mathbf{z}) \nabla_{q_{\boldsymbol{\phi}}\left(\mathbf{z}^{(l)}\right)} \log q_{\boldsymbol{\phi}}\left(\mathbf{z}^{(l)}\right)$ where $\mathbf{z}^{(l)} \sim q_{\boldsymbol{\phi}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right)$ 。这个梯度估计量会有很高的方差。</p>
+<h3 id="The-SGVB-estimator-and-AEVB-algorithm"><a href="#The-SGVB-estimator-and-AEVB-algorithm" class="headerlink" title="The SGVB estimator and AEVB algorithm"></a>The SGVB estimator and AEVB algorithm</h3><p>VAE中提出一种实用的估计下界及其导数、求参数的方法。</p>
+<p>已知 $\widetilde{\mathbf{z}} \sim q_\phi(\mathbf{z} \mid \mathbf{x})$ ，重参数化，用一个可微函数，条件是 $x$ 和噪声 $\epsilon$ 的函数 $g$ ，来表示原来的 $q$ ：<br>$$<br>\widetilde{\mathbf{z}}&#x3D;g_{\boldsymbol{\phi}}(\boldsymbol{\epsilon}, \mathbf{x}) \quad \text { with } \quad \boldsymbol{\epsilon} \sim p(\boldsymbol{\epsilon})<br>$$<br>用蒙特卡洛法估计期望，可以写成：<br>$$<br>\mathbb{E}<em>{q_\phi\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right)}[f(\mathbf{z})]&#x3D;\mathbb{E}</em>{p(\boldsymbol{\epsilon})}\left[f\left(g_{\boldsymbol{\phi}}\left(\boldsymbol{\epsilon}, \mathbf{x}^{(i)}\right)\right)\right] \simeq \frac{1}{L} \sum_{l&#x3D;1}^L f\left(g_\phi\left(\boldsymbol{\epsilon}^{(l)}, \mathbf{x}^{(i)}\right)\right) \quad \text { where } \quad \boldsymbol{\epsilon}^{(l)} \sim p(\boldsymbol{\epsilon})<br>$$<br>用到公式(2)，得到一般随机梯度变分贝叶斯（SGVB）估计  $\widetilde{\mathcal{L}}^A\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right) \simeq \mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)$ :<br>$$<br>\begin{aligned}<br>&amp; \widetilde{\mathcal{L}}^A\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)&#x3D;\frac{1}{L} \sum_{l&#x3D;1}^L \log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}, \mathbf{z}^{(i, l)}\right)-\log q_{\boldsymbol{\phi}}\left(\mathbf{z}^{(i, l)} \mid \mathbf{x}^{(i)}\right) \<br>&amp; \text { where } \quad \mathbf{z}^{(i, l)}&#x3D;g_{\boldsymbol{\phi}}\left(\boldsymbol{\epsilon}^{(i, l)}, \mathbf{x}^{(i)}\right) \quad \text { and } \quad \boldsymbol{\epsilon}^{(l)} \sim p(\boldsymbol{\epsilon})<br>\end{aligned}<br>$$<br>。。todo</p>
+<p>更新公式为：</p>
+<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206132704893.png" alt="image-20221206132704893"></p>
+<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221205174352023.png" alt="image-20221205174352023"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2587,162 +2788,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%20set/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20set/" itemprop="url">C++ set</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
-                2022-11-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20set/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/11/14/算法/C++ set/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="C-set"><a href="#C-set" class="headerlink" title="C++ set"></a>C++ set</h1><p><a target="_blank" rel="noopener" href="https://cplusplus.com/reference/set/set/find/">https://cplusplus.com/reference/set/set/find/</a></p>
-<h2 id="判断元素在不在set中"><a href="#判断元素在不在set中" class="headerlink" title="判断元素在不在set中"></a>判断元素在不在set中</h2><p>可以用count()函数，如果为0，则不在set中；大于0，在set中；</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">set&lt;<span class="type">int</span>&gt; ss;</span><br><span class="line">ss.<span class="built_in">insert</span>(<span class="number">1</span>);</span><br><span class="line">ss.<span class="built_in">insert</span>(<span class="number">2</span>);</span><br><span class="line">cout&lt;&lt;ss.<span class="built_in">count</span>(<span class="number">1</span>)&lt;&lt;<span class="string">&#x27; &#x27;</span>&lt;&lt;ss.<span class="built_in">count</span>(<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2793,7 +2838,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">105</span>
+                  <span class="site-state-item-count">106</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
