@@ -100,7 +100,7 @@
 <meta property="og:image" content="http://example.com/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206132704893.png">
 <meta property="og:image" content="http://example.com/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206162145590.png">
 <meta property="article:published_time" content="2022-12-05T16:00:00.000Z">
-<meta property="article:modified_time" content="2022-12-06T08:24:44.243Z">
+<meta property="article:modified_time" content="2022-12-08T01:24:33.051Z">
 <meta property="article:author" content="Long Ye">
 <meta property="article:tag" content="深度学习">
 <meta name="twitter:card" content="summary">
@@ -471,7 +471,7 @@
 <h3 id="参数求导-The-SGVB-estimator-and-AEVB-algorithm"><a href="#参数求导-The-SGVB-estimator-and-AEVB-algorithm" class="headerlink" title="参数求导 The SGVB estimator and AEVB algorithm"></a>参数求导 The SGVB estimator and AEVB algorithm</h3><p>VAE提出一种实用的估计下界及其导数、求参数的方法。</p>
 <p>原本是直接求导，但是把求导项 $\nabla_\theta \mathbb{E}_{p_\theta(z)}\left[f_\theta(z)\right]$ 展开，发现有一项 $\int_z f_\theta(z) \nabla_\theta p_\theta(z) d z$ 不好求。</p>
 <p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206151849341.png" alt="image-20221206151849341"></p>
-<p>因此作者想了一个方法，重参数法。引入一个独立变量 $\epsilon$ （和 $\theta$ 、 $\phi$  、x、z 都无关），用它来产生“随机性”，之后 <strong>随机性都由 $\epsilon$ 来产生</strong>。</p>
+<p>因此作者想了一个方法，重参数技巧  reparameterization trick  。引入一个独立变量 $\epsilon$ （和 $\theta$ 、 $\phi$  、x、z 都无关），用它来产生“随机性”，之后 <strong>随机性都由 $\epsilon$ 来产生</strong>。</p>
 <p>之前抽样的随机性，这是没法用反向传播的，现在随机性用 $\epsilon$ ，就可以反向传播了。</p>
 <p>已知 $\widetilde{\mathbf{z}} \sim q_\phi(\mathbf{z} \mid \mathbf{x})$ ，重参数化，用一个可微函数，条件是 $x$ 和噪声 $\epsilon$ 的函数 $g$ ，来表示原来的 $q$ ：<br>$$<br>\widetilde{\mathbf{z}}&#x3D;g_{\boldsymbol{\phi}}(\boldsymbol{\epsilon}, \mathbf{x}) \quad \text { with } \quad \boldsymbol{\epsilon} \sim p(\boldsymbol{\epsilon})<br>$$<br>此时再用蒙特卡洛法估计期望，就可以写成：<br>$$<br>\mathbb{E}<em>{q_\phi\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right)}[f(\mathbf{z})]&#x3D;\mathbb{E}</em>{p(\boldsymbol{\epsilon})}\left[f\left(g_{\boldsymbol{\phi}}\left(\boldsymbol{\epsilon}, \mathbf{x}^{(i)}\right)\right)\right] \simeq \frac{1}{L} \sum_{l&#x3D;1}^L f\left(g_\phi\left(\boldsymbol{\epsilon}^{(l)}, \mathbf{x}^{(i)}\right)\right) \quad \text { where } \quad \boldsymbol{\epsilon}^{(l)} \sim p(\boldsymbol{\epsilon})<br>$$<br>用到公式(2)，得到一般随机梯度变分贝叶斯（SGVB）估计  $\widetilde{\mathcal{L}}^A\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right) \simeq \mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)$ :<br>$$<br>\begin{aligned}<br>&amp; \widetilde{\mathcal{L}}^A\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)&#x3D;\frac{1}{L} \sum_{l&#x3D;1}^L \log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}, \mathbf{z}^{(i, l)}\right)-\log q_{\boldsymbol{\phi}}\left(\mathbf{z}^{(i, l)} \mid \mathbf{x}^{(i)}\right) \<br>&amp; \text { where } \quad \mathbf{z}^{(i, l)}&#x3D;g_{\boldsymbol{\phi}}\left(\boldsymbol{\epsilon}^{(i, l)}, \mathbf{x}^{(i)}\right) \quad \text { and } \quad \boldsymbol{\epsilon}^{(l)} \sim p(\boldsymbol{\epsilon})<br>\end{aligned}<br>$$</p>
 <p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206153613903.png" alt="image-20221206153613903"></p>
