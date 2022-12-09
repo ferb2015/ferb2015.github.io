@@ -288,6 +288,183 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/" itemprop="url">声学模型论文笔记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/声学模型论文笔记/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="声学模型论文笔记"><a href="#声学模型论文笔记" class="headerlink" title="声学模型论文笔记"></a>声学模型论文笔记</h1><blockquote>
+<p>[FSMN] &#x3D;&#x3D;Shiliang Zhang et al. “Feedforward Sequential Memory Networks: A New Structure to Learn Long-term Dependency” arXiv: Neural and Evolutionary Computing (2015): n. pag.&#x3D;&#x3D; citations：62</p>
+</blockquote>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
+<li><p>提出前馈序列记忆网络 FSMN（Feedforward Sequential Memory Networks）</p>
+</li>
+<li><p>将上下文编码成一个向量（与隐层输出结点维度相同），其实就是不同时间帧特征加权求和  $\large{\tilde{h}<em>t^l&#x3D;\sum\limits</em>{i&#x3D;0}^{N_1}a_i^l\cdot{h_{t-i}^l}+\sum\limits_{j&#x3D;1}^{N_2}c_j^l\cdot{h_{t+j}^l}}$</p>
+<p>其中，$a_i$和$c_i$是常数系数或常数向量，在任意t时刻，都是不变的（时不变系数）（可通过梯度更新来更新该值）</p>
+<p>这和只用h，只梯度更新h就够了不一样（一开始想的是这个a都不需要，h能自动更新到那个值，其实不是的），可以认为是一个scale因子</p>
+<p>这个结构叫 tapped-delay  structure（抽头延时）</p>
+<p>在下标索引超出范围时使用零填充向量</p>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/b93c627a679b04982e51b0c95743e475_2_Figure_1.png" alt="img" style="zoom:80%;">
+</li>
+<li><p>前向传播：$\large{h_t^{l+1}&#x3D;f(W^lh_t^l+\tilde{W}\tilde{h}_t^l+b^l)}$</p>
+</li>
+<li><p>FSMN与RNN比较，RNN：$\large{h_t&#x3D;f(Wx_t+\tilde{W}h_{t-1}+b)}$</p>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/b93c627a679b04982e51b0c95743e475_3_Figure_2.png" alt="img" style="zoom:80%;">
+
+<p>​	同一层下，当前时刻h来自前一时刻h和x。这和FSMN不同，FSMN当前时刻h不会来自同一层的不同时刻h。</p>
+<p>​	RNN类似无限脉冲响应IIR；FSMN类似高阶有限脉冲响应；</p>
+<ul>
+<li>时不变系数a可以换成attention系数（时变了）（context-dependent系数）</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%E5%8C%85/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2733,224 +2910,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/" itemprop="url">基于分类的命令词识别</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-03T00:00:00+08:00">
-                2022-01-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/03/命令词/基于分类的命令词识别/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="基于分类的命令词识别"><a href="#基于分类的命令词识别" class="headerlink" title="基于分类的命令词识别"></a>基于分类的命令词识别</h1><h3 id="三种情况："><a href="#三种情况：" class="headerlink" title="三种情况："></a>三种情况：</h3><ol>
-<li>输入T帧，输出1个类别向量（每个类是一个关键词）</li>
-<li>输入T帧，输出T帧类别向量（每个类是一个关键词）；测试时，每输入N帧，计算关键词类别的平滑后验概率，超过阈值则唤醒</li>
-<li>输入T帧，输出T帧类别向量（每个类是一个关键词），只要有其中一帧keyword类别超过阈值，则唤醒；</li>
-</ol>
-<p>另外一种情况：输入T帧，输出N个字符类别向量（比如transformer模型），输出字符串有beam search过程</p>
-<p>查阅的文献里只针对一两个关键词的情况（google speech commands没考虑）</p>
-<h4 id="情况1："><a href="#情况1：" class="headerlink" title="情况1："></a>情况1：</h4><blockquote>
-<p>开源代码：<a target="_blank" rel="noopener" href="https://github.com/wenet-e2e/wekws">https://github.com/wenet-e2e/wekws</a></p>
-</blockquote>
-<ul>
-<li>数据集mobvoi，包含两个关键词：</li>
-</ul>
-<img src="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/image-20211230171745163.png" alt="image-20211230171745163" style="zoom:80%;">
-
-<ul>
-<li><p>最佳情况（对应模型MDTC_Small）：每小时虚警1次情况下，关键词“hi_xiaowen”的误拒率为0.53%，关键词“nihao_wenwen”的误拒率为0.59%；</p>
-</li>
-<li><p>数据集snips，包含一个关键词：</p>
-</li>
-</ul>
-<img src="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/image-20211230172057409.png" alt="image-20211230172057409" style="zoom:80%;">
-
-<ul>
-<li>最佳情况（对应模型MDTC_Small）：每小时虚警1次情况下，关键词“hey_snips”的误拒率为0.87%；</li>
-</ul>
-<h4 id="情况2："><a href="#情况2：" class="headerlink" title="情况2："></a>情况2：</h4><blockquote>
-<p>Sun, Ming et al. “Max-pooling loss training of long short-term memory networks for small-footprint keyword spotting.” <em>2016 IEEE Spoken Language Technology Workshop (SLT)</em> (2016): 474-480.</p>
-</blockquote>
-<ul>
-<li><p>数据集（非开源）alexa，包含一个关键词</p>
-</li>
-<li><p>提出max-pooling loss，是在keyword区域内模型输出的最大后验概率，加入loss function（目标之一是最大化keyword输出的某帧后验概率）</p>
-</li>
-<li><p>后处理：每30帧计算一次是否触发，30帧的滑动窗口，平滑窗口内的后验概率，若大于阈值，视为触发，触发后的40帧不再计算（lock out period），以免重复触发；有触发的音频发送完后，会多送入20帧（latency windows），以防没送完。</p>
-</li>
-</ul>
-<p>[TODO] 情况2 开源数据集的结果</p>
-<h4 id="参考情况："><a href="#参考情况：" class="headerlink" title="参考情况："></a>参考情况：</h4><blockquote>
-<p>Alignment-Free LF-MMI</p>
-</blockquote>
-<ul>
-<li>数据集mobvoi，包含两个关键词；数据集snips，包含一个关键词：：</li>
-</ul>
-<img src="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/image-20211230174135668.png" alt="image-20211230174135668" style="zoom:80%;">
-
-<img src="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/image-20211230174313004.png" alt="image-20211230174313004" style="zoom:80%;">
-
-<ul>
-<li>每小时虚警1次情况下，关键词“hey_snips”的误拒率为0%；关键词“hi_xiaowen”的误拒率为0.25%，关键词“nihao_wenwen”的误拒率为0.4%；</li>
-<li>效果优于<strong>情况1</strong></li>
-</ul>
-<blockquote>
-<p>Yiming Wang et al. “Wake Word Detection with Streaming Transformers” International Conference on Acoustics, Speech, and Signal Processing (2021)</p>
-</blockquote>
-<ul>
-<li>数据集mobvoi，包含两个关键词；数据集snips，包含一个关键词：：</li>
-</ul>
-<img src="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/image-20211230174650152.png" alt="image-20211230174650152" style="zoom:80%;">
-
-<img src="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/image-20211230174700498.png" alt="image-20211230174700498" style="zoom:80%;">
-
-<ul>
-<li>每小时虚警1次情况下，关键词“hi_xiaowen”的误拒率为0.45%，关键词“nihao_wenwen”的误拒率&lt;0.5%；</li>
-<li>效果优于<strong>情况1</strong></li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3001,7 +2960,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">107</span>
+                  <span class="site-state-item-count">108</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
