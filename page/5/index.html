@@ -288,6 +288,346 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E7%AD%9B%E9%80%89%E6%96%87%E6%9C%AC%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E7%AD%9B%E9%80%89%E6%96%87%E6%9C%AC%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/" itemprop="url">筛选文本论文笔记（一）筛选文本来训练领域LM</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-22T00:00:00+08:00">
+                2022-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">语言模型</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E7%AD%9B%E9%80%89%E6%96%87%E6%9C%AC%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/07/22/语言模型/筛选文本论文笔记（一）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="筛选文本-来训练领域LM"><a href="#筛选文本-来训练领域LM" class="headerlink" title="筛选文本 来训练领域LM"></a>筛选文本 来训练领域LM</h1><blockquote>
+<p>&#x3D;&#x3D;Moore, Robert C., and William Lewis. “Intelligent selection of language model training data.” <em>Proceedings of the ACL 2010 conference short papers</em>. 2010.&#x3D;&#x3D;citations：588</p>
+</blockquote>
+<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>输出质量总是可以通过使用更多的语言模型训练数据来提高，这似乎是一个普遍的真理，但前提是训练数据与期望的输出相当匹配。</p>
+<p>结合领域数据和其他数据构建LM的常规方法：</p>
+<p>1）领域数据和其他数据结合训练LM；</p>
+<p>2）基于领域数据和其他数据的ngram count来结合（加权这个count）；</p>
+<p>2）领域LM和其他LM做权重的combine，（线性或log线性的）插值LM概率；</p>
+<p>机器翻译的模型的训练数据的常规做法是用尽可能多的数据，并依赖于特征权重优化来降低与翻译应用程序匹配较差的数据的影响。</p>
+<p>本文从数据入手，挑出领域的数据。</p>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><p>主要方法是利用交叉熵原理，已有一个语料的文本分布，我们通过交叉熵去找跟这个语料的文本分布相近的文本，从而找到匹配的文本语料。</p>
+<p>前提假设：有足够多的领域数据来训练领域语言模型，用该模型来帮助对来自其他数据源的文本片段进行打分，并基于对域内数据进行优化的打分临界值score cutoff来选择文本片段，based on a score cutoff optimized on held-out in-domain data.  </p>
+<p>基于困惑度阈值的文本选择等价于基于交叉熵阈值的文本选择（困惑度和交叉熵是单调相关的）；LM记为M，文本片段记为s，困惑度为 $\large b^{H_M(s)}$，其中 $H_M(s)$ 是交叉熵，b是bits或nats的单位，比如10、e；</p>
+<ul>
+<li>打分原则：$H_I(s) - H_N(s)$</li>
+</ul>
+<p>其中 ：$H_I(s)$：领域数据集I训练的模型I，对文本片段s的交叉熵  ；$H_N(s)$：领域外文本集N训练的模型N，对文本片段s的交叉熵 （s是领域外文本集N的一个片段）</p>
+<p>差值作为分数，把分数小于阈值的挑出来，作为领域数据；</p>
+<p>其中，$H_I(s)&#x3D;-\frac{logP_I(s)}{S}$ ，S是文本s长度</p>
+<p>$\large log_{10}ppl&#x3D;交叉熵&#x3D;H(s)$</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%E7%BB%8F%E9%AA%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%E7%BB%8F%E9%AA%8C/" itemprop="url">ngram经验</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-22T00:00:00+08:00">
+                2022-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">语言模型</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%E7%BB%8F%E9%AA%8C/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/07/22/语言模型/ngram经验/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="BIGO的端到端语音识别技术"><a href="#BIGO的端到端语音识别技术" class="headerlink" title="BIGO的端到端语音识别技术"></a>BIGO的端到端语音识别技术</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/mDyBDcOSYLdZE167uCeJtA#at">BIGO的端到端语音识别技术</a></p>
+</blockquote>
+<p>在缺乏成对语音文本数据的任务中，浅层融合对识别率提升有很大的帮助。但一般的融合技术仅会选用一种外部LM，RNNLM (Recurrent Neural Network, RNNLM) 或n-gram LM。由于n-gram LM和RNNLM的固有特性不同，对不同场景的建模能力也不同。为了让模型更好地学习不同场景的上下文信息，BIGO设计two-pass机制汲取RNNLM及n-gram LM两者各自优势在不同场景彼此互补。</p>
+<p>当有大量训练数据可用时，使用n-gram LM可以获得良好的泛化性能。但统计语言建模的关键问题是，对远程上下文相关性进行建模时往往会伴随数据稀疏问题。为解决此问题，可用基于连续和较低维向量空间中表示较长跨度历史环境的语言建模技术，例如RNNLM。</p>
+<p>基于统计信息的语言模型用固定长度上下文，但是递归神经网络不使用有限的上下文。通过使用循环连接，信息可以在这些网络中循环任意长时间。基于递归神经网络的语言模型 (RNNLM) 提供了进一步的概括：代替仅考虑几个先前的单词，具有来自递归连接的输入的神经元被认为代表了短期记忆。这种神经网络方法可以解决稀疏问题，并且与n元语法模型相比，在困惑方面也能很好地概括。但是，这种方法的主要缺点是训练和测试时间很长。这个实际问题限制了RNNLM的数据量和可能的应用区域数量。</p>
+<p>由于n-gram LM和RNNLM的固有特性不同的， BIGO设计two-pass机制汲取两者各自优势在不同场景可彼此互补。&#x3D;&#x3D;在第一遍解码中，解码器仅使用通用模型来生成多个识别假设，从中提取n-best列表&#x3D;&#x3D;。在第二遍解码中，使用特定领域的LM（例如&#x3D;&#x3D;高阶n-gram LM或RNNLM&#x3D;&#x3D;）&#x3D;&#x3D;对n-最佳列表的假设进行重新评分&#x3D;&#x3D;，然后获得最佳新假设。使用 n-gram 作为 E2E ASR 重打分。n-gram 作为一个统计模型，其最大的好处是，权重作为显式的表征，可以方便的做灵活的微调以适应各个不同的场景，以及实现不同用户的个性化识别结果。</p>
+<p>集束搜索算法的每个解码步上，Attention-Decoder 和 CTC 根据编码结果<em>h</em>和之前的解码结果y&lt;给出当前解码步的语言学单位的后验概率，而RNNLM也根据之前的解码结果 给出当前解码步的语言学单位的后验概率，而后这两者的结果根据浅层融合架构结合。其过程表示为：</p>
+<img src="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%E7%BB%8F%E9%AA%8C/640.jpeg" alt="img" style="zoom:80%;">
+
+<img src="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%E7%BB%8F%E9%AA%8C/image-20220718165315866.png" alt="image-20220718165315866" style="zoom:80%;">
+
+<p>在 CTC-ATT 实现的基础之上，&#x3D;&#x3D;得到的的 shallow fusion 的 N-best 结果送入 n-gram 做 context bias re-score&#x3D;&#x3D;，然后得到 1-best，故式3可以重写为： </p>
+<img src="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%E7%BB%8F%E9%AA%8C/image-20220718165345863.png" alt="image-20220718165345863" style="zoom:80%;">
+
+<p>这个其中需要特别指出的是，CTC和传统的HMM系统其实都是时间对齐的模型，也就是说输出的语言学序列标签长度是正比于特征序列长度的。但是attention-decoder 和 RNNLM 输出确是标签对齐的模型，输出的语言学序列的期望长度确是等于语言学序列长度的。故这两个联合模型需要统一CTC这个时间对齐的输出到标签对齐。这个算法在 [3] 给出过完整的解释，如何将CTC给出的标签分类，然后前向结合变成标签对齐的。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2234,374 +2574,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/" itemprop="url">Code-Switching论文笔记（二）网上资料</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-06-27T00:00:00+08:00">
-                2022-06-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Code-Switching/" itemprop="url" rel="index">
-                    <span itemprop="name">Code-Switching</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/06/27/Code-Switching/Code-Switching论文笔记（二）/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="网上的资料"><a href="#网上的资料" class="headerlink" title="网上的资料"></a>网上的资料</h1><img src="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220602152320592.png" alt="image-20220602152320592">
-
-<h1 id="如何构建中英文混合的语音识别模型？"><a href="#如何构建中英文混合的语音识别模型？" class="headerlink" title="如何构建中英文混合的语音识别模型？"></a>如何构建中英文混合的语音识别模型？</h1><blockquote>
-<p>知乎：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/58195901/answer/167007697">https://www.zhihu.com/question/58195901/answer/167007697</a></p>
-</blockquote>
-<h2 id="构建基于HMM的中英文混合语音识别系统"><a href="#构建基于HMM的中英文混合语音识别系统" class="headerlink" title="构建基于HMM的中英文混合语音识别系统"></a>构建基于HMM的中英文混合语音识别系统</h2><blockquote>
-<p>kaldi的hkust</p>
-</blockquote>
-<h3 id="音子集的构建"><a href="#音子集的构建" class="headerlink" title="音子集的构建"></a>音子集的构建</h3><blockquote>
-<p>知乎 <a target="_blank" rel="noopener" href="https://www.zhihu.com/question/58195901/answer/167007697">https://www.zhihu.com/question/58195901/answer/167007697</a></p>
-</blockquote>
-<p>音子集是建立词典以及声学模型所必须的，一个好的音子集能够对声学模型产生重要的影响。这部分也是建立中英文混合识别系统的关键所在。下面介绍三种音子集构建方案：</p>
-<ul>
-<li><strong>a) 音子集合并</strong></li>
-</ul>
-<p>把中英文各自的建模单元混合成一个大的建模词典</p>
-<p>构建音子集最极端的方式就是将中文和英文语言所有的音子集全部放在一起，形成一个合并的音子集。尽管这种粗暴的方式在过去的系统中性能表现并不好，但是这种方式建立的音子集也并不是一点好处都没有。使用中英文所有的音子集能够保留每种语言各自音子集的上下文关系，即他们三音子的数量和跳转关系仍然由各自的语言来定义。而在其它方式形成的音子集中，这种三音子上下文关系将会被共享的音子扰乱。并且当训练数据中两种语言混合的语音数量增多的时候，中文和英文之间三音子的上下文关系也会得到训练和加强。因此将中文和英文所有的音子集合并也不失为一种好的方法，只是传统的实验往往受限于训练数据的规模以及解码方式。</p>
-<p>此外，深度神经网络的描述能力比高斯混合模型要好很多，因此对中文和英文所有的音子集的三音子状态建模也合乎情理。</p>
-<ul>
-<li><strong>b) 音子集映射</strong></li>
-</ul>
-<p>构建音子集另外一种极端的方式是将一种语言的音子集完全用另外一种语言的音子集来表示。由于不同种类语言的发音方法不同，必然会有一些无法表示的情况，这是就需要用多个音子的组合来表示，当然也有很多是近似的表示。</p>
-<p>工程里最快的方案是把英文用中文的音素标注下。学术上我觉得未来端到端方案可以解决，建模单元换成wordpiece这种就一起建模，但需要有足够得数据。这里数据堂之前举行了这个比赛，可以看看当时的ppt。</p>
-<p>在中英文混合识别中，由于中文是主要的语言，英文仅仅会出现一些单词或简单的句子，因此可以将英文的音子集映射到中文音子集中，利用中文音子或是音子的组合来表示英文音子。尽管其中有些音子的表示较为牵强，但是使用这种方法能够在已有模型的基础上快速构建中英文混合语音识别的系统。例如已经在大规模的训练数据上建立了中文的连续语音识别系统，那么所有三音子状态都已经有了一个模型。在这种情况下，构建中英文混合语音识别无需重新训练声学模型。只要将待识别的英文单词用中文音子表示，并添加到识别词典当中，那么就能够识别到英文单词。如果想要在中文的句子中识别到出现的英文单词，只需对语言模型进行适当的调整就能实现。</p>
-<p>另外，正如历史发展篇中所述，一旦系统变成一个通用的系统那么其性能必然会比专门的系统有所下降。因此，这种方法建立的中英文混合系统虽然对英文的识别率可能不高，但是它一定是对中文识别率影响最小的一个系统。考虑到中英文混合识别系统仍然是以识别中文为主，仅会识别个别的英文单词或简单英文句子，因此这样的一种音子集构建方式和混合语音识别系统搭建方式可以用作搭建一个基线系统。</p>
-<ul>
-<li><strong>c) 音子集融合</strong></li>
-</ul>
-<p>音子集的融合指是在简单的音子集合并的基础之上进行进一步处理，通常是将发音类似的音子合并成一个。这里既可以利用专家编撰的方法，也可以使用数据驱动的方法，比如基于混淆矩阵[P.-Y. Shih，2008]的方法。</p>
-<h3 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h3><p>a)要训练中英文混合的语音识别系统，当然要有中英文混合的标注语音数据。当然音子集映射的方法可以不改变声学模型，因此没有声学训练用的标注语音数据也可以。而其他两种音子集形成的方式都离不开带标注的声学训练数据。</p>
-<p>b)语言模型也必须包含中英文混合的数据。</p>
-<p>c)词典自然要包含想识别出的所有汉字和单词，音子集就用上述方法构建得到的即可。</p>
-<h2 id="构建基于end-to-end的中英文混合语音识别系统"><a href="#构建基于end-to-end的中英文混合语音识别系统" class="headerlink" title="构建基于end-to-end的中英文混合语音识别系统"></a>构建基于end-to-end的中英文混合语音识别系统</h2><p>End-to-end的方法中，中文通常直接使用汉字来建模，而英文为了避免词巨大汇量带来的模型爆炸通常使用Gram-char进行建模，包括uni-char（就是字符），bi-char以及GRAM-CTC[Hairong Liu，2017]中这种数据驱动的Gram-char。对于这种结构的识别系统来说，有了带标注中英文混合语音数据和中英文混合文本数据就足够建立一个识别系统了。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/27/Code-Switching/TLG%E7%BB%8F%E9%AA%8C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/06/27/Code-Switching/TLG%E7%BB%8F%E9%AA%8C/" itemprop="url">TLG经验</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-06-27T00:00:00+08:00">
-                2022-06-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Code-Switching/" itemprop="url" rel="index">
-                    <span itemprop="name">Code-Switching</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/06/27/Code-Switching/TLG%E7%BB%8F%E9%AA%8C/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/06/27/Code-Switching/TLG经验/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p><a target="_blank" rel="noopener" href="https://maimai.cn/article/detail?fid=1659073660&efid=4p-KICL3zTDXOdfF3cePXA">京东：基于WeNet的端到端语音识别优化方案与落地</a></p>
-</blockquote>
-<ol>
-<li>在TLG解码时，适当调大acoustic-scale，来保证am分数和lm分数在同一个量级上，可以使生成的Nbest更加准确，效果较好；</li>
-<li>由于CTC spike的稀疏性，如果blank_skip_thresh太大，会降低解码速度，并造成漏字等删除错误，所以可以适当调小blank_skip_thresh，能够在rtf变化较小的情况下，明显降低短音频删除错误，提高识别准确率；</li>
-<li>得到Nbest后，在AttentionRescore中除了原有的分数外，同时加入ngram的分数，相比不加ngram分数cer绝对值也能降低0.5%左右（就是在attention decoder计算路径得分时也进行加G分数）</li>
-</ol>
-<p>在开源 WeNet 的基础上，我们还针对服务的内外客户的业务场景继续了大量优化措施的探索，分别考虑了声学模型和语言模型的优化，在大多数的场景中也都取得了一致性的优化效果：</p>
-<ol>
-<li>在TLG解码时，适当调大acoustic-scale，来保证am分数和lm分数在同一个量级上，可以使生成的Nbest更加准确，效果较好</li>
-<li>由于CTC spike的稀疏性，如果blank_skip_thresh太小，会降低解码速度，并造成漏字等删除错误，所以可以适当调大blank_skip_thresh，能够在rtf变化较小的情况下，明显降低短音频删除错误，提高识别准确率</li>
-<li>得到Nbest后，在AttentionRescore中除了原有的分数外，同时加入ngram的分数，相比不加ngram分数cer绝对值也能降低0.5%左右</li>
-<li>runtime引擎中增加在线resample功能，可用一套模型处理不同采样率的音频请求，考虑到目前官方实现的使用的是sox的方案，我们更倾向于kaldi中使用的resample方法，这样训练和推理使用同样的方法会避免对CER的扰动</li>
-<li>在大量语音使用场景中都专有名词的识别问题，端到端系统大多都采用TTS来合成语音数据，帮助为ASR来训练，有非常明显的识别效果</li>
-<li>数据增强在生产系统中特别重要，能大大提高业务场景识别的鲁棒性，我们在数据处理阶段使用on-the-fly来模拟信道的方案对电话场景识别的帮助较为明显</li>
-<li>与TLG并行加入动态语言模型的方案，该方案为我们基于原有kaldi系统开发，同时取得不错的场景名词优化效果</li>
-</ol>
-<p>在工业系统中，RTF和Latency是在线方案中非常重要的指标，为了上线我们也实验了大量的方法，将有效果的方案列出来供大家参考：</p>
-<ol>
-<li>将LM大小裁剪为原来一半大小，构图为TLG后RTF可相对降低30%左右，cer在合理范围内小幅上升（通常小于0.1%）</li>
-<li>将TLG转为ConstFst后，RTF可相对降低10%左右，同时单进程内存占用降低50%左右，使得低资源的环境的部署成为可能</li>
-<li>增加min_active选项，通过控制使用TLG解码时活跃token的数目，RTF带来成倍的降低</li>
-<li>使用TCMalloc做内存管理，优化内存使用，降低RTF</li>
-<li>除TorchScript模型外，同样我们结合ESPnet中的ONNX集成和借鉴<a href="https://maimai.cn/n/online/link?target=https://mp.weixin.qq.com/s?__biz=MzU2NjUwMTgxOQ==&mid=2247484139&idx=1&sn=0018045eff55fee866045c42b6af0351&scene=21%23wechat_redirect">作业帮</a>使用ONNX的经验进行引擎推理优化，并开源了该方案ONNX模型的导出，从而在runtime中获得更优的推理速度，RTF降低大约25%</li>
-</ol>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/6/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/4/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/6/">&gt;</a>
   </nav>
 
 
@@ -2647,7 +2624,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">109</span>
+                  <span class="site-state-item-count">111</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -2658,7 +2635,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -2669,7 +2646,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
