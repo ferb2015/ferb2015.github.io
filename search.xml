@@ -10755,4 +10755,109 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>计算机组成</tag>
       </tags>
   </entry>
+  <entry>
+    <title>CRF视频 李宏毅</title>
+    <url>/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/</url>
+    <content><![CDATA[<h1 id="CRF视频-李宏毅"><a href="#CRF视频-李宏毅" class="headerlink" title="CRF视频 李宏毅"></a>CRF视频 李宏毅</h1><blockquote>
+<p>李宏毅机器学习(2017) <a href="https://www.bilibili.com/video/BV13x411v7US?p=35">P35 24- Structured Learning - Sequence Labeling1:43:31</a> 结构化预测-序列标注</p>
+</blockquote>
+<p>HMM的问题：不能保证正确的 $\hat y$ 代入 $P(x,\hat y)$ 一定小于错误的 $y$ 代入的 $P(x,y)$。</p>
+<p>举例，根据训练数据集统计得到，N后接V有9次，V后接a有9次，N后接D有1次，D后接a有1次，虽然数据集里没有 N-&gt;V-&gt;a的情况出现过，但是假设已知前一个词性是N，输出word是a，猜测当前词性的时候，我们会根据概率猜测是V，而不是D，虽然数据集里有出现过N-&gt;D-&gt;a的数据情况，但是HMM居然会猜测出、脑补出数据集没有的情况。</p>
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105163909907.png" alt="image-20230105163909907" style="zoom:50%;">
+
+<p>但是这种脑补能力，在数据集特别小的情况下，效果不一定差，可能还比其他的方法好。</p>
+<p>HMM产生这种脑补能力的原因是 构成 P(x,y) 的两项 P(y) 和 P(x,y) 是分开训练（或者统计）的，二者没有联系、<strong>独立</strong>的，因为无法保证正确的 P(x,y) 和错误的 P(x,y) 之间的关系。</p>
+<h2 id="CRF"><a href="#CRF" class="headerlink" title="CRF"></a>CRF</h2><p>假设 P(x,y)正比于 一个指数函数 $exp(w \cdot \phi(x,y))$ 。</p>
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105173335468.png" alt="image-20230105173335468" style="zoom:50%;">
+
+<p>分母对y求和，所以和y无关，可以用一个只和x有关的函数 Z(x) 来简化。</p>
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105175039773.png" alt="image-20230105175039773" style="zoom:50%;">
+
+<p>举例说明为什么这个公式成立：</p>
+<p>这里的 $N_{s,t}(x,y) $ 是当前句子里能产生某 (s,t) pair的次数。</p>
+<p>s是tag，对应y；t是word，对应x；</p>
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105175437435.png" alt="image-20230105175437435" style="zoom:50%;">
+
+
+
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105181504783.png" alt="image-20230105181504783" style="zoom:50%;">
+
+
+
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105181518147.png" alt="image-20230105181518147" style="zoom: 50%;">
+
+
+
+
+
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105181533693.png" alt="image-20230105181533693" style="zoom:50%;">
+
+
+
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105183109361.png" alt="image-20230105183109361" style="zoom:50%;">
+
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105183144443.png" alt="image-20230105183144443" style="zoom:50%;">
+
+
+
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105183158243.png" alt="image-20230105183158243" style="zoom:50%;">
+
+<p>这里CRF分成两部分，但是也可以不止两部分，是很灵活的，可以由我们任意定义。</p>
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105183250365.png" alt="image-20230105183250365" style="zoom:50%;">
+
+<p>这里O(w)是整个序列，所以是每个位置的p(y|x)累加后的P越大越好（每个位置的p(y|x)越大越好是交叉熵的思路）</p>
+<p>CRF希望找到一个weight，能让看到过的pair出现的概率大（第一项），没看过的pair出现的概率小（减掉的第二项）</p>
+<p>而HMM对于 求能让y最大的P(y|x)，虽然也是转换成让y最大的P(x,y)，但是转换成P(y)*P(x|y)后P(y)和P(x|y)是分开算的。</p>
+<p>因为这里是最大化一个函数，因此不是用梯度下降，而是梯度上升，</p>
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106093247099.png" alt="image-20230106093247099" style="zoom:50%;">
+
+<p>这里 $\theta$ 就是 weight $w$ 。求目标函数的梯度：</p>
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106093355700.png" alt="image-20230106093355700" style="zoom:50%;">
+
+
+
+<p>梯度的计算过程：</p>
+<p>$\hat y$ 是真实标签（是word对应真实的那个tag） </p>
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106093609656.png" alt="image-20230106093609656" style="zoom:50%;">
+
+
+
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106093636292.png" alt="image-20230106093636292" style="zoom:50%;">
+
+
+
+<p>这里exp(a)对w的导数等于 $\exp(a)\partial a&#x2F;\partial w$ ，$ P(x,y)$ 等于 $\exp(w \cdot \phi(x,y))$ ，$P(y|x)&#x3D;P(x,y)&#x2F;\sum_{y’} P(x,y’)$ 。</p>
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106093428964.png" alt="image-20230106093428964" style="zoom:50%;">
+
+<p>这里第二项是遍历所有可能的tag。</p>
+<p>因为是梯度上升，所以如果导数是正的，则参数weight w会增大；导数是负的，w会减小。因此右边第一项N越大，w越大，第二项越大，w越小。这里不要只想成参数，要还是想成权重，所以是如果训练集有的pair（第一项），权重增加，在训练集没有但是比如概率挺大（第二项），这个（s,t) pair的权重要减小。</p>
+<p>由之前的定义，上一张图只算了一个$w_{s,t}$ 的偏微分（还有不同的part 比如 $w_{s,s’}$ ），因此写成vector形式，对整个vector w来说，  <strong>$N_{s,t}$ 的向量 用 $ \phi$ 表示</strong>。</p>
+<p>对整个vector来说（考虑不同的 $(s,t)$ 组合（就是也可以是 $(s,s’)$ ））：</p>
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106113726590.png" alt="image-20230106113726590" style="zoom:50%;">
+
+<p>对某个样本 $(x^n,\hat y^n)$ 来说，更新公式写成vector形式，正确的出现次数 减去 其他出现的次数乘以概率</p>
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106114741214.png" alt="image-20230106114741214" style="zoom:50%;">
+
+
+
+
+
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106115351208.png" alt="image-20230106115351208" style="zoom:50%;">
+
+
+
+
+
+
+
+<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106120341374.png" alt="image-20230106120341374" style="zoom:50%;">
+
+]]></content>
+      <categories>
+        <category>深度学习</category>
+      </categories>
+      <tags>
+        <tag>深度学习</tag>
+      </tags>
+  </entry>
 </search>
