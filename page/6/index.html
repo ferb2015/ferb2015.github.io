@@ -288,6 +288,240 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/" itemprop="url">语言模型论文笔记（二）语言模型 自编码</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-22T00:00:00+08:00">
+                2022-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">语言模型</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/07/22/语言模型/语言模型论文笔记（二）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="语言模型-自编码"><a href="#语言模型-自编码" class="headerlink" title="语言模型 自编码"></a>语言模型 自编码</h1><blockquote>
+<p>&#x3D;&#x3D;Devlin, Jacob, et al. “Bert: Pre-training of deep bidirectional transformers for language understanding.” <em>arXiv preprint arXiv:1810.04805</em> (2018).&#x3D;&#x3D;citations：41870！</p>
+<p>code、pre-trained model ：github：<a target="_blank" rel="noopener" href="https://github.com/google-research/bert">https://github.com/google-research/bert</a>  </p>
+<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/46652512">【NLP】Google BERT模型原理详解</a></p>
+</blockquote>
+<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><ul>
+<li><strong>Unsupervised Feature-based Approaches</strong>  ：无标注文本训一个模型，用word embedding给下游任务</li>
+<li><strong>Unsupervised Fine-tuning Approaches</strong>  ：无标注文本训一个模型，加下游任务层，或者只把下游任务的一部分用无标注文本训练</li>
+</ul>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
+<li><p>提出新的<strong>语言表示模型</strong>，称为Bidirectional Encoder Representations from Transformers  （BERT），通过联合从左和从后的所有layer的上下文，预训练deep、双向的语言表示，训练文本来自未标注文本；得到预训练语言表示，后接输出层，就可以适合很多下游任务；</p>
+</li>
+<li><p>BERT是一种基于微调的表示模型，finetuning based representation model  ，适合sentence-level 和token-level的下游任务；</p>
+</li>
+<li><p>ELMo、ULMFiT、GPT称为“单向的”语言模型，因为一般是从左往后单向的，不然就是双向biLSTM，使用独立训练的从左到右和从右到左lm的浅级联，deep bidirectional representations  其实学的并不好，因此叫单向；</p>
+</li>
+<li><p>BERT的“双向”，体现在用的attention结构，因此能看见上下文；</p>
+</li>
+</ul>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><ul>
+<li>masked language model” (MLM) pre-training objective ，masked LM从输入中随机屏蔽一些token，目标是只基于上下文的词，预测屏蔽的原始词汇表id；这种和之前ELMo、ULMFiT、GPT就不太一样，能够很好的学习deep bidirectional representations；</li>
+<li>目标函数：$\large P(w_i|w_1,…,w_{i-1},w_{i+1},…,w_n)$</li>
+</ul>
+<img src="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220616094327833.png" alt="image-20220616094327833" style="zoom:80%;">
+
+<ul>
+<li>input由三个特征embedding求和组成，分别是<ul>
+<li>token embedding：第一个单词是CLS标志，可以用于之后的分类任务</li>
+<li>position embedding</li>
+<li>segment embedding：代表是不是属于同一段segment的信息特征，用来区别两种句子，因为预训练不光做LM还要做以两个句子为输入的分类任务</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220616102940478.png" alt="image-20220616102940478" style="zoom:80%;">
+
+<ul>
+<li><p><strong>“masked LM” (MLM)</strong>  ：随机屏蔽输入token的一部分，然后只预测那些被屏蔽的token；经验：每句话15%masked；</p>
+<p>一开始的masked做法：输入15%的单词变成[MASK]这个token，然后目标是**[MASK]token位置对应的输出概率为真实token要交叉熵最大** We only compute loss on masked tokens；</p>
+<p>后来的masked做法：输出的15%的单词不是全变成[MASK]这个token，而是80%可能性变成[MASK]，10%可能性变成随机token，10%可能性不变；</p>
+</li>
+<li><p><strong>Next Sentence Prediction (NSP)</strong>  ：训练预训练模型中，给输出又引入说一个任务（多任务？），叫做是不是”下一句话“的判断，输出二分类，判断是不是下一句话？这对于微调任务比如QA和NLI很有用，如果不是这些微调任务，预训练模型训练不需要这个C向量；</p>
+</li>
+<li><p><strong>Pre-training data</strong>  ：要用document-level corpus ，而不要用sentence-level的corpus，训练LM的文本一定要长，这样才能具备抽取长序列知识的能力；</p>
+</li>
+<li><p><strong>Fine-tuning BERT</strong>  ：？？？【TODO】</p>
+</li>
+</ul>
+<h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><p>multi-layer bidirectional Transformer  encoder  ，transformer decoder （用tensor2tensor库）</p>
+<p>词典：wordpiece后的30000个token</p>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Song, Kaitao, et al. “Mass: Masked sequence to sequence pre-training for language generation.” <em>arXiv preprint arXiv:1905.02450</em> (2019).&#x3D;&#x3D;citations：660</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/microsoft/MASS">https://github.com/microsoft/MASS</a>  </p>
+</blockquote>
+<h3 id="背景-1"><a href="#背景-1" class="headerlink" title="背景"></a>背景</h3><ul>
+<li>和bert一样的预训练模型，Pre-training and fine-tuning 方式训练</li>
+</ul>
+<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><ul>
+<li>提出 MAsked Sequence to Sequence pre-training (MASS)  ，用于基于encoder-decoder的language generation</li>
+</ul>
+<h3 id="方法-1"><a href="#方法-1" class="headerlink" title="方法"></a>方法</h3><h3 id="模型-1"><a href="#模型-1" class="headerlink" title="模型"></a>模型</h3><hr>
+<blockquote>
+<p>&#x3D;&#x3D;Lan, Zhenzhong, et al. “Albert: A lite bert for self-supervised learning of language representations.” <em>arXiv preprint arXiv:1909.11942</em> (2019).&#x3D;&#x3D;citations：3054 Google Research</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/google-research/ALBERT">https://github.com/google-research/ALBERT</a>  </p>
+</blockquote>
+<h3 id="背景-2"><a href="#背景-2" class="headerlink" title="背景"></a>背景</h3><ul>
+<li>虽然预训练模型能改善下游任务性能，但是由于预训练模型较大，也会造成计算量、内存、延时增加，为了解决该预训练模型带来的问题，本文提出两种更小内存消耗的方法，并且能减小训练BERT的速度；</li>
+</ul>
+<h3 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h3><ul>
+<li>提出 A lite bert 轻量级的BERT，自监督学习，语言表示</li>
+<li>用关注于建模句间相关性的自监督loss，改善了下游任务的输入是多句输入的任务性能；</li>
+</ul>
+<h3 id="方法-2"><a href="#方法-2" class="headerlink" title="方法"></a>方法</h3><ul>
+<li>SCALING UP REPRESENTATION LEARNING FOR NATURAL LANGUAGE  对于自然语言的scaling up表示学习</li>
+<li>CROSS-LAYER PARAMETER SHARING  </li>
+<li>SENTENCE ORDERING OBJECTIVES</li>
+</ul>
+<hr>
+<blockquote>
+<p>DistilBERT</p>
+<p><a target="_blank" rel="noopener" href="https://medium.com/huggingface/distilbert-8cf3380435b5">Smaller, faster, cheaper, lighter: Introducing DistilBERT, a distilled version of BERT</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E9%A2%84%E8%AE%AD%E7%BB%83%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2187,181 +2421,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E8%B4%9D%E5%A3%B3%E6%89%BE%E6%88%BF%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92%E5%88%86%E4%BA%AB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/04/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E8%B4%9D%E5%A3%B3%E6%89%BE%E6%88%BF%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92%E5%88%86%E4%BA%AB/" itemprop="url">贝壳找房 语音唤醒分享</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-04-07T00:00:00+08:00">
-                2022-04-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/04/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E8%B4%9D%E5%A3%B3%E6%89%BE%E6%88%BF%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92%E5%88%86%E4%BA%AB/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/04/07/命令词/贝壳找房语音唤醒分享/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="贝壳找房-语音唤醒分享"><a href="#贝壳找房-语音唤醒分享" class="headerlink" title="贝壳找房 语音唤醒分享"></a>贝壳找房 语音唤醒分享</h1><blockquote>
-<p>家居场景下语音唤醒技术的探索与实践</p>
-<p>【语音之家】AI产业沙龙——语音技术在贝壳的应用</p>
-<p>2022.4.7</p>
-</blockquote>
-<p><img src="/2022/04/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E8%B4%9D%E5%A3%B3%E6%89%BE%E6%88%BF%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92%E5%88%86%E4%BA%AB/image-20220408120145302.png" alt="image-20220408120145302"></p>
-<ul>
-<li>搜索后处理<ul>
-<li>跳帧</li>
-<li>多阈值</li>
-<li>二遍决策</li>
-</ul>
-</li>
-<li>比赛的数据处理<ul>
-<li>音频规整</li>
-<li>波束形成</li>
-<li>数据模拟</li>
-<li>谱增强</li>
-</ul>
-</li>
-</ul>
-<p><img src="/2022/04/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E8%B4%9D%E5%A3%B3%E6%89%BE%E6%88%BF%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92%E5%88%86%E4%BA%AB/image-20220408121213161.png" alt="image-20220408121213161"></p>
-<p><img src="/2022/04/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E8%B4%9D%E5%A3%B3%E6%89%BE%E6%88%BF%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92%E5%88%86%E4%BA%AB/image-20220408185053043.png" alt="image-20220408185053043"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2412,7 +2471,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">114</span>
+                  <span class="site-state-item-count">115</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
