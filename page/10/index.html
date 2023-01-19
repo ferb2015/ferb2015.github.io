@@ -288,6 +288,288 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/" itemprop="url">Alignment free LF-MMI小结</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
+                2021-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/06/29/命令词/Alignment free LF-MMI小结/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Alignment-free-LF-MMI"><a href="#Alignment-free-LF-MMI" class="headerlink" title="Alignment free LF-MMI"></a>Alignment free LF-MMI</h1><blockquote>
+<p>&#x3D;&#x3D;Wang Y, Lv H, Povey D, et al. Wake Word Detection with Alignment-Free Lattice-Free MMI[J]. arXiv preprint arXiv:2005.08347, 2020.&#x3D;&#x3D;</p>
+<p>&#x3D;&#x3D;Wang, Yiming. <em>WAKE WORD DETECTION AND ITS APPLICATIONS</em>. Diss. Johns Hopkins University, 2021.&#x3D;&#x3D;王一鸣博士论文</p>
+<p>&#x3D;&#x3D;github开源代码&#x3D;&#x3D;：The code and recipes are available in Kaldi [24]: <a target="_blank" rel="noopener" href="https://github.com/kaldi-asr/kaldi/tree/master/egs/%7Bsnips,mobvoi,mobvoihotwords%7D">https://github.com/kaldi-asr/kaldi/tree/master/egs/{snips,mobvoi,mobvoihotwords}</a>. </p>
+<p>&#x3D;&#x3D;github代码&#x3D;&#x3D;：<a target="_blank" rel="noopener" href="https://github.com/YiwenShaoStephen/pychain">https://github.com/YiwenShaoStephen/pychain</a></p>
+<p>&#x3D;&#x3D;csdn 博客&#x3D;&#x3D;：<a target="_blank" rel="noopener" href="https://blog.csdn.net/chenxi910911/article/details/107674366">Wake Word Detection with Alignment-Free Lattice-Free MMI</a></p>
+</blockquote>
+<h4 id="思想"><a href="#思想" class="headerlink" title="思想"></a>思想</h4><ul>
+<li>提出alignment free LF-MMI，不需要对齐分子lattice</li>
+<li>不把唤醒词里面每个音素建模，而是把整个唤醒词建模 model the whole wake phrase  ，用一个固定状态数的HMM去建模唤醒词（该数量少于唤醒词音素组成数量）</li>
+<li>keyword、non-keyword、sil 都各用一个HMM建模</li>
+<li>针对唤醒任务，提出alignment free LFMMI，分子不用对齐文本得到分子lattice，由于文本就是keyword&#x2F;non-keyword，文本只有一个HMM，直接遍历HMM所有可能路径，求路径和概率。（直接用文本图上添加自环，让解码更自由，前后向可选的路径更多）</li>
+<li>负样本文本一般比较长，一个HMM可能建模不了，因此把负样本切成和正常本长度差不多，每个负样本的训练文本为freetext（一个HMM），就可以去生成egs了</li>
+<li>负样本如果不segment，会严重过拟合</li>
+<li>该方法能有效改善FAR高</li>
+<li>分母图上路径权重：按正负样本比例来分配</li>
+</ul>
+<p>分子图fst：用一个文本构成（一个文本就是一个单词，一个单词用一个HMM建模）</p>
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/51e33547d077a96de000bf42d8c40e61.jpg" alt="img" style="zoom: 25%;">
+
+<p>分母图fst：可以理解成word 并联序列，只不过添加了sil（不是loop，不能重复走）</p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/image-20211029145733035.png" alt="image-20211029145733035"></p>
+<h4 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h4><ul>
+<li>负样本进行了分块chunk，&#x3D;&#x3D;chunk长度和正样本差不多&#x3D;&#x3D;，	</li>
+<li>负样本后继chunk重叠0.3s，使得前一个chunk被截掉的单词有机会在后继chunk全词出现</li>
+<li>声学模型：TDNN-F，分解到两个低秩矩阵，前一个矩阵是半正定的，确保高维到低维信息不会丢失</li>
+<li>前一层的输入乘上缩放比例0.66与本层输入加和（是add，而不是concatenate）</li>
+<li>拼帧结构：把本来要拼在一层的结构 分解到两层会更好，比如第一层拼(-3,0,3)，第二层拼(0)，更好的做法是第一层拼(-3,0)，第二层拼(0,3)</li>
+<li>训练了一个alignment-free LF-MMI后，对齐lattice，重新训练一个普通的LF-MMI，效果会更好</li>
+<li>alignment-free体现在：<ul>
+<li>（雷博）不需要GMM-HMM训练过程，不需要对齐ali文件</li>
+<li>不需要对齐训练样本然后统计得到phone-lm</li>
+<li>一个没有一点对齐能力的模型（0.mdl）也可以拿来使用的</li>
+<li>nnet3-chain-e2e-get-egs分子cegs生成，直接用text构建的fst，找到所有可能的fst中的状态序列求和就是分子，普通的还要由fst构建lattice？（感觉二者差不多）</li>
+</ul>
+</li>
+<li>博士论文中比较了不同topo结构：<ul>
+<li>把sil和freetext表示在一个HMM中，该HMM有多种可走的路径，这样就能够表示当训练样本前后是非命令词，中间是静音的情况。结果是增加了训练难度，误拒率很高，只有对齐准确的初始模型可能会得到好一点的误拒率，但是还是不好，因此最好不要把sil和freetext放在一起建模</li>
+<li>用5状态建模HMM，效果比3状态好</li>
+</ul>
+</li>
+</ul>
+<h4 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h4><ul>
+<li>雷博说：<ul>
+<li>负样本切chunk后，要注意正负样本比例，不要让负样本远远多于正样本。</li>
+<li>切割负样本（长文本切到短文本）时，文本不知道对应的是sil还是freetext，不好得知文本，把静音段也视作freeetext会有问题</li>
+<li>实验效果好，可能由于数据集较小</li>
+</ul>
+</li>
+</ul>
+<h4 id="在线解码"><a href="#在线解码" class="headerlink" title="在线解码"></a>在线解码</h4><ul>
+<li>解码FST：其实长得有点像分母图，不同之处在于是起始状态和终止状态在同一个结点，使得可以生成词串，比如生成word后还可以生成freetext，再生成word等等，文本串；而分母图要不然就走freetext，要不然就走word，不能都串行出现。</li>
+</ul>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/image-20211029150244872.png" alt="image-20211029150244872"></p>
+<ul>
+<li><p>在线解码：一个chunk一个chunk解码，每次解码了一个chunk后，就去更新immortal token和prev_immortal token（在所有active tok里找公共祖先（emitting[0]，或者说tokenOne），作为immortal tok，把前一次的immortal tok作为prevImmortal tok），每次在两个immortal tokens之间的路径寻找（backtrace）是否有唤醒词，实现了逐chunk搜索。</p>
+</li>
+<li><p>每处理过一段固定长度的录音后，我们用更新不朽token算法来回溯最近两个“不朽token”中间的这些帧，检查这部分回溯是否包含唤醒词。如果发现唤醒词则停止解码，如果没有唤醒词继续解码。（不朽token是现存激活token的共同祖先）</p>
+<p>这个是基于这样一个假设：如果现有的存活的部分假设都是来自于前一个时刻的相同的token（不朽token），同时在这之前的所有的假设都已经压缩到了这一个token上，我们就可以从这个“不朽token”检查是否具有唤醒词 [csdn]</p>
+</li>
+<li><p>伪代码 online decoding：</p>
+</li>
+</ul>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/image-20211029144006785.png" alt="image-20211029144006785"></p>
+<ul>
+<li>更新immortal token，用于回溯</li>
+</ul>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/image-20211029144433677.png" alt="image-20211029144433677"></p>
+<h4 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h4><p>The code and recipes are available in Kaldi [24]: <a target="_blank" rel="noopener" href="https://github.com/kaldi-asr/kaldi/tree/master/egs/%7Bsnips,mobvoi,mobvoihotwords%7D">https://github.com/kaldi-asr/kaldi/tree/master/egs/{snips,mobvoi,mobvoihotwords}</a>.  </p>
+<p>本文中引入了一种不需要对齐（Alignment-free）、不需要词图的（Lattice-Free MMI）鉴别性准则训练的模型<br>相比Lattice-free MMI准则需要额外修改一下发音字典、HMM拓扑结构</p>
+<p>1.HMM拓扑结构（KW和freetext）用的是5个状态；silence用的是2个状态，但是保持（Lattice-free MMI）的结构self-loop-pdf和forward-pdf对应两个不同的PDF-id，因此神经网络共82+21&#x3D;18个pdf</p>
+<p>2.分子图与分母图<br>分子图和chain的不同点在于：不需要依赖对齐结果生成label对应的图，生成一个非扩展的fst，在训练过程中通过前后向算法更加灵活的学习对齐结果<br>分母图和chain的不同点在于：phone级别的语言模型不再需要通过训练数据训练得到，直接手动生成一个语言模型fst，一共3条路径，关键词路径、freetext、silence，其中关键词和freetext前后都可加silence。每一条路径上的权重受训练数据中正负样本的占比因素影响<br>3.声学模型<br>使用TDNN-F模型（因式分解的TDNN），将一层的参数矩阵分解成两个低秩矩阵、第一个矩阵强制限制为半正定矩阵<br>模型（20层每层80节点）存在跨层连接，前一层的输入乘上缩放比例0.66与本层输入加和。<br>4.数据预处理和增强<br>对于负样本（存在很多样本时长较长）会按照正样本的时长分布，对负样本进行切段，每一段分配一个负样本标签。<br>增强：尽管训练数据很多是在实际场景中录制的，增强后效果仍然后提升<br>5.解码<br>手动构造词级别的解码网络FST，每条路径上的权重生成和分母图的LM-fst图方式是一样的。在开始token和结束token上增加从结束token到开始token的空边，原因是音频中可能存在唤醒词和其他可能的音频交叉现象。<br>在线解码的过程中：每处理过一段固定长度的录音后，我们用更新不朽token算法来回溯最近两个“不朽token”中间的这些帧，检查这部分回溯是否包含唤醒词。如果发现唤醒词则停止解码，如果没有唤醒词继续解码。（不朽token是现存激活token的共同祖先）</p>
+<p>这个是基于这样一个假设：如果现有的存活的部分假设都是来自于前一个时刻的相同的token（不朽token），同时在这之前的所有的假设都已经压缩到了这一个token上，我们就可以从这个“不朽token”检查是否具有唤醒词</p>
+<h1 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h1><ul>
+<li><p>由于freetext只用一个HMM，因此不支持于自定义唤醒词，可应用于小模型的需求。</p>
+</li>
+<li><p>路径：24.3:&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;mobvoihotwords&#x2F;v1</p>
+</li>
+<li><p>命令词：<code>sil freetext 上一曲 下一曲 减小音量 增大音量 小源小源 播放 暂停 静音</code></p>
+</li>
+</ul>
+<h3 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h3><ul>
+<li>不用run_e2e.sh脚本里的随机切割得到负样本，而是用对齐信息，得到边界，可以避免把静音对成freetext</li>
+<li>&#x3D;&#x3D;把带有关键词的负样本删掉&#x3D;&#x3D;</li>
+</ul>
+<h3 id="切割长负样本到短负样本"><a href="#切割长负样本到短负样本" class="headerlink" title="切割长负样本到短负样本"></a>切割长负样本到短负样本</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">work_dir=/home/storage/speech/kaldi/egs/keyword/s5</span><br><span class="line">bash +x steps/get_train_ctm.sh --print_silence <span class="literal">true</span> <span class="variable">$work_dir</span>/data/mfcc/train_12000 data_hua/lang_normal/ <span class="variable">$work_dir</span>/exp_sil/mfcc_pitch/nnet3_tdnn6layers_8b_relu_ali_train_12000 data_hua/ali_12000</span><br></pre></td></tr></table></figure>
+
+<p>去掉存在长静音段的负样本，然后按与正样本长度差不多的随机切割，这是因为正样本有前后静音，如果负样本只有发音段，不太好，因此把存在小的前后静音段考虑进负样本中</p>
+<p>把静音区域大于1s的负样本丢弃：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python <span class="built_in">local</span>/phone2word.py data_hua/ali_12000/ctm &gt; data_hua/ali_12000/output_ctm</span><br><span class="line">sed -i <span class="string">&#x27;/yelong/d&#x27;</span> data_hua/ali_12000/output_ctm</span><br></pre></td></tr></table></figure>
+
+<p>筛选出neg_segments：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">utils/filter_scp.pl data_hua/ali_12000/output_ctm data_hua/data_all_sub2_Xiaoyuan_12000_whole/segments &gt; data_hua/data_all_sub2_Xiaoyuan_12000_whole/neg_segments</span><br></pre></td></tr></table></figure>
+
+<p>筛选出正样本（开头SY、Xiaoyuan、sp的）</p>
+<p>按照正样本长度范围切割负样本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">srcdir=data_hua/data_all_sub2_Xiaoyuan_12000</span><br><span class="line"><span class="built_in">local</span>/get_random_subsegments.py --overlap-duration=0.3 --max-remaining-duration=0.3 <span class="variable">$&#123;srcdir&#125;</span>_whole/neg_segments <span class="variable">$&#123;srcdir&#125;</span>_whole/pos_utt2dur | <span class="built_in">cat</span> <span class="variable">$&#123;srcdir&#125;</span>_whole/pos_segments - | <span class="built_in">sort</span> &gt;<span class="variable">$&#123;srcdir&#125;</span>_whole/sub_segments</span><br></pre></td></tr></table></figure>
+
+<p>把长度太短的（小于0.5s）、太长的删掉（大于5.05s）</p>
+<p>data_hua&#x2F;data_all_sub2_Xiaoyuan_12000_segmented_e2e_cut：正样本正负样本比例：正样本433万条，负样本1635万条，正负样本比例1：3.7（接近1：4）（不好，应该减少正样本的比例）</p>
+<p>2021.11.23新：正样本233w，负样本1635万条，正负样本1：7</p>
+<p>2021.11.27新：发现split5测试集的唤醒率不高，原来是没有把9w条Xiaoyuan数据都用了，只用了4.5万条，把9w条需要都加入进去才行，正样本237万，负样本1635万，正负样本1：7【训练出来效果很差，不知道为什么】</p>
+<h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><ul>
+<li><p>tdnnf结构，13层，dim&#x3D;80，bottleneck dim&#x3D;20，左拼27帧，右拼27帧，参数量 111388（113k）</p>
+</li>
+<li><p>74个分类状态（2* (9* 4+1) &#x3D;74），sil：1状态，freetext、keyword：4状态</p>
+</li>
+<li><p>训练很快</p>
+</li>
+</ul>
+<h3 id="实验测试结果"><a href="#实验测试结果" class="headerlink" title="实验测试结果"></a>实验测试结果</h3><p>- </p>
+<h2 id="实验结果分析"><a href="#实验结果分析" class="headerlink" title="实验结果分析"></a>实验结果分析</h2><ul>
+<li>正负样本1：4时：<ul>
+<li>声学模型输出在同一帧中有很多分类的概率都挺高，说明声学模型效果不好，但是还能得到测试集唤醒率高、误唤醒率低的唤醒词，说明后面接的G还是挺关键的</li>
+<li>其他唤醒词误唤醒率很高，不是喊该命令词时，也会唤醒，比如喊小源没唤醒，但是会误唤醒其他唤醒词，因此不能把很多命令词都当作唤醒词，就是即使把命令词放在唤醒词后面唤醒，也很容易出现喊命令词却识别成另一个命令词的情况，我们希望的是即使不唤醒，也别唤醒成别的。对多唤醒词任务不友好。</li>
+</ul>
+</li>
+<li>正负样本1：7时：<ul>
+<li>其他唤醒词误唤醒率相较于正负样本1：4的模型下降许多</li>
+<li>唤醒率低，容易识别成freetext，考虑通过增加每个HMM的topo状态数来缓解[TODO]</li>
+</ul>
+</li>
+<li>过拟合比较严重，对未见过的样本识别率很低，可能是因为建模单元颗粒度大（词），建模topo结构状态数少</li>
+<li>freetext后接keyword的输出很少见，应该是和训练相关。</li>
+<li>Alignment-Free当模型为tdnnf，13layer，80_20，参数量100K，状态数30时，很容易过拟合，说明模型太小时，不具备大建模单元（一个词用4状态表示）的建模能力；</li>
+</ul>
+<h2 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h2><ol>
+<li>增加topo建模状态数</li>
+<li>alignment free LF-MMI对齐lattice训练regular LF-MMI</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/kaldi%20conv-relu-batchnorm-layer/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2433,254 +2715,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/" itemprop="url">命令词论文笔记（七）loss改进用命令词的论文</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
-                2021-06-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2021/06/29/命令词/命令词论文笔记（七）/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="loss改进用命令词的论文"><a href="#loss改进用命令词的论文" class="headerlink" title="loss改进用命令词的论文"></a>loss改进用命令词的论文</h1><blockquote>
-<p>&#x3D;&#x3D;Yandong Wen, Kaipeng Zhang, Zhifeng Li and Yu Qiao. “A Discriminative Feature Learning Approach for Deep Face Recognition” European Conference on Computer Vision (2016)..&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>提出 <strong>center loss</strong>，目的是让相同类的特征表示尽可能相近（附带的效果：相似音是不同的类，该方法可以拉开二者距离，相当于&#x3D;&#x3D;区分了相似音&#x3D;&#x3D;）</li>
-<li>学习每个类的deep feature的center，将输入特征的deep feature到该类中心的距离引入loss中，让类内intra-class距离小（类内方差小），目的是最小化类内距离</li>
-<li>怎么让类间距离大？</li>
-<li>Discriminative power characterizes features in both the compact intra-class variations and separable inter-class differences,</li>
-<li>center loss：$\large{L_c&#x3D;\frac{1}{2}\sum^m_{i&#x3D;1}\Vert x_i-c_{yi}\Vert_2^2}$，           （L2范数，平方距离：$\Vert x \Vert_2&#x3D;(\vert x_1\vert^2+\vert x_2\vert^2+…+\vert x_n\vert^2)^{1&#x2F;2}$ ，所以$\Vert x \Vert_{2}^2&#x3D;(\vert x_1\vert^2+\vert x_2\vert^2+…+\vert x_n\vert^2)$ ））<ul>
-<li>这里的x一般是最后一层线性层之前的输入特征，比如32维，而输出一共有10个类，所以c的维度是10*32</li>
-</ul>
-</li>
-<li>center $c_{yi}$ 值：在每个minibatch里，$L_c$ 对样本特征求导，累计和，乘以&#x3D;&#x3D;学习率$\alpha$&#x3D;&#x3D;，来更新center值（不是用平均每类的样本特征而来）（其实不用真的是特征中心点，因为目的是不同x到某点的距离最短，这个点并不重要）【改进：不同类中心的距离越大越好，也加入loss，否则不同类之间的c都很接近的话，特征还是分不开？】</li>
-<li>$\lambda$​：系数，用来平衡两个loss，主导了类内方差；</li>
-<li>$\alpha$：center loss更新center值的学习率；（决定center的参数变化量）（center loss里的参数就是指的类中心特征值）</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/image-20211206160520204.png" alt="image-20211206160520204" style="zoom: 67%;">
-
-<p>（$\theta_C$的C是卷积，不是类中心c）</p>
-<ul>
-<li>调参：</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/image-20220330165802859.png" alt="image-20220330165802859" style="zoom:67%;">
-
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Hadsell, R., Chopra, S., LeCun, Y.: Dimensionality reduction by learning an invariant mapping. In: 2006 IEEE Computer Society Conference on Computer Vision and Pattern Recognition, vol. 2, pp. 1735–1742. IEEE (2006)&#x3D;&#x3D;</p>
-<p>&#x3D;&#x3D;Sun, Y., Chen, Y., Wang, X., Tang, X.: Deep learning face representation by joint identification-verification. In: Advances in Neural Information Processing Systems, pp. 1988–1996 (2014)&#x3D;&#x3D;</p>
-<p>&#x3D;&#x3D;Wen, Y., Li, Z., Qiao, Y.: Latent factor guided convolutional neural networks for age-invariant face recognition. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp. 4893–4901 (2016)&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>提出 <strong>contrastive loss</strong>  </li>
-<li>把图像对（image pair）引入loss</li>
-<li>缺点：样本一多，收敛慢 ，不稳定，可通过精细选择image pairs来缓解</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Schroff, F., Kalenichenko, D., Philbin, J.: Facenet: a unified embedding for face recognition and clustering. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp. 815–823 (2015)&#x3D;&#x3D;  </p>
-<p><a target="_blank" rel="noopener" href="https://omoindrot.github.io/triplet-loss#batch-hard-strategy">https://omoindrot.github.io/triplet-loss#batch-hard-strategy</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/35560666">https://zhuanlan.zhihu.com/p/35560666</a></p>
-<p>pytorch实现了：<a target="_blank" rel="noopener" href="https://pytorch.org/docs/1.9.1/generated/torch.nn.TripletMarginLoss.html?highlight=tripletmarginloss%EF%BC%8C%E4%BD%86%E8%A6%81%E5%9C%A8dataloader%E9%87%8C%E7%BB%99%E5%AE%9A%E4%B8%89%E5%85%83%E7%BB%84">https://pytorch.org/docs/1.9.1/generated/torch.nn.TripletMarginLoss.html?highlight=tripletmarginloss，但要在dataloader里给定三元组</a></p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/Cysu/open-reid/tree/master/reid/loss">https://github.com/Cysu/open-reid/tree/master/reid/loss</a></p>
-<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/171627918">triplet loss 损失函数</a></p>
-<p><a target="_blank" rel="noopener" href="https://bindog.github.io/blog/2019/10/23/why-triplet-loss-works/">https://bindog.github.io/blog/2019/10/23/why-triplet-loss-works/</a></p>
-<p>github人脸检测：<a target="_blank" rel="noopener" href="https://github.com/kuaikuaikim/DFace">https://github.com/kuaikuaikim/DFace</a></p>
-<p>facenet：<a target="_blank" rel="noopener" href="https://github.com/davidsandberg/facenet">https://github.com/davidsandberg/facenet</a></p>
-<p><a target="_blank" rel="noopener" href="https://github.com/timesler/facenet-pytorch">https://github.com/timesler/facenet-pytorch</a></p>
-</blockquote>
-<ul>
-<li>提出 <strong>triplet loss</strong>，最小化batch内同类特征embedding $f(x)$ 距离，最大化batch内不同类特征embedding距离</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/image-20220413140757363.png" alt="image-20220413140757363" style="zoom: 80%;">
-
-<ul>
-<li><p>约束条件：$\large \Vert f(x_i^a)-f(x_i^p)\Vert_2^2 + \alpha &lt; \Vert f(x_i^a)-f(x_i^n)\Vert_2^2$  ，当$\large \forall(f(x_i^a),f(x_i^p),f(x_i^n))\in T $， 其中，$T$是三元组triplet</p>
-</li>
-<li><p>Loss fucntion为：$\large min L&#x3D;\sum\limits_i ^N \left[\Vert f(x_i^a)-f(x_i^p)\Vert_2^2 - \Vert f(x_i^a)-f(x_i^n)\Vert_2^2 + \alpha \right]$</p>
-<p>更常用的loss是结合$max(0,d(a,p) - d(a,n) + margin)$</p>
-<p>其中，$f(x)$ 为d维embedding特征</p>
-<p>这个loss对于当前anchor特征，一个minibatch中p特征数量和n特征数量可能分布很不均，因此用求与p特征的argmax，与n特征的argmin，就只统计和一个同类距离和一个不同类距离作为loss，</p>
-<p>维度d，所有维度都计算距离然后求和了（欧式距离）</p>
-<p>但是这样会训练loss越训练，最后变成都在margin附近。。。no good</p>
-</li>
-<li><p>因此，不是用hardest positive，而是用所有的anchor-positive pair来算loss，anchor-negative还是用的hard negative</p>
-</li>
-<li><p>把图像三个一组（image triplet）引入loss，但这样收敛慢，对三元组triplet要求高</p>
-</li>
-<li><p>缺点：样本一多，收敛慢 ，不稳定，可通过精细选择image triplets来缓解</p>
-</li>
-<li><p>triplet loss里的anchor和目标检测的anchor不一样，是基于人脸识别提出的，是每个输入样本（叫做anchor）提一个embedding，和其他同类样本的embedding距离近，和不同类样本的embedding距离远作为loss（ps. 目标检测的anchor，一个图片N个anchor，理解为扫描图片，用很多框框去扫描 遍历）</p>
-</li>
-<li><p>Triplet Selection 来加速训练收敛：加快收敛的秘诀：找到不满足约束（难训）的triplet来训练；和同类的最远距离 与 和不同类的最近距离 如果很接近的话，说明是难训样本；两种方法来构造难训样本：</p>
-<ol>
-<li>在每个step中offline离线产生triplet三元组，用同一个模型计算argmax同类和argmin不同类距离</li>
-<li>在每个minibatch中online在线产生triplet</li>
-</ol>
-</li>
-<li><p>easy triplets、hard triplets、semi-hard triplets：</p>
-</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/image-20220414095451899.png" alt="image-20220414095451899" style="zoom:80%;">
-
-<ul>
-<li><p>在triplet loss基础上，又衍生出了其他许多改进和变体，例如一个比较有效的方法叫hard mining，在三元组选择过程中加入一些特定的策略，尽量选择一些距离Anchor较远的Positive和距离Anchor较近的Negative（也就是最不像的同类样本、最像的不同类样本）……此类方法还有许多，就不一一列举了。</p>
-</li>
-<li><p>triplet loss虽然有效，但是其常为人诟病的缺点也很明显：训练过程不稳定，收敛慢，需要极大的耐心去调参……所以在很多情况下，我们不会单独使用triplet loss，而是将其与softmax loss等方法相结合使用，以稳定训练过程。</p>
-</li>
-<li><p>在特征embedding后接L2正则得到新的embedding特征：</p>
-<p>特征v，有$\large v&#x3D;\frac{v}{max(\Vert v\Vert_2,\epsilon)}$</p>
-</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/image-20220415114057425.png" alt="image-20220415114057425" style="zoom:80%;">
-
-<h2 id="hinge-loss"><a href="#hinge-loss" class="headerlink" title="hinge loss"></a>hinge loss</h2><p>$\large d_i \in \mathbb R^{T\times f}$</p>
-<p>$\large d_o \in \mathbb R^{N1+N2}$</p>
-<p>$\large I \in \mathbb R^{n\times n}$</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2731,7 +2765,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">115</span>
+                  <span class="site-state-item-count">116</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
