@@ -441,734 +441,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/" itemprop="url">《语音识别原理与应用》洪青阳 第11章 序列区分性训练————Lattice-based和Lattice-free MMI</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
-                2023-01-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
-                    <span itemprop="name">语音识别</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2023/01/10/识别/mmi书 洪青阳/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="序列区分性训练"><a href="#序列区分性训练" class="headerlink" title="序列区分性训练"></a>序列区分性训练</h1><blockquote>
-<p>《语音识别原理与应用》洪青阳 第11章</p>
-<p>《11. 序列区分性训练.pptx》</p>
-</blockquote>
-<p>原理公式 直接看PPT或者书就行。</p>
-<h2 id="MMI-求导"><a href="#MMI-求导" class="headerlink" title="MMI 求导"></a>MMI 求导</h2><p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230116234330915.png" alt="image-20230116234330915"></p>
-<p>其中，$\alpha_t^u(j)$ 为第 $u$ 条句子 $t$ 时刻的观察值$ o_t^u$ 的在DNN输出节点（状态） $j$ 的激活输出。</p>
-<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230116234504909.png" alt="image-20230116234504909"></p>
-<p>$\gamma_u^{NUM}(s_t^u&#x3D;j)$ 是针对训练标注，$t$ 时刻为状态 $j$ 的后验概率，其计算采用标准的<strong>前向-后向算法</strong>，复杂度相对较低。而 $\gamma_u^{DEN}(s_t^u&#x3D;j)$ 虽然也是 $t$ 时刻为状态 $j$ 的后验概率，但要穷举所有可能的词序列对应的状态序列，计算量巨大无比。</p>
-<p>我自己的理解：</p>
-<ul>
-<li>分子网是要计算到某个标注（对齐）状态的所有可能路径（到某个状态的所有可能路径求和通过前后向算法），然后整个对齐标注状态序列，就是对所有时刻 t的状态 j 连乘 就得到分子网（偏导对象是某个时刻t，某个时刻j，这里其实没有算连乘）。</li>
-<li>分母网也是到某个时刻t的状态j的可能路径概率求和，但是很多不同词序列都有可能在某个时刻t能够处在状态j，因此要对这些所有的不同词序列求和。而分子网考虑的文本序列就是标注序列。</li>
-</ul>
-<h2 id="Lattice-based-MMI"><a href="#Lattice-based-MMI" class="headerlink" title="Lattice-based MMI"></a>Lattice-based MMI</h2><p>分母网用n-best代替所有路径的方案比较粗糙，更好的方案是为每个训练句子生成一个词图lattice，来近似mmi的分母部分。</p>
-<p>这样, $\gamma_u^{\mathrm{DEN}}\left(s_t^u&#x3D;j\right)$ 就可通过汇总 Lattice 所有可能的词序列的概率得到。由 于 Lattice 的路径有限, 故需要的计算量将大为降低。</p>
-<p>事实上, $\gamma_u^{\mathrm{NUM}}\left(s_t^u&#x3D;j\right)$ 的前向和后向概率也可通过 Lattice 计算。因此, <strong>每条训练句子均需要生成正确标注和竞争路径对应的 Lattice，包含采用音素 (不需词典) 的简化版语言模型。</strong></p>
-<h4 id="基于DNN-HMM的Lattice-based-MMI训练流程如下："><a href="#基于DNN-HMM的Lattice-based-MMI训练流程如下：" class="headerlink" title="基于DNN-HMM的Lattice-based MMI训练流程如下："></a>基于DNN-HMM的Lattice-based MMI训练流程如下：</h4><ul>
-<li>Step1：基于CE准则，训练一个DNN-HMM做为种子模型，并用该模型做状态级别的强制对齐，并生成正确标注对应的Lattice，即MMI分子部分对应的Numerator Lattice；</li>
-<li>Step2：基于一元语言模型构建HCLG，然后对每条训练句子做识别，得到各种竞争路径，保存为MMI分母部分对应的Denominator Lattice。</li>
-<li>Step3：进行Lattice-based MMI训练。</li>
-</ul>
-<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230117001637221.png" alt="image-20230117001637221"></p>
-<p>分母网也是用DNN-HMM生成的。分母网是固定的状态序列，无法根据新训练的声学模型动态更新。</p>
-<h2 id="Lattice-free-MMI"><a href="#Lattice-free-MMI" class="headerlink" title="Lattice-free MMI"></a>Lattice-free MMI</h2><p>2016年，D. Povey等人提出Lattice-free MMI方案，把分母部分用音素级别的有限状态转换器（FST）图表示，这样可以不用Lattice，做到纯序列区分性训练（Sequence Discriminative Training）。</p>
-<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230117001830073.png" alt="image-20230117001830073"></p>
-<p>Lattice-free MMI（LF-MMI）采用音素语言模型（Phone LM）替代词语言模型（Word LM），这样就不需要词典，因此HCLG精简为<strong>HCP</strong>，其中C由决策树生成，P代表Phone LM，Kaldi设为4-gram，基于训练数据的对齐音素序列训练而成，并且低于3元不采用回退和插值，即3元组合本身不存在的话，不考虑更低元的语言模型，以免引起更多混淆。</p>
-<p>由于音素个数比词个数少很多，因此Phone LM产生的FST图很小，最后得到的HCP（即针对MMI分母的FST图）也会小很多，可以直接放到GPU训练。事实上，这个HCP可认为是串接HMM的FST形式，MMI训练的前后-后向计算将基于该FST图进行，HMM 状态之间的转移概率也可根据 FST 找到对应值。</p>
-<p>Lattice-free MMI 对应 $\gamma_u^{N U M}\left(s_t^u&#x3D;j\right)$ 的 FST 的前向-后向计算量较少, 可在 CPU 中运行。而对应 $\gamma_u^{\mathrm{DEN}}\left(s_t^u&#x3D;j\right)$ 的 FST 的前向-后向计算量较大, 一般要在 GPU 中 运行, 并且有两处特殊处理:</p>
-<ul>
-<li>不采用对数和指数运算, 为了避免目标函数值突变, 同时需对前向和后向 计算结果做规整。</li>
-<li>先做 $\gamma_u^{\mathrm{DEN}}\left(s_t^u&#x3D;j\right)$ 计算, 再做 $\gamma_u^{\mathrm{NUM}}\left(s_t^u&#x3D;j\right)$ 计算，以减少内存占用。</li>
-</ul>
-<h4 id="Lattice-free-MMI-的训练流程"><a href="#Lattice-free-MMI-的训练流程" class="headerlink" title="Lattice-free MMI 的训练流程"></a>Lattice-free MMI 的训练流程</h4><ul>
-<li>Step1：MMI分母部分 $\gamma_u^{\mathrm{DEN}}\left(s_t^u&#x3D;j\right)$ 的FST<strong>前向-后向计算</strong>直接使用音素级别的FST图，不需要每个句子分别解码得到的Lattice；</li>
-<li>Step2：基于GMM-HMM或DNN-HMM对齐得到句子的Lattice（以FST形式保存），进行MMI分子部分 $\gamma_u^{\mathrm{NUM}}\left(s_t^u&#x3D;j\right)$ 的<strong>前向-后向计算</strong>。</li>
-<li>Step3：进行Lattice-free MMI训练。</li>
-</ul>
-<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230118001853394.png" alt="image-20230118001853394"></p>
-<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230118001913981.png" alt="image-20230118001913981"></p>
-<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230118001934327.png" alt="image-20230118001934327"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF/" itemprop="url">《语音识别原理与应用》洪青阳 第8章 语言模型————平滑技术</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
-                2023-01-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">语言模型</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2023/01/10/语言模型/平滑技术/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="语言模型平滑技术"><a href="#语言模型平滑技术" class="headerlink" title="语言模型平滑技术"></a>语言模型平滑技术</h1><blockquote>
-<p>《语音识别原理与技术》洪青阳</p>
-</blockquote>
-<p>语言模型的概率需要通过大量的文本语料来估计，采用最大似然算法。但由于统计语料有限，所以会存在数据稀疏的情況，这可能导致零概率或估计不准的问题，因此对语料中未出现或少量出现的词序列，需要采用平滑技术进行间接预测。</p>
-<p>概括起来，平滑技术主要有三种。</p>
-<ul>
-<li>折扣法( Discounting)：从已有观察值概率调配一些给未观察值概率，例如 Good-Turing（吉德-图灵）折扣法。</li>
-<li>插值法（Interpolation）：将高阶模型和低阶模型做线性组合，如Jelinek-Mercer 插值法，也可做非线性组合，如Kneser-Ney 插值法。</li>
-<li>回退法(Back-off）：基于低阶模型估计未观察到的高阶模型，例如Katz 回退法。</li>
-</ul>
-<h2 id="Good-Turing-折扣法"><a href="#Good-Turing-折扣法" class="headerlink" title="Good-Turing 折扣法"></a>Good-Turing 折扣法</h2><p>Good-Turing 折扣法是从已有观察值概率调配一些给未观察值概率。设总词数为 $N$，出现1次的词数为 $N_1$，出现 $c$ 次的词数为 $N$，因此有<br>$$<br>N&#x3D;\sum_ccN_c<br>$$<br>平滑后，出现次数 $c$ 被替换为 $c^*&#x3D;\frac{(c+1)N_{c+1}}{N_c}$，其对应的概率为<br>$$<br>P_{GT}&#x3D;\frac{c^*}{N}<br>$$</p>
-<p>例如，给定分词后的句子语料（假设只有两句)：</p>
-<ul>
-<li>“我们 明年 会 有全新 的 开始”</li>
-<li>“我们 彼此 祝福 着 等待 再见 那 一 天”</li>
-</ul>
-<p>统计词频数：“我们°出现2次，“明年”出现1次，……，“天” 出现1次，即</p>
-<p>折扣前：$N&#x3D;16$， $N_1&#x3D;14$, $N_2 &#x3D;1$</p>
-<p>折扣后：$P_0^*&#x3D;\frac{N_1}{N}&#x3D;\frac{14}{16}$ ，$P_1^*&#x3D;\frac{c_1^*}{N}&#x3D;\frac{2}{14*16}$</p>
-<p>由于Good-Turing 折扣法设有考虑高阶模型和低阶模型之间的关系，所以一般不单独使用，而是作为其他平滑技术的一个配套方法。</p>
-<h2 id="Jelinek-Mercer-插值法"><a href="#Jelinek-Mercer-插值法" class="headerlink" title="Jelinek-Mercer 插值法"></a>Jelinek-Mercer 插值法</h2><p>Jelinek-Mercer 是一种线性插值法。为了避免出现P(W)&#x3D;0或接近于零的情况，可以用三元模型、二元模型和一元模型的相对概率做插值。最简单的线性插值如下：<br>$$<br>\hat{P}\left(w_t \mid w_{t-2} w_{t-1}\right)&#x3D;\lambda_1 P\left(w_t \mid w_{t-2} w_{t-1}\right)+\lambda_2 P\left(w_t \mid w_{t-1}\right)+\lambda_3 P\left(w_t\right)<br>$$<br>其中, $\lambda_1+\lambda_2+\lambda_3&#x3D;1$ 。</p>
-<p>还有一种方法是基于上下文设置权重系数，高频的上下文通常会有高的权重系数。把语料库分为 training data held-out data 和 test data 三部分，固定好 training<br>data 的n-gram 概率，寻求以下式子的最大值：<br>$$<br>\begin{aligned}<br>\hat{P}\left(w_t \mid w_{t-2} w_{t-1}\right) &amp; &#x3D;\lambda_1\left(w_{t-2}^{t-1}\right) P\left(w_t \mid w_{t-2} w_{t-1}\right)+\lambda_2\left(w_{t-2}^{t-1}\right) P\left(w_t \mid w_{t-1}\right) \<br>&amp; +\lambda_3\left(w_{t-2}^{t-1}\right) P\left(w_t\right)<br>\end{aligned}<br>$$<br>其中, $\lambda_1\left(w_{t-2}^{t-1}\right) 、 \lambda_2\left(w_{t-2}^{t-1}\right)$ 和 $\lambda_3\left(w_{t-2}^{t-1}\right)$ 基于 held-out data 通过最大似然优化得到, 即保持 $n$-gram 概率不变, 寻求使得这批集外数据预测概率最高的权重系数。</p>
-<h2 id="Kneser-Ney-插值法"><a href="#Kneser-Ney-插值法" class="headerlink" title="Kneser-Ney 插值法"></a>Kneser-Ney 插值法</h2><p>在训练数据非常少的情况下，更适合采用 Kneser-Ney 插值法。Kneser-Ney是一种非线性插值法，它以 Absolote discounting（绝对折扣）插值方法该变而来。</p>
-<p>Absolute discounting 方法充分利用高阶和低阶语言模型，把高阶的概率信息分配给低阶的一元模型。例如，针对二元模型，Absolute discounting 平滑公式表示如下：<br>$$<br>P_{\mathrm{abs}}\left(w_t \mid w_{t-1}\right)&#x3D;\frac{\max \left(c\left(w_{t-1} w_t\right)-d, 0\right)}{\sum_{w^{\prime}} c\left(w_{t-1} w^{\prime}\right)}+\lambda P_{\mathrm{abs}}\left(w_t\right)<br>$$<br>其中, $c\left(w_{t-1} w^{\prime}\right)$ 表示 $w_{t-1} w^{\prime}$ 的组合次数, $w^{\prime}$ 是任意一个词, $d$ 是一个固定的折扣 值, $\lambda$ 是一个规整常量。</p>
-<p>$P_{abs}(w_t)$ 是一元模型，它按单词出 现次数进行统计，这样可能会存在出现次数异常偏大现象。比如“杯子〞 出现频次较高，因此单独的“杯子” 按出现次数统计可能会比 “茶” 出现次数多，即 $P_abs(杯子)&gt;P_{abs}(茶)$ ，这样会使 Absolote discounting平滑公式因 $P_{abs}(w)$ 值过大出现“喝杯子”比“喝茶”概率高的奇怪现象。</p>
-<p>Kneser-Ney 插值法对此做了改进，保留了 Absolute discounting 平滑公式的第一部分，但重写了第二部分。第二部分中的概率不是词单独出现的概率，而是与其他词组合的概率。Kneser-Ney 平滑公式如下：<br>$$<br>P_{\mathrm{KN}}\left(w_t \mid w_{t-1}\right)&#x3D;\frac{\max \left(c\left(w_{t-1} w_t\right)-d, 0\right)}{\sum_{w^{\prime}} c\left(w_{t-1} w^{\prime}\right)}+\lambda \frac{\left|\left{w_{t-1}: c\left(w_{t-1}, w_t\right)&gt;0\right}\right|}{\left|\left{w_{j-1}: c\left(w_{j-1}, w_j\right)&gt;0\right}\right|}<br>$$<br>其中, $\lambda$ 是规整的常量, $d$ 是一个固定的折扣值, $w_{j-1} w_j$ 是任意两个词的组合。第 一部分的分母可进一步表示为一元模型统计, 因此 Kneser-Ney 平滑公式还可简 化为<br>$$<br>P_{\mathrm{KN}}\left(w_t \mid w_{t-1}\right)&#x3D;\frac{\max \left(c\left(w_{t-1} w_t\right)-d, 0\right)}{c\left(w_{t-1}\right)}+\lambda \frac{\left|\left{w_{t-1}: c\left(w_{t-1}, w_t\right)&gt;0\right}\right|}{\left|\left{w_{j-1}: c\left(w_{j-1}, w_j\right)&gt;0\right}\right|}<br>$$<br>Kneser-Ney 平滑法还有一个改进版本，其分别针对一元、二元、三元和三元以上的组合，设定不同的折扣值d，这种配置会取得更佳的平滑效果。</p>
-<h2 id="Katz-回退法"><a href="#Katz-回退法" class="headerlink" title="Katz 回退法"></a>Katz 回退法</h2><p>Katz 在 1987 年发表的论文中, 在 Good-Turing 折扣法的基础上, 提出了蚥 进的平滑技术，其主要贡献是回退法。</p>
-<p>例如, 计算 $P\left(w_t \mid w_{t-2} w_{t-1}\right)$, 当出现的三元统计次数不是很多时, 可以采用 Good-Turing 折扣法进行平滑。当完全没有相关的三元统计时, 可以使用二元语法来估计, 如果没有相关的二元统计, 那么我们就用一元模型估计。</p>
-<p>综合起来, 采用 Katz 平滑技术的概率估计公式如下:<br>$$<br>P\left(w_t \mid w_{t-2} w_{t-1}\right)&#x3D;\left{\begin{array}{cl}<br>\frac{C\left(w_{t-2} w_{t-1} w_t\right)}{C\left(w_{t-2} w_{t-1}\right)}, &amp; \text { 当 } C&gt;C^{\prime} \text { 时 } \<br>d \frac{C\left(w_{t-2} w_{t-1} w_t\right)}{C\left(w_{t-2} w_{t-1}\right)}, &amp; \text { 当 } 0&lt;C&lt;C^{\prime} \text { 时 } \<br>\text { backoff }\left(w_{t-2} w_{t-1}\right) P\left(w_t \mid w_{t-1}\right) &amp;<br>\end{array}\right.<br>$$<br>其中, $C$ 是 $C\left(w_{t-2} w_{t-1} w_t\right)$ 的简写, 表示三个词同时出现的次数。 $C^{\prime}$ 是一个计数囯 值, 当 $C&gt;C^{\prime}$ 时, 直接采用最大似然法估计概率; 当 $0&lt;C&lt;C^{\prime}$ 时, 则采用 Good-Turing 折扣法。 $d$ 是折扣系数。backoff $\left(w_{t-2} w_{t-1}\right)$ 是回退权重, 计算回退权 重, 是先采用折扣法计算低阶统计概率, 然后得到<br>$$<br>\text { backoff }\left(w_{t-2} w_{t-1}\right)&#x3D;\frac{1-\sum P\left(w \mid w_{t-2} w_{t-1}\right)}{\sum P\left(w^{\prime} \mid w_{t-1}\right)}&#x3D;\frac{1-\sum P\left(w \mid w_{t-2} w_{t-1}\right)}{1-\sum P\left(w \mid w_{t-1}\right)}<br>$$<br>其中, $w$ 是在训练语料中 $w_{t-2} w_{t-1}$ 之后出现的词, $w^{\prime}$ 是在训练语料中 $w_{t-2} w_{t-1}$ 之后 末出现的词。</p>
-<p>采用 Katz 回退法, 训练好的语宆模型格式如下。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">\data</span><br><span class="line">ngram 1=n1 # 一元语言模型</span><br><span class="line">ngram 2=n2二元语言模型 </span><br><span class="line">ngram 3=n3三元语言模型</span><br><span class="line"></span><br><span class="line">\1-grams :</span><br><span class="line">pro_1 wordl back_pro1</span><br><span class="line"></span><br><span class="line">\2-grams :</span><br><span class="line">pro_2 word1 word2 back_pro2</span><br><span class="line"></span><br><span class="line">\3-grams:</span><br><span class="line">pro_3 word1 word2 word3</span><br><span class="line"></span><br><span class="line">\end \</span><br></pre></td></tr></table></figure>
-
-
-
-<p>其中, pro_1 是一元模型 (1-grams) 单词的对数概率, pro_2 是二元模型 (2-grams 的对数概率, pro_3 是三元模型 (3-grams) 的对数概率。一元模型和二元模型后面分别带有回退权重 back_pro1 和 back_pro2。</p>
-<p>如果要得到三个词出现的概率 $P$ (word3&#x2F;word1,word2), 则根据以上语言模型, 其计算过程如下。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">if (存在 (word1, word2, word3) 的三元模型) &#123; </span><br><span class="line">	return pro_ 3 (word1, word2, word3) ;</span><br><span class="line">&#125;else if (存在 (word1, word2) 二元模型) &#123;</span><br><span class="line">	return back_pro2 (word1, word2) *P (word3 / word2) ; </span><br><span class="line">&#125;else&#123;</span><br><span class="line">	return P(word3 | word2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if (存在 (word1, word2) 的二元模型) &#123;</span><br><span class="line">	return pro_ 2 (word1, word2);</span><br><span class="line">&#125;else&#123;</span><br><span class="line">	return back_pro2(word1)*pro_1 (word2) :</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>如果不存在(word 1,word 2 ,word 3 )的三元模型, 则采用回退法, 即结合回退权 重 back_pro2(word1,word2) 来计算: back_pro2(word1,word2) $* P($ word3&#x2F;word2)。如 “拨打 郑州 局” 这样的组合, 如果语料库中没有，即没有相应的三元模型, 则 查找 “拨打 郑州” 和 “郑州 局” 的组合概率和回退概率。注意, 概率均为对数 概率，假设值如下：</p>
-<p>$-3.220352$ 拨打 郑州 $-0.4072262$</p>
-<p>$-3.012735$ 郑州 局 $-0.3083073$</p>
-<p>则 $P($ “拨打 郑州 局” $)&#x3D;P($ “局 | 拨打 郑州” $)&#x3D;$ back_pro2(拨打,郑州)*P(局 郑州 $)&#x3D;\ln \left(\mathrm{e}^{-0.4072262 *} \mathrm{e}^{-3.012735}\right)&#x3D;-3.4199612$ 。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/RNN%20LM/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/RNN%20LM/" itemprop="url">《语音识别原理与应用》洪青阳 第8章 语言模型————RNN LM</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
-                2023-01-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">语言模型</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/RNN%20LM/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2023/01/10/语言模型/RNN LM/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="RNN-LM"><a href="#RNN-LM" class="headerlink" title="RNN LM"></a>RNN LM</h1><blockquote>
-<p>《语音识别原理与技术》洪青阳 P152</p>
-</blockquote>
-<p><img src="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/RNN%20LM/image-20230112181444005.png" alt="image-20230112181444005"></p>
-<p>在 RNNLM 中, 词统计概率表示如下:<br>$$<br>P\left(w_t \mid w_1 \cdots w_{t-1}\right) \approx P\left(w_t \mid w_{t-1}, h_{t-1}\right)&#x3D;P\left(w_t \mid h_t\right)<br>$$<br>其中, $h_{t-1}$ 是隐藏层向量, 代表 $t$ 时刻之前的词序列 $w_1 \cdots w_{t-1}$ 。</p>
-<p>在 RNN 的输人层, 每个词都被映射为 $N$ 维的 1-of- $N$ 向量, 即只有该词对应 的元素为 1 , 向量其余元素为 0 。如在以上词典中, “一个” 对应的 $1-\mathrm{of}-~ N$ 向量为 ${1,0,0,0, \cdots, 0,0}$ 。</p>
-<p>输人的词 $w_t$ 被转换为 1-of-N 向量后, 将其输人 RNN 网络。 <strong>输出层的输出 $y_t$ 也是一个向量, 向量的每个元素与词典的词一一对应</strong>, 即 $y_t$ 的维度也是 $N$ 。（输入输出维度相同，每维代表的意义相同）</p>
-<p><img src="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/RNN%20LM/image-20230112181458927.png" alt="image-20230112181458927"></p>
-<p>由于词很多 N会很大，运算复杂度很高，并且会很稀疏（one-hot编码）。一种有效办法是对单词进行分类。按类别训练语言模型。<br>$$<br>P\left(w_{t+1} \mid w_c\right)&#x3D;P\left(C_{t+1} \mid C_t\right) P\left(w_t \mid C_t\right) P\left(w_{t+1} \mid C_{t+1}\right)<br>$$<br>例如：<br>$$<br>P(\text { 北京 } \mid \text { 中国 })&#x3D;P(\text { 名词|名词 }) P(\text { 中国|名词 }) P(\text { 北京|名词 })<br>$$<br>其中, 词与类别的组合概率可通过词频数统计得到。这样，即使在训练语料里没 有 “中国 北京” 的组合，但通过类别间概率和词与类别的概率，也可间接计算出这两个词的组合概率, 从而有效地避免了训练数据的稀疏。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/%E8%AF%86%E5%88%AB/TDNNF%E6%8E%A8%E5%AF%BC%E8%BF%87%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023/01/10/%E8%AF%86%E5%88%AB/TDNNF%E6%8E%A8%E5%AF%BC%E8%BF%87%E7%A8%8B/" itemprop="url">《语音识别原理与应用》洪青阳 第10章 DNN-HMM TDNNF推导过程</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
-                2023-01-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
-                    <span itemprop="name">语音识别</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2023/01/10/%E8%AF%86%E5%88%AB/TDNNF%E6%8E%A8%E5%AF%BC%E8%BF%87%E7%A8%8B/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2023/01/10/识别/TDNNF推导过程/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="TDNNF推导过程"><a href="#TDNNF推导过程" class="headerlink" title="TDNNF推导过程"></a>TDNNF推导过程</h1><blockquote>
-<p>《语音识别原理与应用》洪青阳 P215</p>
-</blockquote>
-<p>2018 年，著名的语音学者 Daniel Povey对TDNN 网络做了进一步的改进提出了因子分解的 TDNN，即带有半正交矩阵的TDNN-F，TDNN-F建立在奇异值分解 ( Singular Value Decomposition, SVD)的基础上。作为最著名的矩阵分解方法，SVD 是减少已训练的模型大小的一种有效方法，因为通过SVD我们可以将每个权重矩阵分解为两个因子矩阵，通过丟弃相对更小的奇异值，优化网络参数。</p>
-<p>TDNNF 特点：</p>
-<ul>
-<li>通过奇异值分解(SVD) ，把每个权重矩阵因子分解为两个更小的矩阵，减少神经网络参数。</li>
-<li>TDNN-F限定其中一个矩阵为半正交的(semi-orthogonal)。</li>
-<li>类似残差网络，TDNN-F采用跳层连接，减少梯度的消失。</li>
-</ul>
-<p>TDNN-F 的内部结构与经过SVD压缩的 TDNN 是相同的。虽然经过 SVD 压缩的 TDNN 在随机初始化后，直接训练带有瓶颈层的模型会更高效，但是训练不稳定的问题时有发生。为了避免这种情况，TDNN-F 会在进行完SVD 分解后，将两个分解因子矩阵中的一个约束为半正交矩阵。这种做法既符合 SVD 的要求和特点，也不会损失网络的建模能力。</p>
-<p>我们来看具体的推导过程。TDNN-F 把一个权重矩阵M分解为两个矩阵A和B，并限定其中B为半正交的矩阵。<br>$$<br>M&#x3D;AB<br>$$<br>迭代优化M如下：<br>$$<br>M^{\prime} \leftarrow M-\varepsilon \Delta M<br>$$<br>定义<br>$$<br>P&#x3D;M M^{\top}<br>$$<br>TDNN-F的限制条件是使 $P&#x3D;I$，定义<br>$$<br>Q&#x3D;p-I<br>$$<br>TDNN-F 的优化目标等价于使用最小化函数<br>$$<br>f&#x3D;\operatorname{tr}\left(Q Q^{\top}\right)<br>$$<br>对Q、P、M求偏导，分别得到<br>$$<br>\begin{aligned}<br>&amp; \frac{\partial f}{\partial Q}&#x3D;2 Q \<br>&amp; \frac{\partial f}{\partial P}&#x3D;2 Q \<br>&amp; \frac{\partial f}{\partial M}&#x3D;4 Q M<br>\end{aligned}<br>$$<br>因此，可如下迭代优化权重矩阵M：<br>$$<br>\begin{gathered}<br>\Delta M&#x3D;\nabla_N f&#x3D;\frac{\partial f}{\partial M}&#x3D;4 Q M \<br>M^{\prime} \leftarrow M-4 \varepsilon Q M<br>\end{gathered}<br>$$<br>其中， $\varepsilon$ 是学习率。</p>
-<p>假如原来 $M$ 是 $128 \times 128$ 矩阵, 通过因子分解，得到的 $A$ 为 $128 \times 32$ 矩阵, $B$ 为 $32 \times 128$ 矩阵, 其中 32 是中间瓶颈层的节点数。这样网络参数量从 $128 \times 128$ 个减 少到 $128 \times 32 \times 2$ 个, 即从 16384 个减到 8192 个, 权重运算量也会大为诚少。</p>
-<p>随着网络的加深, 为了减少梯度消失的情况, 在 TDNN-F 网络中还增加了跳层连接, 即将之前层的输出加上当前层的输出作为下一层的输入。这种构造与残差结构类似, 目的都是为了减少梯度消失的情况。同时, 为了防止模型过拟合, 在每个 TDNN-F 的单元结构中还㴛加了 dropout 层。</p>
-<h1 id="kaldi中的TDNN-F"><a href="#kaldi中的TDNN-F" class="headerlink" title="kaldi中的TDNN-F"></a>kaldi中的TDNN-F</h1><p>参考Kaldi 的配置文件，采用40 维FBank特征，则 TDNN-F 的结构如下表所示。我们解释一下tdnnf-layer的参数</p>
-<ul>
-<li>l2-regularize：设置L2 正则系数。</li>
-<li>dropout-proportion：设置丢弃（dropout）的比例。</li>
-<li>bypass-scale：设置跳连接时针对上一层输出节点的尺度，默认值为 0.66，不应该大于1。当设为0时，则不进行跳连接操作。</li>
-<li>time-stride ：控制时间维度拼接，time-stride&#x3D;1表示在线性层使用Append(-1,0)，在仿射变换时使用 Append(0.1)。设置当time-stride 为负数时，如-1，则表示先使用右偏置，再使用左偏置。</li>
-<li>bottleneck-dim：设置分解矩阵后的维度。</li>
-</ul>
-<p>TDNN-F 网络结构信息表：</p>
-<p>tdnnf-layer	name&#x3D;tdnnf2	12-regularize&#x3D;0.01	dropout-proportion&#x3D;0.0	bypass-scale&#x3D;0.66	dim&#x3D;1536	bottleneck-dim&#x3D;160	time-stride&#x3D;1</p>
-<p>第一个隐藏层的输出是1536 维的特征。第二个隐藏层接收上层的输人。先进行因子分解，因为 time-strde&#x3D;1，所以在线性变换时输入的特征是当前帧与左偏移一帧的拼接帧。通过线性变换将特征维度减少到瓶颈节点数，不同于普通的线性变换，这里限制B矩阵为半正交矩阵，同时使用了 L2 正则系统。接着经过 1536x160 （time-stride&#x3D;1，仿射变换时的输入是当前帧与右偏移一帧的拼接帧）权重矩阵计算，并进行仿射变换得到 1536 维的输出。上面两生完成了增加中间层、减少参数数量的操作。再使用 ReLU 两数作为激活函数，进行批处理规整（batchnorm）计算，然后再根据 dropout-proportion 的值进行dropout。 最后由于 bypass-scale&#x3D;0.66 不为0，所以要进行跳连接，将第一个隐藏层的output 和第二个隐藏层的 output 相加作为第三个隐藏层的输人。</p>
-<p>TDNN-F与CNN结合：CNN提取局部频域特征，TDNN-F提取上下文时域特征。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1553,6 +825,734 @@
 </ul>
 <h4 id="回溯："><a href="#回溯：" class="headerlink" title="回溯："></a>回溯：</h4><p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707145028147.png" alt="image-20210707145028147"></p>
 <p>beam：指的是一个窗口范围，对于一个token，到下一个状态弧在不在这个范围里，不在就舍弃，而不是取前beam个，是beam对应的窗口范围</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/RNN%20LM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/RNN%20LM/" itemprop="url">《语音识别原理与应用》洪青阳 第8章 语言模型————RNN LM</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
+                2023-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">语言模型</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/RNN%20LM/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/10/语言模型/RNN LM/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="RNN-LM"><a href="#RNN-LM" class="headerlink" title="RNN LM"></a>RNN LM</h1><blockquote>
+<p>《语音识别原理与技术》洪青阳 P152</p>
+</blockquote>
+<p><img src="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/RNN%20LM/image-20230112181444005.png" alt="image-20230112181444005"></p>
+<p>在 RNNLM 中, 词统计概率表示如下:<br>$$<br>P\left(w_t \mid w_1 \cdots w_{t-1}\right) \approx P\left(w_t \mid w_{t-1}, h_{t-1}\right)&#x3D;P\left(w_t \mid h_t\right)<br>$$<br>其中, $h_{t-1}$ 是隐藏层向量, 代表 $t$ 时刻之前的词序列 $w_1 \cdots w_{t-1}$ 。</p>
+<p>在 RNN 的输人层, 每个词都被映射为 $N$ 维的 1-of- $N$ 向量, 即只有该词对应 的元素为 1 , 向量其余元素为 0 。如在以上词典中, “一个” 对应的 $1-\mathrm{of}-~ N$ 向量为 ${1,0,0,0, \cdots, 0,0}$ 。</p>
+<p>输人的词 $w_t$ 被转换为 1-of-N 向量后, 将其输人 RNN 网络。 <strong>输出层的输出 $y_t$ 也是一个向量, 向量的每个元素与词典的词一一对应</strong>, 即 $y_t$ 的维度也是 $N$ 。（输入输出维度相同，每维代表的意义相同）</p>
+<p><img src="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/RNN%20LM/image-20230112181458927.png" alt="image-20230112181458927"></p>
+<p>由于词很多 N会很大，运算复杂度很高，并且会很稀疏（one-hot编码）。一种有效办法是对单词进行分类。按类别训练语言模型。<br>$$<br>P\left(w_{t+1} \mid w_c\right)&#x3D;P\left(C_{t+1} \mid C_t\right) P\left(w_t \mid C_t\right) P\left(w_{t+1} \mid C_{t+1}\right)<br>$$<br>例如：<br>$$<br>P(\text { 北京 } \mid \text { 中国 })&#x3D;P(\text { 名词|名词 }) P(\text { 中国|名词 }) P(\text { 北京|名词 })<br>$$<br>其中, 词与类别的组合概率可通过词频数统计得到。这样，即使在训练语料里没 有 “中国 北京” 的组合，但通过类别间概率和词与类别的概率，也可间接计算出这两个词的组合概率, 从而有效地避免了训练数据的稀疏。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF/" itemprop="url">《语音识别原理与应用》洪青阳 第8章 语言模型————平滑技术</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
+                2023-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">语言模型</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/10/语言模型/平滑技术/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="语言模型平滑技术"><a href="#语言模型平滑技术" class="headerlink" title="语言模型平滑技术"></a>语言模型平滑技术</h1><blockquote>
+<p>《语音识别原理与技术》洪青阳</p>
+</blockquote>
+<p>语言模型的概率需要通过大量的文本语料来估计，采用最大似然算法。但由于统计语料有限，所以会存在数据稀疏的情況，这可能导致零概率或估计不准的问题，因此对语料中未出现或少量出现的词序列，需要采用平滑技术进行间接预测。</p>
+<p>概括起来，平滑技术主要有三种。</p>
+<ul>
+<li>折扣法( Discounting)：从已有观察值概率调配一些给未观察值概率，例如 Good-Turing（吉德-图灵）折扣法。</li>
+<li>插值法（Interpolation）：将高阶模型和低阶模型做线性组合，如Jelinek-Mercer 插值法，也可做非线性组合，如Kneser-Ney 插值法。</li>
+<li>回退法(Back-off）：基于低阶模型估计未观察到的高阶模型，例如Katz 回退法。</li>
+</ul>
+<h2 id="Good-Turing-折扣法"><a href="#Good-Turing-折扣法" class="headerlink" title="Good-Turing 折扣法"></a>Good-Turing 折扣法</h2><p>Good-Turing 折扣法是从已有观察值概率调配一些给未观察值概率。设总词数为 $N$，出现1次的词数为 $N_1$，出现 $c$ 次的词数为 $N$，因此有<br>$$<br>N&#x3D;\sum_ccN_c<br>$$<br>平滑后，出现次数 $c$ 被替换为 $c^*&#x3D;\frac{(c+1)N_{c+1}}{N_c}$，其对应的概率为<br>$$<br>P_{GT}&#x3D;\frac{c^*}{N}<br>$$</p>
+<p>例如，给定分词后的句子语料（假设只有两句)：</p>
+<ul>
+<li>“我们 明年 会 有全新 的 开始”</li>
+<li>“我们 彼此 祝福 着 等待 再见 那 一 天”</li>
+</ul>
+<p>统计词频数：“我们°出现2次，“明年”出现1次，……，“天” 出现1次，即</p>
+<p>折扣前：$N&#x3D;16$， $N_1&#x3D;14$, $N_2 &#x3D;1$</p>
+<p>折扣后：$P_0^*&#x3D;\frac{N_1}{N}&#x3D;\frac{14}{16}$ ，$P_1^*&#x3D;\frac{c_1^*}{N}&#x3D;\frac{2}{14*16}$</p>
+<p>由于Good-Turing 折扣法设有考虑高阶模型和低阶模型之间的关系，所以一般不单独使用，而是作为其他平滑技术的一个配套方法。</p>
+<h2 id="Jelinek-Mercer-插值法"><a href="#Jelinek-Mercer-插值法" class="headerlink" title="Jelinek-Mercer 插值法"></a>Jelinek-Mercer 插值法</h2><p>Jelinek-Mercer 是一种线性插值法。为了避免出现P(W)&#x3D;0或接近于零的情况，可以用三元模型、二元模型和一元模型的相对概率做插值。最简单的线性插值如下：<br>$$<br>\hat{P}\left(w_t \mid w_{t-2} w_{t-1}\right)&#x3D;\lambda_1 P\left(w_t \mid w_{t-2} w_{t-1}\right)+\lambda_2 P\left(w_t \mid w_{t-1}\right)+\lambda_3 P\left(w_t\right)<br>$$<br>其中, $\lambda_1+\lambda_2+\lambda_3&#x3D;1$ 。</p>
+<p>还有一种方法是基于上下文设置权重系数，高频的上下文通常会有高的权重系数。把语料库分为 training data held-out data 和 test data 三部分，固定好 training<br>data 的n-gram 概率，寻求以下式子的最大值：<br>$$<br>\begin{aligned}<br>\hat{P}\left(w_t \mid w_{t-2} w_{t-1}\right) &amp; &#x3D;\lambda_1\left(w_{t-2}^{t-1}\right) P\left(w_t \mid w_{t-2} w_{t-1}\right)+\lambda_2\left(w_{t-2}^{t-1}\right) P\left(w_t \mid w_{t-1}\right) \<br>&amp; +\lambda_3\left(w_{t-2}^{t-1}\right) P\left(w_t\right)<br>\end{aligned}<br>$$<br>其中, $\lambda_1\left(w_{t-2}^{t-1}\right) 、 \lambda_2\left(w_{t-2}^{t-1}\right)$ 和 $\lambda_3\left(w_{t-2}^{t-1}\right)$ 基于 held-out data 通过最大似然优化得到, 即保持 $n$-gram 概率不变, 寻求使得这批集外数据预测概率最高的权重系数。</p>
+<h2 id="Kneser-Ney-插值法"><a href="#Kneser-Ney-插值法" class="headerlink" title="Kneser-Ney 插值法"></a>Kneser-Ney 插值法</h2><p>在训练数据非常少的情况下，更适合采用 Kneser-Ney 插值法。Kneser-Ney是一种非线性插值法，它以 Absolote discounting（绝对折扣）插值方法该变而来。</p>
+<p>Absolute discounting 方法充分利用高阶和低阶语言模型，把高阶的概率信息分配给低阶的一元模型。例如，针对二元模型，Absolute discounting 平滑公式表示如下：<br>$$<br>P_{\mathrm{abs}}\left(w_t \mid w_{t-1}\right)&#x3D;\frac{\max \left(c\left(w_{t-1} w_t\right)-d, 0\right)}{\sum_{w^{\prime}} c\left(w_{t-1} w^{\prime}\right)}+\lambda P_{\mathrm{abs}}\left(w_t\right)<br>$$<br>其中, $c\left(w_{t-1} w^{\prime}\right)$ 表示 $w_{t-1} w^{\prime}$ 的组合次数, $w^{\prime}$ 是任意一个词, $d$ 是一个固定的折扣 值, $\lambda$ 是一个规整常量。</p>
+<p>$P_{abs}(w_t)$ 是一元模型，它按单词出 现次数进行统计，这样可能会存在出现次数异常偏大现象。比如“杯子〞 出现频次较高，因此单独的“杯子” 按出现次数统计可能会比 “茶” 出现次数多，即 $P_abs(杯子)&gt;P_{abs}(茶)$ ，这样会使 Absolote discounting平滑公式因 $P_{abs}(w)$ 值过大出现“喝杯子”比“喝茶”概率高的奇怪现象。</p>
+<p>Kneser-Ney 插值法对此做了改进，保留了 Absolute discounting 平滑公式的第一部分，但重写了第二部分。第二部分中的概率不是词单独出现的概率，而是与其他词组合的概率。Kneser-Ney 平滑公式如下：<br>$$<br>P_{\mathrm{KN}}\left(w_t \mid w_{t-1}\right)&#x3D;\frac{\max \left(c\left(w_{t-1} w_t\right)-d, 0\right)}{\sum_{w^{\prime}} c\left(w_{t-1} w^{\prime}\right)}+\lambda \frac{\left|\left{w_{t-1}: c\left(w_{t-1}, w_t\right)&gt;0\right}\right|}{\left|\left{w_{j-1}: c\left(w_{j-1}, w_j\right)&gt;0\right}\right|}<br>$$<br>其中, $\lambda$ 是规整的常量, $d$ 是一个固定的折扣值, $w_{j-1} w_j$ 是任意两个词的组合。第 一部分的分母可进一步表示为一元模型统计, 因此 Kneser-Ney 平滑公式还可简 化为<br>$$<br>P_{\mathrm{KN}}\left(w_t \mid w_{t-1}\right)&#x3D;\frac{\max \left(c\left(w_{t-1} w_t\right)-d, 0\right)}{c\left(w_{t-1}\right)}+\lambda \frac{\left|\left{w_{t-1}: c\left(w_{t-1}, w_t\right)&gt;0\right}\right|}{\left|\left{w_{j-1}: c\left(w_{j-1}, w_j\right)&gt;0\right}\right|}<br>$$<br>Kneser-Ney 平滑法还有一个改进版本，其分别针对一元、二元、三元和三元以上的组合，设定不同的折扣值d，这种配置会取得更佳的平滑效果。</p>
+<h2 id="Katz-回退法"><a href="#Katz-回退法" class="headerlink" title="Katz 回退法"></a>Katz 回退法</h2><p>Katz 在 1987 年发表的论文中, 在 Good-Turing 折扣法的基础上, 提出了蚥 进的平滑技术，其主要贡献是回退法。</p>
+<p>例如, 计算 $P\left(w_t \mid w_{t-2} w_{t-1}\right)$, 当出现的三元统计次数不是很多时, 可以采用 Good-Turing 折扣法进行平滑。当完全没有相关的三元统计时, 可以使用二元语法来估计, 如果没有相关的二元统计, 那么我们就用一元模型估计。</p>
+<p>综合起来, 采用 Katz 平滑技术的概率估计公式如下:<br>$$<br>P\left(w_t \mid w_{t-2} w_{t-1}\right)&#x3D;\left{\begin{array}{cl}<br>\frac{C\left(w_{t-2} w_{t-1} w_t\right)}{C\left(w_{t-2} w_{t-1}\right)}, &amp; \text { 当 } C&gt;C^{\prime} \text { 时 } \<br>d \frac{C\left(w_{t-2} w_{t-1} w_t\right)}{C\left(w_{t-2} w_{t-1}\right)}, &amp; \text { 当 } 0&lt;C&lt;C^{\prime} \text { 时 } \<br>\text { backoff }\left(w_{t-2} w_{t-1}\right) P\left(w_t \mid w_{t-1}\right) &amp;<br>\end{array}\right.<br>$$<br>其中, $C$ 是 $C\left(w_{t-2} w_{t-1} w_t\right)$ 的简写, 表示三个词同时出现的次数。 $C^{\prime}$ 是一个计数囯 值, 当 $C&gt;C^{\prime}$ 时, 直接采用最大似然法估计概率; 当 $0&lt;C&lt;C^{\prime}$ 时, 则采用 Good-Turing 折扣法。 $d$ 是折扣系数。backoff $\left(w_{t-2} w_{t-1}\right)$ 是回退权重, 计算回退权 重, 是先采用折扣法计算低阶统计概率, 然后得到<br>$$<br>\text { backoff }\left(w_{t-2} w_{t-1}\right)&#x3D;\frac{1-\sum P\left(w \mid w_{t-2} w_{t-1}\right)}{\sum P\left(w^{\prime} \mid w_{t-1}\right)}&#x3D;\frac{1-\sum P\left(w \mid w_{t-2} w_{t-1}\right)}{1-\sum P\left(w \mid w_{t-1}\right)}<br>$$<br>其中, $w$ 是在训练语料中 $w_{t-2} w_{t-1}$ 之后出现的词, $w^{\prime}$ 是在训练语料中 $w_{t-2} w_{t-1}$ 之后 末出现的词。</p>
+<p>采用 Katz 回退法, 训练好的语宆模型格式如下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">\data</span><br><span class="line">ngram 1=n1 # 一元语言模型</span><br><span class="line">ngram 2=n2二元语言模型 </span><br><span class="line">ngram 3=n3三元语言模型</span><br><span class="line"></span><br><span class="line">\1-grams :</span><br><span class="line">pro_1 wordl back_pro1</span><br><span class="line"></span><br><span class="line">\2-grams :</span><br><span class="line">pro_2 word1 word2 back_pro2</span><br><span class="line"></span><br><span class="line">\3-grams:</span><br><span class="line">pro_3 word1 word2 word3</span><br><span class="line"></span><br><span class="line">\end \</span><br></pre></td></tr></table></figure>
+
+
+
+<p>其中, pro_1 是一元模型 (1-grams) 单词的对数概率, pro_2 是二元模型 (2-grams 的对数概率, pro_3 是三元模型 (3-grams) 的对数概率。一元模型和二元模型后面分别带有回退权重 back_pro1 和 back_pro2。</p>
+<p>如果要得到三个词出现的概率 $P$ (word3&#x2F;word1,word2), 则根据以上语言模型, 其计算过程如下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">if (存在 (word1, word2, word3) 的三元模型) &#123; </span><br><span class="line">	return pro_ 3 (word1, word2, word3) ;</span><br><span class="line">&#125;else if (存在 (word1, word2) 二元模型) &#123;</span><br><span class="line">	return back_pro2 (word1, word2) *P (word3 / word2) ; </span><br><span class="line">&#125;else&#123;</span><br><span class="line">	return P(word3 | word2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if (存在 (word1, word2) 的二元模型) &#123;</span><br><span class="line">	return pro_ 2 (word1, word2);</span><br><span class="line">&#125;else&#123;</span><br><span class="line">	return back_pro2(word1)*pro_1 (word2) :</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>如果不存在(word 1,word 2 ,word 3 )的三元模型, 则采用回退法, 即结合回退权 重 back_pro2(word1,word2) 来计算: back_pro2(word1,word2) $* P($ word3&#x2F;word2)。如 “拨打 郑州 局” 这样的组合, 如果语料库中没有，即没有相应的三元模型, 则 查找 “拨打 郑州” 和 “郑州 局” 的组合概率和回退概率。注意, 概率均为对数 概率，假设值如下：</p>
+<p>$-3.220352$ 拨打 郑州 $-0.4072262$</p>
+<p>$-3.012735$ 郑州 局 $-0.3083073$</p>
+<p>则 $P($ “拨打 郑州 局” $)&#x3D;P($ “局 | 拨打 郑州” $)&#x3D;$ back_pro2(拨打,郑州)*P(局 郑州 $)&#x3D;\ln \left(\mathrm{e}^{-0.4072262 *} \mathrm{e}^{-3.012735}\right)&#x3D;-3.4199612$ 。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/%E8%AF%86%E5%88%AB/TDNNF%E6%8E%A8%E5%AF%BC%E8%BF%87%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/01/10/%E8%AF%86%E5%88%AB/TDNNF%E6%8E%A8%E5%AF%BC%E8%BF%87%E7%A8%8B/" itemprop="url">《语音识别原理与应用》洪青阳 第10章 DNN-HMM TDNNF推导过程</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
+                2023-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/10/%E8%AF%86%E5%88%AB/TDNNF%E6%8E%A8%E5%AF%BC%E8%BF%87%E7%A8%8B/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/10/识别/TDNNF推导过程/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="TDNNF推导过程"><a href="#TDNNF推导过程" class="headerlink" title="TDNNF推导过程"></a>TDNNF推导过程</h1><blockquote>
+<p>《语音识别原理与应用》洪青阳 P215</p>
+</blockquote>
+<p>2018 年，著名的语音学者 Daniel Povey对TDNN 网络做了进一步的改进提出了因子分解的 TDNN，即带有半正交矩阵的TDNN-F，TDNN-F建立在奇异值分解 ( Singular Value Decomposition, SVD)的基础上。作为最著名的矩阵分解方法，SVD 是减少已训练的模型大小的一种有效方法，因为通过SVD我们可以将每个权重矩阵分解为两个因子矩阵，通过丟弃相对更小的奇异值，优化网络参数。</p>
+<p>TDNNF 特点：</p>
+<ul>
+<li>通过奇异值分解(SVD) ，把每个权重矩阵因子分解为两个更小的矩阵，减少神经网络参数。</li>
+<li>TDNN-F限定其中一个矩阵为半正交的(semi-orthogonal)。</li>
+<li>类似残差网络，TDNN-F采用跳层连接，减少梯度的消失。</li>
+</ul>
+<p>TDNN-F 的内部结构与经过SVD压缩的 TDNN 是相同的。虽然经过 SVD 压缩的 TDNN 在随机初始化后，直接训练带有瓶颈层的模型会更高效，但是训练不稳定的问题时有发生。为了避免这种情况，TDNN-F 会在进行完SVD 分解后，将两个分解因子矩阵中的一个约束为半正交矩阵。这种做法既符合 SVD 的要求和特点，也不会损失网络的建模能力。</p>
+<p>我们来看具体的推导过程。TDNN-F 把一个权重矩阵M分解为两个矩阵A和B，并限定其中B为半正交的矩阵。<br>$$<br>M&#x3D;AB<br>$$<br>迭代优化M如下：<br>$$<br>M^{\prime} \leftarrow M-\varepsilon \Delta M<br>$$<br>定义<br>$$<br>P&#x3D;M M^{\top}<br>$$<br>TDNN-F的限制条件是使 $P&#x3D;I$，定义<br>$$<br>Q&#x3D;p-I<br>$$<br>TDNN-F 的优化目标等价于使用最小化函数<br>$$<br>f&#x3D;\operatorname{tr}\left(Q Q^{\top}\right)<br>$$<br>对Q、P、M求偏导，分别得到<br>$$<br>\begin{aligned}<br>&amp; \frac{\partial f}{\partial Q}&#x3D;2 Q \<br>&amp; \frac{\partial f}{\partial P}&#x3D;2 Q \<br>&amp; \frac{\partial f}{\partial M}&#x3D;4 Q M<br>\end{aligned}<br>$$<br>因此，可如下迭代优化权重矩阵M：<br>$$<br>\begin{gathered}<br>\Delta M&#x3D;\nabla_N f&#x3D;\frac{\partial f}{\partial M}&#x3D;4 Q M \<br>M^{\prime} \leftarrow M-4 \varepsilon Q M<br>\end{gathered}<br>$$<br>其中， $\varepsilon$ 是学习率。</p>
+<p>假如原来 $M$ 是 $128 \times 128$ 矩阵, 通过因子分解，得到的 $A$ 为 $128 \times 32$ 矩阵, $B$ 为 $32 \times 128$ 矩阵, 其中 32 是中间瓶颈层的节点数。这样网络参数量从 $128 \times 128$ 个减 少到 $128 \times 32 \times 2$ 个, 即从 16384 个减到 8192 个, 权重运算量也会大为诚少。</p>
+<p>随着网络的加深, 为了减少梯度消失的情况, 在 TDNN-F 网络中还增加了跳层连接, 即将之前层的输出加上当前层的输出作为下一层的输入。这种构造与残差结构类似, 目的都是为了减少梯度消失的情况。同时, 为了防止模型过拟合, 在每个 TDNN-F 的单元结构中还㴛加了 dropout 层。</p>
+<h1 id="kaldi中的TDNN-F"><a href="#kaldi中的TDNN-F" class="headerlink" title="kaldi中的TDNN-F"></a>kaldi中的TDNN-F</h1><p>参考Kaldi 的配置文件，采用40 维FBank特征，则 TDNN-F 的结构如下表所示。我们解释一下tdnnf-layer的参数</p>
+<ul>
+<li>l2-regularize：设置L2 正则系数。</li>
+<li>dropout-proportion：设置丢弃（dropout）的比例。</li>
+<li>bypass-scale：设置跳连接时针对上一层输出节点的尺度，默认值为 0.66，不应该大于1。当设为0时，则不进行跳连接操作。</li>
+<li>time-stride ：控制时间维度拼接，time-stride&#x3D;1表示在线性层使用Append(-1,0)，在仿射变换时使用 Append(0.1)。设置当time-stride 为负数时，如-1，则表示先使用右偏置，再使用左偏置。</li>
+<li>bottleneck-dim：设置分解矩阵后的维度。</li>
+</ul>
+<p>TDNN-F 网络结构信息表：</p>
+<p>tdnnf-layer	name&#x3D;tdnnf2	12-regularize&#x3D;0.01	dropout-proportion&#x3D;0.0	bypass-scale&#x3D;0.66	dim&#x3D;1536	bottleneck-dim&#x3D;160	time-stride&#x3D;1</p>
+<p>第一个隐藏层的输出是1536 维的特征。第二个隐藏层接收上层的输人。先进行因子分解，因为 time-strde&#x3D;1，所以在线性变换时输入的特征是当前帧与左偏移一帧的拼接帧。通过线性变换将特征维度减少到瓶颈节点数，不同于普通的线性变换，这里限制B矩阵为半正交矩阵，同时使用了 L2 正则系统。接着经过 1536x160 （time-stride&#x3D;1，仿射变换时的输入是当前帧与右偏移一帧的拼接帧）权重矩阵计算，并进行仿射变换得到 1536 维的输出。上面两生完成了增加中间层、减少参数数量的操作。再使用 ReLU 两数作为激活函数，进行批处理规整（batchnorm）计算，然后再根据 dropout-proportion 的值进行dropout。 最后由于 bypass-scale&#x3D;0.66 不为0，所以要进行跳连接，将第一个隐藏层的output 和第二个隐藏层的 output 相加作为第三个隐藏层的输人。</p>
+<p>TDNN-F与CNN结合：CNN提取局部频域特征，TDNN-F提取上下文时域特征。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/" itemprop="url">《语音识别原理与应用》洪青阳 第11章 序列区分性训练————Lattice-based和Lattice-free MMI</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
+                2023-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/10/识别/mmi书 洪青阳/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="序列区分性训练"><a href="#序列区分性训练" class="headerlink" title="序列区分性训练"></a>序列区分性训练</h1><blockquote>
+<p>《语音识别原理与应用》洪青阳 第11章</p>
+<p>《11. 序列区分性训练.pptx》</p>
+</blockquote>
+<p>原理公式 直接看PPT或者书就行。</p>
+<h2 id="MMI-求导"><a href="#MMI-求导" class="headerlink" title="MMI 求导"></a>MMI 求导</h2><p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230116234330915.png" alt="image-20230116234330915"></p>
+<p>其中，$\alpha_t^u(j)$ 为第 $u$ 条句子 $t$ 时刻的观察值$ o_t^u$ 的在DNN输出节点（状态） $j$ 的激活输出。</p>
+<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230116234504909.png" alt="image-20230116234504909"></p>
+<p>$\gamma_u^{NUM}(s_t^u&#x3D;j)$ 是针对训练标注，$t$ 时刻为状态 $j$ 的后验概率，其计算采用标准的<strong>前向-后向算法</strong>，复杂度相对较低。而 $\gamma_u^{DEN}(s_t^u&#x3D;j)$ 虽然也是 $t$ 时刻为状态 $j$ 的后验概率，但要穷举所有可能的词序列对应的状态序列，计算量巨大无比。</p>
+<p>我自己的理解：</p>
+<ul>
+<li>分子网是要计算到某个标注（对齐）状态的所有可能路径（到某个状态的所有可能路径求和通过前后向算法），然后整个对齐标注状态序列，就是对所有时刻 t的状态 j 连乘 就得到分子网（偏导对象是某个时刻t，某个时刻j，这里其实没有算连乘）。</li>
+<li>分母网也是到某个时刻t的状态j的可能路径概率求和，但是很多不同词序列都有可能在某个时刻t能够处在状态j，因此要对这些所有的不同词序列求和。而分子网考虑的文本序列就是标注序列。</li>
+</ul>
+<h2 id="Lattice-based-MMI"><a href="#Lattice-based-MMI" class="headerlink" title="Lattice-based MMI"></a>Lattice-based MMI</h2><p>分母网用n-best代替所有路径的方案比较粗糙，更好的方案是为每个训练句子生成一个词图lattice，来近似mmi的分母部分。</p>
+<p>这样, $\gamma_u^{\mathrm{DEN}}\left(s_t^u&#x3D;j\right)$ 就可通过汇总 Lattice 所有可能的词序列的概率得到。由 于 Lattice 的路径有限, 故需要的计算量将大为降低。</p>
+<p>事实上, $\gamma_u^{\mathrm{NUM}}\left(s_t^u&#x3D;j\right)$ 的前向和后向概率也可通过 Lattice 计算。因此, <strong>每条训练句子均需要生成正确标注和竞争路径对应的 Lattice，包含采用音素 (不需词典) 的简化版语言模型。</strong></p>
+<h4 id="基于DNN-HMM的Lattice-based-MMI训练流程如下："><a href="#基于DNN-HMM的Lattice-based-MMI训练流程如下：" class="headerlink" title="基于DNN-HMM的Lattice-based MMI训练流程如下："></a>基于DNN-HMM的Lattice-based MMI训练流程如下：</h4><ul>
+<li>Step1：基于CE准则，训练一个DNN-HMM做为种子模型，并用该模型做状态级别的强制对齐，并生成正确标注对应的Lattice，即MMI分子部分对应的Numerator Lattice；</li>
+<li>Step2：基于一元语言模型构建HCLG，然后对每条训练句子做识别，得到各种竞争路径，保存为MMI分母部分对应的Denominator Lattice。</li>
+<li>Step3：进行Lattice-based MMI训练。</li>
+</ul>
+<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230117001637221.png" alt="image-20230117001637221"></p>
+<p>分母网也是用DNN-HMM生成的。分母网是固定的状态序列，无法根据新训练的声学模型动态更新。</p>
+<h2 id="Lattice-free-MMI"><a href="#Lattice-free-MMI" class="headerlink" title="Lattice-free MMI"></a>Lattice-free MMI</h2><p>2016年，D. Povey等人提出Lattice-free MMI方案，把分母部分用音素级别的有限状态转换器（FST）图表示，这样可以不用Lattice，做到纯序列区分性训练（Sequence Discriminative Training）。</p>
+<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230117001830073.png" alt="image-20230117001830073"></p>
+<p>Lattice-free MMI（LF-MMI）采用音素语言模型（Phone LM）替代词语言模型（Word LM），这样就不需要词典，因此HCLG精简为<strong>HCP</strong>，其中C由决策树生成，P代表Phone LM，Kaldi设为4-gram，基于训练数据的对齐音素序列训练而成，并且低于3元不采用回退和插值，即3元组合本身不存在的话，不考虑更低元的语言模型，以免引起更多混淆。</p>
+<p>由于音素个数比词个数少很多，因此Phone LM产生的FST图很小，最后得到的HCP（即针对MMI分母的FST图）也会小很多，可以直接放到GPU训练。事实上，这个HCP可认为是串接HMM的FST形式，MMI训练的前后-后向计算将基于该FST图进行，HMM 状态之间的转移概率也可根据 FST 找到对应值。</p>
+<p>Lattice-free MMI 对应 $\gamma_u^{N U M}\left(s_t^u&#x3D;j\right)$ 的 FST 的前向-后向计算量较少, 可在 CPU 中运行。而对应 $\gamma_u^{\mathrm{DEN}}\left(s_t^u&#x3D;j\right)$ 的 FST 的前向-后向计算量较大, 一般要在 GPU 中 运行, 并且有两处特殊处理:</p>
+<ul>
+<li>不采用对数和指数运算, 为了避免目标函数值突变, 同时需对前向和后向 计算结果做规整。</li>
+<li>先做 $\gamma_u^{\mathrm{DEN}}\left(s_t^u&#x3D;j\right)$ 计算, 再做 $\gamma_u^{\mathrm{NUM}}\left(s_t^u&#x3D;j\right)$ 计算，以减少内存占用。</li>
+</ul>
+<h4 id="Lattice-free-MMI-的训练流程"><a href="#Lattice-free-MMI-的训练流程" class="headerlink" title="Lattice-free MMI 的训练流程"></a>Lattice-free MMI 的训练流程</h4><ul>
+<li>Step1：MMI分母部分 $\gamma_u^{\mathrm{DEN}}\left(s_t^u&#x3D;j\right)$ 的FST<strong>前向-后向计算</strong>直接使用音素级别的FST图，不需要每个句子分别解码得到的Lattice；</li>
+<li>Step2：基于GMM-HMM或DNN-HMM对齐得到句子的Lattice（以FST形式保存），进行MMI分子部分 $\gamma_u^{\mathrm{NUM}}\left(s_t^u&#x3D;j\right)$ 的<strong>前向-后向计算</strong>。</li>
+<li>Step3：进行Lattice-free MMI训练。</li>
+</ul>
+<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230118001853394.png" alt="image-20230118001853394"></p>
+<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230118001913981.png" alt="image-20230118001913981"></p>
+<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230118001934327.png" alt="image-20230118001934327"></p>
 
           
         
