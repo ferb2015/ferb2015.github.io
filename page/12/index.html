@@ -288,6 +288,196 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%EF%BC%89/" itemprop="url">命令词论文笔记（六）蒸馏学习用在命令词的论文</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
+                2021-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/06/29/命令词/命令词论文笔记（六）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="蒸馏学习用在命令词的论文"><a href="#蒸馏学习用在命令词的论文" class="headerlink" title="蒸馏学习用在命令词的论文"></a>蒸馏学习用在命令词的论文</h1><blockquote>
+<p>&#x3D;&#x3D;Geoffrey E. Hinton, Oriol Vinyals, &amp; Jeffrey Dean (2015). Distilling the Knowledge in a Neural Network arXiv: Machine Learning.&#x3D;&#x3D;</p>
+<p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/50519680">如何理解soft target这一做法？</a> 知乎</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/343988823">知识蒸馏里面的公式推导</a> 知乎</p>
+</blockquote>
+<ul>
+<li>知识蒸馏 Knowledge Distill 的开创论文</li>
+<li>知识蒸馏：一个小模型（student）如何训练得更好？通过学习大模型（teacher）给的知识，大模型用交叉熵训练，要让正确标签的概率越高，对于不正确标签的概率，交叉熵并不考虑其概率，但是一个训练得好的大模型，其他标签概率也包含着一些信息，比如和正确标签更相近的其他标签概率，会比和正确标签很不相近的其他标签概率更大，这就涵盖了信息。如果只有label这样的一个目标的话，那么这个模型的目标就是把训练样本中每一类的样本强制映射到同一个点上，这样其实对于训练很有帮助的类内variance和类间distance就损失掉了<ul>
+<li>要如何突出这些信息，就是通过“soft target”，小模型的训练目标标签不是groundtruth了，而是大模型输出的soft target作为小模型的训练目标标签了。可以看成是利用训练好的大模型对原始的标定空间进行了一次data augmentation</li>
+</ul>
+</li>
+<li>因此，知识蒸馏是一种弥补分类问题监督信号不足的办法</li>
+<li>soft logit里的temperature，分为高温和低温，高温的时候，蒸馏操作相当于最小化大模型的logits和蒸馏模型的logits的MSE，低温的时候那些数值小的logits不太被关注，这些数值很小的logits可能是噪声，所以一定程度上对蒸馏模型的效果是有好处的。 但同时这些很小的也有可能代表了一些非常重要的信息，因为很小的温度效果不一定最好，选取适中的T得到最好的结果</li>
+</ul>
+<h3 id="公式推导"><a href="#公式推导" class="headerlink" title="公式推导"></a>公式推导</h3><p>（这里参考的知乎的变量，和论文的q、p相反）</p>
+<p>小模型的输出为：<br>$$<br>p_i&#x3D;softmax(z_i)&#x3D;\frac{exp(z_i)}{\sum_{j&#x3D;1}^Nexp(z_j)}<br>$$<br>交叉熵损失的公式，其中$q_i$是真实概率，$p_i$是预测概率：<br>$$<br>Loss&#x3D;-\sum_{j&#x3D;1}^Nq_ilog(p_i)<br>$$</p>
+<h4 id="softmax的求导"><a href="#softmax的求导" class="headerlink" title="softmax的求导"></a>softmax的求导</h4><p>$softmax(p_i)$是和所有的logit相关的，所有分为两种情况：</p>
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%EF%BC%89/image-20211216112502927.png" alt="image-20211216112502927" style="zoom: 80%;">
+
+<h4 id="交叉熵的求导："><a href="#交叉熵的求导：" class="headerlink" title="交叉熵的求导："></a>交叉熵的求导：</h4><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%EF%BC%89/image-20211216112622941.png" alt="image-20211216112622941" style="zoom:80%;">
+
+<h4 id="知识蒸馏："><a href="#知识蒸馏：" class="headerlink" title="知识蒸馏："></a>知识蒸馏：</h4><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%EF%BC%89/image-20211216113433442.png" alt="image-20211216113433442" style="zoom:80%;">
+
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%EF%BC%89/image-20211216112715710.png" alt="image-20211216112715710" style="zoom:80%;">
+
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Gao, Yan, Titouan Parcollet, and Nicholas Lane. “Distilling Knowledge from Ensembles of Acoustic Models for Joint CTC-Attention End-to-End Speech Recognition.” <em>arXiv preprint arXiv:2005.09310</em> (2020).&#x3D;&#x3D;</p>
+</blockquote>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
+<li>提出知识蒸馏（Knowledge Distillation, KD）</li>
+</ul>
+<blockquote>
+<p>MINIMUM WORD ERROR RATE TRAINING FOR ATTENTION-BASED SEQUENCE-TO-SEQUENCE MODELS  </p>
+</blockquote>
+<blockquote>
+<p>Dictionary-guided Scene Text Recognition  </p>
+</blockquote>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AB%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3114,186 +3304,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/05/18/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E9%9B%86%E5%A4%96%E8%AF%8D%E5%A4%84%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/05/18/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E9%9B%86%E5%A4%96%E8%AF%8D%E5%A4%84%E7%90%86/" itemprop="url">集外词处理</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-05-18T00:00:00+08:00">
-                2021-05-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2021/05/18/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E9%9B%86%E5%A4%96%E8%AF%8D%E5%A4%84%E7%90%86/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2021/05/18/命令词/集外词处理/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="集外词处理"><a href="#集外词处理" class="headerlink" title="集外词处理"></a>集外词处理</h1><blockquote>
-<p>参考：《Kaldi 语音识别实战》P254</p>
-</blockquote>
-<h3 id="词表扩展："><a href="#词表扩展：" class="headerlink" title="词表扩展："></a>词表扩展：</h3><p>​		如果一个关键词不在语音识别系统的词汇表中，即一般所说的集外词，那么在这个基于语音识别系统的语音检索系统中，是没有办法找到这个关健词的，因此在上述示例中，我们把集外词从关键词列表中直接移除了。为了让语音检索系统可以更好地兼容集外词搜索，Kaldi采用了一系列的方法，包括词表扩展、关键词扩展、音素&#x2F;音节系统等。</p>
-<p>​		词表扩展的基本思想是尽可能地扩大语音识别系统所使用的词汇表，从而增加关键词的覆盖率，减小集外词的比例。在理想状态下，我们希望加入词表中的都是日常生活中会使用的合规的词汇，这样可以更好地覆盖关键词，而事实上，我们很难收集一个语言中所有的词汇。</p>
-<p>​		Kaldi的做法是，随机地生成大量从发音规则上来说合理的词汇并加入到词汇表中，尽管它们中的有些词从拼写上来说是不合理的。具体来说， Kaldi 把原始词汇表中的每个词的发音都当作一个基本组成单元为音节或音素的“句子”，并且针对这些“句子”训练一个语言模型。语言模型可以根据概率分布随机地生成可能的句子，所以我们可以利用在原始词汇表的发音序列上训练的语言模型，随机地生成音素或音节的序列，而这些序列也就是潜在词汇可能的发音序列。Kaldi会随机生成上百万这样的发音序列。同时，Kaldi 会利用原始词汇表，训练一个逆向的字母音素转换模型(Grapheme-to-Phoneme，G2P)，这个模型可以将词汇的音素或音节的序列转换成该词汇最有可能的拼写，利用这个模型，就可以使用前面产生的上百万个发音序列，转换成它们最有可能的拼写序列，从而生成扩展的词汇表。Kaldi 根据生成过程中的打分，对这些生成的词汇进行进一步的排序和删减，从而形成最终的词汇表。 </p>
-<blockquote>
-<p>G2P，不仅可以由词生成音素序列，还可以由音素序列生成词（yl）</p>
-</blockquote>
-<p>用来做词表扩展的脚本位于 babel 示例下面，具体文件是 egs&#x2F;babel&#x2F;s5d&#x2F;local&#x2F;extend_lexicon.sh</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mv data/local/lexicon.txt data/local/lexicon_orig.txt</span><br><span class="line">local/extend_lexicon.sh --cmd &quot;$train_cmd&quot; --cleanup false --num-sent-gen $num_sent_gen --num-prons $num_prons data/local/lexicon_orig.txt data/local/extend data/dev2h/text</span><br><span class="line">cp data/loval/extend/lexiconp.txt data/local/</span><br></pre></td></tr></table></figure>
-
-<p>其中，$num_sent_gen 是用语言模型生成的发音序列的数量，默认设置为12000 000；</p>
-<p>$num_prons 是保留下来的有效发音序列的数量，默认设置为1000 000；</p>
-<p>data&#x2F;loca&#x2F;lexicon_orig.txt 是原始的词汇表;data&#x2F;local&#x2F;extend 是工作目录，用于保存所有中间文件及最终生成的扩展后的带概率的词汇表 data&#x2F;local&#x2F;extend&#x2F;lexiconp.txt ；</p>
-<p>而 data&#x2F;dev2h&#x2F;text 是一个可选的文本文件，如果提供了，则会计算在原始词汇表和扩展后词汇表中集外词的比例，从而判断词表扩展是否有效提高了集内词的覆盖率。</p>
-<h3 id="关键词扩展："><a href="#关键词扩展：" class="headerlink" title="关键词扩展："></a>关键词扩展：</h3><p>​		假设待搜索音频中存在语音识别系统的词汇表中不包括的词汇，那么语音识别系统往往会把这个词汇转写成一个或若干个和该词汇发音比较接近且存在于词汇表中的词汇。基于这个事实，减缓集外词问题的另一个思路是将一个集外的关键词拓展为多个和这个集外关键词发音比较接近且存在于词汇表中的词或词组，并用它们作为代理关键词去搜索。这个方法也叫作代理关键词方法或模糊搜索方法。<br>​		Kaldi 中代理关键词的生成都是在 WFST 的框架下进行的。虽然本书会尽可能避开不必要的公式，但是代理关键词的生成用一个公式来描述最为形象，公式如下:<br>$$<br>K’ &#x3D; Project(ShortestPath(Prune(Prune(K\circ{L_{z}}\circ{E’})\circ{L^{-1}})))<br>$$<br>在上述公式中，K是集外关键词，L<del>2</del>是集外关键词对应的发音，往往可以通过字母音素转换模型(G2P)来产生，E’是编辑距离转换器，L<del>1</del>是语音识别系统原始的词汇表。除去剪枝(Prune)、最短路径(ShortestPath)等有限状态机中用来优化的操作，上面公式中主要的操作是复合(Composition)。简单来理解，当K复合了L<del>2</del>以后，生成的有限状态机可以将集外关键词的拼写转换为其对应的发音序列。再复合E’之后，生成的有限状态机可以将集外关键词的拼写转换为任意的发音序列，但是当生成的发。。。。。。。。。</p>
-<ul>
-<li><input disabled type="checkbox"> 未完待续</li>
-</ul>
-<blockquote>
-<p>参考：<a target="_blank" rel="noopener" href="https://kaldi-asr.org/doc/kws.html">kaldi官方文档 Keyword Search in Kaldi</a></p>
-</blockquote>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/11/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span>
+    <a class="extend prev" rel="prev" href="/page/11/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/13/">&gt;</a>
   </nav>
 
 
@@ -3339,7 +3354,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">120</span>
+                  <span class="site-state-item-count">121</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

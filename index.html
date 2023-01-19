@@ -1395,6 +1395,212 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/" itemprop="url">《语音识别原理与应用》洪青阳 第9章 WFST解码器————最优路径解码</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
+                2023-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WFST%E8%A7%A3%E7%A0%81/" itemprop="url" rel="index">
+                    <span itemprop="name">WFST解码</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/10/WFST解码/语音识别之WFST解码器/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="WFST解码器"><a href="#WFST解码器" class="headerlink" title="WFST解码器"></a>WFST解码器</h1><blockquote>
+<p>厦门大学洪青阳教授的公开课：<a target="_blank" rel="noopener" href="https://appqtulvsie4217.pc.xiaoe-tech.com/live_pc/l_5f504e67e4b0158ded4dffed">《语音识别值WFST解码器——基于WFST的维特比解码过程》</a></p>
+</blockquote>
+<ul>
+<li>token：保存解码的中间结果</li>
+<li>WFST解码本质上也是Viterbi解码，根据输入的特征序列，进行帧同步对齐，寻求最佳状态序列。  </li>
+<li>注意这里的状态不是HMM状态，而是HCLG的状态节点，所遍历状态节点之间的衔接，可能是&#x3D;&#x3D;产生观察值&#x3D;&#x3D;的转移弧（如状态𝑆1和𝑆2、 𝑆2和𝑆3之间的实线），也可能&#x3D;&#x3D;不产生观察值&#x3D;&#x3D;的转移弧（如状态𝑆4和𝑆5之间的虚线）。</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144630412.png" alt="image-20210707144630412"></p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144643772.png" alt="image-20210707144643772"></p>
+<ul>
+<li>Emitting arc：发射转移弧，会<strong>产生观察值</strong>，观察值产生声学分数（acoustic_cost），非0的输入标签（ilabel！&#x3D;0）.</li>
+<li>Nonemitting arc：非发射转移弧，<strong>不会产生观察值</strong>，没有声学分数，但是状态间能够跳转。简单理解可以想成  o—语:语文—o—文: $\epsilon$ —o 。0的输入标签（ilabel&#x3D;0）</li>
+<li>graph_cost：图代价，每条转移弧对应的权重。</li>
+<li>weight_cutoff：要剪枝的阈值</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144711483.png" alt="image-20210707144711483"></p>
+<ul>
+<li>cost越小越好</li>
+<li>arc.weight：包含hmm 转移概率、词典概率、语言模型概率（不包含am发射概率）（负对数）</li>
+<li>acoustic_cost：am发射概率（负对数）</li>
+<li>若cost更小，存在该token，有就替换，没有就添加</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144701827.png" alt="image-20210707144701827"></p>
+<ul>
+<li>若cost更小，存在该token，有就替换，没有就创建一个</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144724575.png" alt="image-20210707144724575"></p>
+<h2 id="基于token的viterbi解码"><a href="#基于token的viterbi解码" class="headerlink" title="基于token的viterbi解码"></a>基于token的viterbi解码</h2><ul>
+<li><p>类似HMM的解码过程， WFST的Viterbi解码也是逐帧推进，分别计算每帧的声学得分，然后结合转移弧的权重，得到每个时刻扩展路径的累计代价，这些代价用Token的cost保存。  </p>
+</li>
+<li><p>WFST的Viterbi解码通过对比指向同一个状态的不同路径的由Token（&#x3D;&#x3D;该Token与状态节点关联&#x3D;&#x3D;，如果状态节点还没有Token，则创建一个新的Token）保存的累计代价（cost） ，选择值更小的并更新Token信息。  </p>
+</li>
+<li><p>Viterbi算法的每个状态最多只有一个Token，如果有多条路径到某个状态，则Token可能存在冲突，根据值更小原则保持或进行替代 。</p>
+</li>
+<li><p>token：当走到某状态，会有一个token（没走到不会创建），token中的cost会更新</p>
+</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144919914.png" alt="image-20210707144919914"></p>
+<ul>
+<li>prev_toks：历史token</li>
+<li>cur_toks：当前token</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144944825.png" alt="image-20210707144944825"></p>
+<ul>
+<li>当前帧的token：状态0，会遍历，cur_token会依次放进8，1，9，第一次，是创建token。9还会走processnonemitting，走到2，创建状态2的token</li>
+</ul>
+<p>第二帧：</p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707145013053.png" alt="image-20210707145013053"></p>
+<ul>
+<li>10-&gt;2：看看状态2的token的cost有没有更小，要不要更新2的token cost</li>
+</ul>
+<h4 id="回溯："><a href="#回溯：" class="headerlink" title="回溯："></a>回溯：</h4><p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707145028147.png" alt="image-20210707145028147"></p>
+<p>beam：指的是一个窗口范围，对于一个token，到下一个状态弧在不在这个范围里，不在就舍弃，而不是取前beam个，是beam对应的窗口范围</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2265,232 +2471,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%BA%8C%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/12/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%BA%8C%EF%BC%89/" itemprop="url">计算机科学速成课（二）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-28T00:00:00+08:00">
-                2022-12-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/" itemprop="url" rel="index">
-                    <span itemprop="name">计算机组成</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/12/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%BA%8C%EF%BC%89/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/12/28/计算机组成/计算机科学速成课（二）/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="计算机科学速成课（二）"><a href="#计算机科学速成课（二）" class="headerlink" title="计算机科学速成课（二）"></a>计算机科学速成课（二）</h1><blockquote>
-<p>2022.12.28</p>
-<p>b站 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1EW411u7th/?spm_id_from=333.999.0.0&vd_source=5e9891722f2b62adca440a5e92121b5b">【计算机科学速成课】[40集全&#x2F;精校] - Crash Course Computer Science</a></p>
-<p>网友的笔记：<a target="_blank" rel="noopener" href="https://shimo.im/docs/vkCKkj3YxGtygrVg/read">https://shimo.im/docs/vkCKkj3YxGtygrVg/read</a> 、 <a target="_blank" rel="noopener" href="https://shimo.im/docs/PJAUY30F1uYksv0h/read">https://shimo.im/docs/PJAUY30F1uYksv0h/read</a> 、<a target="_blank" rel="noopener" href="https://www.processon.com/view/link/61ef6e8f0e3e7439ae917672#map">https://www.processon.com/view/link/61ef6e8f0e3e7439ae917672#map</a></p>
-</blockquote>
-<h2 id="11-编程语言发展史-The-First-Programming-Languages"><a href="#11-编程语言发展史-The-First-Programming-Languages" class="headerlink" title="11. 编程语言发展史-The First Programming Languages"></a>11. 编程语言发展史-The First Programming Languages</h2><p>汇编器 assembler ： 汇编器读取用“汇编语言”写的程序，然后转成“机器码”（比如jump、add等机器能知道的），最早是人手动写很多行指令（直接写机器码），喂给机器，然后为了实现某功能，会在写指令之前写伪代码帮助理解，然后人们想出了写汇编语言，然后通过汇编器把汇编语言转成指令，机器读指令。因此以后就不需要手动写指令，写汇编语言就行。</p>
-<p>汇编码的作用其实是修饰了一下机器码，比如汇编码的 LOAD_A 14 ， 对应的机器码是 0011 0111这种，前四位是操作码，后四位是地址。使用汇编码时，依然要写清楚用什么寄存器和用哪块内存地址。</p>
-<p>后来发展出了“编译器”compiler，将高级语言转成低级语言（低级语言是汇编码或机器码），因此只要写高级语言，不用管用哪个寄存器或哪块地址，编译器会处理。程序员只需要创建 代表内存地址的抽象 叫“变量”，给变量取名字。</p>
-<h2 id="12-编程原理-语句和函数-Programming-Basics-Statements-amp-Functions"><a href="#12-编程原理-语句和函数-Programming-Basics-Statements-amp-Functions" class="headerlink" title="12. 编程原理-语句和函数-Programming Basics - Statements &amp; Functions"></a>12. 编程原理-语句和函数-Programming Basics - Statements &amp; Functions</h2><h2 id="13-算法入门-Intro-to-Algorithms"><a href="#13-算法入门-Intro-to-Algorithms" class="headerlink" title="13. 算法入门 - Intro to Algorithms"></a>13. 算法入门 - Intro to Algorithms</h2><h2 id="14-数据结构-Data-Structures"><a href="#14-数据结构-Data-Structures" class="headerlink" title="14. 数据结构-Data Structures"></a>14. 数据结构-Data Structures</h2><h2 id="15-阿兰·图灵-Alan-Turing"><a href="#15-阿兰·图灵-Alan-Turing" class="headerlink" title="15. 阿兰·图灵-Alan Turing"></a>15. 阿兰·图灵-Alan Turing</h2><p>可判定性问题 ：是否存在一种算法，输入正式逻辑语句，输出准确的“是”或“否”答案。</p>
-<p>图灵机。只要有足够的规则，状态和纸带，可以创造任何东西，它是一台通用计算机。</p>
-<img src="/2022/12/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%BA%8C%EF%BC%89/image-20221228171641116.png" alt="image-20221228171641116" style="zoom:50%;">
-
-<p>图灵完备 turing complete</p>
-<p>停机问题 halting problem</p>
-<h2 id="16-软件工程-Software-Engineering"><a href="#16-软件工程-Software-Engineering" class="headerlink" title="16. 软件工程-Software Engineering"></a>16. 软件工程-Software Engineering</h2><img src="/2022/12/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%BA%8C%EF%BC%89/image-20221228181615787.png" alt="image-20221228181615787" style="zoom: 67%;">
-
-<p>找某个函数要从最外层往里找，比如 Car.Engine.CruiseControl.setCruiseSpeed(55)</p>
-<p><strong>面向对象编程 object oriented programing</strong>：把函数打包成对象。通过封装组件，隐藏复杂度，选择性公布功能（public、private）。</p>
-<h2 id="17-集成电路-amp-摩尔定律-Integrated-Circuits-amp-Moore’s-Law"><a href="#17-集成电路-amp-摩尔定律-Integrated-Circuits-amp-Moore’s-Law" class="headerlink" title="17. 集成电路&amp;摩尔定律-Integrated Circuits &amp; Moore’s Law"></a>17. 集成电路&amp;摩尔定律-Integrated Circuits &amp; Moore’s Law</h2><img src="/2022/12/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%BA%8C%EF%BC%89/image-20221228190315984.png" alt="image-20221228190315984" style="zoom:50%;">
-
-<p> 通过光刻技术，把很多很多晶体管做到一块集成电路上。</p>
-<p>摩尔定律：每两年左右，得益于材料和制造技术的发展 ，同样大小的空间，能塞进两倍数量的晶体管。</p>
-<p>一直做小会遇到问题：</p>
-<ol>
-<li>用光掩模把图案弄到晶圆上，由于光的波长限制，精度已到极限。所以科学家在研制波长更短的光源，投射更小的形状。</li>
-<li>量子隧穿效应：当晶体管非常小，电极之间可能只距离几个原子，电子会跳过间隙，会产生漏电问题（如果晶体管漏电，就不是好开关）。</li>
-</ol>
-<h2 id="18-操作系统-Operating-Systems"><a href="#18-操作系统-Operating-Systems" class="headerlink" title="18. 操作系统-Operating Systems"></a>18. 操作系统-Operating Systems</h2><blockquote>
-<p>这集可以再重温，知识点比较多</p>
-</blockquote>
-<p>最早是在打孔纸卡上写程序，然后送程序进计算机计算，但是计算机计算越来越快，放程序时间比程序运行时间还长，因此需要一种方式让计算机自动运行，于是诞生了“操作系统”operating system，OS。</p>
-<p>操作系统也是程序，但它有操作硬件的特殊权限，可以运行和管理其它程序。</p>
-<p>批处理 batch processing 一个程序紧接着一个程序运行，自动加载程序。</p>
-<p>最早的外部设备 peripheral 是独立的底层硬件程序，会有很多不同的外部设备，比如不同的打印机，都要单独写一个和计算机交互的程序。后来操作系统充当软件和硬件之间的媒介，操作系统提供 API 来抽象硬件，叫“设备驱动程序” device driver，程序员用标准化机制，和输入输出硬件 I&#x2F;O 交互。</p>
-<p>多任务处理 multitasking 。一个cpu上运行多个程序。</p>
-<p>每个程序会占用一些内存，一开始会给每个程序分配专属内存块，后面某个程序又想申请内存，新分配的内存地址和之前内存地址会不连续了，这样程序员就不好追踪了，因此出现了“虚拟内存” virtual memory ，操作系统会把内存地址进行“虚拟化”，程序员看见的是虚拟内存，而不是真实的物理内存地址。（虚拟内存假定内存都是从地址0开始）。操作系统去处理物理内存和虚拟内存之间的映射。</p>
-<p>虚拟内存的出现使得程序的内存大小可以灵活增减，叫“动态内存分配” dynamic memory allocation。</p>
-<img src="/2022/12/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%BA%8C%EF%BC%89/image-20221229110515545.png" alt="image-20221229110515545" style="zoom:50%;">
-
-<p>内存保护 memory protection，每个程序只能用一部分内存，不能去用别的程序的内存，不然就可以修改其他程序的内存地址的数据了（恶意修改，病毒）。</p>
-<p>分时操作系统 time-sharing ：多个用户用同一个操作系统的情况（用户在不同终端登录），此时操作系统要处理多个用户，为了确保某个用户不会占满计算机资源，开发了分时操作系统，每个用户只能用一小部分处理器、内存等。</p>
-<p>内核 kernel：如内存管理，多任务和输入&#x2F;输出处理。</p>
-<p>unix是一个操作系统，由两部分组成，一部分是内核，一部分是一堆有用的工具（比如程序和运行库）</p>
-<p><strong>内核恐慌 kernel panic</strong>：以前操作系统为了防止错误发生，会事先写很多很多的错误恢复代码。而unix没有很多的“恢复”代码，遇到内核崩溃，没办法恢复，所以调用一个叫“恐慌”的函数。这个恐慌函数可以是比如重启？。</p>
-<h2 id="19-内存-amp-储存介质-Memory-amp-Storage"><a href="#19-内存-amp-储存介质-Memory-amp-Storage" class="headerlink" title="19. 内存&amp;储存介质-Memory &amp; Storage"></a>19. 内存&amp;储存介质-Memory &amp; Storage</h2><p>存储器 storage，非易失性 non-volatile，存储器比如是硬盘，写入的数据会一直存着，直到被覆盖或删除，断电也不会丢失。</p>
-<p>最早是打孔纸卡、打孔纸带，但是读取慢，能存的很有限，只能写入一次（write-once），并且不方便存临时值，因此需要更大、更快、更灵活的存储方式，于是诞生了延迟线存储器 delay line memory。延迟线存储器是一个管子装满液体，比如水银，管子一端放扬声器，一端放麦克风。扬声器发出脉冲，产生压力波，经过一段时间传播到麦克风，麦克风将压力波转换回电信号。缺点是每个时刻只能读一位bit，想访问某bit，只能顺序访问，等待它从循环中出现，所以又叫“顺序存储器”或“循环存储器” sequential memory、cyclic-access memory。</p>
-<img src="/2022/12/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%BA%8C%EF%BC%89/image-20221229152109232.png" alt="image-20221229152109232" style="zoom:50%;">
-
-
-
-<p>我们需要的是可以随机存取的存储器 random access memory，可以随时访问任何位置。</p>
-<p>出现了“磁芯存储器” magnetic core memory。给磁芯绕上电线，施加电流，可以将磁化在一个方向，此时关掉电流，磁芯保持磁化，如果施加反方向电流，磁化方向（极性）会翻转。这样就可以用来存1和0。</p>
-<img src="/2022/12/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%BA%8C%EF%BC%89/image-20221229152841004.png" alt="image-20221229152841004" style="zoom:50%;">
-
-
-
-<p>后来又发展出磁带、磁鼓存储器、磁盘。但是磁带是连续的，必须倒带或快进达到特定位置，访问速度慢，。</p>
-<p>磁盘表面有磁性、有写入头和读取头，可以处理上面的1和0。要访问某个特定bit，磁头会移动。磁盘高速旋转，加快访问速度，称为寻道时间 seek time。</p>
-<img src="/2022/12/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%BA%8C%EF%BC%89/image-20221229153452820.png" alt="image-20221229153452820" style="zoom:50%;">
-
-
-
-<p>后来发展出软盘、硬盘、光盘。</p>
-<p>光盘表面有很多小坑，造成光的不同反射，光学传感器会捕捉到，并解码为1和0。</p>
-<img src="/2022/12/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%BA%8C%EF%BC%89/image-20221229153736689.png" alt="image-20221229153736689" style="zoom:50%;">
-
-
-
-<p>现在存储技术朝固态发展，没有机械活动部件（没有一个移动的磁头，磁头不用等磁盘转），比如机械硬盘、U盘、固态硬盘SSD，通过集成电路的技术，访问时间很短。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/2/">&gt;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/2/">&gt;</a>
   </nav>
 
 
@@ -2536,7 +2521,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">120</span>
+                  <span class="site-state-item-count">121</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

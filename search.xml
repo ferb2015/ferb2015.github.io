@@ -11118,4 +11118,69 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>WFST解码</tag>
       </tags>
   </entry>
+  <entry>
+    <title>《语音识别原理与应用》洪青阳 第9章 WFST解码器————最优路径解码</title>
+    <url>/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/</url>
+    <content><![CDATA[<h1 id="WFST解码器"><a href="#WFST解码器" class="headerlink" title="WFST解码器"></a>WFST解码器</h1><blockquote>
+<p>厦门大学洪青阳教授的公开课：<a href="https://appqtulvsie4217.pc.xiaoe-tech.com/live_pc/l_5f504e67e4b0158ded4dffed">《语音识别值WFST解码器——基于WFST的维特比解码过程》</a></p>
+</blockquote>
+<ul>
+<li>token：保存解码的中间结果</li>
+<li>WFST解码本质上也是Viterbi解码，根据输入的特征序列，进行帧同步对齐，寻求最佳状态序列。  </li>
+<li>注意这里的状态不是HMM状态，而是HCLG的状态节点，所遍历状态节点之间的衔接，可能是&#x3D;&#x3D;产生观察值&#x3D;&#x3D;的转移弧（如状态𝑆1和𝑆2、 𝑆2和𝑆3之间的实线），也可能&#x3D;&#x3D;不产生观察值&#x3D;&#x3D;的转移弧（如状态𝑆4和𝑆5之间的虚线）。</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144630412.png" alt="image-20210707144630412"></p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144643772.png" alt="image-20210707144643772"></p>
+<ul>
+<li>Emitting arc：发射转移弧，会<strong>产生观察值</strong>，观察值产生声学分数（acoustic_cost），非0的输入标签（ilabel！&#x3D;0）.</li>
+<li>Nonemitting arc：非发射转移弧，<strong>不会产生观察值</strong>，没有声学分数，但是状态间能够跳转。简单理解可以想成  o—语:语文—o—文: $\epsilon$ —o 。0的输入标签（ilabel&#x3D;0）</li>
+<li>graph_cost：图代价，每条转移弧对应的权重。</li>
+<li>weight_cutoff：要剪枝的阈值</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144711483.png" alt="image-20210707144711483"></p>
+<ul>
+<li>cost越小越好</li>
+<li>arc.weight：包含hmm 转移概率、词典概率、语言模型概率（不包含am发射概率）（负对数）</li>
+<li>acoustic_cost：am发射概率（负对数）</li>
+<li>若cost更小，存在该token，有就替换，没有就添加</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144701827.png" alt="image-20210707144701827"></p>
+<ul>
+<li>若cost更小，存在该token，有就替换，没有就创建一个</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144724575.png" alt="image-20210707144724575"></p>
+<h2 id="基于token的viterbi解码"><a href="#基于token的viterbi解码" class="headerlink" title="基于token的viterbi解码"></a>基于token的viterbi解码</h2><ul>
+<li><p>类似HMM的解码过程， WFST的Viterbi解码也是逐帧推进，分别计算每帧的声学得分，然后结合转移弧的权重，得到每个时刻扩展路径的累计代价，这些代价用Token的cost保存。  </p>
+</li>
+<li><p>WFST的Viterbi解码通过对比指向同一个状态的不同路径的由Token（&#x3D;&#x3D;该Token与状态节点关联&#x3D;&#x3D;，如果状态节点还没有Token，则创建一个新的Token）保存的累计代价（cost） ，选择值更小的并更新Token信息。  </p>
+</li>
+<li><p>Viterbi算法的每个状态最多只有一个Token，如果有多条路径到某个状态，则Token可能存在冲突，根据值更小原则保持或进行替代 。</p>
+</li>
+<li><p>token：当走到某状态，会有一个token（没走到不会创建），token中的cost会更新</p>
+</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144919914.png" alt="image-20210707144919914"></p>
+<ul>
+<li>prev_toks：历史token</li>
+<li>cur_toks：当前token</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144944825.png" alt="image-20210707144944825"></p>
+<ul>
+<li>当前帧的token：状态0，会遍历，cur_token会依次放进8，1，9，第一次，是创建token。9还会走processnonemitting，走到2，创建状态2的token</li>
+</ul>
+<p>第二帧：</p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707145013053.png" alt="image-20210707145013053"></p>
+<ul>
+<li>10-&gt;2：看看状态2的token的cost有没有更小，要不要更新2的token cost</li>
+</ul>
+<h4 id="回溯："><a href="#回溯：" class="headerlink" title="回溯："></a>回溯：</h4><p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707145028147.png" alt="image-20210707145028147"></p>
+<p>beam：指的是一个窗口范围，对于一个token，到下一个状态弧在不在这个范围里，不在就舍弃，而不是取前beam个，是beam对应的窗口范围</p>
+]]></content>
+      <categories>
+        <category>WFST解码</category>
+      </categories>
+      <tags>
+        <tag>WFST解码</tag>
+      </tags>
+  </entry>
 </search>
