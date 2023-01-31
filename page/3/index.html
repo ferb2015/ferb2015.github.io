@@ -288,6 +288,960 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/" itemprop="url">VAE 视频 李宏毅</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-05T00:00:00+08:00">
+                2022-12-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/12/05/深度学习/VAE 视频 李宏毅/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="VAE-视频-李宏毅"><a href="#VAE-视频-李宏毅" class="headerlink" title="VAE 视频 李宏毅"></a>VAE 视频 李宏毅</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Ux411S7Yk?p=17&vd_source=5e9891722f2b62adca440a5e92121b5b">李宏毅机器学习(2016) P17.无监督学习——深度生成模型</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV13x411v7US/?spm_id_from=333.999.0.0&vd_source=5e9891722f2b62adca440a5e92121b5b">李宏毅机器学习(2017) p28 17- unsupervised learning - deep generative models</a></p>
+<p>openai 写的 generative model的博客：<a target="_blank" rel="noopener" href="https://openai.com/blog/generative-models/">https://openai.com/blog/generative-models/</a></p>
+</blockquote>
+<p>回顾 Autoencoder：</p>
+<p>image经过encoder，生成一个向量code，再经过decoder，输出一张图片，目标是输入输出尽可能接近；</p>
+<p>使用时，输入随意一个向量code到decoder中，看输出什么image；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202115750027.png" alt="image-20221202115750027" style="zoom:50%;">
+
+
+
+<p>VAE示意图：</p>
+<p>autoencoder只用一个向量code，vae则是把code做了一系列操作：</p>
+<p>encoder输出一个和code维度相同的向量，记作 $m$ ；encoder同时也输出一个和code维度相同的向量，记作 $\sigma$ ；然后实现准备一个均匀分布，从中随机采样出一个向量（维度和code相同），记作 $e$ ，然后将 $\sigma$ 取exp，与均匀分布样本 $e$ 相乘，再加上 $m$，这里都是element-wise，对应元素相乘、加；</p>
+<p>VAE的目标从autoencoder的一个目标增加到两个，一个是和AE一样的最小化重建误差，还有一个是最小化 一个和 $\sigma$ 有关的误差；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202115951114.png" alt="image-20221202115951114" style="zoom:50%;">
+
+<p>但是VAE生成出来的图片很模糊，这还能用吗？VAE的优势是什么呢？</p>
+<p>取中间向量code的其中两个维度出来，画成直角坐标系，在坐标系上不同的地方取点，然后和之前8维再形成code，送入decoder，观察输出image；</p>
+<p>这样做的目的是想看看这两个维度选取不一样的值，对于最终图片的影响。如果图片按某种趋势变化，可以侧面反映出某一个维度的作用、物理含义；比如图片逐渐旋转，可以表示出某一个维度起到的作用是旋转图片；从而改变这个维度的值，就能控制输出图片朝着我们想要的方向生成；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202140646680.png" alt="image-20221202140646680" style="zoom:50%;">
+
+<p>如下图所示，横轴代表code的某一维的不同值，纵轴也是代表code的某一维的不同值；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202141718600.png" alt="image-20221202141718600" style="zoom:50%;">
+
+<p>那么为什么VAE具有这种效果，也就是说，为什么取某个维度的左右两边不同值，就能起到朝某个趋势变化的作用呢？</p>
+<p>原本的autoencoder中，如下面的例子，输入满月图，中间code是某个值a，输入半月图，中间code是某个值b，当我们把code人为取一个a和b中间的值，送入decoder，是否输出的是一个介于满月和半月的图片呢？答案是否定的，因为NN是一个非线性过程，code并不具有线性关系，也就是不具有code和输出的一个趋势变换的关系，不是说code取一个中间值，就能输出一个介于两者之间的图片的；</p>
+<p>那么为什么VAE能实现呢？这是因为VAE在训练时，decoder的输入，也就是中间变量code，它并不是一个单个、唯一的值，而是一个小的范围，也就是code+小范围的noise才是decoder的输入。我们希望（训练目标）是输入code a + 小范围noise（code a’ ）时，输出的都是满月；输入code b + 小范围noise（code b’）时，输出都是半月，因此，可能会出现这么一种情况，这两个范围分别取到某个值时，code a + noise a &#x3D; code b + noise b，两个code’ 是相等的，输出对应的既是满月、又是半月，称为“image overlap”，那么输出是要学的是满月还是半月呢？答案是模型要尽可能学到在该输入下，能生成满月的能力，也要学到能生成半月的能力，因此，输入a和b中间值时（从ab范围中sample一个值），输出的就是一个既像满月、又像半月的图片，也就是半满月。因此，VAE具有“趋势性”（我取的），它的code中间值是有物理意义的。</p>
+<p><img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202141948165.png" alt="image-20221202141948165"></p>
+<p>基于上述VAE能起到的作用解释，为了给一点物理涵义，这里把几个变量都赋予意义：$m$ 认为是和autoencoder一样的向量code（original code）；变换后的$c$ 认为是加了noise的code；$\sigma$ 认为是noise的方差（其实是 $\exp(\sigma)$ 才表示方差），代表噪声应该要有多大。而因为NN出来可正可负，加exp确保是正值，$\exp(\sigma)$ 表示方差；因此，正态分布中采样的样本 $e$ 乘以方差（本来标准正态每个维度方差相同，乘以一个不同的方差），得到不同方差的正态分布，结果也是一个正态分布模样的样本，理解成噪声。加上 $m$ 就是 原始code + noise了。</p>
+<p>方差 $\exp(\sigma)$ 决定了noise的大小，而 $\sigma$ 来自 NN，因此是NN encoder决定了noise的大小，这也是可学习、可更新的参数；</p>
+<p>由于是模型自己学的参数，只用最小化重建误差作为目标的话，就会出现方差（ $\exp(\sigma)$ ）等于0的结果，因为方差越小，重建误差越小，这样就没有noise了。因此要新增加一个目标函数，在最小化重建误差的同时，也要限制方差不可以太小。</p>
+<p>具体实现“限制方差不可以太小”的目标表达式为：$\sum_{i&#x3D;1}^3(exp(\sigma_i)-(1+\sigma_i)+(m_i)^2)$</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202142940904.png" alt="image-20221202142940904" style="zoom:50%;">
+
+<p>解释表达式：</p>
+<p>蓝线是 $\exp(\sigma_i)$ ，红线是 $1+\sigma_i$ ，绿线是 $\exp(\sigma_i) - (1+\sigma_i)$ ，目标minimize也就是绿线希望取最小值，也就是 $\sigma_i$ 接近0时，此时方差 $\exp(\sigma_i)$ 接近1，方差代表噪声（一部分），因此不会噪声等于0的情况了。（之所以要最小化它，是想让 $\sigma$ 有小，但也别太小（小到0）或者直接限制 $\sigma$ 大于等于0，这样 $\exp(\sigma)$ 也不会趋近于0啊？）</p>
+<p>$(m_i)^2$ 是正则项，提高泛化性。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202170229264.png" alt="image-20221202170229264" style="zoom:50%;">
+
+
+
+<p>以上是定性分析。下面是公式分析。</p>
+<p>每个生成器输出，比如图像，想象成是高维空间上的一个点，比如20×20的图片，想象成是400维空间中的一个点。</p>
+<p>如果能估计出 $P(x)$ ，采样出的样本就比较是我们所希望的，<strong>因为 $P(x)$ 做采样时会倾向于采样出 $P(x)$ 中概率高的那些样本</strong>。</p>
+<p>比如下图的 $P(x)$ 分布，概率高的地方采样都比较像宝可梦，概率低的地方采样比较不像，概率高的地方更容易采样，因此这个 $P(x)$ 估计是合理的。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205093748168.png" alt="image-20221205093748168" style="zoom:50%;">
+
+
+
+<p>可以用混合高斯分布来估计概率分布</p>
+<p>把估计的概率分布 $P(x)$ 近似为 $\sum_mP(m)P(x|m)$ ，其中， $P(m)$ 是不同高斯分布的权重weight，$P(x|m)$ 是不同的高斯分布，$m$ 代表第几个高斯；</p>
+<p>采样 $x$ 的过程就变成：</p>
+<ol>
+<li>从一系列权重分布 $P(m)$ 中采样出某一个值，代表采样出第 $m$ 个高斯（比如从[0.2,0.3,0.4,0.1]的权重向量中（其实应该是权重分布），按照权重分布选出某一个权重，比如0.4，对应第3个）；</li>
+<li>从这第 $m$ 个高斯分布中采样出样本，记作 $x$；（比如从第3个高斯分布中采样出一个样本来）</li>
+</ol>
+<p>虽然概率分布写作不同高斯的不同weight求和，但是采样的时候，是先根据weight采样出第几个高斯、再从该高斯中采样出样本，作为最终采样的样本；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205095132363.png" alt="image-20221205095132363" style="zoom:50%;">
+
+<p>用混合高斯分布来估计概率分布，可以看到，采样的时候，其实是从某一个具体的高斯中采样的，x看作是某一类中采样了（称作cluster），这样似乎并不好，更好的做法是用（distributed representation）中采样，就是x并不属于某一个class或cluster，而是用一个vector来描述它各个不同维度、面向的特质。</p>
+<p>VAE可以理解为 混合高斯分布的distributed representation版本；VAE的具体做法、流程是：</p>
+<p>从一个标准高斯分布中采样出一个样本 $z$  （ $z\sim N(0,I)$ ） （$z$ 是向量vector，<strong>向量 $z$ 的每个维度表示一种特质attribute</strong>，每一维之间相互独立）（采样出来的是连续变量，可以取高斯分布中的任意值），然后变量 $z$ 送入到某一个函数，输出两个向量，一个是均值向量，一个是方差向量（方差是矩阵，这里只取对角阵），根据该均值 $\mu (z)$ 和方差 $\sigma(z)$，就得到了一个高斯分布 $z\sim N(\mu(z),\sigma(z))$ ，这个高斯分布的均值就是这个 $\mu (z)$，方差就是这个 $\sigma(z)$ ，然后再从这个高斯分布中采样，采样出来的样本叫做 $x$ 。</p>
+<p>因此z是连续变量、无穷多个可能，由z得到的高斯分布也是连续的，也就是说<strong>有无限个、无穷多个高斯分布</strong>（而不是离散的，用有限个高斯分布去估计 $P(x)$ ）。不同的z对应到不同的高斯分布。每个z都有对应的高斯分布。</p>
+<p>用这种方式估计出来的 $P(x)$ 写成的表达式为： $P(x)&#x3D;\int_zP(z)P(x|z)dz$ 。即先从标准正态 $P(z)$ 中采样 $z$ ，再根据 $z$ 得到均值方差，得到高斯分布 $P(x|z)$ ，再采样得到 $x$ 。</p>
+<p>这里变量 $z$ 送入到某一个函数，函数用的神经网络NN。</p>
+<p>$z$ 服从的分布这里是高斯分布，也可以用别的分布。p(z)简单（高斯）不影响p(x)可以是一个很复杂的分布，因为p(x|z)是用NN拟合，NN拟合能力很强。之所以p(z)用高斯，因为高斯常见，z的attribute特质用高斯分布来描述比较合理。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205095944153.png" alt="image-20221205095944153" style="zoom:50%;">
+
+
+
+<p>目标是找到、估计一个分布，使得 $P(x)$ 最大，也就是最大似然估计。</p>
+<p>我们现在有的是数据、观测值 $x$ ，为了最大似然估计，我们需要另一个分布，叫 $q(z|x)$，让x从某个高斯分布中采样出z来（z不是纯靠前面的标准正态 $P(z)$ 采样的了，而是通过 $q(z|x)$ 中采样的了）。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205151712109.png" alt="image-20221205151712109" style="zoom:50%;">
+
+<p>数学推导一下：</p>
+<p>目标是最大化观测值x的似然。这里 $logP(x)&#x3D;logP(x)\int_zq(z|x)dz&#x3D;\int_zq(z|x)logP(x)dz$ （ $\int_zq(z|x)dz&#x3D;1$ ），x给定下的z。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205152007417.png" alt="image-20221205152007417" style="zoom:50%;">
+
+
+
+<p>得到：<br>$$<br>\log P(x) \geq \int_z q(z \mid x) \log \left(\frac{P(x \mid z) P(z)}{q(z \mid x)}\right) d z<br>$$<br>称为 <strong>lower bound</strong>，$L_b$ 。</p>
+<p>之所以要引入 $q(z|x)$ ，把目标函数写成和 $P(x|z)$ 、 $q(z|x)$ 有关的形式，是因为最大化 $logP(x)$ 变成了 $L_b$ 。而在 $x$ 给定下， $q(z|x)$ 的变化不影响 $logP(x)$，（$logP(x)$不变），因此此时最大化 $L_b$ ，改变 $q(z|x)$ 使得 $L_b$ 尽可能接近 $logP(x)$ （减少KL散度距离）；再然后， $L_b$ 更大时，由于 $logP(x)$ 一定大于等于 $L_b$ ，所以 $logP(x)$ 也会更大，逐渐最大似然。</p>
+<p>如果只用 $P(x|z)$ 这一项，而不是两项都用，可能会出现 $L_b$ 增加，$logP(x)$ 减少的情况（但还是满足$logP(x)$ 大于等于 $L_b$ ）。</p>
+<p>？不理解为什么不能直接最大化logP(x)而是要转成最大化L_b。 ？</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205153652816.png" alt="image-20221205153652816" style="zoom:50%;">
+
+<p>进一步展开公式，将 $L_b$ 展开，可以写成两个式子</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205163038825.png" alt="image-20221205163038825" style="zoom:50%;">
+
+
+
+<p>左式的目标变成最小化 $KL(q(z|x)||P(z))$ ，也就是让 $q(z|x)$ 接近标准正态分布 $P(z)$ ；</p>
+<p>右式的目标变成最大化从 $q(z|x)$ 分布中采样 $z$ ，再由 $z\sim N(\mu(z),\sigma(z))$ 中采样出 $x$，使得该高斯函数的均值最接近 $x$ ；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205163213233.png" alt="image-20221205163213233" style="zoom:50%;">
+
+
+
+
+
+<p>可以看出，VAE的目标是尽可能接近数据集的数据，作为生成器可能是不够真实的。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/" itemprop="url">GLOW论文</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-02T00:00:00+08:00">
+                2022-12-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/12/02/深度学习/Glow论文/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="GLOW"><a href="#GLOW" class="headerlink" title="GLOW"></a>GLOW</h1><blockquote>
+<p>Kingma, Durk P., and Prafulla Dhariwal. “Glow: Generative flow with invertible 1x1 convolutions.” <em>Advances in neural information processing systems</em> 31 (2018). citations：1977  openai</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/openai/glow">https://github.com/openai/glow</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Gb411n7dE?p=59">【李宏毅深度学习】P59 Flow-based Generative Model </a></p>
+<p>csdn ：<a target="_blank" rel="noopener" href="https://blog.csdn.net/daydayjump/article/details/87924066?spm=1001.2101.3001.6650.12&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-12-87924066-blog-115493648.pc_relevant_3mothn_strategy_and_data_recovery&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-12-87924066-blog-115493648.pc_relevant_3mothn_strategy_and_data_recovery&utm_relevant_index=13">论文笔记（六）【Glow: Generative Flow with Invertible 1 x 1 Convolutions】</a></p>
+</blockquote>
+<h4 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h4><p>生成高分辨率自然图像，以及其他生成任务；</p>
+<h4 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h4><p>基于flow的生成方法，提出基于1×1卷积的flow方法，叫做glow；</p>
+<h4 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h4><p>第一个可以有效生成高分辨率自然图像的基于似然的模型。</p>
+<h4 id="存在什么问题"><a href="#存在什么问题" class="headerlink" title="存在什么问题"></a>存在什么问题</h4><p>生成质量不够高？</p>
+<h2 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h2><p>生成模型的方法统称为likelihood-based method，可以分为三类：</p>
+<ol>
+<li>Autoregressive models 自回归模型，优点是简单，缺点是不能并行处理，计算量和输入长度成正比，不适用于输入长度很高的任务；</li>
+<li>Variational autoencoders（VAEs），目标是lower bound on the log-likelihoood of the data，可以并行，优化比较麻烦；</li>
+<li>Flow-based generative models 相比于前两种，有几个优点：<ol>
+<li>Exact latent-variable inference and log-likelihood evaluation. 精确隐变量推断和对数似然估计。在VAE中，只能推断出与数据点对应的隐变量的近似值，而GAN没有encoder，不能进行latent的推断。由于flow-based model可逆，输出是一个精确值（而不是一个分布，再采样），优化目标也是数据的似然值，而不是lower bound。</li>
+<li>Efficient inference and efficient synthesis. 相比于自回归模型，flow在训练和生成过程都可以并行化。</li>
+<li>Useful latent space for downstream tasks.   </li>
+<li>Significant potential for memory savings.  计算梯度的计算量在不同深度是constant，而不是linear；</li>
+</ol>
+</li>
+</ol>
+<h2 id="背景：Flow-based-Generative-Models"><a href="#背景：Flow-based-Generative-Models" class="headerlink" title="背景：Flow-based Generative Models"></a>背景：Flow-based Generative Models</h2><p>对于一个不知道分布情况的数据，我们希望数据经过模型出来的概率值尽可能大，说明模型的输出分布接近数据分布。</p>
+<p>数据x，x是高维任意向量，服从某个未知分布，模型输出 $p_\theta (x)$，数据集 $D$ ，log似然目标函数等于最小化：</p>
+<ul>
+<li>对于离散变量 x：</li>
+</ul>
+<p>$$<br>\mathcal{L}(\mathcal{D})&#x3D;\frac{1}{N} \sum_{i&#x3D;1}^N-\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right)<br>$$</p>
+<ul>
+<li>对于连续变量 x：</li>
+</ul>
+<p>$$<br>\mathcal{L}(\mathcal{D}) \simeq \frac{1}{N} \sum_{i&#x3D;1}^N-\log p_{\boldsymbol{\theta}}\left(\tilde{\mathbf{x}}^{(i)}\right)+c<br>$$</p>
+<p>其中 $\tilde{\mathbf{x}}^{(i)}&#x3D;\mathbf{x}^{(i)}+u$ ，$u$ 是服从 $u \sim \mathcal{U}(0, a)$ 的均匀分布； $c&#x3D;-M \cdot \log a$，$a$ 取决于数据的离散程度；$M$ 是 $\mathbf{x}$ 的维度；</p>
+<p>对于大部分flow模型来说，生成过程可以定义为：<br>$$<br>\begin{array}{r}<br>\mathbf{z} \sim p_{\boldsymbol{\theta}}(\mathbf{z}) \<br>\end{array}<br>$$<br>$$<br>\mathbf{x}&#x3D;\mathbf{g}_{\boldsymbol{\theta}}(\mathbf{z})<br>$$</p>
+<p>其中，$\mathbf{z}$ 是latent variable，隐变量；$p_{\boldsymbol{\theta}}(\mathbf{z})$ 一个很简单、常见的密度函数，比如球形多高斯分布 $p_{\boldsymbol{\theta}}(\mathbf{z})&#x3D;\mathcal{N}(\mathbf{z} ; 0, \mathbf{I})$ ；$\mathbf{g}_{\boldsymbol{\theta}}(..)$ 是可逆的，也被称为 <strong>bijective</strong> 双射（？），因此给一个数据点 $\mathbf{x}$ ，就可以推断出 隐变量 $z$，通过 $\mathbf{z}&#x3D;\mathbf{f}<em>\theta(\mathbf{x})&#x3D;\mathbf{g}<em>\theta^{-1}(\mathbf{x})$ ；为了简化，下面 $\mathrm{f}</em>{\boldsymbol{\theta}}$ 和 $\mathbf{g}</em>{\boldsymbol{\theta}}$ 的公式都省略 $\theta$；</p>
+<p>$\mathbf{f}$ （$\mathbf{g}$ 也是）是由一系列transform组成的函数：$\mathbf{f}&#x3D;\mathbf{f}_1 \circ \mathbf{f}_2 \circ \cdots \circ \mathbf{f}_K$ ，因此 $\mathbf{x}$ 和 $\mathbf{z}$ 之间的关系可以写为：<br>$$<br>\mathbf{x} \stackrel{\mathbf{f}_1}{\longleftrightarrow} \mathbf{h}_1 \stackrel{\mathbf{f}_2}{\longleftrightarrow} \mathbf{h}_2 \cdots \stackrel{\mathbf{f}_K}{\longleftrightarrow} \mathbf{z}<br>$$<br>这样的可逆变换序列也称为（归一化）流 <strong>flow</strong>。</p>
+<p>通过变换下公式4，数据 $\mathbf{x}$ 的概率密度函数（pdf）可以写成：（参考李宏毅视频里的 $p_\theta (x)&#x3D;p_\theta (z)|det(dz&#x2F;dx)|$ ）<br>$$<br>\begin{aligned}<br>\log p_{\boldsymbol{\theta}}(\mathbf{x}) &amp;&#x3D;\log p_{\boldsymbol{\theta}}(\mathbf{z})+\log |\operatorname{det}(d \mathbf{z} &#x2F; d \mathbf{x})| \<br>&amp;&#x3D;\log p_{\boldsymbol{\theta}}(\mathbf{z})+\sum_{i&#x3D;1}^K \log \left|\operatorname{det}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|<br>\end{aligned}<br>$$</p>
+<p>其中，定义 $\mathbf{h}_0 \triangleq \mathbf{x}$ ， $\mathbf{h}_K \triangleq \mathbf{z}$ ， 标量值 $\log \left|\operatorname{det}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|$ 是 jacobian矩阵 $\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)$ 的行列式绝对值 取log，也叫 log-determinant；</p>
+<p>思路是只选择那些 jacobian $d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}$ 是三角阵的transform，对于这些transform来说，log-determinant 就会很简单，可以写作：<br>$$<br>\log \left|\operatorname{det}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|&#x3D;\operatorname{sum}\left(\log \left|\operatorname{diag}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|\right)<br>$$<br>其中，sum() 是所有vector元素求和，log()是element-wise log，diag()是jacobian矩阵的对角阵；</p>
+<h2 id="Glow"><a href="#Glow" class="headerlink" title="Glow"></a>Glow</h2><p>基于flow-based的生成模型，它没用之前flow-based模型中的生成器排列方式，在排列方式做了改进，用的1×1卷积；</p>
+<p><img src="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221201161933655.png" alt="image-20221201161933655"></p>
+<p>multi-scale architecture，结构包含actnorm 👉 invertible 1 × 1 convolution  👉 coupling layer ；</p>
+<h3 id="Actnorm-scale-and-bias-layer-with-data-dependent-initialization"><a href="#Actnorm-scale-and-bias-layer-with-data-dependent-initialization" class="headerlink" title="Actnorm: scale and bias layer with data dependent initialization"></a>Actnorm: scale and bias layer with data dependent initialization</h3><p>作用是normalization，但是用batch norm会不可逆，因此用activation norm；对每个channel进行缩放和bias（缩放和bias通过仿射变换实现），和BN一样有参数，初始化0均值单位方差；</p>
+<p>an actnorm layer (for activation normalizaton), that performs an affine transformation of the activations using a scale and bias parameter per channel,  </p>
+<p>。。</p>
+<h3 id="Invertible-1-×-1-convolution"><a href="#Invertible-1-×-1-convolution" class="headerlink" title="Invertible 1 × 1 convolution"></a>Invertible 1 × 1 convolution</h3><p>之前生成器堆叠都是固定的排列、堆叠顺序，这里提出一个代替固定排列的方法，是用参数可更新的可逆1×1卷积实现排列，并且这个排列不是固定的，因为里头的参数是会变化、会更新、会学习的。这里1×1卷积起到的作用打乱channel各个维度数据；</p>
+<p>这里需要输入输出的channel数量一样。</p>
+<p>输入是 $h \times w \times c$ 的tensor，卷积权重矩阵 $\mathbf{W}$ 是 $c \times c$ 的，则 可逆的 $1 \times 1$ convolution 的 log-determinant计算公式为：<br>$$<br>\log \left|\operatorname{det}\left(\frac{d \operatorname{conv} 2 \mathrm{D}(\mathbf{h} ; \mathbf{W})}{d \mathbf{h}}\right)\right|&#x3D;h \cdot w \cdot \log |\operatorname{det}(\mathbf{W})|<br>$$<br>$\operatorname{det}(\mathbf{W})$ 的计算复杂度为 $\mathcal{O}\left(c^3\right)$， 而计算conv2D的复杂度为 $\mathcal{O}\left(h \cdot w \cdot c^2\right)$ ，初始化det为0？，收敛也是到0.</p>
+<h4 id="LU-Decomposition"><a href="#LU-Decomposition" class="headerlink" title="LU Decomposition"></a>LU Decomposition</h4><p>$\operatorname{det}(\mathbf{W})$ 的计算复杂度为 $\mathcal{O}\left(c^3\right)$ 可以通过LU分解减少到 $\mathcal{O}(c)$ ：<br>$$<br>\mathbf{W}&#x3D;\mathbf{P L}(\mathbf{U}+\operatorname{diag}(\mathbf{s}))<br>$$<br>其中 $\mathbf{P}$ is a permutation matrix, $\mathbf{L}$ 是对角线上有1的下三角矩阵， $\mathbf{U}$ 是一个对角线上为零的上三角矩阵，  $\mathbf{s}$  是一个 vector。</p>
+<p>log-determinant公式简化为：<br>$$<br>\log |\operatorname{det}(\mathbf{W})|&#x3D;\operatorname{sum}(\log |\mathbf{s}|)<br>$$</p>
+<h2 id="Affine-Coupling-Layers"><a href="#Affine-Coupling-Layers" class="headerlink" title="Affine Coupling Layers"></a>Affine Coupling Layers</h2><p>下表列出了三个component的函数关系、逆函数的表达式，以及行列式的计算公式；（可参考李宏毅flow视频）</p>
+<p>可以看出，行列式计算公式很简单，因此p(x)到p(z)关系很好求；</p>
+<p><img src="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202103230674.png" alt="image-20221202103230674"></p>
+<h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><p>基于IAF的MAF不能并行，自回归AR也不能并行，合成速度慢；GAN缺少latent-space encoders，输入不是特征x，并且优化困难；</p>
+<h2 id="Quantitative-Experiments"><a href="#Quantitative-Experiments" class="headerlink" title="Quantitative Experiments"></a>Quantitative Experiments</h2><p>评价指标是平均负log似然 the average negative log-likelihood (bits per dimension) on the CIFAR-10  （越小越好）</p>
+<p><img src="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202095427969.png" alt="image-20221202095427969"></p>
+<h2 id="Qualitative-Experiments"><a href="#Qualitative-Experiments" class="headerlink" title="Qualitative Experiments"></a>Qualitative Experiments</h2><p>todo</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><h3 id="Simple-python-implementation-of-the-invertible-1-×-1-convolution"><a href="#Simple-python-implementation-of-the-invertible-1-×-1-convolution" class="headerlink" title="Simple python implementation of the invertible 1 × 1 convolution"></a>Simple python implementation of the invertible 1 × 1 convolution</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Invertible 1x1 conv</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">invertible_1x1_conv</span>(<span class="params">z, logdet, forward=<span class="literal">True</span></span>):</span><br><span class="line">    <span class="comment"># Shape</span></span><br><span class="line">    h, w, c = z.shape[<span class="number">1</span>:]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Sample a random orthogonal matrix to initialise weights</span></span><br><span class="line">    w_init = np.linalg.qr(np.random.randn(c, c))[<span class="number">0</span>]</span><br><span class="line">    w = tf.get_variable(<span class="string">&quot;W&quot;</span>, initializer=w_init)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Compute log determinant</span></span><br><span class="line">    dlogdet = h * w * tf.log(<span class="built_in">abs</span>(tf.matrix_determinant(w)))</span><br><span class="line">    <span class="keyword">if</span> forward:</span><br><span class="line">        <span class="comment"># Forward computation</span></span><br><span class="line">        _w = tf.reshape(w, [<span class="number">1</span>, <span class="number">1</span>, c, c])</span><br><span class="line">        z = tf.nn.conv2d(z, _w, [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], <span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line">        logdet += dlogdet</span><br><span class="line">        <span class="keyword">return</span> z, logdet</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># Reverse computation</span></span><br><span class="line">        _w = tf.matrix_inverse(w)</span><br><span class="line">        _w = tf.reshape(_w, [<span class="number">1</span>, <span class="number">1</span>, c, c])</span><br><span class="line">        z = tf.nn.conv2d(z, _w, [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], <span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line">        logdet -= dlogdet</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> z, logdet</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/" itemprop="url">Flow 视频 李宏毅</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-01T00:00:00+08:00">
+                2022-12-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/12/01/深度学习/Flow 视频 李宏毅/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Flow"><a href="#Flow" class="headerlink" title="Flow"></a>Flow</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Gb411n7dE?p=59">【李宏毅深度学习】P59 Flow-based Generative Model </a></p>
+</blockquote>
+<p>李宏毅的视频中说的生成器：</p>
+<p>输入z，输出生成的样本x，比如人脸生成，经过生成器输出的是一张人脸（x是高维向量，里面每个元素是pixel）；（我们常见的network一般是x到y之间的映射，输出的是p(y|x)，这里的network（generator）代表的是概率分布p，输出的是x）；</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170650732.png" alt="image-20221129170650732"></p>
+<h2 id="Math-background"><a href="#Math-background" class="headerlink" title="Math background"></a>Math background</h2><h3 id="Jacobian"><a href="#Jacobian" class="headerlink" title="Jacobian"></a>Jacobian</h3><p>如果 $f$ 和 $f^{-1}$ 是可逆关系Invertible  ，即 $ff^{-1}&#x3D;I$ ，则他们各自的jacobian也有可逆关系，即 $J_fJ_{f^{-1}}&#x3D;I$ 。</p>
+<p>jacobian定义是，输入z向量，输出x向量（输入输出维度不用相同），则jacobian为每个输出对每个输入的偏导数，jacobian的不同行是不同输出，不同列是不同输入；</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170211549.png" alt="image-20221129170211549"></p>
+<h3 id="Determinant"><a href="#Determinant" class="headerlink" title="Determinant"></a>Determinant</h3><p>行列式的关系有 $det(A)&#x3D;1&#x2F;det(A^{-1})$ ，因此jacobian矩阵也适用，得到 $det(J_f)&#x3D;1&#x2F;det(J_{f^{-1}})$ ；</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170154700.png" alt="image-20221129170154700"></p>
+<p><strong>行列式物理意义</strong>：行列式绝对值 想象成<strong>高维空间的体积</strong></p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170145425.png" alt="image-20221129170145425"></p>
+<h3 id="Change-of-Variable-Theorem"><a href="#Change-of-Variable-Theorem" class="headerlink" title="Change of Variable Theorem"></a>Change of Variable Theorem</h3><p>样本z（服从 $\pi(z)$ 分布）送入生成器&#x2F;变换后得到样本x，$x&#x3D;f(z)$，x也有一个分布，叫$p(x)$，我们想知道 $p(x)$ 与 $\pi(z)$ 之间有什么关系。</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170135548.png" alt="image-20221129170135548"></p>
+<p>假设z服从简单的均匀分布（这里上下界为0和1，也就是在[0,1]之间有值）；</p>
+<p>这里 $p(x)$ 与 $\pi(z)$ 是概率密度函数；</p>
+<p>积分&#x3D;1；</p>
+<h4 id="想知道一维-p-x-与-pi-z-之间的关系："><a href="#想知道一维-p-x-与-pi-z-之间的关系：" class="headerlink" title="想知道一维 $p(x)$ 与 $\pi(z)$ 之间的关系："></a>想知道一维 $p(x)$ 与 $\pi(z)$ 之间的关系：</h4><p>矩形面积为 $p(x’)\Delta x$ ，当 $\Delta x$ 很小时，写为 $\delta x$，因此可以得到 $\large p(x’)&#x3D;\pi(z’)|\frac{dz}{dx}|$ ；</p>
+<p>加绝对值是因为微分出来可能有正有负，但是 $p(x)$ 与 $\pi(z)$关系不变，因此就直接加绝对值了；</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170038835.png" alt="image-20221129170038835"></p>
+<p>上述是x、z一维的情况；当x、z是二维时：</p>
+<h4 id="想知道二维-p-x-与-pi-z-之间的关系："><a href="#想知道二维-p-x-与-pi-z-之间的关系：" class="headerlink" title="想知道二维 $p(x)$ 与 $\pi(z)$ 之间的关系："></a>想知道二维 $p(x)$ 与 $\pi(z)$ 之间的关系：</h4><p>积分这里看成体积，等于面积乘以概率密度（想成是高），这里面积就是行列式，左右两边积分都等于1，所以有：<br>$$<br>p\left(x^{\prime}\right)\left|\operatorname{det}\left[\begin{array}{ll}<br>\Delta x_{11} &amp; \Delta x_{21} \<br>\Delta x_{12} &amp; \Delta x_{22}<br>\end{array}\right]\right|&#x3D;\pi\left(z^{\prime}\right) \Delta z_1 \Delta z_2<br>$$<br>原始分布还是均匀分布（矩形）</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129165952183.png" alt="image-20221129165952183"></p>
+<p>其中，$\Delta x_{11}$ 表示 $z_1$ 改变时，$x_1$ 的改变量；$\Delta x_{21}$ 表示 $z_1$ 改变时，$x_2$ 的改变量；$\Delta x_{12}$ 表示 $z_1$ 改变时，$x_2$ 的改变量；$\Delta x_{22}$ 表示 $z_2$ 改变时，$x_2$ 的改变量；</p>
+<p><strong>想知道 $p(x)$ 与 $\pi(z)$ 之间的关系：</strong></p>
+<p>矩阵做转置transpose，不会改变行列式</p>
+<p>公式变换后：</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129171236957.png" alt="image-20221129171236957"></p>
+<p>$p(x)$ 与 $\pi(z)$ 之间的关系为：<br>$$<br>p(x’)|det(J_f)|&#x3D;\pi(z’)<br>$$</p>
+<p>$$<br>p(x’)&#x3D;\pi(z’)|det(J_{f^-1})|<br>$$</p>
+<h2 id="Flow-1"><a href="#Flow-1" class="headerlink" title="Flow"></a>Flow</h2><p>Flow-based generative models 目标是最大似然估计，根据变量变换关系，可以得到：</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129222418689.png" alt="image-20221129222418689"></p>
+<p>（i是第i个样本）</p>
+<p>但是这里有一个问题，就是维度一高，计算行列式会很困难，我们虽然能知道jacobian（就是z的变换对x的影响），但是行列式很难求；因此需要好好设计生成器，让生成器的jacobian很容易求行列式；</p>
+<p>因为要用到 $G^{-1}$ 所以生成器要是可逆的，并且是好算的、能算的；为了确保G是可逆的，输入z和输出w的维度要是一样的；</p>
+<p>因此生成器的条件为：</p>
+<ol>
+<li>生成器的jacobian很容易求行列式；</li>
+<li>生成器要是可逆的；</li>
+<li>生成器的输入输出维度相同；（其他生成模型，比如GAN、VAE都是输入维度小于输出的，低维映射到高维）</li>
+</ol>
+<p>可以看出，对生成器G的限制是很多的，这样子生成器的能力就很有限了；</p>
+<p>为了克服该缺点，采用叠加多个G的方法，增大G的能力：</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221130002350890.png" alt="image-20221130002350890">
+
+<p>其中， $z^i$ 并不是等于 $G_1^{-1}(x^i)$ ，而是等于  $z^i&#x3D;G_1^{-1}(\cdots G_K^{-1})(x^i))$ ，因为x是最终输出，只有两个G的话是 $x&#x3D;G_2(G_1(z))$ ，因此  $z&#x3D;G_1^{-1}G_2^{-1}(x)$ ；</p>
+<p>先考虑一个G的情况：</p>
+<p>实际上训练（目标）的是G的逆，而不是G，训练的时候，从真实数据中采样的x作为输入，简单的分布采样z作为输出，训练x到z的映射，然后实际用时，生成器取逆，输入简单分布z，输出样本x；</p>
+<p>要最大化似然，第一项、第二项都要最大。第一项最大发生在 $\pi(z)$ 等于0，由于是正态分布（normal distribution）（这里z是正态分布，也是简单分布，不是前面例子的均匀分布），当z等于0时，概率密度 $\pi(z)$ 最大。当z是0向量时，不管输入x是什么，输出z都是0，那么就没有梯度回传，因此G逆的jacobian $J_{G^{-1}}$ 等于0矩阵，因此行列式等于0，$log|det(J_{G^{-1}})|$ 等于负无穷大。</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221130004025703.png" alt="image-20221130004025703"></p>
+<p>因此，要给予某种限制，使得第二项 $log|det(J_{G^{-1}})|$  不会接近负无穷大，也就是 $det(J_{G^{-1}})$ 不接近0；</p>
+<h3 id="Coupling-layer"><a href="#Coupling-layer" class="headerlink" title="Coupling layer"></a>Coupling layer</h3><p>这里有两篇论文（NICE、Real NVP）提出了解决思路：通过一个coupling layer，其中，这个coupling layer是这样的：z的第1维到第d维直接copy到x，作为x的第1维到第d维，同时也通过两个变换 F 和 H ，得到和z的第d+1维到D维同样维度大小的两个向量，记作 $\beta$ 和 $\gamma$ ，再将z的第d+1维到D维与 $\beta$ element-wise 乘，再加上 $\gamma$，也是element-wise 加，得到x的第d+1维到第D维；</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201094831393.png" alt="image-20221201094831393"></p>
+<p>其中，z有一部分直接复制给x，因此是可逆的，F和H不要求是不是可逆，可以非常复杂；</p>
+<p>因此，从x推到z的表达式为：<br>$$<br>\begin{aligned}<br>z_{i\le d}&#x3D;&amp; x_i \<br>z_{i&gt; d}&#x3D;&amp;\frac{x_i-\gamma_i}{\beta_i}<br>\end{aligned}<br>$$</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201095626840.png" alt="image-20221201095626840" style="zoom:50%;">
+
+
+
+
+
+
+
+<p>求该coupling layer的jacobian：</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201100050032.png" alt="image-20221201100050032" style="zoom:50%;">
+
+<p>左上角直接copy的，因此是jacobian为单位阵；</p>
+<p>右上角 $x_1$ 到 $x_d$ 与 $z_{d+1}$ 到 $z_D$ 无关，因此x对z的偏导等于0，jacobian为0矩阵；</p>
+<p>左下角我们先不关注，这是因为jacobian有这么一个性质，一个矩阵的jacobian，当左上角是单位阵时，该矩阵的jacobian与右下角的jacobian等价，因此我们只需要求右下角的jacobian；</p>
+<p>右下角是对角阵，因为 $x_{i&gt;d}&#x3D;\beta_i z_i+\gamma_i$ ，因此 $x_i$ 只和 $z_i$ 有关，和其他维度无关，因此只有对角线有值，其他都是0，是对角阵；</p>
+<p><strong>当一个矩阵是对角阵，该矩阵的行列式计算方法是把对角线的元素乘起来</strong>，因此该coupling layer jacobian的行列式为：<br>$$<br>\begin{aligned}<br>\operatorname{det}\left(J_G\right)<br>&amp;&#x3D;\frac{\partial x_{d+1}}{\partial z_{d+1}} \frac{\partial x_{d+2}}{\partial z_{d+2}} \cdots \frac{\partial x_{\mathrm{D}}}{\partial z_{\mathrm{D}}} \<br>&amp;&#x3D;\beta_{d+1} \beta_{d+2} \cdots \beta_D<br>\end{aligned}<br>$$<br>因此，尽管F、H可能是很复杂的网络，但是最后需要的行列式计算是很容易计算得到的，这才是能够实用的（如果计算公式太复杂，就不实用了）</p>
+<p>模型使用coupling layer时，经常是堆叠多个coupling layer，如下图所示。</p>
+<p>上面这种堆叠方法是直接堆叠，会造成上半部分的z直接copy到最后，因此简单分布也会被带到末尾，这是我们不希望的。</p>
+<p>因此采用下面这种堆叠方法，交替堆叠，使得copy的简单分布部分不会被传到末尾；</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201102620104.png" alt="image-20221201102620104" style="zoom:50%;">
+
+
+
+<p>还有其他做法，如下图所示：</p>
+<p>图片生成过程，如何把图片拆为一半copy、一半transform呢？可以有两种拆法：</p>
+<ol>
+<li>image的横轴+纵轴&#x3D;偶数时，copy；等于奇数时，transform；（奇偶可以换）；</li>
+<li>image的channel某几个做copy，某几个做transform；</li>
+</ol>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201103039247.png" alt="image-20221201103039247" style="zoom:50%;">
+
+
+
+<h3 id="1×1-Convolution"><a href="#1×1-Convolution" class="headerlink" title="1×1 Convolution"></a>1×1 Convolution</h3><p>可以<strong>调换不同位置</strong>，这个调换是模型自己调换的（通过weight），不是人为的。</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201104051509.png" alt="image-20221201104051509" style="zoom:50%;">
+
+<p>将同一位置，不同channel的元素z组成向量，乘以W矩阵，得到对应位置的输出x；</p>
+<p>举例：比如z的同一个位置的不同channel组成向量 $[1,2,3]^T$ ，（这个故意对应channel顺序），经过3×3矩阵W后输出x为 $[3,1,2]^T$ ，因此channel顺序就打乱了、调换了。因此说通过一个1×1卷积，可以起到调换位置的作用，shuffle channel。（这里1×1的我理解的是卷积核大小为1×1，channel等于输入的channel）</p>
+<p>1×1conv作用后的jacobian：</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201105512654.png" alt="image-20221201105512654" style="zoom:50%;">
+
+
+
+<p>z输入是d维，输出d维，他们的jacobian矩阵为d×d维，由多个3×3的W组成，只有对角，因为对应位置的z只与相同位置的x相关，与其他位置不相关。</p>
+<p>根据线性代数，行列式表达式为 $(det(W))^{d\times d}$ ；</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201110234981.png" alt="image-20221201110234981" style="zoom:50%;">
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/" itemprop="url">端到端合成论文——声码器——Melgan</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-25T00:00:00+08:00">
+                2022-11-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90/" itemprop="url" rel="index">
+                    <span itemprop="name">语音合成</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/11/25/合成/Melgan论文/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="端到端合成论文——声码器——Melgan"><a href="#端到端合成论文——声码器——Melgan" class="headerlink" title="端到端合成论文——声码器——Melgan"></a>端到端合成论文——声码器——Melgan</h1><blockquote>
+<p>Kumar, Kundan, et al. “Melgan: Generative adversarial networks for conditional waveform synthesis.” <em>Advances in neural information processing systems</em> 32 (2019). citations：561 Lyrebird AI  、蒙特利尔大学</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/descriptinc/melgan-neurips">https://github.com/descriptinc/melgan-neurips</a>  </p>
+<p>试听音频：<a target="_blank" rel="noopener" href="https://melgan-neurips.github.io/">https://melgan-neurips.github.io</a>  </p>
+<p>相关应用：<a target="_blank" rel="noopener" href="https://www.descript.com/overdub">https://www.descript.com/overdub</a>  </p>
+<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/291009155">MelGAN解构与分析</a></p>
+</blockquote>
+<h4 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h4><p>基于GAN的vocoder合成waveform效果不好的问题；</p>
+<h4 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h4><p>提出一个基于GAN的vocoder，叫melgan，在语音合成、音乐翻译（music domain translation）和 unconditional 音乐合成领域都有好的效果，说明该vocoder的适用性很广；  </p>
+<h4 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h4><p>轻量级架构，全卷积结构；</p>
+<p>合成速度快，在GTX 1080Ti GPU上运行是realtime的100倍快，在CPU上运行是realtime的2倍快；</p>
+<h4 id="存在什么问题"><a href="#存在什么问题" class="headerlink" title="存在什么问题"></a>存在什么问题</h4><p>音质不够好，MOS&#x3D;3.09；</p>
+<h2 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h2><p>vocoder分三类：</p>
+<ol>
+<li><p><strong>Pure signal processing approaches</strong> </p>
+<p>代表为 Griffin-Lim (Griffin &amp; Lim, 1984)  、WORLD vocoder (MORISE et al., 2016)  ，world vocoder是attention based的RNN结构，用于Char2Wav 等模型；</p>
+</li>
+<li><p><strong>Autoregressive neural-networks-based models</strong>  </p>
+<p>代表为 WaveNet (Van Den Oord et al., 2016)  、SampleRNN (Mehri et al., 2016)   、WaveRNN (Kalchbrenner et al., 2018)  、FFTNet（wavnenet的改进）</p>
+</li>
+<li><p><strong>Non autoregressive models</strong>   </p>
+<ol>
+<li>flow-based：Parallel Wavenet (Oord et al., 2017)   、Clarinet (Ping et al., 2018) ，蒸馏一个自回归教师模型，基于flow的卷积学生模型，loss为学生教师分布之间的KL散度； </li>
+<li>based on Glow  ：WaveGlow (Prenger et al., 2019)  基于Glow的flow-based生成模型，模型较大；</li>
+</ol>
+</li>
+</ol>
+<p>这篇论文提出之前的GAN用于合成vocoder的做法：有使用GANs通过建模STFT的幅值和相位角来生成音乐音色，而不是直接建模原始波形、有用GAN映射mel谱到幅度谱、有用GAN蒸馏自回归模型；</p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><ul>
+<li>提出MelGAN，这是第一个成功训练基于GAN输出波形的模型，不需要通过蒸馏手段或感知loss作为辅助；</li>
+<li>通过在通用音乐翻译、文本到语音生成和无条件音乐合成方面的实验，我们表明自回归模型可以很容易地被快速并行的MelGAN解码器取代，用于生成原始波形，尽管质量略有下降。</li>
+<li>合成速度快，比目前最快的model快10倍；</li>
+</ul>
+<h2 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h2><h3 id="生成器"><a href="#生成器" class="headerlink" title="生成器"></a>生成器</h3><h4 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h4><p>输入mel谱（mel-spectrogram）s，输出波形x，因为输入维度小于输出维度（时间分辨率低256倍），因此堆叠一堆卷积层进行上采样；</p>
+<p>结构全由卷积层构成：转置卷积 👉 残差结构的空洞卷积 ，作为一个block，堆叠N个block；</p>
+<p>和传统GAN不同，不是用噪声作为输入，也不是用噪声作为辅助输入，因为发现辅助噪声对波形没帮助，这很反直觉，因为一般合成输入到输出是一到多映射，因此加点噪声有助于合成音频，但是可能因为mel谱信息太丰富，噪声没什么用了；</p>
+<h4 id="Induced-receptive-field"><a href="#Induced-receptive-field" class="headerlink" title="Induced receptive field"></a>Induced receptive field</h4><p>在conv神经网络的生成器中，由于诱导感受野之间的高度重叠，存在一种诱导偏差，即空间上靠近的像素点是相关的。我们设计我们的生成器架构，把一个归纳偏差，在音频时间步之间有长范围的相关性。在每个上采样层之后，我们添加了带有膨胀dilated的residual block，以便每个后续层的远端输出激活具有显著的重叠输入。dilated conv layer叠加的感受野随层数呈指数增长。因此，生成器允许有效地增加每个输出时间步的诱导接受野，即在相隔很远的时间步的诱导感受野中有更大的重叠，从而导致更好的长范围相关性。</p>
+<h4 id="Checkerboard-artifacts"><a href="#Checkerboard-artifacts" class="headerlink" title="Checkerboard artifacts"></a>Checkerboard artifacts</h4><p>棋盘效应，repeated patterns  会导致高频有嘶嘶声，要小心选择解卷积层的kernel-size和stride、dilated，即kernel-size是stride的整数倍，dilation是kerenl-size的幂次；</p>
+<h4 id="Normalization-technique"><a href="#Normalization-technique" class="headerlink" title="Normalization technique"></a>Normalization technique</h4><p>选择不同的归一化方法直接影响合成质量；图像GAN里用的instance normalization，但音频GAN里instance normalization会冲掉pitch信息，使音频听起来像金属声；用谱归一化spectral normalization   效果也不好，用 <strong>Weight normalization</strong> (Salimans &amp; Kingma, 2016)   效果好；Weight normalization通过解耦权重向量的尺度与方向解耦来重新参数化权重矩阵；</p>
+<p><img src="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221123155537151.png" alt="image-20221123155537151"></p>
+<h3 id="判别器"><a href="#判别器" class="headerlink" title="判别器"></a>判别器</h3><h4 id="Multi-Scale-Architecture-多尺度判别器"><a href="#Multi-Scale-Architecture-多尺度判别器" class="headerlink" title="Multi-Scale Architecture  多尺度判别器"></a>Multi-Scale Architecture  多尺度判别器</h4><p>判别器用的MSD，这个在后续工作hifigan中使用了；用的3个子判别器，第一个判别器输入是生成器的输出waveform，第二个判别器输入是下采样（平均池化）2倍的waveform，第三个判别器是下采样（平均池化）4倍后的waveform作为输入；三个输入表示了不同尺度的音频特征，即<strong>不同频带特征</strong>；下采样的后的音频就没有高频了，因此输入是下采样过的子判别器会倾向于学习低频；（由傅里叶变换可知，信号是由无数个正弦波信号叠加而成的，多个子判别器的设置，分别处理不同降采样倍率的信号，以学习音频中不同频段的“模式”，假设采样频率为22k（信号频率最大11k）：第一个MSD判别器能采的信号频率为0 ~ 11K；第二个为0 ~ 5.5K；第三个为0 ~ 2.25K;）</p>
+<h3 id="Window-based-objective"><a href="#Window-based-objective" class="headerlink" title="Window-based objective"></a>Window-based objective</h3><p>之前的判别器分类的对象是整条音频样本，而用窗口判别器，分类的是音频片段，窗口是overlap的窗口，每个窗口长度等于判别器的感受野，判别器的特点是卷积层的kernel-size很大（window长度也不短，不然不好分类音频了）（用group conv让卷积层参数量不会很大）；</p>
+<p>windows判别器的优势是可以捕捉高频特征？；</p>
+<p>结构上也用的weight norm；</p>
+<h2 id="目标函数"><a href="#目标函数" class="headerlink" title="目标函数"></a>目标函数</h2><p>GAN的loss，采用的是 hinge loss 版本的GAN目标，并用的最小二乘 least-squares (LSGAN) 来改善原始的hinge loss；</p>
+<h3 id="GAN-loss"><a href="#GAN-loss" class="headerlink" title="GAN loss"></a>GAN loss</h3><p>$$<br>\begin{aligned}<br>&amp;\min <em>{D_k} \mathbb{E}<em>x\left[\min \left(0,1-D_k(x)\right)\right]+\mathbb{E}</em>{s, z}\left[\min \left(0,1+D_k(G(s, z))\right)\right], \forall k&#x3D;1,2,3 \<br>&amp;\min <em>G \mathbb{E}</em>{s, z}\left[\sum</em>{k&#x3D;1,2,3}-D_k(G(s, z))\right]<br>\end{aligned}<br>$$</p>
+<p>​		其中 $x$ 表示真实波形，$s$ 表示conditioning information（比如mel谱），$z$ 表示高斯噪声向量；</p>
+<h3 id="Feature-Matching"><a href="#Feature-Matching" class="headerlink" title="Feature Matching"></a>Feature Matching</h3><p>feature matching objective用来辅助生成器更新，注意这里和hifi-gan不同，hifi-gan用的是mel谱之间的L1距离（频域），这里用的判别器输出的L1距离，应该算是时域（波形）；但是如果直接用x和G(s)计算L1距离作为辅助loss，合成的音质反而会有噪声，会更差！（这个图像领域的gan的结论相反）因此这里是用判别器输出来计算L1距离；<br>$$<br>\mathcal{L}<em>{FM}(G,D_k)&#x3D;\mathbb{E}</em>{x, s\sim p_{data}}\left[\sum_{i&#x3D;1}^T \frac{1}{N_i}\left|D_k^i(x)-D_k^i(G(s))\right|_1\right]<br>$$</p>
+<p>​		其中，$D_k^{(i)}$ 表示第 $k$ 个判别器的第 $i$ 层 feature map输出（中间层）；$N_i$ 表示每层的神经元梳理；Feature matching  和感知loss（perceptual loss）很像；</p>
+<h3 id="生成器的Final-loss"><a href="#生成器的Final-loss" class="headerlink" title="生成器的Final loss"></a>生成器的Final loss</h3><p>$$<br>\min <em>G \left(\mathbb{E}</em>{s, z}\left[\sum_{k&#x3D;1,2,3}-D_k(G(s, z))\right]+\lambda\sum_{k&#x3D;1}^3\mathcal L_{FM}(G,D_k) \right)<br>$$</p>
+<p>​		其中，$\lambda&#x3D;10$ ；</p>
+<h2 id="参数量和推理速度"><a href="#参数量和推理速度" class="headerlink" title="参数量和推理速度"></a>参数量和推理速度</h2><p>在GTX1080 Ti GPU in full precision 上的合成速度为 2500kHz，在CPU上的合成速度为 50kHz</p>
+<p>Speed of n kHz means that the model can generate n × 1000 raw audio samples per second.   </p>
+<p><img src="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125110534986.png" alt="image-20221125110534986"></p>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><h3 id="Ground-truth-mel-spectrogram-inversion"><a href="#Ground-truth-mel-spectrogram-inversion" class="headerlink" title="Ground truth mel-spectrogram inversion"></a>Ground truth mel-spectrogram inversion</h3><h4 id="Ablation-study"><a href="#Ablation-study" class="headerlink" title="Ablation study"></a>Ablation study</h4><p>数据集 LJ Speech dataset  ，训练 400k次迭代；</p>
+<p>MOS分比较：</p>
+<p><img src="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125110607376.png" alt="image-20221125110607376"></p>
+<p>可以看出，有spec norm和L1 loss(audio space)都会影响音质，其中melgan里的Window-based Discriminator  对音质的帮助最大；</p>
+<h5 id="根据实验结果有几个结论"><a href="#根据实验结果有几个结论" class="headerlink" title="根据实验结果有几个结论"></a>根据实验结果有几个结论</h5><ol>
+<li>生成器没有dilated conv stack，或少了weight norm，会导致高频伪影（high frequency artifacts）；</li>
+<li>只使用单个判别器（而不是多尺度判别器）会产生金属声音（metallic audio）（当说话人有呼吸声就会更明显），并且会跳过一些单词没读！</li>
+<li>用spec norm或不用window-based 判别器 loss，会很难学到sharp高频pattern，导致音频听起来有明显噪声；</li>
+<li>添加波形的L1 loss使得合成音频听起来像金属声，并且有额外的高频伪影 high frequency artifacts（高频伪影可以通过denoiser降噪器去除）；</li>
+</ol>
+<h4 id="Benchmarking-competing-models"><a href="#Benchmarking-competing-models" class="headerlink" title="Benchmarking competing models"></a>Benchmarking competing models</h4><p>不同的vocoder之间进行比较，输入为真实音频的mel谱，melgan训练了2.5M次迭代：</p>
+<img src="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125112732176.png" alt="image-20221125112732176" style="zoom: 67%;">
+
+<p>melgan音质相比于wavenet、waveglow来说都差了一些；</p>
+<h4 id="Generalization-to-unseen-speakers"><a href="#Generalization-to-unseen-speakers" class="headerlink" title="Generalization to unseen speakers"></a>Generalization to unseen speakers</h4><p>用说话人的数据集训练melgan，模型可以生成训练集没有的说话人声音，该实验表明了melgan可以学到的是说话人不变的（speaker -invariant）mel谱到waveform的映射；</p>
+<h3 id="End-to-end-speech-synthesis"><a href="#End-to-end-speech-synthesis" class="headerlink" title="End-to-end speech synthesis"></a>End-to-end speech synthesis</h3><p>用声学模型+不同声码器，验证该声码器效果</p>
+<p>MOS分对比如下：</p>
+<img src="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125113723721.png" alt="image-20221125113723721" style="zoom:67%;">
+
+<p>其中，Text2mel是一个开源的char2wav model；</p>
+<p>图上没有wavenet的实验结果，因为text2mel+wavenet的mos为3.4，可能是开源的模型有点问题？</p>
+<p>图上的tacotron2+waveglow是开源的，作为对比，并没有实现tacotron2+melgan的实验，感觉这篇论文实验不是很充分；</p>
+<h3 id="Non-autoregressive-decoder-for-music-translation"><a href="#Non-autoregressive-decoder-for-music-translation" class="headerlink" title="Non autoregressive decoder for music translation"></a>Non autoregressive decoder for music translation</h3><p>为了表现melgan的普适性，在music translation领域上的表现。</p>
+<h3 id="Non-autoregressive-decoder-for-VQ-VAE"><a href="#Non-autoregressive-decoder-for-VQ-VAE" class="headerlink" title="Non-autoregressive decoder for VQ-VAE"></a>Non-autoregressive decoder for VQ-VAE</h3><p>为了进一步表现melgan的普适性，与Vector-Quantized VAEs (van den Oord et al., 2017) 进行对比。</p>
+<p>TODO</p>
+<p><img src="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/image-20221125115634115.png" alt="image-20221125115634115"></p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>提出一种条件语音合成（条件指的是mel谱）架构，基于GAN，叫melgan，定性定量分析了它，melgan有以下几个特点：lightweight轻量级，训练在单GPU上也能很快收敛，有较快的推理速度；但它受到时间对齐条件信息要求的限制；</p>
+<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2><p>提出一个基于GAN的vocoder，是一篇改进模型和loss的论文，主要特点我觉得是用了multi-scale判别器，window-based objective，从音质出发，实验了对模型和目标的哪些改变能改进音质，这里音质不好包括了高频伪影、金属声、噪声，我们训练模型时出现了这些问题，可以从文章提出的解决思路去尝试；</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1789,678 +2743,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%20vector/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20vector/" itemprop="url">C++ vector</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
-                2022-11-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20vector/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/11/14/算法/C++ vector/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>C++ vector</p>
-<h2 id="新建vector数组"><a href="#新建vector数组" class="headerlink" title="新建vector数组"></a>新建vector数组</h2><ol>
-<li><p>已知内容：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">vector&lt;<span class="type">int</span>&gt; a = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>&#125;;</span><br><span class="line"><span class="comment">// 注意，不是[1,2,3,4,5]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 或者</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> i[<span class="number">6</span>] = &#123;<span class="number">6</span>,<span class="number">1</span>,<span class="number">3</span>,<span class="number">2</span>,<span class="number">4</span>,<span class="number">7</span>&#125;;</span><br><span class="line"><span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">a</span><span class="params">(i,i+<span class="number">6</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化固定长度，初值为0</span></span><br><span class="line"><span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">vec</span><span class="params">(k, <span class="number">0</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化固定长度，无初值</span></span><br><span class="line"><span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">vec</span><span class="params">(k)</span></span>;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>不知道长度，每次用push进去</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vector&lt;<span class="type">int</span>&gt; a;</span><br><span class="line">a.<span class="built_in">push_back</span>(<span class="number">1</span>);</span><br><span class="line">a.<span class="built_in">push_back</span>(<span class="number">2</span>);</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="新建二维vector数组"><a href="#新建二维vector数组" class="headerlink" title="新建二维vector数组"></a>新建二维vector数组</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vector&lt;vector&lt;<span class="type">int</span>&gt;&gt; <span class="built_in">visited</span>(h, <span class="built_in">vector</span>&lt;<span class="type">int</span>&gt;(w));</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h2 id="得到vector最后一个元素"><a href="#得到vector最后一个元素" class="headerlink" title="得到vector最后一个元素"></a>得到vector最后一个元素</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">merged.<span class="built_in">back</span>()</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="计数"><a href="#计数" class="headerlink" title="计数"></a>计数</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// vector中0的个数</span></span><br><span class="line"><span class="type">int</span> s1 = <span class="built_in">accumulate</span>(students.<span class="built_in">begin</span>(), students.<span class="built_in">end</span>(), <span class="number">0</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>​	</p>
-<h2 id="新建一个"><a href="#新建一个" class="headerlink" title="新建一个"></a>新建一个</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ret.<span class="built_in">push_back</span>(vector &lt;<span class="type">int</span>&gt; ());</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="在末尾添加元素"><a href="#在末尾添加元素" class="headerlink" title="在末尾添加元素"></a>在末尾添加元素</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ret.<span class="built_in">back</span>().<span class="built_in">push_back</span>(node-&gt;val);</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="切片、截取部分"><a href="#切片、截取部分" class="headerlink" title="切片、截取部分"></a>切片、截取部分</h2><p>取vector区间的元素<br>取数组{1, 4, 3, 2, 5}在[1, 3]区间的元素为{4, 3, 2}</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">std::vector&lt;<span class="type">int</span>&gt; v&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>&#125;; </span><br><span class="line"><span class="function">std::vector&lt;<span class="type">int</span>&gt; <span class="title">result</span><span class="params">(v.begin() + <span class="number">1</span>,v.begin() + <span class="number">3</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//————————————————</span></span><br><span class="line"><span class="comment">//版权声明：本文为CSDN博主「thisiszdy」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。</span></span><br><span class="line"><span class="comment">//原文链接：https://blog.csdn.net/thisiszdy/article/details/120086664</span></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<p>以下有点麻烦啊。。。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; Arrs &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>&#125;; </span><br><span class="line">    <span class="comment">// 假设有这么个数组,要截取第2个元素到第6个元素：2，3，4,5,6对应索引分别为 1，2，3,4,5</span></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt;::const_iterator First = Arrs.<span class="built_in">begin</span>() + <span class="number">1</span>;  <span class="comment">// 找到第  2 个迭代器 （idx=1）</span></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt;::const_iterator Second = Arrs.<span class="built_in">begin</span>() + <span class="number">6</span>; <span class="comment">// 找到第  6 个迭代器 （idx=5）的下一个位置 </span></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; Arr2;</span><br><span class="line">    Arr2.<span class="built_in">assign</span>(First,Second);  <span class="comment">// [First,Second)  左闭右开区间</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">auto</span> i : Arr2)&#123;</span><br><span class="line">        cout &lt;&lt; i&lt;&lt;<span class="string">&quot;--&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// ————————————————</span></span><br><span class="line"><span class="comment">// 版权声明：本文为CSDN博主「索隆啊」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。</span></span><br><span class="line"><span class="comment">// 原文链接：https://blog.csdn.net/qq_36758461/article/details/120059080</span></span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%20%E5%93%88%E5%B8%8C%E8%A1%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20%E5%93%88%E5%B8%8C%E8%A1%A8/" itemprop="url">C++ 哈希表</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
-                2022-11-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20%E5%93%88%E5%B8%8C%E8%A1%A8/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/11/14/算法/C++ 哈希表/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="C-哈希表"><a href="#C-哈希表" class="headerlink" title="C++ 哈希表"></a>C++ 哈希表</h1><p>哈希表在 C++ 中用 unordered_set 数据结构表示</p>
-<p>是<code>C++</code> 中的 <code>std::unordered_set</code>，<code>Java</code> 中的 <code>HashSet</code>，<code>Python</code> 中的 <code>set</code>, <code>JavaScript</code> 中的 <code>Set</code></p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unordered_set&lt;vector&lt;<span class="type">int</span>&gt;*&gt; a;</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unordered_map&lt;State, unordered_map&lt;CharType, State&gt;&gt; transfer&#123;&#125;</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%20%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url">C++数据结构</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
-                2022-11-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/11/14/算法/C++ 数据结构/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="C-数据结构"><a href="#C-数据结构" class="headerlink" title="C++数据结构"></a>C++数据结构</h1><blockquote>
-<p>中文版：	<a target="_blank" rel="noopener" href="http://c.biancheng.net/view/7250.html">http://c.biancheng.net/view/7250.html</a>    、 <a target="_blank" rel="noopener" href="http://c.biancheng.net/">http://c.biancheng.net/</a> 、 <a target="_blank" rel="noopener" href="http://c.biancheng.net/algorithm">http://c.biancheng.net/algorithm</a></p>
-<p>官方中文版：<a target="_blank" rel="noopener" href="https://zh.cppreference.com/w/cpp/container/vector">https://zh.cppreference.com/w/cpp/container/vector</a></p>
-<p>英文版：<a target="_blank" rel="noopener" href="https://cplusplus.com/reference/unordered_set/unordered_set/">https://cplusplus.com/reference/unordered_set/unordered_set/</a>  、 <a target="_blank" rel="noopener" href="https://en.cppreference.com/w/cpp/container/vector">https://en.cppreference.com/w/cpp/container/vector</a></p>
-<p>教程：<a target="_blank" rel="noopener" href="https://labuladong.gitee.io/algo/%E3%80%81https://labuladong.github.io/algo/">https://labuladong.gitee.io/algo/、https://labuladong.github.io/algo/</a></p>
-<p><a target="_blank" rel="noopener" href="https://zerotrac.github.io/leetcode_problem_rating/#/">https://zerotrac.github.io/leetcode_problem_rating/#/</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/fuxuemingzhu/article/details/105183554">https://blog.csdn.net/fuxuemingzhu/article/details/105183554</a></p>
-</blockquote>
-<p>要用一些STL容器：<a target="_blank" rel="noopener" href="http://c.biancheng.net/stl/">http://c.biancheng.net/stl/</a></p>
-<p>​                </p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%AA%97%E5%8F%A3%E8%BE%93%E5%85%A5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%AA%97%E5%8F%A3%E8%BE%93%E5%85%A5/" itemprop="url">C++ 命令行窗口输入</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
-                2022-11-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%AA%97%E5%8F%A3%E8%BE%93%E5%85%A5/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/11/14/算法/C++命令行窗口输入/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="C-命令行窗口输入"><a href="#C-命令行窗口输入" class="headerlink" title="C++ 命令行窗口输入"></a>C++ 命令行窗口输入</h1><blockquote>
-<p>参考leetcode的playground <a target="_blank" rel="noopener" href="https://leetcode.cn/playground/new/empty/">https://leetcode.cn/playground/new/empty/</a></p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">stringToInteger</span><span class="params">(string input)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">stoi</span>(input);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    string line;</span><br><span class="line">    <span class="keyword">while</span> (<span class="built_in">getline</span>(cin, line)) &#123;</span><br><span class="line">        <span class="type">int</span> a = <span class="built_in">stringToInteger</span>(line);</span><br><span class="line">        <span class="built_in">getline</span>(cin, line);</span><br><span class="line">        <span class="type">int</span> b = <span class="built_in">stringToInteger</span>(line);</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> ret = <span class="built_in">Solution</span>().<span class="built_in">add</span>(a, b);</span><br><span class="line"></span><br><span class="line">        string out = <span class="built_in">to_string</span>(ret);</span><br><span class="line">        cout &lt;&lt; out &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2511,7 +2793,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">121</span>
+                  <span class="site-state-item-count">125</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -2522,7 +2804,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -2533,7 +2815,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

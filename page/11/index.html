@@ -288,6 +288,740 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/kaldi%20conv-relu-batchnorm-layer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/kaldi%20conv-relu-batchnorm-layer/" itemprop="url">kaldi conv-relu-batchnorm-layer</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
+                2021-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/kaldi%20conv-relu-batchnorm-layer/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/06/29/命令词/kaldi conv-relu-batchnorm-layer/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="conv-relu-batchnorm-layer"><a href="#conv-relu-batchnorm-layer" class="headerlink" title="conv-relu-batchnorm-layer"></a>conv-relu-batchnorm-layer</h1><blockquote>
+<p>xconfig&#x2F;convolution.py</p>
+<p>src&#x2F;nnet3&#x2F;nnet-convolutional-component.h</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_35742630/article/details/103305313?spm=1001.2014.3001.5501">nnet3-TimeHeightConvolution代码解读</a></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">conv-relu-batchnorm-layer name=cnn1 <span class="variable">$cnn_opts</span> height-in=50 height-out=50 time-offsets=-1,0,1 height-offsets=-1,0,1 num-filters-out=64</span><br><span class="line">conv-relu-batchnorm-layer name=cnn3 <span class="variable">$cnn_opts</span> height-in=50 height-out=25 height-subsample-out=2 time-offsets=-1,0,1 height-offsets=-1,0,1 num-filters-out=128</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="参数解释"><a href="#参数解释" class="headerlink" title="参数解释"></a>参数解释</h2><ul>
+<li>height-offsets：卷积核大小，dim方向的卷积（比如dim&#x3D;50）（if height-offsets&#x3D;-1,0,1 then height 10 at the output would take input from heights 9,10,11 at the input.）</li>
+<li>num-filters-out：The output dimension of this layer is num-filters-out * height-out，卷积核的数量</li>
+<li>num-filters-in 和 height-in：假设上一层的输出是2048，那么这里就会要求num-filters-in × \times× height-in &#x3D;&#x3D; 2048。假设我们设height-in是1024，那么num-filters-in 就是2</li>
+<li>height-out 和 height-subsample-out：期望的输出维度，是对于一个height-in来说的。height-subsample-out就是在维度上的一个降采样率。这里会有个限制  height-out ×  height-subsample-out &lt;&#x3D; height-in，这一层最终输出的维度是height-out ×  num-filters-out。</li>
+<li>height-offsets, time-offsets: 这就是我们需要的卷积核的样子了。或者如果不想这么定义的话，可以直接定义offsets即可。</li>
+<li>required-time-offsets：这个实际上是可以忽略的，一般来说，required-time-offsets和time-offsets是等价的。</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/tdnn%20tdnnf%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/tdnn%20tdnnf%E5%88%86%E6%9E%90/" itemprop="url">tdnn、tdnnf计算量分析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
+                2021-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/tdnn%20tdnnf%E5%88%86%E6%9E%90/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/06/29/命令词/tdnn tdnnf分析/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="tdnn、tdnnf计算量分析"><a href="#tdnn、tdnnf计算量分析" class="headerlink" title="tdnn、tdnnf计算量分析"></a>tdnn、tdnnf计算量分析</h1><p>计算量，一般是指的1s内乘法的次数</p>
+<p>一帧的计算量，一般就是参数量？</p>
+<h2 id="TDNN"><a href="#TDNN" class="headerlink" title="TDNN"></a>TDNN</h2><ul>
+<li>tdnn结构：</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">fixed-affine-layer name=lda input=Append(-6,-3,0,3,6) affine-transform-file=<span class="variable">$dir</span>/configs/lda.mat</span><br><span class="line">relu-renorm-layer name=tdnn1 dim=256 input=lda</span><br><span class="line">relu-renorm-layer name=tdnn2 dim=256 input=Append(-3,6)</span><br><span class="line">relu-renorm-layer name=tdnn3 dim=256 input=Append(-6,3)</span><br><span class="line">relu-renorm-layer name=tdnn4 dim=256 input=Append(-9,9)</span><br><span class="line">relu-renorm-layer name=tdnn5 dim=256 input=Append(-15,3)</span><br><span class="line"></span><br><span class="line">relu-renorm-layer name=prefinal-chain input=tdnn5 dim=256 target-rms=0.5</span><br><span class="line">output-layer name=output include-log-softmax=<span class="literal">false</span> dim=<span class="variable">$num_targets</span> max-change=1.5</span><br><span class="line">relu-renorm-layer name=prefinal-xent input=tdnn5 dim=256 target-rms=0.5</span><br><span class="line">output-layer name=output-xent dim=<span class="variable">$num_targets</span> learning-rate-factor=<span class="variable">$learning_rate_factor</span> max-change=1.5</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>tdnn一帧计算量：</li>
+</ul>
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/tdnn%20tdnnf%E5%88%86%E6%9E%90/image-20211123163249337.png" alt="image-20211123163249337" style="zoom: 25%;">
+
+<ul>
+<li>tdnn网络图：</li>
+</ul>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/tdnn%20tdnnf%E5%88%86%E6%9E%90/image-20211123163433352.png" alt="image-20211123163433352"></p>
+<p>可以看出，chain的跳帧，作用到最底层的输入，输入也是跳3帧的，相当于虽然左右跨帧27，27，但实际输入，参与计算的只有1&#x2F;3的帧数，相当于速度3倍。</p>
+<h2 id="TDNNF"><a href="#TDNNF" class="headerlink" title="TDNNF"></a>TDNNF</h2><ul>
+<li>tdnnf结构</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">dim=320</span><br><span class="line">bn_dim=32</span><br><span class="line">outbn_dim=48</span><br><span class="line"><span class="comment">#dim=180</span></span><br><span class="line"><span class="comment">#bn_dim=20</span></span><br><span class="line"><span class="comment">#outbn_dim=32</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$0</span>: creating neural net configs using the xconfig parser&quot;</span>;</span><br><span class="line">num_targets=$(tree-info <span class="variable">$tree_dir</span>/tree | grep num-pdfs | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span>)</span><br><span class="line">learning_rate_factor=$(python3 -c <span class="string">&quot;print(0.5/<span class="variable">$xent_regularize</span>)&quot;</span>)</span><br><span class="line">affine_opts=<span class="string">&quot;l2-regularize=0.01 dropout-proportion=0.0 dropout-per-dim=true dropout-per-dim-continuous=true&quot;</span></span><br><span class="line">tdnnf_opts=<span class="string">&quot;l2-regularize=0.01 dropout-proportion=0.0 bypass-scale=0.66&quot;</span></span><br><span class="line">linear_opts=<span class="string">&quot;l2-regularize=0.01 orthonormal-constraint=-1.0&quot;</span></span><br><span class="line">prefinal_opts=<span class="string">&quot;l2-regularize=0.01&quot;</span></span><br><span class="line">output_opts=<span class="string">&quot;l2-regularize=0.002&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">mkdir</span> -p <span class="variable">$dir</span>/configs</span><br><span class="line"><span class="built_in">cat</span> &lt;&lt;<span class="string">EOF &gt; $dir/configs/network.xconfig</span></span><br><span class="line"><span class="string">input dim=50 name=input</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># please note that it is important to have input layer with the name=input</span></span><br><span class="line"><span class="string"># as the layer immediately preceding the fixed-affine-layer to enable</span></span><br><span class="line"><span class="string"># the use of short notation for the descriptor</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">fixed-affine-layer name=lda input=Append(-2,-1,0,1,2) affine-transform-file=$dir/configs/lda.mat</span></span><br><span class="line"><span class="string">relu-batchnorm-dropout-layer name=tdnn1 $affine_opts dim=$dim</span></span><br><span class="line"><span class="string">tdnnf-layer name=tdnnf2 $tdnnf_opts dim=$dim bottleneck-dim=$bn_dim time-stride=1</span></span><br><span class="line"><span class="string">tdnnf-layer name=tdnnf3 $tdnnf_opts dim=$dim bottleneck-dim=$bn_dim time-stride=1</span></span><br><span class="line"><span class="string">tdnnf-layer name=tdnnf4 $tdnnf_opts dim=$dim bottleneck-dim=$bn_dim time-stride=1</span></span><br><span class="line"><span class="string">tdnnf-layer name=tdnnf5 $tdnnf_opts dim=$dim bottleneck-dim=$bn_dim time-stride=1</span></span><br><span class="line"><span class="string">tdnnf-layer name=tdnnf6 $tdnnf_opts dim=$dim bottleneck-dim=$bn_dim time-stride=0</span></span><br><span class="line"><span class="string">tdnnf-layer name=tdnnf7 $tdnnf_opts dim=$dim bottleneck-dim=$bn_dim time-stride=3</span></span><br><span class="line"><span class="string">tdnnf-layer name=tdnnf8 $tdnnf_opts dim=$dim bottleneck-dim=$bn_dim time-stride=3</span></span><br><span class="line"><span class="string">tdnnf-layer name=tdnnf9 $tdnnf_opts dim=$dim bottleneck-dim=$bn_dim time-stride=3</span></span><br><span class="line"><span class="string">tdnnf-layer name=tdnnf10 $tdnnf_opts dim=$dim bottleneck-dim=$bn_dim time-stride=3</span></span><br><span class="line"><span class="string">tdnnf-layer name=tdnnf11 $tdnnf_opts dim=$dim bottleneck-dim=$bn_dim time-stride=3</span></span><br><span class="line"><span class="string">tdnnf-layer name=tdnnf12 $tdnnf_opts dim=$dim bottleneck-dim=$bn_dim time-stride=3</span></span><br><span class="line"><span class="string">tdnnf-layer name=tdnnf13 $tdnnf_opts dim=$dim bottleneck-dim=$bn_dim time-stride=3</span></span><br><span class="line"><span class="string">linear-component name=prefinal-l dim=$outbn_dim $linear_opts</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">prefinal-layer name=prefinal-chain input=prefinal-l $prefinal_opts big-dim=$dim small-dim=$outbn_dim</span></span><br><span class="line"><span class="string">output-layer name=output include-log-softmax=false dim=$num_targets $output_opts</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">prefinal-layer name=prefinal-xent input=prefinal-l $prefinal_opts big-dim=$dim small-dim=$outbn_dim</span></span><br><span class="line"><span class="string">output-layer name=output-xent dim=$num_targets learning-rate-factor=$learning_rate_factor $output_opts</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>tdnnf一帧计算量：</li>
+</ul>
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/tdnn%20tdnnf%E5%88%86%E6%9E%90/image-20211123163259275.png" alt="image-20211123163259275" style="zoom: 33%;">
+
+<ul>
+<li>tdnnf网络图</li>
+</ul>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/tdnn%20tdnnf%E5%88%86%E6%9E%90/image-20211123163600244.png" alt="image-20211123163600244"></p>
+<p>可以看出，前几层很多1的拼帧，所以虽然最上层输入给decoder的进行了下采样，到了底层，也还是要利用那么多帧，没有起到加速的效果。</p>
+<ul>
+<li>改进：不用1的拼帧，只用3的拼帧</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/nist/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/nist/" itemprop="url">NIST F4DE安装</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
+                2021-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/nist/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/06/29/命令词/nist/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="NIST-F4DE安装"><a href="#NIST-F4DE安装" class="headerlink" title="NIST F4DE安装"></a>NIST F4DE安装</h1><p><strong>零 安装包及依赖包</strong></p>
+<p><a target="_blank" rel="noopener" href="http://139.155.89.35/tools/F4DE/install.tgz">http://139.155.89.35/tools/F4DE/install.tgz</a> 内含有所有依赖包和安装包</p>
+<h1 id="一、自主安装"><a href="#一、自主安装" class="headerlink" title="一、自主安装"></a><strong>一、自主安装</strong></h1><ol>
+<li><h2 id="gnuplot安装"><a href="#gnuplot安装" class="headerlink" title="gnuplot安装"></a><strong>gnuplot安装</strong></h2></li>
+</ol>
+<p>首先安装libgd-2.3.2:</p>
+<p>.&#x2F;configure</p>
+<p>make -j 8</p>
+<p>sudo make install (库最终在&#x2F;usr&#x2F;local&#x2F;lib目录下)</p>
+<p>export LD_LIBRARY_PATH&#x3D;&#x2F;usr&#x2F;local&#x2F;lib:$LD_LIBRARY_PATH</p>
+<p>安装gnuplot-5.2.8:</p>
+<p>.&#x2F;configure</p>
+<p>make -j 8</p>
+<p>sudo make install</p>
+<ol>
+<li><h2 id="perl库安装"><a href="#perl库安装" class="headerlink" title="perl库安装"></a><strong>perl库安装</strong></h2></li>
+</ol>
+<p> Text::CSV</p>
+<p> Text::CSV_XS</p>
+<p> Class::Accessor</p>
+<p> Math::Random::OO</p>
+<p> Statistics::Descriptive</p>
+<p> Statistics::Descriptive::Discrete,</p>
+<p> Statistics::Distributions,</p>
+<p> DBI</p>
+<p> DBD::SQLite</p>
+<p> File::Monitor,</p>
+<p> File::Monitor::Object,</p>
+<p> Digest::SHA</p>
+<p> Digest::SHA::PurePerl</p>
+<p> YAML</p>
+<p> Data::Dump</p>
+<ol>
+<li><h2 id="安装F4DE-3-5-0"><a href="#安装F4DE-3-5-0" class="headerlink" title="安装F4DE-3.5.0"></a><strong>安装F4DE-3.5.0</strong></h2></li>
+</ol>
+<p>make KWSEvalcheck 全部成功后 #（这一步可能会因为有报错，可以先跳过直接安装）</p>
+<p>make KWSEvalinstall 即可</p>
+<p>export LD_LIBRARY_PATH&#x3D;&#x2F;usr&#x2F;local&#x2F;lib:$LD_LIBRARY_PATH</p>
+<p>export PATH&#x3D;yourpath&#x2F;F4DE&#x2F;bin:$PATH</p>
+<h1 id="二、tencent安装"><a href="#二、tencent安装" class="headerlink" title="二、tencent安装"></a><strong>二、tencent安装</strong></h1><p>mkdir install #（安装在install目录下）</p>
+<p>cd install</p>
+<p>echo “Downloading F4DE install package …”</p>
+<p>wget <a target="_blank" rel="noopener" href="http://139.155.89.35/tools/F4DE/install.tgz">http://139.155.89.35/tools/F4DE/install.tgz</a></p>
+<p>tar -zxvf install.tgz</p>
+<p>cd install&#x2F;</p>
+<p>cd dependencies&#x2F;</p>
+<p>bash run.sh #（等待）</p>
+<p>export LD_LIBRARY_PATH&#x3D;&#x2F;usr&#x2F;local&#x2F;lib:$LD_LIBRARY_PATH</p>
+<p>export PATH&#x3D;yourpath&#x2F;F4DE&#x2F;bin:$PATH</p>
+<p>### 安装完后在install&#x2F;install&#x2F;F4DE-3.5.0&#x2F;bin&#x2F;目录下</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/triplet%20loss/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/triplet%20loss/" itemprop="url">triplet loss keyword spotting 代码</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
+                2021-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/triplet%20loss/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/06/29/命令词/triplet loss/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="triplet-loss-keyword-spotting-代码"><a href="#triplet-loss-keyword-spotting-代码" class="headerlink" title="triplet loss keyword spotting 代码"></a>triplet loss keyword spotting 代码</h1><p>以 google speech commands为例</p>
+<blockquote>
+<p>Vygon, Roman, and Nikolay Mikhaylovskiy. “Learning efficient representations for keyword spotting with triplet loss.” <em>International Conference on Speech and Computer</em>. Springer, Cham, 2021.ciations：12</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/roman-vygon/triplet_loss_kws"> Learning Efficient Representations for Keyword Spotting with Triplet Loss</a></p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/NVIDIA/NeMo/blob/v0.10.1/examples/asr/notebooks/3_Speech_Commands_using_NeMo.ipynb">https://github.com/NVIDIA/NeMo/blob/v0.10.1/examples/asr/notebooks/3_Speech_Commands_using_NeMo.ipynb</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.codeleading.com/article/61624664033/">https://www.codeleading.com/article/61624664033/</a></p>
+<p><a target="_blank" rel="noopener" href="https://bindog.github.io/blog/2019/10/23/why-triplet-loss-works/">https://bindog.github.io/blog/2019/10/23/why-triplet-loss-works/</a></p>
+<p>github人脸检测：<a target="_blank" rel="noopener" href="https://github.com/kuaikuaikim/DFace">https://github.com/kuaikuaikim/DFace</a></p>
+<p>facenet：<a target="_blank" rel="noopener" href="https://github.com/davidsandberg/facenet">https://github.com/davidsandberg/facenet</a></p>
+</blockquote>
+<p>&#x2F;home&#x2F;data&#x2F;yelong&#x2F;triplet_loss_kws&#x2F;loss&#x2F;utils.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">RandomNegativeTripletSelector</span>(<span class="params">margin, cpu=<span class="literal">False</span></span>): <span class="keyword">return</span> FunctionNegativeTripletSelector(margin=margin,</span><br><span class="line">                                                                                             negative_selection_fn=random_hard_negative,</span><br><span class="line">                                                                                             cpu=cpu)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FunctionNegativeTripletSelector</span>(<span class="title class_ inherited__">TripletSelector</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    For each positive pair, takes the hardest negative sample (with the greatest triplet loss value) to create a triplet</span></span><br><span class="line"><span class="string">    Margin should match the margin used in triplet loss.</span></span><br><span class="line"><span class="string">    negative_selection_fn should take array of loss_values for a given anchor-positive pair and all negative samples</span></span><br><span class="line"><span class="string">    and return a negative index for that pair</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>找triplet三元组：</p>
+<p>方法：找出所有同类a,p对，而a,n对根据不同策略选出不同a,n，我这里用的随机，就是在所有d(a,p)-d(a,n)+margin大于0的组合中，随机选一个a,n作为三元组(a,p,n)的n index</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> combinations</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pdist</span>(<span class="params">vectors</span>):</span><br><span class="line">    distance_matrix = -<span class="number">2</span> * vectors.mm(torch.t(vectors)) + vectors.<span class="built_in">pow</span>(<span class="number">2</span>).<span class="built_in">sum</span>(dim=<span class="number">1</span>).view(<span class="number">1</span>, -<span class="number">1</span>) + vectors.<span class="built_in">pow</span>(<span class="number">2</span>).<span class="built_in">sum</span>(</span><br><span class="line">        dim=<span class="number">1</span>).view(-<span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> distance_matrix</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TripletSelector</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Implementation should return indices of anchors, positive and negative samples</span></span><br><span class="line"><span class="string">    return np array of shape [N_triplets x 3]</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_triplets</span>(<span class="params">self, embeddings, labels</span>):</span><br><span class="line">        <span class="keyword">raise</span> NotImplementedError</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">random_hard_negative</span>(<span class="params">loss_values</span>):</span><br><span class="line">    hard_negatives = np.where(loss_values &gt; <span class="number">0</span>)[<span class="number">0</span>]   <span class="comment">#index</span></span><br><span class="line">    <span class="keyword">return</span> np.random.choice(hard_negatives) <span class="keyword">if</span> <span class="built_in">len</span>(hard_negatives) &gt; <span class="number">0</span> <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FunctionNegativeTripletSelector</span>(<span class="title class_ inherited__">TripletSelector</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    For each positive pair, takes the hardest negative sample (with the greatest triplet loss value) to create a triplet</span></span><br><span class="line"><span class="string">    Margin should match the margin used in triplet loss.</span></span><br><span class="line"><span class="string">    negative_selection_fn should take array of loss_values for a given anchor-positive pair and all negative samples</span></span><br><span class="line"><span class="string">    and return a negative index for that pair</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, margin, negative_selection_fn, cpu=<span class="literal">True</span></span>):</span><br><span class="line">        <span class="built_in">super</span>(FunctionNegativeTripletSelector, self).__init__()</span><br><span class="line">        self.cpu = cpu</span><br><span class="line">        self.margin = margin</span><br><span class="line">        self.negative_selection_fn = negative_selection_fn</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_triplets</span>(<span class="params">self, embeddings, labels</span>):</span><br><span class="line">        <span class="keyword">if</span> self.cpu:</span><br><span class="line">            embeddings = embeddings.cpu()</span><br><span class="line">        distance_matrix = pdist(embeddings)</span><br><span class="line">        distance_matrix = distance_matrix.cpu()</span><br><span class="line"></span><br><span class="line">        labels = labels.cpu().data.numpy()</span><br><span class="line">        triplets = []</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> label <span class="keyword">in</span> <span class="built_in">set</span>(labels):   <span class="comment">#多少种种类</span></span><br><span class="line">            label_mask = (labels == label)</span><br><span class="line">            label_indices = np.where(label_mask)[<span class="number">0</span>] <span class="comment">#同类的index</span></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(label_indices) &lt; <span class="number">2</span>:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            negative_indices = np.where(np.logical_not(label_mask))[<span class="number">0</span>]  <span class="comment">#逻辑非（取反） # 不同类的index</span></span><br><span class="line">            anchor_positives = <span class="built_in">list</span>(combinations(label_indices, <span class="number">2</span>))  <span class="comment"># All anchor-positive pairs    # 列出所有anchor_positives对</span></span><br><span class="line">            anchor_positives = np.array(anchor_positives)</span><br><span class="line"></span><br><span class="line">            ap_distances = distance_matrix[anchor_positives[:, <span class="number">0</span>], anchor_positives[:, <span class="number">1</span>]]  <span class="comment"># 在distance_matrix(batch*batch)里找到(a,p)对的距离</span></span><br><span class="line">            <span class="keyword">for</span> anchor_positive, ap_distance <span class="keyword">in</span> <span class="built_in">zip</span>(anchor_positives, ap_distances):</span><br><span class="line">                loss_values = ap_distance - distance_matrix[</span><br><span class="line">                    torch.LongTensor(np.array([anchor_positive[<span class="number">0</span>]])), torch.LongTensor(negative_indices)] + self.margin <span class="comment">#和所有不同类的距离</span></span><br><span class="line">                loss_values = loss_values.data.cpu().numpy()    <span class="comment"># 一个向量当前a,p和所有不同类a,n的距离</span></span><br><span class="line">                hard_negative = self.negative_selection_fn(loss_values) <span class="comment">#在loss大于0的众多loss中选一个，作为hard_negative</span></span><br><span class="line">                <span class="keyword">if</span> hard_negative <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                    hard_negative = negative_indices[hard_negative]</span><br><span class="line">                    triplets.append([anchor_positive[<span class="number">0</span>], anchor_positive[<span class="number">1</span>], hard_negative])</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(triplets) == <span class="number">0</span>:</span><br><span class="line">            triplets.append([anchor_positive[<span class="number">0</span>], anchor_positive[<span class="number">1</span>], negative_indices[<span class="number">0</span>]])</span><br><span class="line"></span><br><span class="line">        triplets = np.array(triplets)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> torch.LongTensor(triplets)</span><br><span class="line"></span><br><span class="line">a=FunctionNegativeTripletSelector(margin=<span class="number">0.5</span>,negative_selection_fn=random_hard_negative,cpu=<span class="literal">True</span>)</span><br><span class="line">embeddings=torch.randn(<span class="number">6</span>,<span class="number">3</span>)</span><br><span class="line">labels=torch.Tensor([<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">1</span>])</span><br><span class="line">b = a.get_triplets(embeddings,labels)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>计算triplet loss</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, margin, triplet_selector</span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.margin = margin</span><br><span class="line">        self.triplet_selector = triplet_selector</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_loss</span>(<span class="params">self, embeddings, target</span>):</span><br><span class="line">        embeddings = torch.flatten(embeddings, start_dim=-<span class="number">2</span>)</span><br><span class="line">        triplets = self.triplet_selector.get_triplets(embeddings, target)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> embeddings.is_cuda:</span><br><span class="line">            triplets = triplets.cuda()</span><br><span class="line"></span><br><span class="line">        ap_distances = (embeddings[triplets[:, <span class="number">0</span>]] - embeddings[triplets[:, <span class="number">1</span>]]).<span class="built_in">pow</span>(<span class="number">2</span>).<span class="built_in">sum</span>(<span class="number">1</span>)  <span class="comment"># .pow(.5)</span></span><br><span class="line">        an_distances = (embeddings[triplets[:, <span class="number">0</span>]] - embeddings[triplets[:, <span class="number">2</span>]]).<span class="built_in">pow</span>(<span class="number">2</span>).<span class="built_in">sum</span>(<span class="number">1</span>)  <span class="comment"># .pow(.5)</span></span><br><span class="line">        losses = F.relu(ap_distances - an_distances + self.margin)</span><br><span class="line">        </span><br><span class="line">triplet_loss = OnlineTripletLoss(args.margin, RandomNegativeTripletSelector(args.margin))        </span><br><span class="line">encoded = l2_regularizer(embeds=encoded)</span><br><span class="line">train_loss = triplet_loss(embeds=encoded, targets=commands)</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws%EF%BC%88%E4%BA%94%EF%BC%89%E5%A4%9A%E5%91%BD%E4%BB%A4%E8%AF%8D/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1920,1580 +2654,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/" itemprop="url">命令词论文笔记（七）loss改进用命令词的论文</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
-                2021-06-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2021/06/29/命令词/命令词论文笔记（七）/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="loss改进用命令词的论文"><a href="#loss改进用命令词的论文" class="headerlink" title="loss改进用命令词的论文"></a>loss改进用命令词的论文</h1><blockquote>
-<p>&#x3D;&#x3D;Yandong Wen, Kaipeng Zhang, Zhifeng Li and Yu Qiao. “A Discriminative Feature Learning Approach for Deep Face Recognition” European Conference on Computer Vision (2016)..&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>提出 <strong>center loss</strong>，目的是让相同类的特征表示尽可能相近（附带的效果：相似音是不同的类，该方法可以拉开二者距离，相当于&#x3D;&#x3D;区分了相似音&#x3D;&#x3D;）</li>
-<li>学习每个类的deep feature的center，将输入特征的deep feature到该类中心的距离引入loss中，让类内intra-class距离小（类内方差小），目的是最小化类内距离</li>
-<li>怎么让类间距离大？</li>
-<li>Discriminative power characterizes features in both the compact intra-class variations and separable inter-class differences,</li>
-<li>center loss：$\large{L_c&#x3D;\frac{1}{2}\sum^m_{i&#x3D;1}\Vert x_i-c_{yi}\Vert_2^2}$，           （L2范数，平方距离：$\Vert x \Vert_2&#x3D;(\vert x_1\vert^2+\vert x_2\vert^2+…+\vert x_n\vert^2)^{1&#x2F;2}$ ，所以$\Vert x \Vert_{2}^2&#x3D;(\vert x_1\vert^2+\vert x_2\vert^2+…+\vert x_n\vert^2)$ ））<ul>
-<li>这里的x一般是最后一层线性层之前的输入特征，比如32维，而输出一共有10个类，所以c的维度是10*32</li>
-</ul>
-</li>
-<li>center $c_{yi}$ 值：在每个minibatch里，$L_c$ 对样本特征求导，累计和，乘以&#x3D;&#x3D;学习率$\alpha$&#x3D;&#x3D;，来更新center值（不是用平均每类的样本特征而来）（其实不用真的是特征中心点，因为目的是不同x到某点的距离最短，这个点并不重要）【改进：不同类中心的距离越大越好，也加入loss，否则不同类之间的c都很接近的话，特征还是分不开？】</li>
-<li>$\lambda$​：系数，用来平衡两个loss，主导了类内方差；</li>
-<li>$\alpha$：center loss更新center值的学习率；（决定center的参数变化量）（center loss里的参数就是指的类中心特征值）</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/image-20211206160520204.png" alt="image-20211206160520204" style="zoom: 67%;">
-
-<p>（$\theta_C$的C是卷积，不是类中心c）</p>
-<ul>
-<li>调参：</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/image-20220330165802859.png" alt="image-20220330165802859" style="zoom:67%;">
-
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Hadsell, R., Chopra, S., LeCun, Y.: Dimensionality reduction by learning an invariant mapping. In: 2006 IEEE Computer Society Conference on Computer Vision and Pattern Recognition, vol. 2, pp. 1735–1742. IEEE (2006)&#x3D;&#x3D;</p>
-<p>&#x3D;&#x3D;Sun, Y., Chen, Y., Wang, X., Tang, X.: Deep learning face representation by joint identification-verification. In: Advances in Neural Information Processing Systems, pp. 1988–1996 (2014)&#x3D;&#x3D;</p>
-<p>&#x3D;&#x3D;Wen, Y., Li, Z., Qiao, Y.: Latent factor guided convolutional neural networks for age-invariant face recognition. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp. 4893–4901 (2016)&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>提出 <strong>contrastive loss</strong>  </li>
-<li>把图像对（image pair）引入loss</li>
-<li>缺点：样本一多，收敛慢 ，不稳定，可通过精细选择image pairs来缓解</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Schroff, F., Kalenichenko, D., Philbin, J.: Facenet: a unified embedding for face recognition and clustering. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp. 815–823 (2015)&#x3D;&#x3D;  </p>
-<p><a target="_blank" rel="noopener" href="https://omoindrot.github.io/triplet-loss#batch-hard-strategy">https://omoindrot.github.io/triplet-loss#batch-hard-strategy</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/35560666">https://zhuanlan.zhihu.com/p/35560666</a></p>
-<p>pytorch实现了：<a target="_blank" rel="noopener" href="https://pytorch.org/docs/1.9.1/generated/torch.nn.TripletMarginLoss.html?highlight=tripletmarginloss%EF%BC%8C%E4%BD%86%E8%A6%81%E5%9C%A8dataloader%E9%87%8C%E7%BB%99%E5%AE%9A%E4%B8%89%E5%85%83%E7%BB%84">https://pytorch.org/docs/1.9.1/generated/torch.nn.TripletMarginLoss.html?highlight=tripletmarginloss，但要在dataloader里给定三元组</a></p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/Cysu/open-reid/tree/master/reid/loss">https://github.com/Cysu/open-reid/tree/master/reid/loss</a></p>
-<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/171627918">triplet loss 损失函数</a></p>
-<p><a target="_blank" rel="noopener" href="https://bindog.github.io/blog/2019/10/23/why-triplet-loss-works/">https://bindog.github.io/blog/2019/10/23/why-triplet-loss-works/</a></p>
-<p>github人脸检测：<a target="_blank" rel="noopener" href="https://github.com/kuaikuaikim/DFace">https://github.com/kuaikuaikim/DFace</a></p>
-<p>facenet：<a target="_blank" rel="noopener" href="https://github.com/davidsandberg/facenet">https://github.com/davidsandberg/facenet</a></p>
-<p><a target="_blank" rel="noopener" href="https://github.com/timesler/facenet-pytorch">https://github.com/timesler/facenet-pytorch</a></p>
-</blockquote>
-<ul>
-<li>提出 <strong>triplet loss</strong>，最小化batch内同类特征embedding $f(x)$ 距离，最大化batch内不同类特征embedding距离</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/image-20220413140757363.png" alt="image-20220413140757363" style="zoom: 80%;">
-
-<ul>
-<li><p>约束条件：$\large \Vert f(x_i^a)-f(x_i^p)\Vert_2^2 + \alpha &lt; \Vert f(x_i^a)-f(x_i^n)\Vert_2^2$  ，当$\large \forall(f(x_i^a),f(x_i^p),f(x_i^n))\in T $， 其中，$T$是三元组triplet</p>
-</li>
-<li><p>Loss fucntion为：$\large min L&#x3D;\sum\limits_i ^N \left[\Vert f(x_i^a)-f(x_i^p)\Vert_2^2 - \Vert f(x_i^a)-f(x_i^n)\Vert_2^2 + \alpha \right]$</p>
-<p>更常用的loss是结合$max(0,d(a,p) - d(a,n) + margin)$</p>
-<p>其中，$f(x)$ 为d维embedding特征</p>
-<p>这个loss对于当前anchor特征，一个minibatch中p特征数量和n特征数量可能分布很不均，因此用求与p特征的argmax，与n特征的argmin，就只统计和一个同类距离和一个不同类距离作为loss，</p>
-<p>维度d，所有维度都计算距离然后求和了（欧式距离）</p>
-<p>但是这样会训练loss越训练，最后变成都在margin附近。。。no good</p>
-</li>
-<li><p>因此，不是用hardest positive，而是用所有的anchor-positive pair来算loss，anchor-negative还是用的hard negative</p>
-</li>
-<li><p>把图像三个一组（image triplet）引入loss，但这样收敛慢，对三元组triplet要求高</p>
-</li>
-<li><p>缺点：样本一多，收敛慢 ，不稳定，可通过精细选择image triplets来缓解</p>
-</li>
-<li><p>triplet loss里的anchor和目标检测的anchor不一样，是基于人脸识别提出的，是每个输入样本（叫做anchor）提一个embedding，和其他同类样本的embedding距离近，和不同类样本的embedding距离远作为loss（ps. 目标检测的anchor，一个图片N个anchor，理解为扫描图片，用很多框框去扫描 遍历）</p>
-</li>
-<li><p>Triplet Selection 来加速训练收敛：加快收敛的秘诀：找到不满足约束（难训）的triplet来训练；和同类的最远距离 与 和不同类的最近距离 如果很接近的话，说明是难训样本；两种方法来构造难训样本：</p>
-<ol>
-<li>在每个step中offline离线产生triplet三元组，用同一个模型计算argmax同类和argmin不同类距离</li>
-<li>在每个minibatch中online在线产生triplet</li>
-</ol>
-</li>
-<li><p>easy triplets、hard triplets、semi-hard triplets：</p>
-</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/image-20220414095451899.png" alt="image-20220414095451899" style="zoom:80%;">
-
-<ul>
-<li><p>在triplet loss基础上，又衍生出了其他许多改进和变体，例如一个比较有效的方法叫hard mining，在三元组选择过程中加入一些特定的策略，尽量选择一些距离Anchor较远的Positive和距离Anchor较近的Negative（也就是最不像的同类样本、最像的不同类样本）……此类方法还有许多，就不一一列举了。</p>
-</li>
-<li><p>triplet loss虽然有效，但是其常为人诟病的缺点也很明显：训练过程不稳定，收敛慢，需要极大的耐心去调参……所以在很多情况下，我们不会单独使用triplet loss，而是将其与softmax loss等方法相结合使用，以稳定训练过程。</p>
-</li>
-<li><p>在特征embedding后接L2正则得到新的embedding特征：</p>
-<p>特征v，有$\large v&#x3D;\frac{v}{max(\Vert v\Vert_2,\epsilon)}$</p>
-</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%83%EF%BC%89/image-20220415114057425.png" alt="image-20220415114057425" style="zoom:80%;">
-
-<h2 id="hinge-loss"><a href="#hinge-loss" class="headerlink" title="hinge loss"></a>hinge loss</h2><p>$\large d_i \in \mathbb R^{T\times f}$</p>
-<p>$\large d_o \in \mathbb R^{N1+N2}$</p>
-<p>$\large I \in \mathbb R^{n\times n}$</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/" itemprop="url">命令词论文笔记（三）命令词中文论文</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
-                2021-06-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2021/06/29/命令词/命令词论文笔记（三）/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="命令词中文论文"><a href="#命令词中文论文" class="headerlink" title="命令词中文论文"></a>命令词中文论文</h1><blockquote>
-<p>&#x3D;&#x3D;车载噪声环境下的语音命令词识别的仿真研究 涂志强 华南理工大学 2018&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>和上一篇“基于深度学习的唤醒词识别方法研究 郭瑜 2019 大连理工大学”，思想基本一致，数据集也都相同，都用的 tensorflow 1s speech_commands 数据集</li>
-<li>探索了降噪模型和识别模型结合的效果，加入降噪模型在训练识别模型可以提升1%的识别效果</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;基于深度学习的语音唤醒研究及其应用 刘凯 2018 厦门大学 硕士论文&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>deep kws 置信度计算方法：</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20210618171112653.png" alt="image-20210618171112653"></p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20210618171128265.png" alt="image-20210618171128265"></p>
-<hr>
-<blockquote>
-<p> &#x3D;&#x3D;基于深度学习的唤醒词识别方法研究 郭瑜 2019 大连理工大学&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>基于tensorflow开发，使用python库中的提供自动语音识别功能的 Python-Speech-Features 包，用于实时录音的Py Audio 包；</li>
-<li>输入一段语音，输出标签概率（many to one），概率高于阈值，则唤醒；</li>
-<li>基于注意力机制的唤醒：（很奇怪c长度和帧长一致？要怎么做softmax？加权平均）</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20210812164104515.png" alt="image-20210812164104515"></p>
-<ul>
-<li>比较了多种神经网络：</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20210619105841352.png" alt="image-20210619105841352"></p>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;噪声环境下的语音关键词检测_谷悦.caj 2019 内蒙古大学&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>语音增强和kws联合</li>
-<li>CRN由于bLSTM，下一步计划引入resnet</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;深度学习的低延迟终端命令词识别系统设计与实现_轩晓光.caj 哈尔滨工业大学 2019&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>得到神经网络后验概率，不是像deep kws一样做smooth，而是用将每一帧语音最大概率对应的拼音提出，构成一个拼音序列，然后去掉重复部分，再与每一个命令词的真实拼音序列求编辑距离。（这样容易不准确吧），最小距离如果小于阈值则取最小距离对应的目标词。（感觉不是很靠谱，阈值是4？）</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;基于端到端的语音唤醒技术研究_张宁.2019 厦门大学 硕士论文&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>2017年，蚂蚁金服AI部门的Zhiming Wang等人充分利用连续语音识别的语料库中庞大的语料，将DNN和CTC结合进行端到端语音唤醒，解决了关键字特定数据较少的问题[53]。Small-footprint Keyword Spotting Using Deep Neural Network and Connectionist Temporal Classifier</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;基于LFMMI的两级唤醒词检测研究 陈凯斌 2020 华南理工大学 硕士论文&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>CNN-TDNNF结构</li>
-<li>二级置信度评估</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;面向物端芯片的语音关键词识别技术_穆维林.caj 2020 中科院计算所&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>CNN-LSTM-Attention（value似乎是一维的，c是一维向量，做sigmoid，得到输出概率）</li>
-<li>量化</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;语音唤醒技术在语音助手系统中的应用与实现_穆培婷.caj 2020 西安电子科技大学&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>Average  attention：在这种注意力方法中，没有需要训练的参数，αt就是时间 T的平均值，$\alpha_t&#x3D;\frac{1}{T}$</li>
-<li>CNN-GRU-Attention，固定时间长度输入（1.9s）</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;基于深度学习的命令词识别方法研究_何琪琪.caj 大连理工大学 2020&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>这篇论文还不错！可以好好看看！试试方法！</li>
-<li>基于 DSE-CNN 的命令词识别方法。Depthwise-Squeeze-Excitation(DSE)模块由深度可分离卷积与 Squeeze-and-Excitation (SE)  模块结合而成。</li>
-<li>使用GhostNet 中的 <strong>Ghost</strong> 模块改进 MS 模块，以去除冗余操作、减少运算量，提出Ghost-Squeeze(GS)结构。</li>
-<li>帧长、帧移对结果有一点影响</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20210812173138904.png" alt="image-20210812173138904"></p>
-<ul>
-<li>实验结果：</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20210812173250917.png" alt="image-20210812173250917"></p>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;低内存低延迟的语音关键词检测算法研究_邹台 西安电子科技大学 2020&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li><p>提出时间关注（Time Attention Convolutional Recurrent Neural Net-works,TACRNN）的语音关键词检测模型 TACRNN，也就是CRNN加入attention</p>
-</li>
-<li><p>CRNN结构</p>
-</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20210812195432414.png" alt="image-20210812195432414"></p>
-<ul>
-<li><p>注意力机制中的 a 为对齐函数。对齐函数 a 主要有三种方式，分别为 dot、general、concat（参考了：Luong M T , Pham H , Manning C D . Effective Approaches to Attention-based Neural Machine Translation[J]. Computer ence, 2015）</p>
-<ul>
-<li>dot：$\large{a&#x3D;score(h_t,\overline{h}_s)&#x3D;h_t^T\overline{h}_s}$</li>
-<li>general: $\large{a&#x3D;score(h_t,\overline{h}_s)&#x3D;h_t^TW_a\overline{h}_s}$</li>
-<li>concat:$\large{a&#x3D;score(h_t,\overline{h}_s)&#x3D;v_a^Ttanh(W_a[h_t;\overline{h}_s])}$</li>
-<li>soft attention：就是做softmax： $\large{\alpha^t&#x3D;\frac{exp(e_t)}{\sum_{j&#x3D;1}^{T_x}exp(e_j)}}$</li>
-</ul>
-</li>
-<li><p>通过奇异值分解，压缩模型大小。奇异值分解可以将参数权重进行分解，之后截取重要成分，从而恢复原始的重要数据，降低数据参数。对于一个网络权重参数 W&#x3D;m* n，通过奇异值分解可得，对应的三个矩阵维度分别为 m* k，k* k，k* n；奇异值处理前后的参数量即为矩阵的大小，处理前的参数 P1&#x3D;m* n，处理后的参数 P2&#x3D;(m* k+k* k+k*n)，得到前后参数的比值为 $\large{\frac{P_1}{P_2}&#x3D;\frac{mn}{(m+n+k)k}}$</p>
-</li>
-<li><p>取秩大小 k&#x3D;2，分别对应语音关键词的时间维度和频率维度，对语音关键词检测网络进行压缩;（因为这里输入时间定长，比如100帧，频率维度固定，比如10，100* 10的输入，然后做SVD分解），（我们TDNN输入是250维，一帧一个输出）</p>
-</li>
-<li><p>只对时间域做卷积（其实就是TDNN）</p>
-</li>
-<li><p>总体结构：</p>
-</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20210813115523239.png" alt="image-20210813115523239"></p>
-<ul>
-<li>softmax出来是一个单词的后验，但是关键词一般是不止一个单词，因此做平滑处理，常规Deep KWS平滑后验 置信度得分，分数大于阈值才换唤醒；</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;冯大航–1023基于时间如何提升语音唤醒性能_v3.pptx&#x3D;&#x3D;</p>
-</blockquote>
-<ul>
-<li>cnn-trad-fpool结构</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20210812175144817.png" alt="image-20210812175144817"></p>
-<ul>
-<li>唤醒是一个细活，唤醒数据录音永远是有限的，而且为了在低信噪比下可以唤醒，还需要扩充一些数据。最简单的数据扩充方法，麦克风时间延迟，房间冲击响应。在单麦和多麦的仿真方法还要考虑更多的空间信息。</li>
-<li>上端解码大多的方法为后验概率平滑的方法和识别两条路径的分差</li>
-<li>未来趋势<ul>
-<li>模型压缩，小型化</li>
-<li>云端的二次确认</li>
-<li>前端阵列信号处理与唤醒的深度融合</li>
-<li>尽可能少的唤醒词录音数据达到比较好的效果</li>
-</ul>
-</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;百度语音唤醒技术解析及实践.pdf 唐立亮&#x3D;&#x3D;</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th>方法</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>基于置信度</td>
-<td>构建唤醒识别网络，并通过某种信息等得到置信度，根据置信度是否大于指定门限来确定是否是唤醒；</td>
-</tr>
-<tr>
-<td>基于识别的唤醒系统</td>
-<td>利用一套语音识别系统进行识别，往往采用语言模型作为解码的网络,根据识别结果进行后处理匹配判断是否唤醒；</td>
-</tr>
-<tr>
-<td>基于垃圾词网络</td>
-<td>使用垃圾词网络进行唤醒，即选出一些垃圾词和唤醒词组成识别网络，得出最终的识别结果；</td>
-</tr>
-</tbody></table>
-<ul>
-<li>Wakeup Word Analysis、Garbage Phones Modification、Wakeup Dict Control、Wakeup Net Builder、Noise Suppression、Viterbi Decoder 、 DNN-HMM、FilterBank Feature Get、Voice Activity Detection、Automatic Gain Control、Confidence Decision、BigData Acoustic Model、Double Layer Decoder、Pyramid Acoustic Model、Short Word Acoustic Model  </li>
-<li>唤醒正确率高 ：<ul>
-<li>唤醒词解析+动态解码  </li>
-<li>神经网络+大数据+CTC+短词优化  </li>
-<li>噪声抑制+增益控制+声学模型匹配训练</li>
-</ul>
-</li>
-<li>误报低  <ul>
-<li>基于统计和规则的垃圾音素网络  </li>
-<li>置信系统</li>
-</ul>
-</li>
-<li>功耗低 省电  <ul>
-<li>双层解码器+裁剪策略+解码器优化  </li>
-<li>神经网络neon运算优化  </li>
-<li>金字塔声学模型</li>
-</ul>
-</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Rybakov O, Kononenko N, Subrahmanya N, et al. Streaming keyword spotting on mobile devices[J]. arXiv preprint arXiv:2005.06720, 2020.&#x3D;&#x3D;谷歌 icassp2020</p>
-</blockquote>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/" itemprop="url">命令词论文笔记（二）使用Google Speech Commands dataset的论文</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
-                2021-06-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2021/06/29/命令词/命令词论文笔记（二）/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="使用Google-Speech-Commands-dataset的论文"><a href="#使用Google-Speech-Commands-dataset的论文" class="headerlink" title="使用Google Speech Commands dataset的论文"></a>使用Google Speech Commands dataset的论文</h1><ul>
-<li>Google speech commands dataset：谷歌开源唤醒词数据集，有6万条，30个唤醒词，每条音频长度1s</li>
-<li>Speech commands dataset v1  下载地址：<a target="_blank" rel="noopener" href="http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz">http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz</a>  </li>
-<li>Speech commands dataset v2  下载地址：<a target="_blank" rel="noopener" href="http://download.tensorflow.org/data/speech_commands_v0.02.tar.gz">http://download.tensorflow.org/data/speech_commands_v0.02.tar.gz</a> 或 <a target="_blank" rel="noopener" href="https://storage.googleapis.com/download.tensorflow.org/data/speech_commands_v0.02.tar.gz">https://storage.googleapis.com/download.tensorflow.org/data/speech_commands_v0.02.tar.gz</a></li>
-<li>官方例子：<a target="_blank" rel="noopener" href="https://www.tensorflow.org/tutorials/audio/simple_audio">https://www.tensorflow.org/tutorials/audio/simple_audio</a></li>
-<li>输入t帧（其实就是1s），输出1个类别向量（每个类是一个关键词（yes、no、on、off……））</li>
-</ul>
-<h2 id="paper、code目录"><a href="#paper、code目录" class="headerlink" title="paper、code目录"></a>paper、code目录</h2><blockquote>
-<p>Sainath, Tara N., and Carolina Parada. “Convolutional neural networks for small-footprint keyword spotting.” <em>Sixteenth Annual Conference of the International Speech Communication Association</em>. 2015</p>
-<p>github开源代码：<a target="_blank" rel="noopener" href="https://github.com/tensorflow/tensorflow/tree/master/tensorflow/examples/speech_commands">https://github.com/tensorflow/tensorflow/tree/master/tensorflow/examples/speech_commands</a></p>
-</blockquote>
-<blockquote>
-<p>Choi S ,  Seo S ,  Shin B , et al. Temporal Convolution for Real-time Keyword Spotting on Mobile Devices[J].  2019</p>
-<p>github开源代码：<a target="_blank" rel="noopener" href="https://github.com/hyperconnect/TC-ResNet">https://github.com/hyperconnect/TC-ResNet</a></p>
-</blockquote>
-<blockquote>
-<p>de Andrade, Douglas Coimbra, et al. “A neural attention model for speech command recognition.” <em>arXiv preprint arXiv:1808.08929</em> (2018).</p>
-<p>github开源代码：<a target="_blank" rel="noopener" href="https://github.com/douglas125/SpeechCmdRecognition">https://github.com/douglas125/SpeechCmdRecognition</a></p>
-</blockquote>
-<blockquote>
-<p>Vygon, Roman, and Nikolay Mikhaylovskiy. “Learning efficient representations for keyword spotting with triplet loss.” <em>International Conference on Speech and Computer</em>. Springer, Cham, 2021</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/roman-vygon/triplet_loss_kws">Github: Learning Efficient Representations for Keyword Spotting with Triplet Loss</a> pytorch、nemo</p>
-</blockquote>
-<blockquote>
-<p>Shan C, Zhang J, Wang Y, et al. Attention-based end-to-end models for small-footprint keyword spotting[J]. arXiv preprint arXiv:1803.10916, 2018.</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/isadrtdinov/kws-attention">https://github.com/isadrtdinov/kws-attention</a> 网友的复现代码</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/Kirili4ik/kws-attention-pytorch">https://github.com/Kirili4ik/kws-attention-pytorch</a> 网友的复现代码</p>
-</blockquote>
-<blockquote>
-<p>D. Seo, H. -S. Oh and Y. Jung, “Wav2KWS: Transfer Learning From Speech Representations for Keyword Spotting,” in IEEE Access, vol. 9, pp. 80682-80691, 2021, doi: 10.1109&#x2F;ACCESS.2021.3078715.</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/qute012/Wav2Keyword">https://github.com/qute012/Wav2Keyword</a></p>
-</blockquote>
-<blockquote>
-<p>Howl: A Deployed, Open-Source Wake Word Detection System</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/castorini/howl">https://github.com/castorini/howl</a> pytorch</p>
-</blockquote>
-<blockquote>
-<p>BYOL for Audio: Self-Supervised Learning for General-Purpose Audio Representation</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/nttcslab/byol-a">https://github.com/nttcslab/byol-a</a> pytorch</p>
-</blockquote>
-<blockquote>
-<p>Stochastic Adaptive Neural Architecture Search for Keyword Spotting</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/TomVeniat/SANAS">https://github.com/TomVeniat/SANAS</a> pytorch</p>
-</blockquote>
-<blockquote>
-<p>Keyword Transformer: A Self-Attention Model for Keyword Spotting</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/ARM-software/keyword-transformer">https://github.com/ARM-software/keyword-transformer</a> tensorflow</p>
-</blockquote>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Sainath, Tara N., and Carolina Parada. “Convolutional neural networks for small-footprint keyword spotting.” <em>Sixteenth Annual Conference of the International Speech Communication Association</em>. 2015. citation：383&#x3D;&#x3D; 谷歌的论文</p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/jialilian5181/article/details/83787886">论文翻译：Convolutional Neural Networks for Small-footprint Keyword Spotting</a></p>
-<p><a target="_blank" rel="noopener" href="https://github.com/tensorflow/tensorflow/tree/master/tensorflow/examples/speech_commands">开源代码</a>，在TensorFlow官网可以下载</p>
-</blockquote>
-<ul>
-<li>和Deep Kws做法一致，将DNN换成CNN</li>
-<li>CNN输入：time*frequency，strides filters in frequency ，pools in time </li>
-<li>尝试了不同下采样、pooling</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Shan C, Zhang J, Wang Y, et al. Attention-based end-to-end models for small-footprint keyword spotting[J]. arXiv preprint arXiv:1803.10916, 2018.&#x3D;&#x3D;</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/isadrtdinov/kws-attention">https://github.com/isadrtdinov/kws-attention</a> 网友的复现代码</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/Kirili4ik/kws-attention-pytorch">https://github.com/Kirili4ik/kws-attention-pytorch</a> 网友的复现代码</p>
-</blockquote>
-<h4 id="思想"><a href="#思想" class="headerlink" title="思想"></a>思想</h4><p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20210820000810717.png" alt="image-20210820000810717"></p>
-<ul>
-<li>用attention机制的模型做命令词模型，没有事先训asr模型，输入T帧fbank语音特征，输出一个命令词概率，高于阈值就是命令词，是end2end，</li>
-<li>用CRNN&#x2F;GRU做encoder，输入fbank feature，输出high level feature（效果CRNN&gt;GRU&gt;LSTM）</li>
-<li>CRNN性能好，但是有1.5s延时，还是GRU更合适。</li>
-<li>attention用soft attention和average attention（效果soft attention&gt;average attention）</li>
-<li>减少计算量：滑动窗口时，每次滑动会得到一个T帧对应label概率，此时只要计算新添加的帧的计算，重叠部分不计算</li>
-<li>运行时窗长都是100帧地执行，计算量小。[可改进之处]：当检测到keyword时（即当前帧超过给定的阈值，触发），那么就把窗长变为189帧，检测是否为keyword。</li>
-<li>用20个滑动输出分类结果做smooth</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20210820000826516.png" alt="image-20210820000826516"></p>
-<ul>
-<li><ul>
-<li><input checked disabled type="checkbox"> 滑窗这个要好好想想怎么实现？答：雷博说：把倒一层构成c的每个α和h时间步的值都保留下来，然后下一帧来了，就可以只算下一帧的，然后再softmax计算。</li>
-</ul>
-</li>
-</ul>
-<h4 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h4><ul>
-<li>baseline用Deep KWS</li>
-<li>网络结构：CRNN网络，一层CNN层，两层RNN层(64个节点)</li>
-<li>训练集：正样本188.9k, 负样本 1007.4k</li>
-<li>验证集：正样本9.9k, 负样本 53k</li>
-<li>测试集：正样本 28.8k , 负样本32.8k</li>
-<li>输入特征：PCEN特征。每条音频持续时间1.9 seconds.</li>
-<li>four-syllable Mandarin Chinese term (“xiao-ai-tong-xue”)  ，∼188.9K positive examples (∼99.8h) and ∼1007.4K  negative examples (∼1581.8h) as the training set.   正样本：负样本&#x3D;10：1</li>
-</ul>
-<h4 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h4><ul>
-<li>∼84K parameters </li>
-<li>1.02% FRR at 1.0 FA&#x2F;hour.</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Bai Y, Yi J, Tao J, et al. A Time Delay Neural Network with Shared Weight Self-Attention for Small-Footprint Keyword Spotting[C]&#x2F;&#x2F;INTERSPEECH. 2019: 2190-2194&#x3D;&#x3D;.</p>
-</blockquote>
-<h4 id="思想-1"><a href="#思想-1" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>用TDNN-attention结构做kws，输入音频特征，输出分类结果</li>
-<li>特征量很小（12K）</li>
-<li>没用RNN，用TDNN（前馈网络），减少计算量，支持并行</li>
-<li>attention用的shared weight self-attention，就是Q、K、V本来由三个$w_ix+b_i$而来（不同project投影），现在是乘以同一个wx+b，最后是multi-head</li>
-<li>输入特征做下采样（tdnn povey原始论文也做的）</li>
-<li>attention层后接两层tdnn，后接 global average</li>
-<li>多帧输出-&gt;1个输出</li>
-</ul>
-<p><strong>模型结构为</strong>：</p>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20210608174746396.png" alt="image-20210608174746396" style="zoom: 80%;">
-
-<p>global average 做了polling，变成一个向量</p>
-<p>最后softmax输出是只有一个向量</p>
-<p><strong>下采样为</strong>：</p>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20210608174813294.png" alt="image-20210608174813294" style="zoom: 67%;">
-
-
-
-<h4 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h4><ul>
-<li>数据集用Google Speech Commands  ，都是1s，一个word的音频</li>
-<li>10个命令词，20个filler（归为一个label）</li>
-<li>用分类错误率作为评价指标</li>
-</ul>
-<blockquote>
-<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/chenxi910911/article/details/102615068?spm=1001.2014.3001.5501">A Time Delay Neural Network with Shared Weight Self-Attention for Small-Footprint Keyword Spotting浅析</a></p>
-</blockquote>
-<p>中心思想：通过共享自注意力机制的权重，在维持性能不变的情况下，减少模型参数<br>本文的创新点：一是，用前馈神经网络代替在注意力机制中常用的回归神经网络，加速模型计算[用tdnn代替rnn]；二是，自注意力机制中的三个矩阵进行参数共享，减少模型参数<br>文章中提到的技术：TDNN、self-attention、SWSA(Shared-Weight Self-Attention)<br>TDNN技术：获取序列的局部特征<br>self-attention技术：用三个不同的权重矩阵将特征映射到不同空间中、获取序列的全局特征<br>shared-weight self-attention技术：用同一个权重矩阵将特征映射到同一空间中、减少模型参数。</p>
-<p>模型结构：第一层TDNN-SUB（TDNN降采样层），实现方法：采用滑动窗的方式，在输入层矩阵T<em>in</em>上设置一个宽度W为3（通常根据第一层拼帧结构决定）的滑动窗，当步长K超过1时（步长不易超过窗长），达到了降采样的效果，维度D<em>out</em>减少为(T<em>in</em> − w + 1)&#x2F;k向上取整</p>
-<p>第二层是SWSA（权重共享的自注意力机制），也是本文的重点，详细结构见F1（a）右手边虚框<br>第一步：输入为U，共享矩阵为W，Vi&#x3D;WU，Vi为自注意力机制的输入，Vi是通过自注意力机制将输入特征U映射到某一空间得到的特征<br>第二步：由于权重共享，原来的Vq×Vk也就是现在的V×（V转置）即矩阵与矩阵本身点乘；<br>第三步：第二步得到的矩阵进行scale操作&#x3D;&#x3D;（scale操作的目的：是为了防止矩阵上的值累加到很大的值，梯度更新过程中出现梯度消失的现象）通常是将矩阵上的值除以矩阵维度的开方&#x3D;&#x3D;；<br>第四步：计算注意力得分，经过softmax层，对矩阵的每一行进行一个softmax规整，即矩阵的每一行的值加和为1；<br>第五步：将注意力得分与V点乘得到新的矩阵输出后紧跟RELU和LayerNorm层，最终得到SWSA层的输出<br>第三层和第四层是TDNN层<br>第五层：&#x3D;&#x3D;globalAverage层：CNN中有类似的全局平均池化层&#x3D;&#x3D;<br>在这边文章中未提及，但通过后面的实验章节推测，是权重矩阵每一列求平均值最终输出一个与当前层输入矩阵相同维度的向量</p>
-<p>下面是权重共享后的self-attention公式：</p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/20191017213712901.png" alt="在这里插入图片描述"></p>
-<p>multi-head self-attention版本</p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/20191017214108129.png" alt="在这里插入图片描述"></p>
-<p>其中i的值等于共享权重矩阵的个数，当i为1是就是上述描述的权重共享self-attention机制；当i大于1是此时的共享权重是i个（类似于CNN有i个卷积核的概念），当i大于1时，权重矩阵的维度就会缩减为原来的1&#x2F;i,通常为整数，其他步骤与上述的self-attention步骤一致，在self-attention输出层后增加一层将muli-head self-attention的输出拼接到一起，乘一个矩阵得到与i为1时相同大小的矩阵</p>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/20191017215828482.jpg" alt="在这里插入图片描述" style="zoom:50%;">
-
-
-
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Choi S ,  Seo S ,  Shin B , et al. Temporal Convolution for Real-time Keyword Spotting on Mobile Devices[J].  2019. citation：41&#x3D;&#x3D;</p>
-<p>论文开源代码：<a target="_blank" rel="noopener" href="https://github.com/hyperconnect/TC-ResNet">https://github.com/hyperconnect/TC-ResNet</a>  </p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_37598106/article/details/105518851">Lebhoryi的csdn笔记TC-ResNet</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/83e159170dbb">实时语音唤醒–Temporal Convolution for Real-time Keyword Spotting on Mobile Devices</a></p>
-</blockquote>
-<h4 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h4><ul>
-<li><p>评测目标之一是测量在移动设备上的实际延迟 latency；</p>
-</li>
-<li><p>采用一维卷积，一维卷积优点：不对频率维度卷积，能具有更大的感受野（对于特征是语谱图输入的一些模型来说），同时获取高频和低频信息，计算量减少；</p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20210824101219809.png" alt="image-20210824101219809"></p>
-</li>
-</ul>
-<h4 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h4><ul>
-<li><p>输入MFCC，mfcc维度作为通道数c</p>
-</li>
-<li><p>使用一个宽度系数width multiplier，用来增加或减少每一层的通道数c，比如原来是{16,24,32,48}，乘1.5&#x3D;{24,36,48.72}，命名为TC-ResNet8-1.5</p>
-</li>
-<li><p>使用ResNet结构，cnn卷积核m *1（而不是3 *3），第一层m&#x3D;3，其他层m&#x3D;9</p>
-</li>
-<li><p>没有bias，bn层的作用是scale&amp;shift</p>
-</li>
-<li><p>网络结构：（其中k是width multiplier倍乘系数）</p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20210824101255801.png" alt="image-20210824101255801"></p>
-</li>
-</ul>
-<h4 id="实验-2"><a href="#实验-2" class="headerlink" title="实验"></a>实验</h4><ul>
-<li><p>实验结果考核了accuracy、ROC、耗时&#x3D;&#x3D;FLOPs&#x3D;&#x3D;、Params</p>
-</li>
-<li><p>TensorFlow Lite Android benchmark tool 判断推理时间的好坏</p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20210824101358185.png" alt="image-20210824101358185"></p>
-</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20210824101413415.png" alt="image-20210824101413415"></p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/12976336-3796810af0e64f2b.png" alt="12976336-3796810af0e64f2b"></p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/12976336-003886915241671f.png" alt="12976336-003886915241671f"></p>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/20200414190510809.png" alt="img">
-
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Mittermaier S, Kürzinger L, Waschneck B, et al. Small-footprint keyword spotting on raw audio data with sinc-convolutions[C]&#x2F;&#x2F;ICASSP 2020-2020 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). IEEE, 2020: 7454-7458.  citation:14&#x3D;&#x3D;</p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_37598106/article/details/105540840">Lebhoryi的csdn笔记</a></p>
-</blockquote>
-<h4 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h4><ul>
-<li>用SincNet直接读取原始音频进行训练</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20210824110540981.png" alt="image-20210824110540981"></p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20210824110631141.png" alt="image-20210824110631141"></p>
-<h4 id="结果-1"><a href="#结果-1" class="headerlink" title="结果"></a>结果</h4><ul>
-<li>sincConv+GDSConv模型的accuracy（97.3%）比TC-ResNet（96.6%）更高；参数量（62k）比TC-ResNet（305k）更少；</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Chen X, Yin S, Song D, et al. Small-footprint keyword spotting with graph convolutional network[C]&#x2F;&#x2F;2019 IEEE Automatic Speech Recognition and Understanding Workshop (ASRU). IEEE, 2019: 539-546. citation：6&#x3D;&#x3D;</p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_37598106/article/details/105560949">Lebhoryi的csdn笔记CENet-GCN (2019年)</a></p>
-</blockquote>
-<h4 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h4><ul>
-<li>使用了图神经网络GCN</li>
-<li>结构紧凑</li>
-</ul>
-<h4 id="结果-2"><a href="#结果-2" class="headerlink" title="结果"></a>结果</h4><p>- </p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/JkoL7t.png" alt="img"></p>
-<hr>
-<p>【重要】</p>
-<blockquote>
-<p>&#x3D;&#x3D;Rybakov O, Kononenko N, Subrahmanya N, et al. Streaming keyword spotting on mobile devices[J]. arXiv preprint arXiv:2005.06720, 2020. citations：15&#x3D;&#x3D; 谷歌的论文</p>
-<p>github开源代码：<a target="_blank" rel="noopener" href="https://github.com/google-research/google-research/tree/master/kws_streaming">https://github.com/google-research/google-research/tree/master/kws_streaming</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_37598106/article/details/106801481">Lebhoryi的csdn笔记stream_kws_cnn</a></p>
-</blockquote>
-<h4 id="思路-3"><a href="#思路-3" class="headerlink" title="思路"></a>思路</h4><ul>
-<li>stream流式 卷积也可以流式，意味着不用输入定长才有输出，输入任意一段（甚至只要给1帧）就会有输出，要研究代码，看是否可以一个vad长度输入，得到一个输出</li>
-<li></li>
-</ul>
-<hr>
-<p>A survey on structured discriminative spoken keywordspotting  </p>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;de Andrade, Douglas Coimbra, et al. “A neural attention model for speech command recognition.” <em>arXiv preprint arXiv:1808.08929</em> (2018).&#x3D;&#x3D;</p>
-<p>github开源代码：<a target="_blank" rel="noopener" href="https://github.com/douglas125/SpeechCmdRecognition">https://github.com/douglas125/SpeechCmdRecognition</a></p>
-</blockquote>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Yang, Chen, Xue Wen, and Liming Song. “Multi-Scale Convolution for Robust Keyword Spotting.” <em>INTERSPEECH</em>. 2020.&#x3D;&#x3D;三星研究院</p>
-<p>线上会议video：<a target="_blank" rel="noopener" href="http://www.interspeech2020.org/index.php?m=content&amp;c=index&amp;a=show&amp;catid=321&amp;id=835">http://www.interspeech2020.org/index.php?m=content&amp;c=index&amp;a=show&amp;catid=321&amp;id=835</a></p>
-</blockquote>
-<h3 id="PPT"><a href="#PPT" class="headerlink" title="PPT"></a>PPT</h3><ul>
-<li>HMM在噪声环境下表现较差</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220104100737871.png" alt="image-20220104100737871"></p>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220104100921735.png" alt="image-20220104100921735" style="zoom:80%;">
-
-
-
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220104100945713.png" alt="image-20220104100945713"></p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220104101011948.png" alt="image-20220104101011948"></p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220104101029737.png" alt="image-20220104101029737"></p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220104101052521.png" alt="image-20220104101052521"></p>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220104101107772.png" alt="image-20220104101107772">
-
-
-
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220104101142998.png" alt="image-20220104101142998"></p>
-<h3 id="思路-4"><a href="#思路-4" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>实现低功耗small footprint：通过使用depthwise-separable convolutions in a ResNet framework；</li>
-<li>实现噪声鲁棒性：通过multi-scale ensemble of classifiers；每个分类器处理不同的输入特征，同时通过大量的参数共享让size紧凑；</li>
-<li>多个depthwise-separable residual unit (DRU)   堆叠起来的，用现在最流行的depthwise-separable cnn（减少参数量），然后加上resnet；</li>
-<li>model compression in <strong>DRU</strong> 具体实现过程：Incoming 𝑛 -channel feature map is down-projected to 𝑛&#x2F;2 channels by 1 × 1 convolution, processed per-channel by 3 × 3, up-projected to 𝑛 channels by another 1 × 1, then summed with original input to complete the residual unit；<ol>
-<li>一开始正常1* 1卷积滤波器个数n&#x2F;2，参数量 1* 1* n* n&#x2F;2</li>
-<li>然后depthwise conv（channel个数n&#x2F;2），参数量 3* 3* n&#x2F;2</li>
-<li>最后1* 1 pointwise卷积（其实也是普通卷积）滤波器个数n，参数量 1* 1* n&#x2F;2* n</li>
-</ol>
-</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220104111436716.png" alt="image-20220104111436716" style="zoom:80%;">
-
-
-
-<ul>
-<li><p>Multi-scale ensemble  具体实现过程：</p>
-<p>在不同的层，不同的t，不同的持续时间窗口w（d,t,w），抽取output，经过变换矩阵softmax，输出某个head的结果，每个head的帧取的时间间隔不同，比如第一个head是取0.8s，帧移0.4s取，第二个head是取1s，帧移0.5s取；</p>
-<p>不同head所经过的变换矩阵里面的权重参数是一样的（经过同一个变换矩阵）（weight sharing），这是为了结构紧凑；</p>
-<p>分类是数帧进行average pooling，再分类</p>
-</li>
-<li><p>loss function：$naiveCE:&#x3D;\sum_{d,t,w}logp_{d,t,w}(y)$</p>
-</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220104145324460.png" alt="image-20220104145324460" style="zoom:80%;">
-
-<ul>
-<li>分类判断 $ \large{result&#x3D;\left{<br>\begin{aligned}<br>arg\max_{v\in{v}}(\max\limits_{d,t,w}p_{d,t,w}(v)),if{\exists}p_{d,t,w}(v)&gt;th \<br>nonkeyword, otherwise<br>\end{aligned}<br>\right.}$</li>
-</ul>
-<h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><ul>
-<li>10 conv layers in total, including one initial convolution and 9 stacked DRUs  </li>
-<li>Initial convolution reduces input size and projects features into multiple channels  </li>
-<li>The 9 DRUs are arranged in three groups. DRUs in the same group have the same number of channels. Deeper groups are allocated more channels to learn more complex features</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Li, Ximin, Xiaodong Wei, and Xiaowei Qin. “Small-Footprint Keyword Spotting with Multi-Scale Temporal Convolution.” <em>arXiv preprint arXiv:2010.09960</em> (2020).&#x3D;&#x3D;</p>
-</blockquote>
-<h3 id="思路-5"><a href="#思路-5" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>一维卷积，time是长，没有宽，宽是1，特征维度（频率）是channel，这种卷积叫temporal convolution；</p>
-</li>
-<li><p>提出temporal efficient neural network (TENet)  ，主要结构是inverted bottleneck block (IBB)  ，该结构两头小中间大（和普通的bottleneck相反，因此叫inverted bottleneck），两头是1* 1卷积（沿着channel卷）（pointwise），中间是不沿着channel卷积的9*1卷积（depthwise），和普通的depthwise separable conv顺序相反。</p>
-<p>IBB里的第一个1×1卷积的目的是通过扩展channel的数量，将input嵌入（embed）到高维子空间中；</p>
-<p>IBB里的depthwise卷积是temporal卷积，通过对每个输入channel应用一个卷积滤波器，和非线性变换，来实现轻量级滤波；（注意这里只是depthwise conv不是depthwise seperate conv）</p>
-<p>IBB里的最后一个1×1卷积将tensor转换回低维compact子空间，用于channels间的信息传输；</p>
-</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220105142223167.png" alt="image-20220105142223167" style="zoom: 50%;">
-
-
-
-<ul>
-<li>末尾层 average pooling -&gt; fully connected -&gt; softmax</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220105142911152.png" alt="image-20220105142911152" style="zoom:50%;">
-
-<ul>
-<li><p>提出Multi-branch Temporal Convolution Module，目的是为了捕捉短期和长期时间信息特征；</p>
-<p>具体实现过程：让每个branch的kernel size都不同，从而帮助branch从它的时间粒度中学习不一样的模式；</p>
-<p>多尺度融合（不同kernel size后的特征融合）：element-wise add（各个位置的元素等于两&#x2F;N个输入矩阵相同位置元素的乘积的矩阵，再加和） (Hadamard product)</p>
-<p>在训练时，将TENet中的所有depthwise卷积层都替换为MTConvs（IBB里独一个depthwise conv，替换成kernel size不同的多个depthwise conv（最后element-wise），叫做multi-scale））</p>
-</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220105142956043.png" alt="image-20220105142956043" style="zoom:50%;">
-
-<p>​	把下图原本只有一个的卷积，替换成多个不同kernel size卷积加和（上图）</p>
-<ul>
-<li><p>kernel fusion of MTConv </p>
-<p>$\large{O_{t,1,j}&#x3D;(\sum\limits^k_{i&#x3D;-k}M_{t+i,1,j}F_{i+k+1,1,j}-u_j)\frac{\gamma_j}{\sigma_j}+\beta_j}$</p>
-<p>其中，M是输入，F是卷积核，$k&#x3D;\frac{D-1}{2}$，D是卷积核尺寸（D×1×C），$u_j$和$\sigma_j$是BN层的channel-wise均值和标准差，$\gamma_j$和$\beta_j$是scaling和shifting系数（可训练 更新）；</p>
-</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Vygon, Roman, and Nikolay Mikhaylovskiy. “Learning efficient representations for keyword spotting with triplet loss.” <em>International Conference on Speech and Computer</em>. Springer, Cham, 2021.&#x3D;&#x3D;ciations：12</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/roman-vygon/triplet_loss_kws">Github: Learning Efficient Representations for Keyword Spotting with Triplet Loss</a></p>
-</blockquote>
-<h3 id="思路-6"><a href="#思路-6" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>triplet loss：$\large l(p_i,p_i ^+,p_i ^- &#x3D; {0, g + D(f(p_i), f(p_i ^+)) - D(f(p_i), f(p_i ^-))})$</p>
-<p>其中，$p_i$ 是anchor image，$p_i ^+$ 是positive image， $p_i ^-$ 是negative image，$g$ 是gap parameter regularizes the gap between the distance of the two image pairs: $(p_i,p_i ^+)$ and $(p_i,p_i ^-)$，D可以是欧氏距离；</p>
-<p>这里是用来提embedding用的，输入A样本特征，输出embedding（高级特征），让A的embedding和同一个batch里的同类embedding距离近，让A的embedding和同一个batch里的不同类embedding距离远；</p>
-<p>这里的triplet loss用来训练一个 <strong>triplet encoder</strong></p>
-</li>
-<li><p>提出triplet-loss based metric embeddings   + KNN分类器；实验优于ce，达到Google Speech Commands dataset  的SOTA（98.55% (V1 12分类(10keyword+sil+unknown)) 、98.37% (V2 12分类) ）；</p>
-</li>
-<li><p>提出基于音素相似度的batch sampling方法，改善了当数据不平衡时的F1</p>
-</li>
-<li><p>&#x3D;&#x3D;论文中做实验表明RNN-based的模型用上triplet loss会变差&#x3D;&#x3D;</p>
-</li>
-<li><p>先用模型提特征，把特征用KNN进行分类</p>
-</li>
-<li><p>batch sampling：Phonetic: Calculate a matrix of phonetic similarity for all the words in the dataset, sample batch_size&#x2F;2 classes, then, for each sampled class add three random phonetically similar words (equally distributed) to the batch. Similarity score is calculated using SoundEx, Caverphone, Metaphone and NYSIIS algorithms；在一个batch里，相似的音多采样一点，triplet loss才比较有效，不然已经很不相似了，本身就很不像，不怎么需要区分开；</p>
-</li>
-</ul>
-<h3 id="模型-1"><a href="#模型-1" class="headerlink" title="模型"></a>模型</h3><ul>
-<li>基于Honk框架，直接用了（honk框架和wekws一样是框架），提高级特征（embedding）</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220331115729019.png" alt="image-20220331115729019" style="zoom:67%;">
-
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220331115825729.png" alt="image-20220331115825729" style="zoom: 67%;">
-
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220331123332076.png" alt="image-20220331123332076" style="zoom:67%;">
-
-<h3 id="实验-3"><a href="#实验-3" class="headerlink" title="实验"></a>实验</h3><ul>
-<li>做了两组实验：</li>
-</ul>
-<ol>
-<li>Google Speech Commands dataset；</li>
-<li>LibriWords Datasets  这是用librispeech经过,the Montreal Forced Aligner(“Montreal forced aligner:Trainable text-speech alignment using kaldi” ) 对齐，得到word边界，进行实验，目的是查看用triplet loss在数据更大，分类数更多的情况效果能有多好  ；尝试了LibriWords10, LibriWords100, LibriWords1000, LibriWords10000</li>
-</ol>
-<h3 id="结果-3"><a href="#结果-3" class="headerlink" title="结果"></a>结果</h3><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220331123319620.png" alt="image-20220331123319620" style="zoom:67%;">
-
-<h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><blockquote>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/roman-vygon/triplet_loss_kws">https://github.com/roman-vygon/triplet_loss_kws</a></p>
-</blockquote>
-<p>requirement：安装nemo、nemo-asr、apex、protobuf&#x3D;&#x3D;3.9.2，安装如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装nemo</span></span><br><span class="line">pip install nemo-toolkit[all]</span><br><span class="line">pip install nemo_toolkit==0.10.1？</span><br><span class="line">pip install nemo_toolkit[asr]？</span><br><span class="line"><span class="comment"># 安装protobuf：</span></span><br><span class="line">pip install protobuf==3.9.2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装apex 直接用pip install apex安装后会报错</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/NVIDIA/apex</span><br><span class="line"><span class="built_in">cd</span> apex</span><br><span class="line">pip install -v --disable-pip-version-check --no-cache-dir ./</span><br><span class="line"><span class="comment">#pip install -v --disable-pip-version-check --no-cache-dir --global-option=&quot;--cpp_ext&quot; --global-option=&quot;--cuda_ext&quot; ./</span></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Kim, Byeonggeun, et al. “Broadcasted residual learning for efficient keyword spotting.” <em>arXiv preprint arXiv:2106.04140</em> (2021).&#x3D;&#x3D;</p>
-<p>github：&#x2F;home&#x2F;data&#x2F;yelong&#x2F;google-research&#x2F;kws_streaming&#x2F;models&#x2F;bc_resnet.py</p>
-<p>github网友复现代码：<a target="_blank" rel="noopener" href="https://github.com/roman-vygon/BCResNet">https://github.com/roman-vygon/BCResNet</a></p>
-</blockquote>
-<h3 id="思路-7"><a href="#思路-7" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>提出broadcasted residual learning方法、broadcasted-residual connection  、Broadcasting-residual network  (BC-ResNet)</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220426151746370.png" alt="image-20220426151746370"></p>
-<ul>
-<li><p>Broadcasted Residual Learning  :在残差结构$y&#x3D;x+f(x)$上改进为：$\large y&#x3D;x+BC(f_1(avgpool(f_2(x))))$</p>
-<p>其中，$f_1$是时间维度的函数，$f_2$是时间、频率二维图；</p>
-<p>$f_2$ 输出也是二维的，然后对频率轴进行平均池化，得到时间、channel轴，再进入$f_1$函数，相当于$f_2$是一个提取不同帧时间&#x2F;不同高低频率之间相关性的一个特征抽取器（我们之前拿frequency作为channel，这里是单独一个维度、（channel有它自己一个维度）），经过$f_1$后又扩展成2D；在每个residual block里重复这种平均、扩展操作；称之为Broadcasted Residual Learning  </p>
-</li>
-<li><p>BC-ResNet Block ：$\large y&#x3D;x+f_2(x)+ BC(f_1(avgpool(f_2(x))))$</p>
-<p>流程：（描述时忽略channel通道）$x\in R^{h\times w}$  ,h是frequency，w是time，做3* 1的frequency-depthwise卷积（$f_2$），就是沿着频率h轴做depthwise卷积（滤波器数量和frequency一致，不求和，kerenl size&#x3D;3），做SSN归一化，沿着频率轴做平均池化，再沿着时间轴w做1* 3time-depthwise卷积（$f_1$）（滤波器数量和time一致，不求和，kerenl size&#x3D;3），接BN层，swish激活函数，再接1* 1 pointwise卷积，提取时间帧前后关系信息，再沿着channel轴做dropout，输出 $y\in R^{h\times w}$</p>
-</li>
-<li><p>SubSpectral Normalization (SSN)  ：将输入频率分成多组，分别做归一化；用SSN代替BN层，来获取frequency-aware temporal features</p>
-</li>
-</ul>
-<p>12分类，训练时unknown和silence label的比例为10、10；40维mfcc 30ms帧长10ms帧移；time shift [-100,100]，概率0.8、0.8比例加噪、spec augment 只用two time 和two frequency masks，没用time wraping</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/" itemprop="url">命令词论文笔记（五）区分性训练用在命令词的论文</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
-                2021-06-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2021/06/29/命令词/命令词论文笔记（五）/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="区分性训练用在命令词的论文"><a href="#区分性训练用在命令词的论文" class="headerlink" title="区分性训练用在命令词的论文"></a>区分性训练用在命令词的论文</h1><blockquote>
-<p>&#x3D;&#x3D;Chen, Zhehuai, Yanmin Qian, and Kai Yu. “Sequence discriminative training for deep learning based acoustic keyword spotting.” <em>Speech Communication</em> 102 (2018): 100-111.&#x3D;&#x3D;</p>
-</blockquote>
-<h3 id="post-processing-后处理："><a href="#post-processing-后处理：" class="headerlink" title="post-processing 后处理："></a>post-processing 后处理：</h3><p>acoustic KWS usually does not require a language model but needs post-processing after the frame-level acoustic model inference  </p>
-<h4 id="HMM"><a href="#HMM" class="headerlink" title="HMM"></a>HMM</h4><ul>
-<li>The post-processing method can be categorized into three groups:</li>
-</ul>
-<ol>
-<li><p><strong>Posterior smoothing</strong> </p>
-<p>aim to filter out the noise posterior output by heuristic  methods  启发式方法滤除噪声后验输出</p>
-<p>（Chen, G., Parada, C., Heigold, G., 2014a. Small-footprint keyword spotting using deep neural networks. Proceedings of the IEEE International Conference on Acoustics, Speech and Signal Processing. IEEE, pp. 4087–4091.）</p>
-</li>
-<li><p><strong>Model based inference</strong></p>
-<p>aim to filter out the noise posterior output by data-driven  methods  数据驱动方法滤除噪声后验输出</p>
-<p>（Ge, F., Yan, Y., 2017. Deep neural network based wake-up-word speech recognition with two-stage detection. Proceedings of the IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). pp. 2761–2765. New Orleans, USA）</p>
-</li>
-<li><p><strong>filler based decoding</strong>（In some recent works (Chen et al., 2014b; 2017a), a small language model can be applied in the filler modeling and shows moderate improvement  ）</p>
-<p>model out-of-domain search space </p>
-<p>（Chen, I.-F., Ni, C., Lim, B.P., Chen, N.F., Lee, C.-H., 2014b. A novel keyword+ lvcsr-filler based grammar network representation for spoken keyword search. Proceedings of the 2014 9th International Symposium on Chinese Spoken Lansguage Processing (ISCSLP). IEEE, pp. 192–196.）</p>
-<p>（Chen, Z., Qian, Y., Yu, K., 2017a. A unified confidence measure framework using auxiliary normalization graph ）</p>
-</li>
-</ol>
-<p>the possible competing words are usually not enumerable and the competing hypotheses generation is computationally expensive if using the same procedure as in LVCSR  ：</p>
-<p>Chen, S.F., Kingsbury, B., Mangu, L., Povey, D., Saon, G., Soltau, H., Zweig, G., 2006. Advances in speech transcription at ibm under the darpa ears program. IEEE Trans. Audio Speech. Lang. Process. 14 (5), 1596–1608  </p>
-<h4 id="CTC"><a href="#CTC" class="headerlink" title="CTC"></a>CTC</h4><ol>
-<li><strong>MED</strong> 最小编辑距离</li>
-</ol>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211028095727692.png" alt="image-20211028095727692"></p>
-<h4 id="CTC中的MED方法难以引入HMM的原因"><a href="#CTC中的MED方法难以引入HMM的原因" class="headerlink" title="CTC中的MED方法难以引入HMM的原因"></a>CTC中的MED方法难以引入HMM的原因</h4><ul>
-<li>MED在lattice上进行，CTC有尖峰，可降低复杂度，HMM无尖峰</li>
-<li>HMM的神经网络输出$p(o_{ut}|q_t)$，区分性训练过程已经有了该信息</li>
-</ul>
-<h3 id="区分性训练的non-keyword部分："><a href="#区分性训练的non-keyword部分：" class="headerlink" title="区分性训练的non-keyword部分："></a>区分性训练的non-keyword部分：</h3><ul>
-<li><p>MMI准则公式为：$\large{\mathcal{F}_{MMI}&#x3D;\sum_ulog\frac{P(\textbf{O}_u|\textbf{W}_u)^kP(\textbf{W}<em>u)}{\sum</em>{\textbf{W}}P(\textbf{O}<em>u|\textbf{W})^kP(\textbf{W})}&#x3D;\sum_ulog\frac{\sum</em>{L\in{\mathcal{L}(W)}}p(\textbf{O}|\textbf{L})^kP(\textbf{L}|\textbf{W})^kP(\textbf{W}_u)}{\sum_Wp(\textbf{O}_u|\textbf{W})^kP(\textbf{W})}}$</p>
-</li>
-<li><p>由于不知道non-keyword序列，通过补偿composite alternate hypotheses 的概率来模拟这个过程，</p>
-<ul>
-<li><p>提出两个建模单元：</p>
-<ul>
-<li>filler model for non-keyword speech 建模非keyword</li>
-<li>anti-keyword model for mis-recognitions 建模易与keyword混淆的音</li>
-</ul>
-</li>
-<li><p>实际上该方法不可行</p>
-</li>
-</ul>
-</li>
-</ul>
-<p>（Sukkar, R.A., Lee, C.-H., 1996. Vocabulary independent discriminative utterance verification for nonkeyword rejection in subword based speech recognition. IEEE Trans. Speech Audio Process. 4 (6), 420–429.）<br>（Sukkar, R.A., Setlur, A.R., Rahim, M.G., Lee, C.-H., 1996. Utterance verification of keyword strings using word-based minimum verification error (wb-mve) training. Proceedings of the IEEE International Conference on Acoustics, Speech and Signal Processing. 1. IEEE, pp. 518–521. ）</p>
-<ul>
-<li><p>在单词级CTC（Fernández et al.，2007）中，虽然它自然是一个序列级标准，但它不直接模拟非关键字元素。也就是说，在关键字之间插入空格以模拟它们之间的上下文。因此，序列级准则提高了关键字之间而不是关键字与非关键字之间的序列预测能力</p>
-</li>
-<li><p>我们现在的训练数据，都是单独的关键词句子、非关键词句子，在关键词训练数据中有非关键词，可以提高预测能力？会不会增加far？</p>
-</li>
-<li><p>A per-frame non-uniform weight can be added into the loss functions; operates inMCE.   The key point is to emphasize the loss during the span of possible keyword false rejection and false alarm in the training data.</p>
-</li>
-</ul>
-<p>(Meng, Z., Juang, B.-H., 2016. Non-uniform boosted mce training of deep neural networks for keyword spotting. Proceedings of the Interspeech 2016. pp. 770–774.  )</p>
-<ul>
-<li>LF-MMI与原始MMI的区别：：<ul>
-<li>分子：原始分子文本对齐序列用的硬对齐的alignment，chain model用软对齐，左右帧移窗口，全部算进分子。</li>
-<li>分母：chain model语言模型用的3gram phone，sub-word level语言模型（chain model即使用音节建模，音节相当于“phone”，也是子词了，训练的3gram phone也是3gram syllable）</li>
-<li>改变topo结构，chain model用的标签状态pdf后接可选的（属于该状态的）blank状态 pdf，（还是用的三音素）</li>
-<li>输出帧下采样3倍</li>
-</ul>
-</li>
-<li>本论文与LF-MMI的区别：<ul>
-<li>用单音素建模（改善很小？但是可以节约计算量）</li>
-<li>这里blank可以在标签前，也可以前后都有。这叫做”label delay“，能改善性能（不确定就可以先输出blank的意思？）（eer从3.1下降到3.0，改善很小？）</li>
-<li>LF-MMI公式改进为LF-bMMI</li>
-<li>训练时加重出现false alarm和false rejection的训练数据的loss</li>
-</ul>
-</li>
-</ul>
-<h3 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h3><ul>
-<li>LSTM与TDNN比较：对于hmm的lf-mmi来说，blstm效果和tdnn一致，参数量还更大，所以用tdnn就可以了<ul>
-<li>对KWS任务，依赖的上下文并不长</li>
-<li>小模型参数下会更限制lstm效果</li>
-<li>tdnn速度更快</li>
-</ul>
-</li>
-<li>CI与CD建模单元比较：效果一致，CI的数量更小，用CI就可以了</li>
-<li>不同交叉熵正则权重，该训练集中权重0.7合适，会有一定影响，这是因为测试时语言模型和训练不同，因此要权衡</li>
-<li>topo结构比较，BP最佳（BPB由于训练数据更少，提升很小（文章用了“显著性检验”指标来衡量提升幅度））</li>
-</ul>
-<p>实验结果来看，最有效的还是训练时引入不同权重策略（给false alarm和false rejection样本更高的训练权重）</p>
-<h4 id="训练时引入不同权重策略如何实现"><a href="#训练时引入不同权重策略如何实现" class="headerlink" title="训练时引入不同权重策略如何实现"></a>训练时引入不同权重策略如何实现</h4><p>雷博想法：先训练一个不错的模型，然后解码，根据解码结构，确定哪些是false alarm和false rejection，在egs的post中（本来都是1），提高他们的概率，再训练。</p>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Wang Y, Lv H, Povey D, et al. Wake Word Detection with Alignment-Free Lattice-Free MMI[J]. arXiv preprint arXiv:2005.08347, 2020.&#x3D;&#x3D;</p>
-<p>&#x3D;&#x3D;Wang, Yiming. <em>WAKE WORD DETECTION AND ITS APPLICATIONS</em>. Diss. Johns Hopkins University, 2021.&#x3D;&#x3D;王一鸣博士论文</p>
-<p>&#x3D;&#x3D;github开源代码&#x3D;&#x3D;：The code and recipes are available in Kaldi [24]: <a target="_blank" rel="noopener" href="https://github.com/kaldi-asr/kaldi/tree/master/egs/%7Bsnips,mobvoi,mobvoihotwords%7D">https://github.com/kaldi-asr/kaldi/tree/master/egs/{snips,mobvoi,mobvoihotwords}</a>. </p>
-<p>&#x3D;&#x3D;github代码&#x3D;&#x3D;：<a target="_blank" rel="noopener" href="https://github.com/YiwenShaoStephen/pychain">https://github.com/YiwenShaoStephen/pychain</a></p>
-<p>&#x3D;&#x3D;csdn 博客&#x3D;&#x3D;：<a target="_blank" rel="noopener" href="https://blog.csdn.net/chenxi910911/article/details/107674366">Wake Word Detection with Alignment-Free Lattice-Free MMI</a></p>
-</blockquote>
-<h4 id="思想"><a href="#思想" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>提出alignment free LF-MMI，不需要对齐分子lattice</li>
-<li>不把唤醒词里面每个音素建模，而是把整个唤醒词建模 model the whole wake phrase  ，用一个固定状态数的HMM去建模唤醒词（该数量少于唤醒词音素组成数量）</li>
-<li>keyword、non-keyword、sil 都各用一个HMM建模</li>
-<li>针对唤醒任务，提出alignment free LFMMI，分子不用对齐文本得到分子lattice，由于文本就是keyword&#x2F;non-keyword，文本只有一个HMM，直接遍历HMM所有可能路径，求路径和概率。（直接用文本图上添加自环，让解码更自由，前后向可选的路径更多）</li>
-<li>负样本文本一般比较长，一个HMM可能建模不了，因此把负样本切成和正常本长度差不多，每个负样本的训练文本为freetext（一个HMM），就可以去生成egs了</li>
-<li>负样本如果不segment，会严重过拟合</li>
-<li>该方法能有效改善FAR高</li>
-<li>分母图上路径权重：按正负样本比例来分配</li>
-</ul>
-<p>分子图fst：用一个文本构成（一个文本就是一个单词，一个单词用一个HMM建模）</p>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/51e33547d077a96de000bf42d8c40e61.jpg" alt="img" style="zoom: 25%;">
-
-
-
-<p>分母图fst：可以理解成word 并联序列，只不过添加了sil（不是loop，不能重复走）</p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211029145733035.png" alt="image-20211029145733035"></p>
-<h4 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h4><ul>
-<li>负样本进行了分块chunk，&#x3D;&#x3D;chunk长度和正样本差不多&#x3D;&#x3D;，	</li>
-<li>负样本后继chunk重叠0.3s，使得前一个chunk被截掉的单词有机会在后继chunk全词出现</li>
-<li>声学模型：TDNN-F，分解到两个低秩矩阵，前一个矩阵是半正定的，确保高维到低维信息不会丢失</li>
-<li>前一层的输入乘上缩放比例0.66与本层输入加和（是add，而不是concatenate）</li>
-<li>拼帧结构：把本来要拼在一层的结构 分解到两层会更好，比如第一层拼(-3,0,3)，第二层拼(0)，更好的做法是第一层拼(-3,0)，第二层拼(0,3)</li>
-<li>训练了一个alignment-free LF-MMI后，对齐lattice，重新训练一个普通的LF-MMI，效果会更好</li>
-<li>alignment-free体现在：<ul>
-<li>（雷博）不需要GMM-HMM训练过程，不需要对齐ali文件</li>
-<li>不需要对齐训练样本然后统计得到phone-lm</li>
-<li>一个没有一点对齐能力的模型（0.mdl）也可以拿来使用的</li>
-<li>nnet3-chain-e2e-get-egs分子cegs生成，直接用text构建的fst，找到所有可能的fst中的状态序列求和就是分子，普通的还要由fst构建lattice？（感觉二者差不多）</li>
-</ul>
-</li>
-<li>博士论文中比较了不同topo结构：<ul>
-<li>把sil和freetext表示在一个HMM中，该HMM有多种可走的路径，这样就能够表示当训练样本前后是非命令词，中间是静音的情况。结果是增加了训练难度，误拒率很高，只有对齐准确的初始模型可能会得到好一点的误拒率，但是还是不好，因此最好不要把sil和freetext放在一起建模</li>
-<li>用5状态建模HMM，效果比3状态好</li>
-</ul>
-</li>
-</ul>
-<h4 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h4><h4 id><a href="#" class="headerlink" title></a></h4><ul>
-<li>雷博说：<ul>
-<li>负样本切chunk后，要注意正负样本比例，不要让负样本远远多于正样本。</li>
-<li>切割负样本（长文本切到短文本）时，文本不知道对应的是sil还是freetext，不好得知文本，把静音段也视作freeetext会有问题</li>
-<li>实验效果好，可能由于数据集较小</li>
-</ul>
-</li>
-</ul>
-<h4 id="在线解码"><a href="#在线解码" class="headerlink" title="在线解码"></a>在线解码</h4><ul>
-<li>解码FST：其实长得有点像分母图，不同之处在于是起始状态和终止状态在同一个结点，使得可以生成词串，比如生成word后还可以生成freetext，再生成word等等，文本串；而分母图要不然就走freetext，要不然就走word，不能都串行出现。</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211029150244872.png" alt="image-20211029150244872"></p>
-<ul>
-<li><p>在线解码：一个chunk一个chunk解码，每次解码了一个chunk后，就去更新immortal token和prev_immortal token（在所有active tok里找公共祖先（emitting[0]，或者说tokenOne），作为immortal tok，把前一次的immortal tok作为prevImmortal tok），每次在两个immortal tokens之间的路径寻找（backtrace）是否有唤醒词，实现了逐chunk搜索。</p>
-</li>
-<li><p>每处理过一段固定长度的录音后，我们用更新不朽token算法来回溯最近两个“不朽token”中间的这些帧，检查这部分回溯是否包含唤醒词。如果发现唤醒词则停止解码，如果没有唤醒词继续解码。（不朽token是现存激活token的共同祖先）</p>
-<p>这个是基于这样一个假设：如果现有的存活的部分假设都是来自于前一个时刻的相同的token（不朽token），同时在这之前的所有的假设都已经压缩到了这一个token上，我们就可以从这个“不朽token”检查是否具有唤醒词 [csdn]</p>
-</li>
-<li><p>伪代码 online decoding：</p>
-</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211029144006785.png" alt="image-20211029144006785"></p>
-<ul>
-<li>更新immortal token，用于回溯</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211029144433677.png" alt="image-20211029144433677"></p>
-<h4 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h4><p>The code and recipes are available in Kaldi [24]: <a target="_blank" rel="noopener" href="https://github.com/kaldi-asr/kaldi/tree/master/egs/%7Bsnips,mobvoi,mobvoihotwords%7D">https://github.com/kaldi-asr/kaldi/tree/master/egs/{snips,mobvoi,mobvoihotwords}</a>.  </p>
-<p>本文中引入了一种不需要对齐（Alignment-free）、不需要词图的（Lattice-Free MMI）鉴别性准则训练的模型<br>相比Lattice-free MMI准则需要额外修改一下发音字典、HMM拓扑结构</p>
-<p>1.HMM拓扑结构（KW和freetext）用的是5个状态；silence用的是2个状态，但是保持（Lattice-free MMI）的结构self-loop-pdf和forward-pdf对应两个不同的PDF-id，因此神经网络共82+21&#x3D;18个pdf</p>
-<p>2.分子图与分母图<br>分子图和chain的不同点在于：不需要依赖对齐结果生成label对应的图，生成一个非扩展的fst，在训练过程中通过前后向算法更加灵活的学习对齐结果<br>分母图和chain的不同点在于：phone级别的语言模型不再需要通过训练数据训练得到，直接手动生成一个语言模型fst，一共3条路径，关键词路径、freetext、silence，其中关键词和freetext前后都可加silence。每一条路径上的权重受训练数据中正负样本的占比因素影响<br>3.声学模型<br>使用TDNN-F模型（因式分解的TDNN），将一层的参数矩阵分解成两个低秩矩阵、第一个矩阵强制限制为半正定矩阵<br>模型（20层每层80节点）存在跨层连接，前一层的输入乘上缩放比例0.66与本层输入加和。<br>4.数据预处理和增强<br>对于负样本（存在很多样本时长较长）会按照正样本的时长分布，对负样本进行切段，每一段分配一个负样本标签。<br>增强：尽管训练数据很多是在实际场景中录制的，增强后效果仍然后提升<br>5.解码<br>手动构造词级别的解码网络FST，每条路径上的权重生成和分母图的LM-fst图方式是一样的。在开始token和结束token上增加从结束token到开始token的空边，原因是音频中可能存在唤醒词和其他可能的音频交叉现象。<br>在线解码的过程中：每处理过一段固定长度的录音后，我们用更新不朽token算法来回溯最近两个“不朽token”中间的这些帧，检查这部分回溯是否包含唤醒词。如果发现唤醒词则停止解码，如果没有唤醒词继续解码。（不朽token是现存激活token的共同祖先）</p>
-<p>这个是基于这样一个假设：如果现有的存活的部分假设都是来自于前一个时刻的相同的token（不朽token），同时在这之前的所有的假设都已经压缩到了这一个token上，我们就可以从这个“不朽token”检查是否具有唤醒词</p>
-<ul>
-<li>与其他模型的对比结果</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211124173256429.png" alt="image-20211124173256429"></p>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Shrivastava A ,  Kundu A ,  Dhir C , et al. Optimize What Matters: Training DNN-Hmm Keyword Spotting Model Using End Metric[C]&#x2F;&#x2F; ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). IEEE, 2021.&#x3D;&#x3D; Apple</p>
-</blockquote>
-<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>提出状态分类精度和命令词识别的目标不一致，分类精度高不代表检测分数高</li>
-<li>从目标检测领域迁移而来提出IOU loss function：关键词groundtruth起止时间与预测的起止时间交集&#x2F;并集，但是这篇论文不是真的用这个IOU loss，而是借鉴了IOU loss，原始IOU的groundtruth的起止时间区域，到了这边就是groundtruth keyword；而预测的起止时间，变成是viterbi对齐keyword后的区域，没有groundtruth的起止时间，而是一心要最大化positive sample预测的起止时间内的平均概率（和最小化negative sample预测的起止时间内的平均概率）</li>
-<li>特地挑选子词+垃圾词作为负样本，从训练样本入手减少误唤醒</li>
-<li>增加数据已经不能提升模型效果，可能是由于唤醒任务太简单，因此把目标函数弄复杂一点，增加训练难度，如果还能训练好的话，原本的唤醒任务也会训练得很好</li>
-<li>把ground-truth（关键词）分成两部分并交换次序比如“静音”，变成“音静”，构建新的负样本，这样打乱顺序，可以强迫模型学会前后顺序（一定要减小音量才能唤醒，音量减小不能唤醒）</li>
-</ul>
-<h3 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h3><ul>
-<li>训练时，根据viterbi对齐（训练时文本已知）（不是前后向，前后向是路径求和，这里是找最佳路径）找到最佳路径，得到路径分数，找到关键词的起始位置，得到关键词平均路径分数，记为检测分数$d$，$d&#x3D;v_C(T)$，其中，C是关键词末尾状态</li>
-<li>使用 hinge loss，loss function：</li>
-<li>使用 hinge loss，loss function：$\large{L_{e2e}&#x3D;\min_\limits{\theta}\sum_\limits{j\in{X_p}}max(0,1-d_j)+\sum_\limits{j\in{X_n}}max(0,1+d_j)}$，其中，p是正样本，n是负样本</li>
-<li>一个唤醒词，正负样本比例1：30，50w样本</li>
-</ul>
-<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211110143717599.png" alt="image-20211110143717599"></p>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;X. Wang, S. Sun, C. Shan, J. Hou, L. Xie, S. Li, and X. Lei, “Adversarial examples for improving end-to-end attention-based small-footprint keyword spotting,”in Proc. ICASSP, 2019, pp. 6366–6370.&#x3D;&#x3D;</p>
-</blockquote>
-<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>kws里的false alarmed和false rejected样本作为对抗样本adversarial examples，用fast gradient sign method（FGSM）构建对抗样本，作为数据增广；</p>
-</li>
-<li><p>用模型输出正确的样本（输出为ground-truth），对样本输入进行扰动，使得模型输出不正确，这种新的输入，来作为对抗样本：</p>
-<p>a pair of correctly-classified example $(x_i;y_i) $ ，其中$y_i$是ground-truth，对抗样本$x_i^{adj}&#x3D;x_i+\delta_i$，并且满足$y_i\neq{f(x_i^{adv};\theta)}$，其中，${\Vert \delta_i \Vert}\ll{\Vert x_i \Vert}$</p>
-<p>FGSM试图在输入空间中找到一个方向，使loss函数有效地增大，这个方向通过对输入求导来获得</p>
-<p>$\delta_i^{FGSM}&#x3D;\epsilon{sign}(\frac{L(y_i,\partial f(x_i;\theta))}{\partial x_i})$	（sign是符号函数 -1,1）</p>
-<p>$x_i^{adv}&#x3D;x_i+\delta_i^{FGSM}$</p>
-<p>其中，$\epsilon$是调节扰动幅度的一个小常数</p>
-</li>
-<li><p>添加一点点扰动，模型预测错误说明：神经网络模型的输出相对于输入是不平滑的，在输入空间存在“盲点”。该模型很不smooth；</p>
-</li>
-<li><p>对抗样本生成：先训练一个好的模型后，对样本中的正样本添加扰动（只对keyword segment区域）；对样本中的负样本添加扰动（全部区域），然后再retrain</p>
-</li>
-<li><p>用对抗样本能最大提高模型性能，模型最少见对抗样本的这种情况，而用随机扰动，模型只能改善一点；</p>
-</li>
-</ul>
-<h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220321175134525.png" alt="image-20220321175134525" style="zoom:67%;">
-
-<p>总体是一个attention结构，encoder是一个1层GRU，</p>
-<h3 id="训练-1"><a href="#训练-1" class="headerlink" title="训练"></a>训练</h3><ul>
-<li>正样本差不多2s，因此把负样本也segment成最大2s；</li>
-<li>在一个训练好的模型基础上，再retrain；retrain的过程为：在每个minibatch中，动态生成对抗样本；</li>
-<li>只对正样本做对抗样本生成，效果最好；</li>
-</ul>
-<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><ul>
-<li>200帧窗长，1帧帧移</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Goodfellow, Ian J., Jonathon Shlens, and Christian Szegedy. “Explaining and harnessing adversarial examples.” <em>arXiv preprint arXiv:1412.6572</em> (2014).&#x3D;&#x3D;ciations：10772</p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u014380165/article/details/90723948">图像对抗算法-攻击篇（FGSM）</a></p>
-</blockquote>
-<h3 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>提出the fast gradient sign method (FGSM)  </p>
-</li>
-<li><p>常规的分类模型训练在更新参数时都是将参数减去计算得到的梯度，这样就能使得损失值越来越小，从而模型预测对的概率越来越大。既然无目标攻击是希望模型将输入图像错分类成正确类别以外的其他任何一个类别都算攻击成功，那么只需要损失值越来越大就可以达到这个目标，也就是模型预测的概率中对应于真实标签的概率越小越好，这和原来的参数更新目的正好相反。因此我只需要在输入图像中加上计算得到的梯度方向，这样修改后的图像经过分类网络时的损失值就比修改前的图像经过分类网络时的损失值要大，换句话说，模型预测对的概率变小了。这就是FGSM算法的内容，一方面是基于输入图像计算梯度，另一方面更新输入图像时是加上梯度，而不是减去梯度，这和常见的分类模型更新参数正好背道而驰。</p>
-</li>
-<li><p>按比例和原始数据融合  $\hat J(\theta,x,y)&#x3D;\alpha J(\theta,x,y) + (1-\alpha) J(\theta,x + \epsilon sign(\nabla_x J(\theta,x,y)))$</p>
-<p>$\alpha$ 一般取0.5</p>
-</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;A. Coucke, M. Chlieh, T. Gisselbrecht, D. Leroy, M. Poumeyrol, and T. Lavril, “Efficient keyword spotting using dilated convolutions and gating,” in Proc. ICASSP, 2019, pp. 6351–6355&#x3D;&#x3D;  </p>
-</blockquote>
-<h3 id="思想-1"><a href="#思想-1" class="headerlink" title="思想"></a>思想</h3><ul>
-<li>用了 dilated convolution 空洞卷积和 gated activations 门激活函数；</li>
-<li>只检测keyword结束位置的输出概率，做loss function计算和推理，不用max pooling loss；（我命名为）【end loss】 很好用</li>
-<li>没用alignment得到边界信息，而是用VAD（这个应该都无所谓），然后对keyword end位置的输出概率做计算，这个结束位置不是固定一帧，而是一个范围$\Delta t$，也就是在这个范围内的帧的输出概率去计算loss，$\Delta t$的最优值用dev set调参；这样的好处是，模型不会倾向于在命令词音频开头就触发，不然如果说的是命令词的子词就是误触发了；？这个是怎么用的，是这个范围内都是这个标签，more label ce吗？【这个思路还挺好的】【改进，随机选这个范围内的一帧去计算？增加扰动，随机性】</li>
-<li>加了mask【？】，防止模型去学习精确的边界，这个是我们所不希望学习的？</li>
-<li>可以流式推理【TODO】看不懂：</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220323115129116.png" alt="image-20220323115129116" style="zoom:67%;">
-
-<h3 id="训练-2"><a href="#训练-2" class="headerlink" title="训练"></a>训练</h3><ul>
-<li>数据集：“Hey Snips” datase  （<a target="_blank" rel="noopener" href="https://research.snips.ai/datasets/keyword-spotting">https://research.snips.ai/datasets/keyword-spotting</a> ），a crowdsourced closetalk dataset  </li>
-<li>正负样本的背景音（录制场所）最好一样，防止模型训练变成分辨两种环境了</li>
-<li>$\Delta t$最佳值是160ms (15 frames before and 15 frames after the end of the keyword)  </li>
-<li>平滑窗口是30帧</li>
-<li>感受野receptive field 182帧（1.83s）</li>
-<li>24层，学习率1e-3，gradient norm clipping 10 ，A scaled uniform distribution for initialization</li>
-</ul>
-<h3 id="模型-1"><a href="#模型-1" class="headerlink" title="模型"></a>模型</h3><ul>
-<li><p>参考TTS里的wavenet结构，用了Dilated causal convolutions  空洞因果卷积，门激活函数，residual连接；</p>
-</li>
-<li><p>Gated activations  ：结合了tanh和sigmoid；a combination of tanh and sigmoid activations controlling the propagation  of information to the next layer  ，就是cnn出来，接两个激活函数，然后相乘；</p>
-</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220323113837633.png" alt="image-20220323113837633" style="zoom: 80%;">
-
-<ul>
-<li>residual connection用的矩阵是projection layer，就是正交矩阵，32维投影到16维，再恢复32维</li>
-</ul>
-<h3 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h3><ul>
-<li>对比模型是LSTM，max-pooling（基于ce初始模型）的模型，max-pooling loss的思想是通过反向传播损失来教会网络在其最高置信时刻触发，这种损失来自于信息量最大的关键字帧，该关键字帧具有相应关键字的最大后向。lstm输入是左拼帧10帧右拼帧10帧的stack起来作为输入（11帧的向量，比如是440维），学习率5e-5‘</li>
-<li>Ablation analysis  还做了消融分析</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220323193422151.png" alt="image-20220323193422151" style="zoom:67%;">
-
-<p>分析不同特征对识别结果的影响程度，发现end-of-keyword labeling影响最大，对FRR的改善最大，特别是在噪声环境下；</p>
-<ul>
-<li>learning rate 1e-3</li>
-</ul>
-<h3 id="结果-1"><a href="#结果-1" class="headerlink" title="结果"></a>结果</h3><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220323192121077.png" alt="image-20220323192121077" style="zoom:67%;">
-
-
-
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Majumdar, Somshubra, and Boris Ginsburg. “Matchboxnet: 1d time-channel separable convolutional neural network architecture for speech commands recognition.” <em>arXiv preprint arXiv:2004.08531</em> (2020).&#x3D;&#x3D;ciations：28</p>
-</blockquote>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Mordido, Gonçalo, Matthijs Van Keirsbilck, and Alexander Keller. “Compressing 1D Time-Channel Separable Convolutions using Sparse Random Ternary Matrices.” <em>arXiv preprint arXiv:2103.17142</em> (2021).&#x3D;&#x3D;</p>
-</blockquote>
-<h3 id="思路-3"><a href="#思路-3" class="headerlink" title="思路"></a>思路</h3><p>在Matchboxnet基础上，replacing 1x1-convolutions in 1D time-channel separable convolutions by constant, sparse random ternary matrices with weights in {-1; 0; +1}  </p>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Tang, Raphael, and Jimmy Lin. “Honk: A pytorch reimplementation of convolutional neural networks for keyword spotting.” <em>arXiv preprint arXiv:1710.06554</em> (2017).&#x3D;&#x3D;</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/castorini/honk">https://github.com/castorini/honk</a></p>
-</blockquote>
-<h3 id="思路-4"><a href="#思路-4" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>类似wekws，也是一个框架，可以直接用！！！</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3544,7 +2704,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">121</span>
+                  <span class="site-state-item-count">125</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3555,7 +2715,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -3566,7 +2726,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
