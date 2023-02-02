@@ -288,6 +288,179 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/27/Code-Switching/TLG%EF%BC%88%E4%B9%9D%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/06/27/Code-Switching/TLG%EF%BC%88%E4%B9%9D%EF%BC%89/" itemprop="url">TLG（九）</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-06-27T00:00:00+08:00">
+                2022-06-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Code-Switching/" itemprop="url" rel="index">
+                    <span itemprop="name">Code-Switching</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/06/27/Code-Switching/TLG%EF%BC%88%E4%B9%9D%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/06/27/Code-Switching/TLG（九）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="训练ngram-G"><a href="#训练ngram-G" class="headerlink" title="训练ngram G"></a>训练ngram G</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">训练LM</span></span><br><span class="line">langname=ngram_7g_train_en_zh_hua_lexicon_word</span><br><span class="line">local/train_lms_1gram.sh $langname/lexicon.1 $langname/text_split.biglettle $langname/lm_part_en5</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="生成-TLG种的-Lexicon-txt："><a href="#生成-TLG种的-Lexicon-txt：" class="headerlink" title="生成 TLG种的 Lexicon.txt："></a>生成 TLG种的 Lexicon.txt：</h4><blockquote>
+<p>&#x2F;home&#x2F;yelong&#x2F;data&#x2F;wenet&#x2F;examples&#x2F;aishell&#x2F;s0</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">生成lexicon.txt：</span></span><br><span class="line">dict=exp/aban-c009/lang.char.txt</span><br><span class="line">bpe_model=exp/aban-c009/bpe.model</span><br><span class="line"></span><br><span class="line">unit_file=$dict</span><br><span class="line">langname=ngram_7g_train_en_zh_hua_lexicon_word</span><br><span class="line">mkdir -p data/local/dict_aban-c009_$langname</span><br><span class="line">cp $unit_file data/local/dict_aban-c009_$langname/units.txt</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">把text_split.biglettle词频大于80的，放进词典，和声学的建模单元放一块，得到lexicon.1</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">去除声学词典里没有的OOV，中文拆成空格区分，英文bpe</span></span><br><span class="line">python split_sentence_oov.py data/local/dict_aban-c009_$langname/units.txt /home/yelong/data/kaldi/egs/librispeech/s5/$&#123;langname&#125;/lexicon.1 &gt; data/local/dict_aban-c009_$&#123;langname&#125;/lexicon.txt.nosplit</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">PS 等拆分为 ▁P ▁S</span></span><br><span class="line">python split_lexicon.py data/local/dict_aban-c009_$&#123;langname&#125;/lexicon.txt.nosplit &gt; data/local/dict_aban-c009_$&#123;langname&#125;/lexicon.txt</span><br><span class="line">c</span><br></pre></td></tr></table></figure>
+
+
+
+<p>用新的词典，对文本</p>
+<p>其中，split_sentence_oov.py为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sentencepiece <span class="keyword">as</span> spm</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">sp = spm.SentencePieceProcessor()</span><br><span class="line">sp.load(<span class="string">&quot;/home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/bpe.model&quot;</span>)</span><br><span class="line"></span><br><span class="line">unit_table = <span class="built_in">set</span>()</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(sys.argv[<span class="number">1</span>], <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf8&#x27;</span>) <span class="keyword">as</span> fin:</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fin:</span><br><span class="line">        unit = line.split()[<span class="number">0</span>]</span><br><span class="line">        unit_table.add(unit)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">contain_oov</span>(<span class="params">units</span>):</span><br><span class="line">    <span class="keyword">for</span> unit <span class="keyword">in</span> units:</span><br><span class="line">        <span class="keyword">if</span> unit <span class="keyword">not</span> <span class="keyword">in</span> unit_table:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">__tokenize_by_bpe_model</span>(<span class="params">txt</span>):</span><br><span class="line">    tokens = []</span><br><span class="line">    <span class="comment"># CJK(China Japan Korea) unicode range is [U+4E00, U+9FFF], ref:</span></span><br><span class="line">    <span class="comment"># https://en.wikipedia.org/wiki/CJK_Unified_Ideographs_(Unicode_block)</span></span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;([\u4e00-\u9fff])&#x27;</span>)</span><br><span class="line">    <span class="comment"># Example:</span></span><br><span class="line">    <span class="comment">#   txt   = &quot;你好 ITS&#x27;S OKAY 的&quot;</span></span><br><span class="line">    <span class="comment">#   chars = [&quot;你&quot;, &quot;好&quot;, &quot; ITS&#x27;S OKAY &quot;, &quot;的&quot;]</span></span><br><span class="line">    chars = pattern.split(txt.upper())</span><br><span class="line">    mix_chars = [w <span class="keyword">for</span> w <span class="keyword">in</span> chars <span class="keyword">if</span> <span class="built_in">len</span>(w.strip()) &gt; <span class="number">0</span>]</span><br><span class="line">    <span class="keyword">for</span> ch_or_w <span class="keyword">in</span> mix_chars:</span><br><span class="line">        <span class="comment"># ch_or_w is a single CJK charater(i.e., &quot;你&quot;), do nothing.</span></span><br><span class="line">        <span class="keyword">if</span> pattern.fullmatch(ch_or_w) <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">if</span> contain_oov(ch_or_w):</span><br><span class="line">                <span class="keyword">return</span> <span class="string">&quot;yelong&quot;</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                tokens.append(ch_or_w)</span><br><span class="line">        <span class="comment"># ch_or_w contains non-CJK charaters(i.e., &quot; IT&#x27;S OKAY &quot;),</span></span><br><span class="line">        <span class="comment"># encode ch_or_w using bpe_model.</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">for</span> p <span class="keyword">in</span> sp.encode_as_pieces(ch_or_w):</span><br><span class="line">                <span class="keyword">if</span> contain_oov(ch_or_w):</span><br><span class="line">                    <span class="keyword">return</span> <span class="string">&quot;yelong&quot;</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    tokens.append(p)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> tokens</span><br><span class="line"></span><br><span class="line"><span class="comment">#src_file=&#x27;text_space_eng&#x27;</span></span><br><span class="line">src_file=sys.argv[<span class="number">2</span>]</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(src_file, <span class="string">&quot;r&quot;</span>, encoding=<span class="string">&quot;utf8&quot;</span>) <span class="keyword">as</span> fs:</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fs:</span><br><span class="line">        line = line.strip()</span><br><span class="line">        temp = __tokenize_by_bpe_model(line)</span><br><span class="line">        <span class="keyword">if</span> temp != <span class="string">&quot;yelong&quot;</span>:</span><br><span class="line">            <span class="built_in">print</span>(line, <span class="string">&quot; &quot;</span>.join(temp))</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="生成-TLG："><a href="#生成-TLG：" class="headerlink" title="生成 TLG："></a>生成 TLG：</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">生成L.fst和T.fst：</span></span><br><span class="line">langname=ngram_7g_train_en_zh_hua_lexicon_word</span><br><span class="line">tools/fst/compile_lexicon_token_fst.sh \</span><br><span class="line">    data/local/dict_aban-c009_$&#123;langname&#125; data/local/tmp_aban-c009_$&#123;langname&#125; data/local/lang_aban-c009_$&#123;langname&#125;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压为lm.arpa</span></span><br><span class="line">gunzip -c  /home/yelong/data/kaldi/egs/librispeech/s5/$langname/lm_part_en5/srilm/srilm.o3g.kn.gz &gt; /home/yelong/data/kaldi/egs/librispeech/s5/$langname/lm_part_en5/srilm/lm.arpa</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">生成G.fst、TLG.fst：</span></span><br><span class="line">tools/fst/make_tlg.sh /home/yelong/data/kaldi/egs/librispeech/s5/$langname/lm_part_en5/srilm/ data/local/lang_aban-c009_$langname data/lang_aban-c009_$langname</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="解码测试集"><a href="#解码测试集" class="headerlink" title="解码测试集"></a>解码测试集</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解码</span></span><br><span class="line">export GLOG_logtostderr=1</span><br><span class="line">export GLOG_v=3</span><br><span class="line"></span><br><span class="line">langname=ngram_7g_train_en_zh_hua_lexicon_word</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">docker：067：</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">wav_dir=/home/data/yelong/docker_seewo/corpus/ftv-5000s/10-sub-ftv-1w/</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">name=$(<span class="built_in">basename</span> <span class="variable">$wav_dir</span>)</span></span><br><span class="line">./tools/decode.sh --nj 10 --acoustic_scale 10 --lattice_beam 30 --max_active 7000 --ctc_weight 0.05 --rescoring_weight 1 --chunk_size -1  --blank_skip_thresh 0.98 --dict_path /home/aban-c009/lang_aban-c009_$langname/words.txt --fst_path /home/aban-c009/lang_aban-c009_$langname/TLG.fst  /home/data/yelong/docker_seewo/corpus/200/doc/wav.scp /home/data/yelong/docker_seewo/corpus/200/doc/text /home/aban-c009/final.zip  /home/aban-c009/lang_aban-c009_$langname/units.txt exp/aban-c009/200.11/lm_10_attention_rescore_ReduceBlankprob_1_OnlyCurBestEqualBlank</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/27/Code-Switching/rescore/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2215,175 +2388,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/chain%20model/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/chain%20model/" itemprop="url">chain model</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
-                2022-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
-                    <span itemprop="name">语音识别</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/chain%20model/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/chain model/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="chain-model"><a href="#chain-model" class="headerlink" title="chain model"></a>chain model</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/65557682">kaldi中的chain model(LFMMI)详解</a></p>
-</blockquote>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/chain%20model/v2-df4fab74a246b6935e20ecf7e1ccff8b_720w.jpg" alt="img"></p>
-<p>对应kaldi中的结构定义为：</p>
-<blockquote>
-<Topology>
-<TopologyEntry>
-<ForPhones>
-1 2 3 4 5 6 7 8 …
-</ForPhones>
-<State> 0 <**ForwardPdfClass**> 0 <**SelfLoopPdfClass**> 1 <Transition> 0 0.5 <Transition> 1 0.5 </Transition></Transition></**SelfLoopPdfClass**></**ForwardPdfClass**></State>
-<State> 1 </State>
-</TopologyEntry>
-</Topology>
-</blockquote>
-<p>在kaldi中，把Sp和Sb看做同一个状态(都对应state 0)，只是pdfclass不同。ForwardPdfClass表示Sp，SelfLoopPdfClass表示Sb。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2434,7 +2438,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">126</span>
+                  <span class="site-state-item-count">127</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

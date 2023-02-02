@@ -288,6 +288,468 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/" itemprop="url">基于chain多唤醒词识别模型</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-12-03T00:00:00+08:00">
+                2021-12-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/12/03/命令词/基于chain多唤醒词识别模型/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="基于chain多唤醒词识别模型"><a href="#基于chain多唤醒词识别模型" class="headerlink" title="基于chain多唤醒词识别模型"></a>基于chain多唤醒词识别模型</h1><blockquote>
+<p>参考袁有根NCMMSC会议分享</p>
+</blockquote>
+<p><img src="/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/image-20211021162722733.png" alt="image-20211021162722733"></p>
+<p>目标：训练更好的AM；如何将测试时的解码网络内的参数自动调整；</p>
+<p>思路：一开始想要防止语言模型过拟合！！！其实根本没必要！！！，因为端到端模型中有语言模型部分，该部分参数会更新，因此越训练会越适配训练集，因此语言模型容易过拟合（而一般外部语言模型用的可不止训练数据，用的是很大文本统计得到的，可以做shallow fusion），而chain model里面参与计算loss的语言模型部分根本不会跟新，不用考虑过拟合问题！！！</p>
+<p>如果是只考虑有无必要把语言模型融入，按照人家拼命把语言模型拿掉的思路，是没有必要再引入语言模型的。</p>
+<p>但是希望测试时的解码网络的参数能调整，因此借鉴模型fusion的思路，1.shallow fusion cold fusion 外部语言模型参与，可使得模型倾向于</p>
+<p>用无调音节建模</p>
+<p>step1. 训练一个初始大一点的chain模型，分母网用训练数据得到的3gram phone ，记作chain model1，目的是后续的对齐；</p>
+<p>用tri3对齐lattice，训练大chain model</p>
+<p>用tri3对齐，训练tdnn，用tdnn进行后续对齐：local&#x2F;nnet3&#x2F;run_tdnn_bigmodel_for_align.sh</p>
+<p>step2. 对齐生成lattice，重新训练，注意，此时构建egs时不再下采样（frame-subsampling-factor&#x3D;1），分母网用训练数据得到的3gram phone loop，记作chain model2，目的是做finetune的初始模型</p>
+<p>step3. finetune：</p>
+<ul>
+<li>语言模型P(W)都是1，进行finetune，得到chain model2，这个想法是为了训练更好的声学模型，让声学模型受语言模型的帮助更小，更独立。花哥说，这有点类似em思路，固定语言模型，更新声学模型，再放开语言模型，更新声学模型，最后的结果可能和一开始就引入语言模型的结果差不多；</li>
+<li>用测试解码网络作为P(W)进行finetune，得到唤醒任务的chain model3，雷博尝试了该方法，并且把学习率调小，结果far会很高，可能由于解码网络的竞争路径太少，竞争路径的分数也很高？</li>
+<li>loss分母竞争路径分数-唤醒路径分数（如何挑选出唤醒路径？），参考专利《[重要]CN201710343427-基于鉴别性训练的定制语音唤醒优化方法及系统-审定授权.pdf》</li>
+<li>训练LM网络，LM网络的输入是测试解码网络概率，输出是新G概率，再用该概率去做分母，这个如何实现？？</li>
+</ul>
+<p>step4. 用step1的模型，用上下文无关音节建模，减少分类数，重新对齐生成lattice，再训练一个chain model</p>
+<p>先看一下language model fusion的论文《LANGUAGE MODEL FUSION FOR STREAMING END TO END SPEECH RECOGNITION  》，看一下如何容融合外部语言模型</p>
+<h2 id="赋予loss不同权重"><a href="#赋予loss不同权重" class="headerlink" title="赋予loss不同权重"></a>赋予loss不同权重</h2><h3 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h3><p>参考多任务学习的赋予权重思路：kaldi&#x2F;egs&#x2F;babel_multilang&#x2F;s5&#x2F;local&#x2F;nnet3&#x2F;run_tdnn_multilingual.sh</p>
+<p>修改多任务学习的脚本，使得loss不同权重，但是又只训练一个任务</p>
+<p>kaldi判断多任务的脚本：steps&#x2F;nnet3&#x2F;train_raw_dnn.py</p>
+<p>通过有没有valid_diagnostic.scp或valid_diagnostic.ark来判断use_multitask_egs&#x3D;True还是False，这个只在raw里有，因此要把mdl中的也增加多任务学习，然后作用到train_lib.common.train_one_iteration训练。</p>
+<p>train_one_iteration里决定存储的是mdl还是raw的符号：get_raw_nnet_from_am。</p>
+<h1 id="实验汇总"><a href="#实验汇总" class="headerlink" title="实验汇总"></a>实验汇总</h1><h3 id="topo区别实验"><a href="#topo区别实验" class="headerlink" title="topo区别实验"></a>topo区别实验</h3><p>比较四&#x2F;三&#x2F;二个字用四&#x2F;三&#x2F;二状态建模，与不管几个字都用四状态建模的区别。</p>
+<p>比较单音素（现在里面是单音素）与三音素的区别？需要比较吗</p>
+<h3 id="DNN对齐模型区别实验"><a href="#DNN对齐模型区别实验" class="headerlink" title="DNN对齐模型区别实验"></a>DNN对齐模型区别实验</h3><ul>
+<li>用tdnn大模型（69M）作为后续对齐模型：<ul>
+<li>路径：25.3：&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;exp_syll&#x2F;nnet3&#x2F;tdnn</li>
+<li>脚本：local&#x2F;nnet3&#x2F;run_tdnn_bigmodel_for_align.sh</li>
+<li>学习率：initial_effective_lrate&#x3D;0.008，final_effective_lrate&#x3D;0.00008，num_epochs&#x3D;6（这样学习率太大了会报LOG Per-component max-change active）</li>
+<li>训练集特征：train_set&#x3D;data&#x2F;plp&#x2F;train_12000</li>
+<li>对齐：ali_dir&#x3D;exp_syll&#x2F;tri3_ali</li>
+<li>模型：tdnn，6层，1024结点，左拼13右拼9</li>
+<li>分类数：8000类</li>
+<li>结果：loss&#x3D;-2，acc&#x3D;46%（可能因为分类数太多，调小学习率继续训练无改善）</li>
+</ul>
+</li>
+<li>用conv tdnnf的chain大模型（67M）作为后续对齐模型<ul>
+<li>路径24.4:&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;exp_syll&#x2F;chain&#x2F;tdnn_cnn_tdnnf</li>
+<li>脚本：run_2_chain_ddt1500h.sh</li>
+<li>lattice：&#x2F;home&#x2F;storage&#x2F;yelong&#x2F;lattice&#x2F;exp_syll&#x2F;tri3_lats</li>
+<li>tree：exp_syll&#x2F;chain&#x2F;tri4_cd_tree</li>
+<li>feat：data&#x2F;plp&#x2F;train_12000</li>
+<li>模型：cnn-tdnnf</li>
+</ul>
+</li>
+</ul>
+<h3 id="对齐大模型生成lattice"><a href="#对齐大模型生成lattice" class="headerlink" title="对齐大模型生成lattice"></a>对齐大模型生成lattice</h3><ul>
+<li>tdnn大模型生成lattice：<ul>
+<li>训练集：负样本12000小时（1111万条），正样本2000小时（380万条），data_multi&#x2F;merge_all_sub4_12000&#x2F;，正负样本1：6</li>
+<li>tdnn大模型路径：25.3：&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;exp_syll&#x2F;nnet3&#x2F;tdnn</li>
+<li>对齐lattice路径：exp_syll&#x2F;nnet3&#x2F;tdnn_12000n_2000p_lats&#x2F;（集群跑的）</li>
+</ul>
+</li>
+<li>chain大模型生成lattice<ul>
+<li>训练集：负样本12000小时（1111万条），正样本2000小时（380万条），data_multi&#x2F;merge_all_sub4_12000&#x2F;，正负样本1：6</li>
+<li>对齐lattice路径：exp_syll&#x2F;chain&#x2F;tdnn_cnn_tdnnf_12000n_2000p_lats&#x2F;（集群跑的）[没跑完]</li>
+<li>这次把命令词都放在词典中，作为整词，不分词【没必要，因为chain用1状态建模（2个pdf），不是三音素是单音素，和前后文无关】</li>
+<li>料想和tdnn对齐模型效果差不多，实验暂停。</li>
+</ul>
+</li>
+</ul>
+<h3 id="构建单音素（每个音素两个pdf）"><a href="#构建单音素（每个音素两个pdf）" class="headerlink" title="构建单音素（每个音素两个pdf）"></a>构建单音素（每个音素两个pdf）</h3><ul>
+<li><p>脚本：25.3：&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;run_2_chain_ddt1500h.sh</p>
+</li>
+<li><p>构建单音素build-tree时：–context-width&#x3D;1 –central-position&#x3D;0</p>
+</li>
+<li><p>得到pdf&#x3D;808（不是810，这是因为音节den和dia的forward-pdf和self-loop&#x3D;pdf相同，应该是因为训练样本里没有？）</p>
+</li>
+</ul>
+<h3 id="训练chain-model"><a href="#训练chain-model" class="headerlink" title="训练chain model"></a>训练chain model</h3><h2 id="Finetune"><a href="#Finetune" class="headerlink" title="Finetune"></a>Finetune</h2><ul>
+<li><p>根据chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm，解码训练集data_multi&#x2F;merge_all_sub4_12000，得到data_multi&#x2F;merge_all_sub4_12000_filter_false_rejection_alarm，其中，</p>
+<ul>
+<li>false alarm数量6k</li>
+<li>false rejection数量50w，其中，7w条是识别成其他唤醒词（也就是其他唤醒词的误唤醒），7w条中有6w条是上&#x2F;下一曲&#x2F;集的误唤醒，小源小源4w</li>
+<li>方法2重训后，再次解码false alarm和false rejection样本<ul>
+<li>false alarm：6k -&gt; 5k（下降19%）</li>
+<li>false rejection：50w -&gt; 48w（下降4.7%）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>根据chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch，解码训练集data_multi&#x2F;merge_all_sub4_12000，得到data_multi&#x2F;merge_all_sub4_12000_filter_false_rejection_alarm_tdnnf8，其中，</p>
+<ul>
+<li>false alarm数量1.8w</li>
+<li>false rejection数量66w，其中，小源小源4.8w</li>
+<li>测试集far会更低的，但是解码训练集，居然比chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm的更多！！！</li>
+<li>方法2重训后，再次解码false alarm和false rejection样本，和想象的不同的是，误唤醒和误拒绝并没有少很多，感觉还是没训练好<ul>
+<li>false alarm：1.8w -&gt; 1.5w （下降17.2%）</li>
+<li>false rejection：66w -&gt; 62w（下降5.6%）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="方法1："><a href="#方法1：" class="headerlink" title="方法1："></a>方法1：</h4><ul>
+<li>只对这些样本重新训练一轮（也要保证正负样本比例，小源正样本还不能少，否则唤醒率会略有下降）<ul>
+<li>随机shuf取出300w的负样本，与false alarm构成300w的负样本，正样本50w</li>
+<li>在exp_syll&#x2F;nnet3&#x2F;tdnn_12000n_2000p_lats&#x2F;中用</li>
+<li>脚本：25.3:&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;run_2_chain_ddt1500h.filter_far_frejection.sh</li>
+<li>模型：exp_syll&#x2F;chain&#x2F;chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_filter_false_reje_ala_small_learningrate</li>
+<li>input_model：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm&#x2F;final.mdl</li>
+<li>初始和结束的学习率都为&#x3D;&#x3D;0.000001&#x3D;&#x3D;</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">lattice-copy <span class="string">&quot;--include=cat data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/uttlist |&quot;</span> --ignore-missing <span class="string">&quot;ark:gunzip -c exp_syll/nnet3/tdnn_12000n_2000p_lats/lat.1.gz |&quot;</span> <span class="string">&quot;ark:| gzip -c &gt; exp_syll/nnet3/tdnn_12000n_2000p_filter_false_rejection_alarm_lats/lat.1.gz&quot;</span></span><br><span class="line"><span class="comment">#或者</span></span><br><span class="line">lattice-copy <span class="string">&quot;--include=cat data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/uttlist |&quot;</span> --ignore-missing <span class="string">&quot;ark:gunzip -c exp_syll/nnet3/tdnn_12000n_2000p_lats/lat.1.gz |&quot;</span> ark,t:exp_syll/nnet3/tdnn_12000n_2000p_filter_false_rejection_alarm_lats/lat.1.ark</span><br><span class="line"></span><br><span class="line"><span class="comment"># 脚本：</span></span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> $(<span class="built_in">seq</span> 1 120);<span class="keyword">do</span></span><br><span class="line">     <span class="comment">#lattice-copy &quot;--include=cat data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/uttlist |&quot; --ignore-missing &quot;ark:gunzip -c exp_syll/nnet3/tdnn_12000n_2000p_lats/lat.$n.gz |&quot; &quot;ark:| gzip -c &gt; exp_syll/nnet3/tdnn_12000n_2000p_filter_false_rejection_alarm_lats/lat.$n.gz&quot;</span></span><br><span class="line">    lattice-copy <span class="string">&quot;ark:gunzip -c exp_syll/nnet3/tdnn_12000n_2000p_filter_false_rejection_alarm_lats/lat.<span class="variable">$n</span>.gz |&quot;</span> ark,t:1</span><br><span class="line">    awk <span class="string">&#x27;&#123;if(NF==1)print$1,$1&#125;&#x27;</span> 1 | grep -E <span class="string">&quot;^0|^K|^Xiaoyuan|^SY|^sp&quot;</span> &gt; data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2spk</span><br><span class="line"><span class="built_in">cp</span> data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2spk data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/spk2utt</span><br><span class="line">    utils/filter_scp.pl data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2spk data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/feats.scp &gt; data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/feats.scp</span><br><span class="line">    utils/filter_scp.pl data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2spk data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/cmvn.scp &gt; data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/cmvn.scp</span><br><span class="line">    utils/filter_scp.pl data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2spk data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/text &gt; data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/text</span><br><span class="line">    utils/filter_scp.pl data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2spk data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/utt2dur &gt; data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2dur</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将筛选出的lattice放在exp_syll&#x2F;nnet3&#x2F;tdnn_12000n_2000p_filter_false_rejection_alarm_lats中<ul>
+<li>结果：如果学习率是0.00015开始训练的，学习率一开始设置得较大，<strong>效果不好，没有改善</strong>，误唤醒还增加了，但是&#x3D;&#x3D;调小学习率后，效果变好了&#x3D;&#x3D;</li>
+</ul>
+</li>
+<li>用同一批数据finetune tdnnf8试一试</li>
+</ul>
+<h4 id="方法2："><a href="#方法2：" class="headerlink" title="方法2："></a>方法2：</h4><ul>
+<li>对这些样本赋予高一点的权重，其他样本赋予低一点的权重，对所有样本finetune训练一轮</li>
+<li>脚本：25.3:&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;run_tdnn_multilingual.sh</li>
+<li>模型：exp_syll&#x2F;chain&#x2F;chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch_multitask_test_input_model&#x2F;<ul>
+<li><code>awk -F&#39;-&#39; &#39;&#123;$NF=null;print$0&#125;&#39; 1| sed &#39;s/ *$//&#39; | tr &#39; &#39; &#39;-&#39; | paste -d &#39; &#39; - 1</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> $(<span class="built_in">seq</span> 1 3430);<span class="keyword">do</span></span><br><span class="line">    nnet3-chain-copy-egs ark:exp_syll/chain/chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN/egs/cegs.<span class="variable">$&#123;n&#125;</span>.ark ark,scp:exp_syll/chain/chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN_multi_2/egs/cegs.<span class="variable">$&#123;n&#125;</span>.temp.ark,exp_syll/chain/chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN_multi_2/egs/cegs.<span class="variable">$&#123;n&#125;</span>.temp.scp</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">src=exp_syll/chain/chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN_multi_2/egs</span><br><span class="line"><span class="built_in">dir</span>=exp_syll/chain/chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch_multitask/egs</span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> $(<span class="built_in">seq</span> 1 3430);<span class="keyword">do</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="variable">$n</span></span><br><span class="line">  <span class="built_in">cp</span> <span class="variable">$src</span>/cegs.<span class="variable">$n</span>.temp.scp <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp</span><br><span class="line">  awk -F<span class="string">&#x27;-&#x27;</span> <span class="string">&#x27;&#123;$NF=null;print$0&#125;&#x27;</span> <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp| sed <span class="string">&#x27;s/ *$//&#x27;</span> | <span class="built_in">tr</span> <span class="string">&#x27; &#x27;</span> <span class="string">&#x27;-&#x27;</span> | <span class="built_in">paste</span> -d <span class="string">&#x27; &#x27;</span> - <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp | utils/filter_scp.pl false_alarm_rejection - &gt; <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.1</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;2.5&quot;&#125;&#x27;</span>  <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.1 &gt;  <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.1</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;output-0&quot;&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.1 &gt;  <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.1</span><br><span class="line">  awk -F<span class="string">&#x27;-&#x27;</span> <span class="string">&#x27;&#123;$NF=null;print$0&#125;&#x27;</span> <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp| sed <span class="string">&#x27;s/ *$//&#x27;</span> | <span class="built_in">tr</span> <span class="string">&#x27; &#x27;</span> <span class="string">&#x27;-&#x27;</span> | <span class="built_in">paste</span> -d <span class="string">&#x27; &#x27;</span> - <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp | utils/filter_scp.pl --exclude false_alarm_rejection - &gt; <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.2</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;1&quot;&#125;&#x27;</span>  <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.2 &gt;  <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.2</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;output-1&quot;&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.2 &gt;  <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.2</span><br><span class="line">  <span class="built_in">cat</span> <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.1 <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.2 &gt; <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.3</span><br><span class="line">  <span class="built_in">cat</span> <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.1 <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.2 &gt; <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.3</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$1,$1&#125;&#x27;</span> <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp |  utils/apply_map.pl -f 1 <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.3 | awk <span class="string">&#x27;&#123;print$2,$1&#125;&#x27;</span> &gt; <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$1,$1&#125;&#x27;</span> <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp |  utils/apply_map.pl -f 1 <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.3 | awk <span class="string">&#x27;&#123;print$2,$1&#125;&#x27;</span> &gt; <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark</span><br><span class="line">  <span class="built_in">rm</span> <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.*</span><br><span class="line">  <span class="built_in">rm</span> <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.*</span><br><span class="line">  <span class="built_in">rm</span>  <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.*</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> combine train_diagnostic valid_diagnostic;<span class="keyword">do</span></span><br><span class="line">  nnet3-chain-copy-egs ark:exp_syll/chain/chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN/egs/<span class="variable">$i</span>.cegs ark,scp:<span class="variable">$src</span>/<span class="variable">$i</span>.cegs,<span class="variable">$src</span>/<span class="variable">$i</span>.scp</span><br><span class="line">  <span class="built_in">cp</span> <span class="variable">$src</span>/<span class="variable">$i</span>.scp <span class="variable">$dir</span>/<span class="variable">$i</span>.scp</span><br><span class="line">  awk -F<span class="string">&#x27;-&#x27;</span> <span class="string">&#x27;&#123;$NF=null;print$0&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.scp | sed <span class="string">&#x27;s/ *$//&#x27;</span> | <span class="built_in">tr</span> <span class="string">&#x27; &#x27;</span> <span class="string">&#x27;-&#x27;</span> | <span class="built_in">paste</span> -d <span class="string">&#x27; &#x27;</span> - <span class="variable">$dir</span>/<span class="variable">$i</span>.scp | utils/filter_scp.pl false_alarm_rejection - &gt; <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.1</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;2.5&quot;&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.1 &gt;  <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.1</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;output-0&quot;&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.1 &gt;  <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.1</span><br><span class="line"></span><br><span class="line">  awk -F<span class="string">&#x27;-&#x27;</span> <span class="string">&#x27;&#123;$NF=null;print$0&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.scp| sed <span class="string">&#x27;s/ *$//&#x27;</span> | <span class="built_in">tr</span> <span class="string">&#x27; &#x27;</span> <span class="string">&#x27;-&#x27;</span> | <span class="built_in">paste</span> -d <span class="string">&#x27; &#x27;</span> - <span class="variable">$dir</span>/<span class="variable">$i</span>.scp | utils/filter_scp.pl --exclude false_alarm_rejection - &gt; <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.2</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;1&quot;&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.2 &gt;  <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.2</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;output-1&quot;&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.2 &gt;  <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.2</span><br><span class="line"></span><br><span class="line">  <span class="built_in">cat</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.1 <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.2 &gt; <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.3</span><br><span class="line">  <span class="built_in">cat</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.1 <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.2 &gt; <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.3</span><br><span class="line"></span><br><span class="line">  awk <span class="string">&#x27;&#123;print$1,$1&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.scp |  utils/apply_map.pl -f 1 <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.3 | awk <span class="string">&#x27;&#123;print$2,$1&#125;&#x27;</span> &gt; <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$1,$1&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.scp |  utils/apply_map.pl -f 1 <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.3 | awk <span class="string">&#x27;&#123;print$2,$1&#125;&#x27;</span> &gt; <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark</span><br><span class="line">  <span class="built_in">rm</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.*</span><br><span class="line">  <span class="built_in">rm</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.*</span><br><span class="line">  <span class="built_in">rm</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.*</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>初始学习率设置为1.2e-04（8卡，脚本里对应0.000015）或者1e6，结果差不多</li>
+<li>input_model：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;final_add_output01.mdl</li>
+<li>似乎是因为这是tdnn5的false alarm和false rejection样本，似乎对于tdnnf8无效，因此没有改善，应该用tdnnf8的解码训练集训一轮，会好一点</li>
+</ul>
+<h4 id="把以上对于tdnn5不同权重finetune一轮："><a href="#把以上对于tdnn5不同权重finetune一轮：" class="headerlink" title="把以上对于tdnn5不同权重finetune一轮："></a>把以上对于tdnn5不同权重finetune一轮：</h4><ul>
+<li><p>脚本：25.3:&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;run_tdnn_multilingual_tdnn5.sh</p>
+</li>
+<li><p>模型：exp_syll&#x2F;chain&#x2F;chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_multitask</p>
+</li>
+<li><p>input_model：exp_syll&#x2F;chain&#x2F;chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm&#x2F;final_add_output01.mdl</p>
+</li>
+<li><p>初始和结束的学习率都为&#x3D;&#x3D;0.000001&#x3D;&#x3D;（8卡，脚本里对应0.000000125）（是否有点小了？）</p>
+</li>
+<li><p>有改善，改善比方法1多，不知道这个改善是否来源于多训练一轮epoch？</p>
+</li>
+</ul>
+<h4 id="重新解码tdnnf8训练集，用tdnnf8解码的false-alarm和false-rejection样本finetune一轮"><a href="#重新解码tdnnf8训练集，用tdnnf8解码的false-alarm和false-rejection样本finetune一轮" class="headerlink" title="重新解码tdnnf8训练集，用tdnnf8解码的false alarm和false rejection样本finetune一轮"></a>重新解码tdnnf8训练集，用tdnnf8解码的false alarm和false rejection样本finetune一轮</h4><ul>
+<li>weight比例2.5：1，无论学习率是1e-6（8卡后）或者1.5e-5（8卡后），效果都没有改善</li>
+<li>查看有没有&#x3D;&#x3D;过拟合&#x3D;&#x3D;：<code>grep output-0-xent compute_prob_valid.* | sed &#39;s/valid./ /g&#39; | sed &#39;s/.log/ /g&#39; | sort -k 2 -n</code></li>
+<li><code>grep &quot;average objective function for &#39;output-0&#39;&quot; train.*.1.log |  sed &#39;s/train./ /g&#39; | sed &#39;s/.1.log/ /g&#39; |  sort -k 1 -n</code></li>
+<li>少数测试集有改善</li>
+</ul>
+<h3 id="学习率设置"><a href="#学习率设置" class="headerlink" title="学习率设置"></a>学习率设置</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>脚本里initial_lr（实际lr (乘以gpu数)</th>
+<th>脚本里final_lr（实际lr (乘以gpu数)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>普通</td>
+<td>0.00015</td>
+<td>0.000015</td>
+</tr>
+<tr>
+<td>more_epoch</td>
+<td>0.000015</td>
+<td>0.0000015</td>
+</tr>
+<tr>
+<td>false_reje_ala：训练的是tdnn5（结果不好）</td>
+<td>0.00015</td>
+<td>0.000015</td>
+</tr>
+<tr>
+<td>false_reje_ala调小学习率：训练的是tdnn5（有改善）</td>
+<td>1.25e-7（1e-06）</td>
+<td>1.25e-7（1e-06）</td>
+</tr>
+<tr>
+<td>multitask_test_input_model：训练的是tdnnf8（没有改善）</td>
+<td>0.000015（0.00012）</td>
+<td>0.0000015（1.2e-05）</td>
+</tr>
+<tr>
+<td>multitask_test_input_model_small_learningrate：训练的是tdnnf8（没有改善）</td>
+<td>1.25e-7（1e-06）</td>
+<td>1.25e-7（1e-06）</td>
+</tr>
+</tbody></table>
+<h3 id="测试解码"><a href="#测试解码" class="headerlink" title="测试解码"></a>测试解码</h3><ul>
+<li>chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm</li>
+</ul>
+<h3 id="实验测试结果"><a href="#实验测试结果" class="headerlink" title="实验测试结果"></a>实验测试结果</h3><ul>
+<li><p>10000条命令词，测唤醒率</p>
+</li>
+<li><p>tdnn[1]：chain_tdnn5_256_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm&#x2F;graph_add_two</p>
+</li>
+<li><p>tdnn[2]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_filter_false_reje_ala_small_learningrate&#x2F;graph</p>
+</li>
+<li><p>tdnn[3]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_multitask&#x2F;graph</p>
+</li>
+<li><p>tdnn[4]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph</p>
+</li>
+<li><p>tdnnf[1]：chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm</p>
+</li>
+<li><p>tdnnf[2]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph_add_two2&#x2F;</p>
+</li>
+<li><p>tdnnf[3]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch_multitask_tdnnf8decode&#x2F;graph_10_1</p>
+</li>
+<li><p>tdnnf[4]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph1&#x2F;  （2gram lm）[实际不可用]</p>
+</li>
+<li><p>47万条随机语音片段，测误唤醒（479984）</p>
+</li>
+<li><p>tdnn[1]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm&#x2F;graph_add_two</p>
+</li>
+<li><p>tdnn[2]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_filter_false_reje_ala_small_learningrate&#x2F;graph</p>
+</li>
+<li><p>tdnn[3]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_multitask&#x2F;graph</p>
+</li>
+<li><p>tdnn[4]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph</p>
+</li>
+<li><p>tdnnf[1]：chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm</p>
+</li>
+<li><p>tdnnf[2]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph_add_two2&#x2F;</p>
+</li>
+<li><p>tdnnf[3]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch_multitask_tdnnf8decode&#x2F;graph_10_1</p>
+</li>
+<li><p>tdnnf[4]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph1&#x2F;  （2gram lm）[实际不可用]</p>
+</li>
+<li><p>小源小源一个唤醒词</p>
+</li>
+<li><p>lei：V1+SIL</p>
+</li>
+<li><p>tdnn[1]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm&#x2F;graph_add_two</p>
+</li>
+<li><p>tdnn[2]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_filter_false_reje_ala_small_learningrate&#x2F;graph</p>
+</li>
+<li><p>tdnn[3]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_multitask&#x2F;graph</p>
+</li>
+<li><p>tdnn[4]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph</p>
+</li>
+<li><p>tdnnf[1]：chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm&#x2F;graph_add_two2 前向计算时间长，不考虑</p>
+</li>
+<li><p>tdnnf[2]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph_add_two2</p>
+</li>
+<li><p>tdnnf[3]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch_multitask_tdnnf8decode&#x2F;graph_10_1</p>
+</li>
+<li><p>tdnnf[4]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph1&#x2F;  （2gram lm）[实际不可用]</p>
+</li>
+<li><p>()内是所有命令词的误唤醒</p>
+</li>
+</ul>
+<h3 id="实验小结"><a href="#实验小结" class="headerlink" title="实验小结"></a>实验小结</h3><ul>
+<li>从声学模型输出观察：</li>
+</ul>
+<p><code>pdf2phone exp_syll/chain/chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm/final.mdl ark:feats.scp1.1.1 | utils/int2sym.pl -f 2- exp_syll/chain/chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm/phones.txt -</code></p>
+<p>发现确实是声学模型不够好造成的误触发。相似音（比如jing和ji）容易误触发</p>
+<ul>
+<li><p>多训练epoch效果有改善（4epoch-&gt;5epoch）</p>
+</li>
+<li><p>学习率不能调高，否则易过拟合</p>
+</li>
+<li><p>训练分母的phone lm从4gram到2gram，效果会提升，训练中复杂的语言模型反而没有带来收益，推测原因：</p>
+<ul>
+<li>1.简单的语言模型能让声学模型得到的信息更少，加重了声学模型的训练难度，使得声学模型训练得更不容易过拟合；</li>
+<li>2.复杂的语言模型（适配训练集的语言模型）使得声学模型更容易过拟合；</li>
+<li>3.训练中简单的语言模型与测试的1gram语言模型更接近；</li>
+</ul>
+</li>
+<li><p>解码训练集，用false alarm和false rejection的样本，增加高一点权重（调参10:1和2.5:1）,不同学习率，重训练一轮。结果没有改善</p>
+</li>
+</ul>
+<h2 id="结果分析"><a href="#结果分析" class="headerlink" title="结果分析"></a>结果分析</h2><ul>
+<li>小源小源唤醒词的唤醒率、误唤醒基本可以达到要求，但是其他唤醒词的误唤醒还是比较高。</li>
+<li>尝试从样本出发：解码训练集，用false alarm和false rejection的样本，增加高一点权重（调参10:1和2.5:1），重训练一轮。结果：没有改善</li>
+<li>尝试从后处理出发：增加简单二级阈值判断（解码命令词起止时间长度，解码命令词cost值）。结果：没有改善，简单阈值判断不出。</li>
+<li>尝试从训练目标函数出发：用最大化状态&#x2F;音素正确率作为目标函数（sMBR、MPE），增加唤醒词的唤醒率；尝试center loss减少类内距离（从而增加类间距离）（未完成）</li>
+<li>尝试从声学模型出发：tdnnf比tdnn好，在前向时间相同情况下尝试其他声学模型（未完成）</li>
+</ul>
+<h2 id="增加解码竞争路径"><a href="#增加解码竞争路径" class="headerlink" title="增加解码竞争路径"></a>增加解码竞争路径</h2><p>花哥说，用类似2gram语言模型思路，通过判断两个字前后的文本是怎样的，来抑制两个字的误触发。</p>
+<p>具体做法思路：把1gram里的命令词去掉，放在2gram里</p>
+<p>路径：25.3:&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;data_syll&#x2F;lang_context</p>
+<p>HCLG：exp_syll&#x2F;chain&#x2F;chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph1&#x2F; </p>
+<p>把四字放到2gram里，删掉1gram它的路径，效果没有提升反而下降，原因分析 </p>
+<p>该方法有效降低误触发，二、三字误触发能降低17%~30%</p>
+<p><img src="/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/image-20211220141423434.png" alt="image-20211220141423434"></p>
+<p>1是开始状态，两个圈是结束状态。</p>
+<p>表示只能以 2gram里只能以 比如 静音 开头，可以 有“静音 其他音” 的路径，但没有“其他音 静音” 的路径</p>
+<p>与原先区别：命令词前有其他声音会降低唤醒率（要很大声）（现实总是有其他声音的，不可行）</p>
+<p>实验不可行：测试0807（实际录音），小源小源也采用上述方法放进2gram，发现唤醒率很低。</p>
+<p>虽然在test_1w里，四字的唤醒率没有降低，但是在0807实测测试集里，唤醒率大幅度降低</p>
+<h4 id="2gram"><a href="#2gram" class="headerlink" title="2gram"></a>2gram</h4><p>用训练集ali训练的2gram LM，误识别率可以下降34%，但是时间多5倍</p>
+<p>剪枝后：</p>
+<p>ngram -lm srilm.o3g.kn.gz -order 2  -prune 0.00001 -write-lm newlm：误唤醒能下降28%，时间2倍之前（雷博说这个可能测不准，要用keyword_lib测才会准一点）</p>
+<p>ngram -lm srilm.o3g.kn.gz -order 2  -prune 0.0001 -write-lm newlm：误唤醒只能下降4%，时间1.4倍之前</p>
+<h4 id="降低一点点识别率，同时也降低误识别率的方法："><a href="#降低一点点识别率，同时也降低误识别率的方法：" class="headerlink" title="降低一点点识别率，同时也降低误识别率的方法："></a>降低一点点识别率，同时也降低误识别率的方法：</h4><p>把相似音（比如zan的相似音zai、zi、zhan…….）的权重提高一点</p>
+<h4 id="误触发常发生在有个xiao-x2F-yuan开头的音，即使音后面不同，也会触发"><a href="#误触发常发生在有个xiao-x2F-yuan开头的音，即使音后面不同，也会触发" class="headerlink" title="误触发常发生在有个xiao&#x2F;yuan开头的音，即使音后面不同，也会触发"></a>误触发常发生在有个xiao&#x2F;yuan开头的音，即使音后面不同，也会触发</h4><p>我的意思是修改FST，让小源小源在发音发完整个词后，output label才是小源小源。</p>
+<p>雷博说，现在输出文本，都是发完小源小源，达到结束state了，才会回溯判断是否有小源小源，不存在发音一半就出来小源小源的情况；</p>
+<p>唯一可能减少一点误触发的方法就是，小&#x2F;源状态自己也有结束state，可能到达小&#x2F;源就结束；</p>
+<p>但其实这个在垃圾路径里已经添加了，没有走到还是路径权重的原因；</p>
+<img src="/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/image-20220104172646296.png" alt="image-20220104172646296" style="zoom: 25%;">
+
+
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2411,310 +2873,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/" itemprop="url">命令词论文笔记（一）基于隐马尔可夫模型的补白模型</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
-                2021-06-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2021/06/29/命令词/命令词论文笔记/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="基于隐马尔可夫模型的补白模型"><a href="#基于隐马尔可夫模型的补白模型" class="headerlink" title="基于隐马尔可夫模型的补白模型"></a>基于隐马尔可夫模型的补白模型</h1><blockquote>
-<p>Wilpon JG, Lee C, Rabiner L R, et al. <a target="_blank" rel="noopener" href="https://web.ece.ucsb.edu/Faculty/Rabiner/ece259/Reprints/application%20of%20hmm%20for%20limited%20word%20recognition.pdf">Application of hidden Markov models for recognition of a limited set of words in unconstrained speech</a>[C]. internationalconference on acoustics, speech, and signal processing, 1989: 254-257.</p>
-</blockquote>
-<p>《用HMM在无约束的语音中识别有限集合里的词》</p>
-<h4 id="思想"><a href="#思想" class="headerlink" title="思想"></a>思想</h4><p>无约束 指的是适用于一段说话语音（words embedded in speech）中 识别出关键词（之前的孤立词识别更适用于单独说出关键词，而说话语音中效果不好）</p>
-<p>训练关键词的HMM model，输入一段语音找最优路径，看出来什么样的状态序列，根据序列里的状态确定有没有关键词。</p>
-<p>还有个后处理过程 Postprocessor，因为最优路径还不能确定是不是关键词，还要经过后处理进一步判断。</p>
-<p>在起止时间(i,j)内 ，算两个特征：</p>
-<ul>
-<li><p>特征1：average model likelihood:  $p(i,j)&#x3D;\frac{1}{j-i+1}\sum\limits_{k&#x3D;i}^j{m_p(k)}$</p>
-<p>把最优路径的i，j起止时间内的似然分求平均</p>
-</li>
-<li><p>特征2：average state likelihood:  $s(i,j)&#x3D;\frac{1}{N}\sum\limits_{n&#x3D;1}^N{s_p(n)}$</p>
-<p>某个model有N个状态，把其中每个状态在i，j起止时间内的的平均似然求和再求平均，得到这个model的s</p>
-</li>
-</ul>
-<p>后处理判断准则：</p>
-<ul>
-<li>候选词的状态持续时间要大于一个阈值</li>
-<li>能量大于一个阈值</li>
-<li>average model likelihood 大于一个阈值</li>
-<li>p&#x2F;s在一个范围内</li>
-</ul>
-<h4 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h4><p>训练关键词hmm model过程：用word建模，用孤立词数据训练，但是这样不够，没有考虑到协同发音，因此把连续语音的关键词位置，切出来，再训练关键词的hmm model。</p>
-<h4 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h4><p>75000句子中，有关键词的有7981句</p>
-<hr>
-<blockquote>
-<p>Sun M, Snyder D, Gao Y, et al. <a target="_blank" rel="noopener" href="http://g-ecx.images-amazon.com/images/G/01/amazon.jobs/Interspeech_2017_4._CB503635227_.pdf">Compressed Time Delay Neural Network for Small-Footprint Keyword Spotting</a>.[C]. conference of the international speech communication association, 2017: 3607-3611.</p>
-</blockquote>
-<p>《用于低功耗命令词识别的压缩的时延神经网络》</p>
-<h4 id="思想-1"><a href="#思想-1" class="headerlink" title="思想"></a>思想</h4><p>用DNN-HMM，当最优路径是唤醒词时，判断唤醒词路径的似然概率，比上filler路径的似然概率，是否大于一个阈值；</p>
-<p>要满足低功耗，对模型做了改进：</p>
-<ul>
-<li>下采样，输入不是取一个集合比如[-2,2]（共五帧），而是下采样，取离散值，比如{-2,2}，只取左二帧和右二帧（共两帧）</li>
-<li>SVD分解（体现在bottleneck层）</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/image-20210527144626557-1622098046854.png" alt="image-20210527144626557"></p>
-<p>这是一个HMM model<br>建模单元是一个word（alexa）<br>这个word用多个phone组成<br>里面每个phone由三状态HMM的构成</p>
-<p>不是对word去建一个模，而是通过G.fst&#x2F;L.fst来限制最后的hclg路径。</p>
-<p>O—AX:ALEXA—O—L:ϵ—O—EH:ϵ—O—</p>
-<p>走一遍，当最优路径是唤醒词时，拿出最优路径和次优路径<br>最优路径，这里就是指的时维特比解码，走到某个关键词节点最优；次优路径，指的是走到非关键词的最优</p>
-<p>下采样：</p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/image-20210527144643186.png" alt="image-20210527144643186"></p>
-<h4 id="训练-1"><a href="#训练-1" class="headerlink" title="训练"></a>训练</h4><p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/image-20210527153439205.png" alt="image-20210527153439205"></p>
-<p>训练模型用了很多技巧</p>
-<ul>
-<li>transfer learning 迁移学习：用训练好的语音识别声学模型，作为命令词声学模型的初始模型；</li>
-<li>multi-task learning 多任务学习：训练命令词任务，辅助训练识别任务，最后把识别那部分移除；<ul>
-<li>loss function：$L_t&#x3D;\lambda{L_t^1}+(1-\lambda){L_t^2}$，权重因子主任务命令词&#x3D;0.9，辅助任务语音识别&#x3D;0.1</li>
-</ul>
-</li>
-<li>SVD Approximation ：为了用SVD近似训练TDNN，我们首先训练一个更大尺寸的全秩TDNN。然后，我们将全秩仿射矩阵的SVD初始化的线性瓶颈层添加到TDNN中，从输入层开始，每次一层。每加一个bottleneck层，就要训练一轮epoch</li>
-</ul>
-<h5 id="训练流程："><a href="#训练流程：" class="headerlink" title="训练流程："></a>训练流程：</h5><ol>
-<li>训练一个全秩LVCSR TDNN、结构和全秩命令词TDNN一样，识别模型用于TDNN初始化；</li>
-<li>在步骤1的网络结构上添加一层分开的隐藏层，一部分给命令词任务，一部分给识别任务，再一层输出层；$output_1&#x3D;y<em>w_1$，$output_2&#x3D;y</em>w_2$；</li>
-<li>训练步骤2的网络结果，多任务学习，loss是二者加权结合；</li>
-<li>训练一些轮epoch后，添加线性bottleneck层。这些bottleneck层神经元参数的初始化来源于满秩矩阵的SVD分解；</li>
-<li>每次加一个bottleneck层，就要训练一轮，然后固定了模型结构后，还要接着训练一些轮epoch；</li>
-<li>移除识别任务的隐藏层，只留下命令词任务的模型结构；</li>
-</ol>
-<h4 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h4><p>激活函数用sigmoid，每轮epoch学习率衰减；</p>
-<p>训练20个epoch，SVD还要训练20个epoch；</p>
-<p>这篇论文核心是提出一个效果好的模型，由于没有统一公开的测试集，要怎么证明模型效果好呢？通过和其他模型进行对比就可以。相对的。</p>
-<p>TDNN SVD 对比 DNN SVD；对比 TDNN no SVD；保证三个模型参数量差不多。</p>
-<hr>
-<h1 id="Non-HMM-based-KWS"><a href="#Non-HMM-based-KWS" class="headerlink" title="Non-HMM based KWS"></a>Non-HMM based KWS</h1><p>DNN based filler models</p>
-<p>另一种基于神经网络分类的方法就更加直接了，如下图所示，连续语音流<strong>逐段</strong>地送入神经网络进行分类。类别为所有的关键词，和一个额外的填充类别（Filler），比如有10个关键词，就有11类。</p>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/image-20210518105156830-1622101953221.png" alt="image-20210518105156830"></p>
-<p>分类完成后，由于输出的概率可能出现“毛刺”，所以进行平滑后处理，之后如果某一个类别概率超过一个阈值，就认为某一个关键词被检测到了。这种方法内存占用小，不需要解码搜索，准确率高。但是由于需要准备大量包含关键词的语料，如果更换了关键词，则需要再另行搜集一批语料，所以也较难实际使用。相比之下，基于隐马尔可夫模型的Keyword Spotting由于是针对子词单元建模，语料用通用的就可以，所以更常用。</p>
-<p>（一段语音一段语音地送入DNN，得到这一段语音，比如100帧的100个输出，每个输出有11分类的概率，平滑一下，看看关键词分类的概率是否高过阈值，判断关键词是否被检测到–yl）</p>
-<ul>
-<li>DNN is used as a framewisely classifier.</li>
-<li>Then the posteriors are smoothed with a window.</li>
-<li>The system is used in mobile devices.</li>
-</ul>
-<blockquote>
-<p>Chen G, Parada C, Heigold G, et al. Small-footprint keyword spotting using deep neural networks[C]. international conference on acoustics, speech, and signal processing, 2014: 4087-4091.</p>
-</blockquote>
-<h4 id="思想-2"><a href="#思想-2" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>Deep KWS：没有走HMM（生成出state序列，state映射为keyword phone&#x2F;sutrbword，再viterbi解码找最优路径）的方法，而根据一段时间窗口内的DNN输出，根据DNN输出后验概率得到置信度分数confidence score，与阈值比较，判断是否有keyword；</li>
-<li>dnn输入时会拼帧，类似TDNN，输入是一个拼帧的向量（左10帧右30帧），一帧对应一个label，输出label只有 n个keyword + non-keyword；每帧都会有一个标签，（一个输入对应一个输出，所以并不是一个多帧输入对应一个输出的问题）</li>
-<li>loss function：$\large F(\theta)&#x3D;\sum_j{logp_{i_jj}}$，j是第j帧，i是第i个label</li>
-<li>Posterior smoothing：平滑后的概率 $\large p(i,j)&#x3D;\frac{1}{j-h_{smooth}+1}\sum\limits_{k&#x3D;h_{smooth}}^j{p_{ik}}$<ul>
-<li>$\large h_{smooth}&#x3D;max{1,j-w_{smooth}+1}$</li>
-</ul>
-</li>
-<li>Confidence 置信度 $\large confidence&#x3D;\sqrt[n-1]{\prod\limits_{i&#x3D;1}^{n-1}\max\limits_{h_{max}\le{k}\le{j}}{p’_{ik}}}$</li>
-<li>把类别乘起来，看看命令词的概率有多大，但这样比如说OKOK，或者GOOGLE GOOGLE，没办法区分的</li>
-</ul>
-<h4 id="训练-2"><a href="#训练-2" class="headerlink" title="训练"></a>训练</h4><p>本文的Deep KWS方法如果用asr数据训出的asr模型，和KWS迁移学习训练，效果会比只用命令词数据训练KWS更好。</p>
-<p>baseline（对比模型）采用的是HMM KWS model：</p>
-<ul>
-<li>基于HMM的不需要keyword的训练数据，用asr训好的，就能作为keyword用，通过解码限制L吧。</li>
-<li>基于HMM的命令词模型的训练数据里，如果有命令词数据，效果会更好。</li>
-</ul>
-<h4 id="实验-2"><a href="#实验-2" class="headerlink" title="实验"></a>实验</h4><ul>
-<li><p>测试时用了带噪语音测试</p>
-</li>
-<li><p>2.3K training examples for each keyword, and 133K negative examples, comprised of anonymized voice search queries or other short phrases.  </p>
-</li>
-<li><p>asr模型用3000 hours；</p>
-</li>
-</ul>
-<h4 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h4><blockquote>
-<p>参考 书籍《Kaldi语音识别实战》P206</p>
-</blockquote>
-<ul>
-<li>基于单音素建模对于一些唤醒词来说是比较重要的一个优化。</li>
-<li>在原始论文中，神经网络的输出节点是以词为单位进行建模的，一个输出节点对应一个完整的词。对于“OK Google”这种每个词都包含几个音节的唤醒词来说是比较合适的，但是对于一些语言，如中文，就不是特别合适了。举例来说，一个汉字，如果不考虑音调的话，有可能对应非常多的其他汉字，因此在中文中以词或字为建模单元，比较容易造成误唤醒。对于&#x3D;&#x3D;中文&#x3D;&#x3D;这样的语言，可以采用&#x3D;&#x3D;单音子为建模单元，效果往往会比以字或词为建模单元更优&#x3D;&#x3D;。建模单元的选择往往取决于具体的唤醒词，对于特定的唤醒词，读者也应该尽可能多地尝试不同的建模单元。<ul>
-<li>雷博解释：因为“OK”、”Google”音素不重合，概率值是把平滑后”OK”的概率乘以平滑后”Google”的概率，但是中文音素容易重合，相乘的时候拿音素概率会拿到同一个。。？</li>
-</ul>
-</li>
-<li>解码处理部分也是优化空间比较大的点。在原始论文中，笔者采用对神经网络输出节点对应后验概率取最大值并做几何平均的方式来计算特定窗口中出现唤醒词的置信分数。对于“OKGoogle”这种只有两个词，并且以整词为建模单元的唤醒词来说，这样的处理方式是合理的，但是对于中文唤醒词，如果以单音素作为建模单元，则&#x3D;&#x3D;一个唤醒词中的不同地方可能出现相同的音素&#x3D;&#x3D;，原始论文中的解码处理方法就不太适用了。这种情况下，&#x3D;&#x3D;我们依然可以采用滑动窗口的处理方式，但是需要利用维特比算法(ViterbiAlgorithm)求解窗口中的最佳路径，并计算最佳路径对应的置信分数&#x3D;&#x3D;。读者也可以尝试完全抛弃滑动窗口的处理方式，采用其他更复杂的解码处理方法。</li>
-<li>对于语音唤醒应用来说，误唤醒是非常重要的一个指标，过高的误唤醒会直接影响用户体验，甚至可能导致用户停止使用整个语音功能。为了压制误唤醒，可以采用二阶段唤醒的框架。二阶段唤醒又分为云端二阶段唤醒和设备端二阶段唤醒。云端二阶段唤醒的实现比较简单,一般的做法是，设备端的第一阶段唤醒引擎被唤醒了之后，设备会把保存下来的唤醒词传输到云端，云端可以利用更加复杂的模型(比如语音识别模型)对上传过来的音频做二次确认，如果云端模型也判断为唤醒词，则认为真的出现唤醒词了。不足之处是，由于需要经过网络传输，唤醒词的确认过程会有一定的延时。设备端二阶段唤醒受制于设备端上有限的计算资源。往往不能采用像谱音识别这样的复杂模型来进行二次验证。</li>
-<li>通用的做法是训练一个简单的基于逻辑回归或神经网络的分类器。从第一阶段唤醒引擎中，我们可以提取诸如置信分数、延时、时长等一系列的信息，这些信息可以作为第二阶段分类器的输入特征，训练分类器做出是否唤醒词的判断。二阶段唤醒可以极大地降低出现误唤醒的概率。值得一提的是，在二阶段框架中，训练数据的选择会变得非常重要。我们建议读者尽可能多地采集生活中可能出现的音频数据，用第一阶段引擎筛选出容易造成误唤醒的片段，然后针对性地训练第二阶段分类器来对误唤醒进行压制。</li>
-<li>还有其他一些技巧也有助于唤醒引擎的优化，比如数据增强、尝试不同的神经网络模型结构、神经网络模型压缩等，本节不再一一展开介绍。</li>
-</ul>
-<hr>
-<blockquote>
-<p> Wu M, Panchapagesan S, Sun M, et al. Monophone-based background modeling for two-stage on-device wake word detection[C]&#x2F;&#x2F;2018 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). IEEE, 2018: 5494-5498.</p>
-</blockquote>
-<h4 id="思想-3"><a href="#思想-3" class="headerlink" title="思想"></a>思想</h4><ol>
-<li>two stage，用命令词模型的DNN输出，提取67维特征，作为二级DNN的输入</li>
-<li>把filler model不是简单的用non speech和非命令词speech训练，而是把每个音素也作为分类label，使得filler model数量变多，命令词模型的DNN输出提取的不止67维，更高维，作为二级DNN输入，也就是说filler model分类变多，命令词的label类别变多，效果反而会提升。</li>
-</ol>
-<hr>
-<blockquote>
-<p>He Y, Prabhavalkar R, Rao K, et al. Streaming small-footprint keyword spotting using sequence-to-sequence models[C]&#x2F;&#x2F;Automatic Speech Recognition and Understanding Workshop (ASRU), 2017IEEE.</p>
-</blockquote>
-<ul>
-<li><input disabled type="checkbox"> </li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Bai Y, Yi J, Ni H, et al. End-to-end keywords spotting based on connectionist temporal classification for mandarin[C]&#x2F;&#x2F;2016 10th International Symposium on Chinese Spoken Language Processing (ISCSLP). IEEE, 2016: 1-5.&#x3D;&#x3D;</p>
-</blockquote>
-<h4 id="思想-4"><a href="#思想-4" class="headerlink" title="思想"></a>思想</h4><ul>
-<li>用 LVCSR 做kws</li>
-<li>用CTC代替DNN-HMM</li>
-<li>用 timed factor transducer 进行decode</li>
-</ul>
-<h4 id="实验-3"><a href="#实验-3" class="headerlink" title="实验"></a>实验</h4><ul>
-<li><p>用 EESEN 框架训练 ctc model</p>
-</li>
-<li><p>CTC建模单元mandarin syllable</p>
-</li>
-<li><p>CTC输入特征 MFCC 优于 FBank</p>
-</li>
-</ul>
-<hr>
-<p>ps.雷博：走fst不用限制时长（比如固定1s、2s），可以一直走很长fst，直到有命令词。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2765,7 +2923,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">126</span>
+                  <span class="site-state-item-count">127</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

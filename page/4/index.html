@@ -288,6 +288,287 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/" itemprop="url">端到端合成论文——声学模型——Tacotron</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
+                2022-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90/" itemprop="url" rel="index">
+                    <span itemprop="name">语音合成</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/11/14/合成/合成论文笔记(1)/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="端到端合成论文——声学模型——Tacotron"><a href="#端到端合成论文——声学模型——Tacotron" class="headerlink" title="端到端合成论文——声学模型——Tacotron"></a>端到端合成论文——声学模型——Tacotron</h1><blockquote>
+<p>&#x3D;&#x3D;Wang, Yuxuan, et al. “Tacotron: Towards end-to-end speech synthesis.” <em>arXiv preprint arXiv:1703.10135</em> (2017).&#x3D;&#x3D; Google  citations: 1430</p>
+<p>知乎 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/101064153">Tacotron&amp;Tacotron2——基于深度学习的端到端语音合成模型</a></p>
+<p>语音合成-从入门到放弃.pdf 第 5 章 声学模型  </p>
+</blockquote>
+<h5 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
+<li>语音合成有很多组件（pipelines）（前端文本处理、声学模型、声码器）（multi-stage model），通常构建、设计这些组件难度较高。而一个集成的端到端TTS系统（single model）有很多好处：<ul>
+<li>可以减轻了费力的特征工程的需要；</li>
+<li>可以用更多的属性、特征（比如说话人id特征、语种特征、情感特征），因为可以在模型输入用这些特征，使得整个模型都有这个特征信息，而不是只在某些component用到，其他component没用到；</li>
+<li>适应新数据也可能更容易；</li>
+<li>multi-stage model的每个component都可能会出错（预测错），只要一个组件错误，就会影响整个系统的，使得整个系统的出错可能性比起single model来得更高；</li>
+<li></li>
+</ul>
+</li>
+</ul>
+<h5 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
+<li>提出端到端语音合成模型，直接从characters 合成语音，该模型叫 tacotron。只要给&lt;文本，音频&gt;训练对pair，就能训练得到一个效果较好的语音合成器。逐帧生成语音（帧级别），因此比样本级别自回归方法生成语音来得快得多。</li>
+</ul>
+<h5 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
+<li><p>直接输入的是文本characters，直接预测输出的是逐帧的音频谱raw linear spectrogram；</p>
+</li>
+<li><p>英语MOS分3.82，自然度naturalness方面优于工业上的参数系统；</p>
+</li>
+<li><p>很好训练，随机初始化去训练就能得到不错的模型；</p>
+</li>
+<li><p>改进了原始端到端结构（vanilla seq2seq paradigm  ）</p>
+</li>
+</ul>
+<h5 id="存在什么问题"><a href="#存在什么问题" class="headerlink" title="存在什么问题"></a>存在什么问题</h5><ul>
+<li>效果相比于wavenet没有明显提升；</li>
+</ul>
+<h2 id="模型总体结构"><a href="#模型总体结构" class="headerlink" title="模型总体结构"></a>模型总体结构</h2><p>输入文本characters（不是音素序列，是字符序列），输出预测的逐帧的谱 raw linear spectrogram。</p>
+<p>模型总体结构包括一个encoder，一个attention-based 的 decoder，一个后处理网络post-processing net；</p>
+<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221107153002024.png" alt="image-20221107153002024"></p>
+<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108170533821.png" alt="image-20221108170533821"></p>
+<h3 id="ENCODER"><a href="#ENCODER" class="headerlink" title="ENCODER"></a>ENCODER</h3><p>输入文本序列characters，one-hot -&gt; embedding -&gt; pre-net -&gt; CBHG module -&gt; attention</p>
+<h3 id="Encoder-pre-net"><a href="#Encoder-pre-net" class="headerlink" title="Encoder pre-net"></a>Encoder pre-net</h3><p>输入character序列，做embedding，经过非线性变换（激活函数），经过dropout，bottleneck层（加速收敛，减少过拟合，提高泛化性）；</p>
+<h3 id="CBHG-MODULE"><a href="#CBHG-MODULE" class="headerlink" title="CBHG MODULE"></a>CBHG MODULE</h3><p>CBHG是conv bank highway gru</p>
+<p>CBHG模块作为encoder的其中一部分，提取pre-net的输出序列（一些非线性变换后的特征），到更高阶特征；</p>
+<p>CBHC模块包括一组一维卷积，然后残差连接，然后highway层，作为双向GRU的输入；</p>
+<h4 id="1-D-convolutional-filters-一维卷积"><a href="#1-D-convolutional-filters-一维卷积" class="headerlink" title="1-D convolutional  filters 一维卷积"></a>1-D convolutional  filters 一维卷积</h4><p>作用类似unigram、bigram，K-grams，用来提取上下文信息，提取局部信息；</p>
+<p>实现是用$K$个滤波器，其中第$k$个滤波器长度是$k$；举例：$k&#x3D;1$，只卷当前的字符；$k&#x3D;2$，卷前后两个字符；$k&#x3D;K$，卷前后范围$K$个字符，因此就是一组滤波器长度不一样的卷积组；</p>
+<p>每个滤波器卷积都对应一个输出（步长为1（保持原始的时间分辨率）），把所有滤波器卷积输出都堆叠（stack）在一起，相当于提取了不同范围上下文信息了（multi-scale那意思）；再沿着时间轴做max-pooling，相当于做了smooth平滑操作，让相邻帧更像一点；</p>
+<blockquote>
+<p>highway networks (Srivastava et al., 2015)  </p>
+</blockquote>
+<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108104125133.png" alt="image-20221108104125133"></p>
+<h3 id="DECODER"><a href="#DECODER" class="headerlink" title="DECODER"></a>DECODER</h3><p>自回归</p>
+<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108173745272.png" alt="image-20221108173745272"></p>
+<h3 id="Decoder-RNN"><a href="#Decoder-RNN" class="headerlink" title="Decoder RNN"></a>Decoder RNN</h3><p>输入是 Attention RNN的输出 和 context vector 拼接起来的向量，经过GRU，得到输出；</p>
+<p>而context vector来自Attention RNN的输出作为query，encoder作为key，做attention操作得到的向量；</p>
+<p>预测输出是80维的mel谱。不是直接输出频谱spectrogram，因为波形谱的可能性很多，size很大，256维？生成很耗时，而mel-spectrogram虽然损失了信息，但是相比spectrogram就小了很多，且由于它是针对人耳来设计的，因此对最终生成的波形的质量不会有很多影响。</p>
+<p>&#x3D;&#x3D;每个decoder step，不是预测一帧，而是预测多帧！输出多帧，并且是不重叠的帧；&#x3D;&#x3D;这样做的好处是可以大大缩减计算量（不减少的话，一个样本得输出几百帧），并且发现可以加速模型收敛（因为用的RNN预测，RNN对于几百帧的输出不友好，对于较少帧数的输出比较友好，并且帧数长了，产生需要的时间也是线性增加的）；每次预测r帧，decoder的序列长度变为1&#x2F;r长；</p>
+<p>&#x3D;&#x3D;推理过程开dropout&#x3D;&#x3D;模拟推理过程可能出错的情况！！不是每次都用RNNR概率最大的那个值，而是需要增加随机性；（其他比如GPT2，是通过在输出的概率分布的采样，来作为输出，来增加随机性）；</p>
+<p>怎么知道合成完了？通过一个二分类器（输出一个标量数值，通过阈值判断），每次把RNN输出送进分类器，判断是否结束；</p>
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108174036419.png" alt="image-20221108174036419" style="zoom:50%;">
+
+
+
+<h3 id="post-processing-network-and-waveform-synthesis"><a href="#post-processing-network-and-waveform-synthesis" class="headerlink" title="post-processing network  and waveform synthesis"></a>post-processing network  and waveform synthesis</h3><p>输入整个mel谱序列，通过decoder的non casual CBHG生成linear-scale spectrogram，linear spectrogram和waveform相比只少了一个phase信息（只差一个linear transform），因此不用很强的再后处理(vocoder)，只用一个较为简单的Griffin-Lim algorithm，来增加相位信息，输出幅度谱；</p>
+<p>用Griffin-Lim algorithm 进行相位估计，然后做逆短时傅里叶变换（STFT）；</p>
+<p>decoder CBHG可以替换成其他module来生成其他东西，比如换成wavnet那样的vocoder，就是直接输出波形了；</p>
+<p>之所以需要post-processing，而不是靠RNN来输出linear spectrogram，是因为RNN是从前向后的（单向）（预测到某一个step时，可能发现前面预测错了，但是没法改了），然后加一个CBHG，可以看从前向后和从后向前的信息，这样会更好；</p>
+<p>两个loss，都要最小化</p>
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108174727511.png" alt="image-20221108174727511" style="zoom:50%;">
+
+<p>这里voceder理解成不在主模型外的，是单独的一个模块（单独训练好的）；</p>
+<h2 id="细节参数"><a href="#细节参数" class="headerlink" title="细节参数"></a>细节参数</h2><h3 id="模型参数"><a href="#模型参数" class="headerlink" title="模型参数"></a>模型参数</h3><p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108110927345.png" alt="image-20221108110927345"></p>
+<h3 id="训练参数"><a href="#训练参数" class="headerlink" title="训练参数"></a>训练参数</h3><h3 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h3><p>tacotron相比于wavenet，主要是在输入上需要的信息少了，也能起到好的效果，这对于人们训练一个语音合成系统减少了很多工作量，输入只要字符序列就可以了（训练时只要字符序列和音频pair）；</p>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Shen, Jonathan, et al. “Natural tts synthesis by conditioning wavenet on mel spectrogram predictions.” <em>2018 IEEE international conference on acoustics, speech and signal processing (ICASSP)</em>. IEEE, 2018.&#x3D;&#x3D; citations：1958</p>
+</blockquote>
+<h5 id="解决什么问题-1"><a href="#解决什么问题-1" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><p>- </p>
+<h5 id="用了什么方法-1"><a href="#用了什么方法-1" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
+<li>提出Tacotron2，在tacotron基础上输出mel谱，再用改进的wavenet vocoder来生成波形；</li>
+</ul>
+<h5 id="效果如何-1"><a href="#效果如何-1" class="headerlink" title="效果如何"></a>效果如何</h5><p>- </p>
+<p>- </p>
+<h5 id="存在什么问题-1"><a href="#存在什么问题-1" class="headerlink" title="存在什么问题"></a>存在什么问题</h5><p>- </p>
+<h2 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h2><p>主要有两部分组成，Spectrogram Prediction Network  和 WaveNet Vocoder  。</p>
+<p>Spectrogram Prediction Network类似tacotron的结构，然后把tacotron的decoder重的CBHG替换成了wavenet vocoder；</p>
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108123420015.png" alt="image-20221108123420015" style="zoom:67%;">
+
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221109102922783.png" alt="image-20221109102922783" style="zoom: 67%;">
+
+<h3 id="Spectrogram-Prediction-Network"><a href="#Spectrogram-Prediction-Network" class="headerlink" title="Spectrogram Prediction Network"></a>Spectrogram Prediction Network</h3><p>可以理解为声学模型</p>
+<h4 id="encoder"><a href="#encoder" class="headerlink" title="encoder"></a>encoder</h4><p>输入字符序列 👉 embedding(512维) 👉 固定滤波器长度的卷积(512个滤波器，滤波器长度5*1，3层卷积，(每次看5个character)) 👉 BN ReLu 👉 BLSTM</p>
+<p>这里没有采用tacotron1中的CHBG模块，也能取得好效果，看来卷积滤波器长度变化不是特别重要？</p>
+<p>再送入注意力机制生成编码向量，这里用的是location-sensitive attention(LSA)位置敏感注意力，该注意力机制的对齐函数为：<br>$$<br>\operatorname{score}\left(s_{i-1}, h_j\right)&#x3D;v_a^T \tanh \left(W s_{i-1}+V h_j+U f_{i, j}+b\right)<br>$$<br>其中, $v_a, W, V, U$ 为待训练参数, $b$ 是偏置值, $s_{i-1}$ 为上一时间步 $i-1$ 的解码器隐状态, $h_j$ 为当前时间步 $j$ 的编码器隐状态, $f_{i, j}$ 为上一个解码步的注意力权重 $\alpha_{i-1}$ 经卷积获得的位置特征, 如下式<br>$$<br>f_{i, j}&#x3D;F * \alpha_{i-1}<br>$$</p>
+<p>其中，$\alpha_{i-1}$是经过 softmax 的注意力权重的累加和。  </p>
+<h4 id="decoder"><a href="#decoder" class="headerlink" title="decoder"></a>decoder</h4><p>自回归循环神经网络，每个step输出<strong>一帧</strong>；</p>
+<p><strong>pre-net</strong> ：2层FC + relu，作为信息瓶颈对学习注意力至关重要；</p>
+<p>pre-net输出 和 attention context进行拼接，作为LSTM的输入；</p>
+<p>LSTM输出再与 attention context进行拼接，通过线性变换进行投影，来预测一帧的target谱；</p>
+<p>LSTM 的输出用来计算新的编码向量，最后新计算出来的编码向量与 LSTM 输出做拼接，送入映射层以计算输出。  ？</p>
+<p>（attention context在decoder中用了两次）</p>
+<p>输出有两种形式，一种是频谱帧，另一种是停止符的概率，后者是一个简单二分类问题，决定解码过程是否结束。为了能够有效加速计算，减小内存占用，引入缩减因子 r（Reduction Factor），即每一个时间步允许解码器预测 r 个频谱帧进行输出。解码完成后，送入后处理网络处理以生成最终的梅尔频谱；<br>$$<br>s_{f i n a l}&#x3D;s_i+s_i^{\prime}<br>$$<br>其中, $s_i$ 是解码器输出, $s_{\text {final }}$ 表示最终输出的梅尔频谱, $s_i^{\prime}$ 是后处理网络的输出, 解码器的输出经过后处 理网络之后获得 $s_i^{\prime}$ ；</p>
+<p>预测的target谱（mel谱）经过post-net(5层卷积)，生成频谱帧；</p>
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221109104613410.png" alt="image-20221109104613410" style="zoom:67%;">
+
+<p>推理时，对decoder的pre-net开dropout！（本来网络里这个地方没有加dropout的，但是在推理过程中加了！）目的是为了在推理时输出能有变化；</p>
+<p>没有用tacotron1中的reduction factor  （$r$）</p>
+<h3 id="WaveNet-vocoder"><a href="#WaveNet-vocoder" class="headerlink" title="WaveNet vocoder"></a>WaveNet vocoder</h3><p>在 Tacotron-2 原始论文中，直接将梅尔频谱送入声码器 WaveNet 生成最终的时域波形。但是 WaveNet 计算复杂度过高，几乎无法实际使用，因此可以使用其它声码器，比如 Griffin-Lim、 HiFiGAN 等 。</p>
+<ul>
+<li><input disabled type="checkbox"> [TODO] [声码器还不是很懂，这块还要再看一下]</li>
+</ul>
+<h3 id="loss-function"><a href="#loss-function" class="headerlink" title="loss function"></a>loss function</h3><ol>
+<li>进入后处理网络 post-net **前后 **的平方损失mse loss：</li>
+</ol>
+<p>$$<br>MselLoss &#x3D;\frac{1}{n} \sum_{i&#x3D;1}^n\left(y_{\text {real }, i}^{\text {mel }}-y_{b e f \text { ore }, i}^{\text {mel }}\right)^2+\frac{1}{n} \sum_{i&#x3D;1}^n\left(y_{\text {real }, i}^{\text {mel }}-y_{a f \text { ter }, i}^{\text {mel }}\right)^2<br>$$</p>
+<p>​	其中，$y_{\text {real }, i}^{\text {mel }}$ 表示从音频中提取的真实频谱  ，$y_{b e f \text { ore }, i}^{\text {mel }}$， $y_{a f \text { ter }, i}^{\text {mel }}$ 分别为进入后处理网络前、后的解码器输出，$n$  为每批的样本数。  </p>
+<ol start="2">
+<li>从 CBHG 模块中输出<strong>线性谱</strong>的平方损失：</li>
+</ol>
+<p>$$<br>LinearLoss &#x3D;\frac{1}{n} \sum_{i&#x3D;1}^n\left(y_{\text {real }, i}^{\text {linear }}-y_i^{\text {linear }}\right)^2<br>$$</p>
+<p>​	其中, $y_{\text {real }, i}^{\text {linear }}$ 是从真实语音中计算获得的线性谱, $y_i^{\text {linear }}$ 是从 CBHG 模块输出的线性谱。</p>
+<ol start="3">
+<li><p>停止符交叉熵<br>$$<br>StopTokenLoss &#x3D;-[y \cdot \log (p)+(1-y) \cdot \log (1-p)]<br>$$</p>
+<p>其中，$y$为停止符真实概率分布，  $p$ 是解码器线性映射输出的预测分布。  </p>
+</li>
+<li><p>$L2$ 正则化？？<br>$$<br>RegulationLoss $&#x3D;\frac{1}{K} \sum_{k&#x3D;1}^K w_k^2<br>$$<br>其中$K$ 为参数总数, $w_k$为模型中的参数，这里排除偏置值、 RNN 以及线性映射中的参数。</p>
+<p>最终的损失函数为上述 4 个部分的损失之和，如下式：</p>
+</li>
+</ol>
+<p>$$<br>Loss &#x3D; MelLoss + LinearLoss + StopTokenLoss + RegulationLoss<br>$$</p>
+<h2 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h2><p>wavenet最好是用tacotron产生的谱作为输入进行训练，会比用真实谱进行训练的效果好（让wavenet知道tacotron产生的谱长什么样，才能得到最好的结果）；</p>
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108175319842.png" alt="image-20221108175319842" style="zoom: 67%;">
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%20set/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1800,164 +2081,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/%E7%9F%A9%E9%98%B5%E8%BF%9E%E4%B9%98%E7%9A%84%E5%BF%AB%E9%80%9F%E5%AE%9E%E7%8E%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/%E7%9F%A9%E9%98%B5%E8%BF%9E%E4%B9%98%E7%9A%84%E5%BF%AB%E9%80%9F%E5%AE%9E%E7%8E%B0/" itemprop="url">矩阵连乘的快速实现</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
-                2022-11-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/11/14/%E7%AE%97%E6%B3%95/%E7%9F%A9%E9%98%B5%E8%BF%9E%E4%B9%98%E7%9A%84%E5%BF%AB%E9%80%9F%E5%AE%9E%E7%8E%B0/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/11/14/算法/矩阵连乘的快速实现/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="矩阵连乘的快速实现"><a href="#矩阵连乘的快速实现" class="headerlink" title="矩阵连乘的快速实现"></a>矩阵连乘的快速实现</h1><blockquote>
-<p> 矩阵快速幂 例子 斐波那契数列 <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/fei-bo-na-qi-shu-lie-lcof/solutions/976888/fei-bo-na-qi-shu-lie-by-leetcode-solutio-hbss/">https://leetcode.cn/problems/fei-bo-na-qi-shu-lie-lcof/solutions/976888/fei-bo-na-qi-shu-lie-by-leetcode-solutio-hbss/</a></p>
-</blockquote>
-<p>矩阵幂次乘：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">vector&lt;vector&lt;<span class="type">long</span>&gt;&gt; q&#123;&#123;<span class="number">1</span>, <span class="number">1</span>&#125;, &#123;<span class="number">1</span>, <span class="number">0</span>&#125;&#125;;</span><br><span class="line">vector&lt;vector&lt;<span class="type">long</span>&gt;&gt; res = <span class="built_in">pow</span>(q, n - <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">vector&lt;vector&lt;<span class="type">long</span>&gt;&gt; <span class="built_in">pow</span>(vector&lt;vector&lt;<span class="type">long</span>&gt;&gt;&amp; a, <span class="type">int</span> n) &#123;</span><br><span class="line">    vector&lt;vector&lt;<span class="type">long</span>&gt;&gt; ret&#123;&#123;<span class="number">1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0</span>, <span class="number">1</span>&#125;&#125;;</span><br><span class="line">    <span class="keyword">while</span> (n &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (n &amp; <span class="number">1</span>) &#123;</span><br><span class="line">            ret = <span class="built_in">multiply</span>(ret, a);</span><br><span class="line">        &#125;</span><br><span class="line">        n &gt;&gt;= <span class="number">1</span>;</span><br><span class="line">        a = <span class="built_in">multiply</span>(a, a);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vector&lt;vector&lt;<span class="type">long</span>&gt;&gt; <span class="built_in">multiply</span>(vector&lt;vector&lt;<span class="type">long</span>&gt;&gt;&amp; a, vector&lt;vector&lt;<span class="type">long</span>&gt;&gt;&amp; b) &#123;</span><br><span class="line">    vector&lt;vector&lt;<span class="type">long</span>&gt;&gt; c&#123;&#123;<span class="number">0</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0</span>, <span class="number">0</span>&#125;&#125;;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">2</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; <span class="number">2</span>; j++) &#123;</span><br><span class="line">            c[i][j] = (a[i][<span class="number">0</span>] * b[<span class="number">0</span>][j] + a[i][<span class="number">1</span>] * b[<span class="number">1</span>][j]) % MOD;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> c;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2008,7 +2131,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">126</span>
+                  <span class="site-state-item-count">127</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

@@ -288,6 +288,310 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/" itemprop="url">命令词论文笔记（一）基于隐马尔可夫模型的补白模型</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
+                2021-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/06/29/命令词/命令词论文笔记/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="基于隐马尔可夫模型的补白模型"><a href="#基于隐马尔可夫模型的补白模型" class="headerlink" title="基于隐马尔可夫模型的补白模型"></a>基于隐马尔可夫模型的补白模型</h1><blockquote>
+<p>Wilpon JG, Lee C, Rabiner L R, et al. <a target="_blank" rel="noopener" href="https://web.ece.ucsb.edu/Faculty/Rabiner/ece259/Reprints/application%20of%20hmm%20for%20limited%20word%20recognition.pdf">Application of hidden Markov models for recognition of a limited set of words in unconstrained speech</a>[C]. internationalconference on acoustics, speech, and signal processing, 1989: 254-257.</p>
+</blockquote>
+<p>《用HMM在无约束的语音中识别有限集合里的词》</p>
+<h4 id="思想"><a href="#思想" class="headerlink" title="思想"></a>思想</h4><p>无约束 指的是适用于一段说话语音（words embedded in speech）中 识别出关键词（之前的孤立词识别更适用于单独说出关键词，而说话语音中效果不好）</p>
+<p>训练关键词的HMM model，输入一段语音找最优路径，看出来什么样的状态序列，根据序列里的状态确定有没有关键词。</p>
+<p>还有个后处理过程 Postprocessor，因为最优路径还不能确定是不是关键词，还要经过后处理进一步判断。</p>
+<p>在起止时间(i,j)内 ，算两个特征：</p>
+<ul>
+<li><p>特征1：average model likelihood:  $p(i,j)&#x3D;\frac{1}{j-i+1}\sum\limits_{k&#x3D;i}^j{m_p(k)}$</p>
+<p>把最优路径的i，j起止时间内的似然分求平均</p>
+</li>
+<li><p>特征2：average state likelihood:  $s(i,j)&#x3D;\frac{1}{N}\sum\limits_{n&#x3D;1}^N{s_p(n)}$</p>
+<p>某个model有N个状态，把其中每个状态在i，j起止时间内的的平均似然求和再求平均，得到这个model的s</p>
+</li>
+</ul>
+<p>后处理判断准则：</p>
+<ul>
+<li>候选词的状态持续时间要大于一个阈值</li>
+<li>能量大于一个阈值</li>
+<li>average model likelihood 大于一个阈值</li>
+<li>p&#x2F;s在一个范围内</li>
+</ul>
+<h4 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h4><p>训练关键词hmm model过程：用word建模，用孤立词数据训练，但是这样不够，没有考虑到协同发音，因此把连续语音的关键词位置，切出来，再训练关键词的hmm model。</p>
+<h4 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h4><p>75000句子中，有关键词的有7981句</p>
+<hr>
+<blockquote>
+<p>Sun M, Snyder D, Gao Y, et al. <a target="_blank" rel="noopener" href="http://g-ecx.images-amazon.com/images/G/01/amazon.jobs/Interspeech_2017_4._CB503635227_.pdf">Compressed Time Delay Neural Network for Small-Footprint Keyword Spotting</a>.[C]. conference of the international speech communication association, 2017: 3607-3611.</p>
+</blockquote>
+<p>《用于低功耗命令词识别的压缩的时延神经网络》</p>
+<h4 id="思想-1"><a href="#思想-1" class="headerlink" title="思想"></a>思想</h4><p>用DNN-HMM，当最优路径是唤醒词时，判断唤醒词路径的似然概率，比上filler路径的似然概率，是否大于一个阈值；</p>
+<p>要满足低功耗，对模型做了改进：</p>
+<ul>
+<li>下采样，输入不是取一个集合比如[-2,2]（共五帧），而是下采样，取离散值，比如{-2,2}，只取左二帧和右二帧（共两帧）</li>
+<li>SVD分解（体现在bottleneck层）</li>
+</ul>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/image-20210527144626557-1622098046854.png" alt="image-20210527144626557"></p>
+<p>这是一个HMM model<br>建模单元是一个word（alexa）<br>这个word用多个phone组成<br>里面每个phone由三状态HMM的构成</p>
+<p>不是对word去建一个模，而是通过G.fst&#x2F;L.fst来限制最后的hclg路径。</p>
+<p>O—AX:ALEXA—O—L:ϵ—O—EH:ϵ—O—</p>
+<p>走一遍，当最优路径是唤醒词时，拿出最优路径和次优路径<br>最优路径，这里就是指的时维特比解码，走到某个关键词节点最优；次优路径，指的是走到非关键词的最优</p>
+<p>下采样：</p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/image-20210527144643186.png" alt="image-20210527144643186"></p>
+<h4 id="训练-1"><a href="#训练-1" class="headerlink" title="训练"></a>训练</h4><p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/image-20210527153439205.png" alt="image-20210527153439205"></p>
+<p>训练模型用了很多技巧</p>
+<ul>
+<li>transfer learning 迁移学习：用训练好的语音识别声学模型，作为命令词声学模型的初始模型；</li>
+<li>multi-task learning 多任务学习：训练命令词任务，辅助训练识别任务，最后把识别那部分移除；<ul>
+<li>loss function：$L_t&#x3D;\lambda{L_t^1}+(1-\lambda){L_t^2}$，权重因子主任务命令词&#x3D;0.9，辅助任务语音识别&#x3D;0.1</li>
+</ul>
+</li>
+<li>SVD Approximation ：为了用SVD近似训练TDNN，我们首先训练一个更大尺寸的全秩TDNN。然后，我们将全秩仿射矩阵的SVD初始化的线性瓶颈层添加到TDNN中，从输入层开始，每次一层。每加一个bottleneck层，就要训练一轮epoch</li>
+</ul>
+<h5 id="训练流程："><a href="#训练流程：" class="headerlink" title="训练流程："></a>训练流程：</h5><ol>
+<li>训练一个全秩LVCSR TDNN、结构和全秩命令词TDNN一样，识别模型用于TDNN初始化；</li>
+<li>在步骤1的网络结构上添加一层分开的隐藏层，一部分给命令词任务，一部分给识别任务，再一层输出层；$output_1&#x3D;y<em>w_1$，$output_2&#x3D;y</em>w_2$；</li>
+<li>训练步骤2的网络结果，多任务学习，loss是二者加权结合；</li>
+<li>训练一些轮epoch后，添加线性bottleneck层。这些bottleneck层神经元参数的初始化来源于满秩矩阵的SVD分解；</li>
+<li>每次加一个bottleneck层，就要训练一轮，然后固定了模型结构后，还要接着训练一些轮epoch；</li>
+<li>移除识别任务的隐藏层，只留下命令词任务的模型结构；</li>
+</ol>
+<h4 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h4><p>激活函数用sigmoid，每轮epoch学习率衰减；</p>
+<p>训练20个epoch，SVD还要训练20个epoch；</p>
+<p>这篇论文核心是提出一个效果好的模型，由于没有统一公开的测试集，要怎么证明模型效果好呢？通过和其他模型进行对比就可以。相对的。</p>
+<p>TDNN SVD 对比 DNN SVD；对比 TDNN no SVD；保证三个模型参数量差不多。</p>
+<hr>
+<h1 id="Non-HMM-based-KWS"><a href="#Non-HMM-based-KWS" class="headerlink" title="Non-HMM based KWS"></a>Non-HMM based KWS</h1><p>DNN based filler models</p>
+<p>另一种基于神经网络分类的方法就更加直接了，如下图所示，连续语音流<strong>逐段</strong>地送入神经网络进行分类。类别为所有的关键词，和一个额外的填充类别（Filler），比如有10个关键词，就有11类。</p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/image-20210518105156830-1622101953221.png" alt="image-20210518105156830"></p>
+<p>分类完成后，由于输出的概率可能出现“毛刺”，所以进行平滑后处理，之后如果某一个类别概率超过一个阈值，就认为某一个关键词被检测到了。这种方法内存占用小，不需要解码搜索，准确率高。但是由于需要准备大量包含关键词的语料，如果更换了关键词，则需要再另行搜集一批语料，所以也较难实际使用。相比之下，基于隐马尔可夫模型的Keyword Spotting由于是针对子词单元建模，语料用通用的就可以，所以更常用。</p>
+<p>（一段语音一段语音地送入DNN，得到这一段语音，比如100帧的100个输出，每个输出有11分类的概率，平滑一下，看看关键词分类的概率是否高过阈值，判断关键词是否被检测到–yl）</p>
+<ul>
+<li>DNN is used as a framewisely classifier.</li>
+<li>Then the posteriors are smoothed with a window.</li>
+<li>The system is used in mobile devices.</li>
+</ul>
+<blockquote>
+<p>Chen G, Parada C, Heigold G, et al. Small-footprint keyword spotting using deep neural networks[C]. international conference on acoustics, speech, and signal processing, 2014: 4087-4091.</p>
+</blockquote>
+<h4 id="思想-2"><a href="#思想-2" class="headerlink" title="思想"></a>思想</h4><ul>
+<li>Deep KWS：没有走HMM（生成出state序列，state映射为keyword phone&#x2F;sutrbword，再viterbi解码找最优路径）的方法，而根据一段时间窗口内的DNN输出，根据DNN输出后验概率得到置信度分数confidence score，与阈值比较，判断是否有keyword；</li>
+<li>dnn输入时会拼帧，类似TDNN，输入是一个拼帧的向量（左10帧右30帧），一帧对应一个label，输出label只有 n个keyword + non-keyword；每帧都会有一个标签，（一个输入对应一个输出，所以并不是一个多帧输入对应一个输出的问题）</li>
+<li>loss function：$\large F(\theta)&#x3D;\sum_j{logp_{i_jj}}$，j是第j帧，i是第i个label</li>
+<li>Posterior smoothing：平滑后的概率 $\large p(i,j)&#x3D;\frac{1}{j-h_{smooth}+1}\sum\limits_{k&#x3D;h_{smooth}}^j{p_{ik}}$<ul>
+<li>$\large h_{smooth}&#x3D;max{1,j-w_{smooth}+1}$</li>
+</ul>
+</li>
+<li>Confidence 置信度 $\large confidence&#x3D;\sqrt[n-1]{\prod\limits_{i&#x3D;1}^{n-1}\max\limits_{h_{max}\le{k}\le{j}}{p’_{ik}}}$</li>
+<li>把类别乘起来，看看命令词的概率有多大，但这样比如说OKOK，或者GOOGLE GOOGLE，没办法区分的</li>
+</ul>
+<h4 id="训练-2"><a href="#训练-2" class="headerlink" title="训练"></a>训练</h4><p>本文的Deep KWS方法如果用asr数据训出的asr模型，和KWS迁移学习训练，效果会比只用命令词数据训练KWS更好。</p>
+<p>baseline（对比模型）采用的是HMM KWS model：</p>
+<ul>
+<li>基于HMM的不需要keyword的训练数据，用asr训好的，就能作为keyword用，通过解码限制L吧。</li>
+<li>基于HMM的命令词模型的训练数据里，如果有命令词数据，效果会更好。</li>
+</ul>
+<h4 id="实验-2"><a href="#实验-2" class="headerlink" title="实验"></a>实验</h4><ul>
+<li><p>测试时用了带噪语音测试</p>
+</li>
+<li><p>2.3K training examples for each keyword, and 133K negative examples, comprised of anonymized voice search queries or other short phrases.  </p>
+</li>
+<li><p>asr模型用3000 hours；</p>
+</li>
+</ul>
+<h4 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h4><blockquote>
+<p>参考 书籍《Kaldi语音识别实战》P206</p>
+</blockquote>
+<ul>
+<li>基于单音素建模对于一些唤醒词来说是比较重要的一个优化。</li>
+<li>在原始论文中，神经网络的输出节点是以词为单位进行建模的，一个输出节点对应一个完整的词。对于“OK Google”这种每个词都包含几个音节的唤醒词来说是比较合适的，但是对于一些语言，如中文，就不是特别合适了。举例来说，一个汉字，如果不考虑音调的话，有可能对应非常多的其他汉字，因此在中文中以词或字为建模单元，比较容易造成误唤醒。对于&#x3D;&#x3D;中文&#x3D;&#x3D;这样的语言，可以采用&#x3D;&#x3D;单音子为建模单元，效果往往会比以字或词为建模单元更优&#x3D;&#x3D;。建模单元的选择往往取决于具体的唤醒词，对于特定的唤醒词，读者也应该尽可能多地尝试不同的建模单元。<ul>
+<li>雷博解释：因为“OK”、”Google”音素不重合，概率值是把平滑后”OK”的概率乘以平滑后”Google”的概率，但是中文音素容易重合，相乘的时候拿音素概率会拿到同一个。。？</li>
+</ul>
+</li>
+<li>解码处理部分也是优化空间比较大的点。在原始论文中，笔者采用对神经网络输出节点对应后验概率取最大值并做几何平均的方式来计算特定窗口中出现唤醒词的置信分数。对于“OKGoogle”这种只有两个词，并且以整词为建模单元的唤醒词来说，这样的处理方式是合理的，但是对于中文唤醒词，如果以单音素作为建模单元，则&#x3D;&#x3D;一个唤醒词中的不同地方可能出现相同的音素&#x3D;&#x3D;，原始论文中的解码处理方法就不太适用了。这种情况下，&#x3D;&#x3D;我们依然可以采用滑动窗口的处理方式，但是需要利用维特比算法(ViterbiAlgorithm)求解窗口中的最佳路径，并计算最佳路径对应的置信分数&#x3D;&#x3D;。读者也可以尝试完全抛弃滑动窗口的处理方式，采用其他更复杂的解码处理方法。</li>
+<li>对于语音唤醒应用来说，误唤醒是非常重要的一个指标，过高的误唤醒会直接影响用户体验，甚至可能导致用户停止使用整个语音功能。为了压制误唤醒，可以采用二阶段唤醒的框架。二阶段唤醒又分为云端二阶段唤醒和设备端二阶段唤醒。云端二阶段唤醒的实现比较简单,一般的做法是，设备端的第一阶段唤醒引擎被唤醒了之后，设备会把保存下来的唤醒词传输到云端，云端可以利用更加复杂的模型(比如语音识别模型)对上传过来的音频做二次确认，如果云端模型也判断为唤醒词，则认为真的出现唤醒词了。不足之处是，由于需要经过网络传输，唤醒词的确认过程会有一定的延时。设备端二阶段唤醒受制于设备端上有限的计算资源。往往不能采用像谱音识别这样的复杂模型来进行二次验证。</li>
+<li>通用的做法是训练一个简单的基于逻辑回归或神经网络的分类器。从第一阶段唤醒引擎中，我们可以提取诸如置信分数、延时、时长等一系列的信息，这些信息可以作为第二阶段分类器的输入特征，训练分类器做出是否唤醒词的判断。二阶段唤醒可以极大地降低出现误唤醒的概率。值得一提的是，在二阶段框架中，训练数据的选择会变得非常重要。我们建议读者尽可能多地采集生活中可能出现的音频数据，用第一阶段引擎筛选出容易造成误唤醒的片段，然后针对性地训练第二阶段分类器来对误唤醒进行压制。</li>
+<li>还有其他一些技巧也有助于唤醒引擎的优化，比如数据增强、尝试不同的神经网络模型结构、神经网络模型压缩等，本节不再一一展开介绍。</li>
+</ul>
+<hr>
+<blockquote>
+<p> Wu M, Panchapagesan S, Sun M, et al. Monophone-based background modeling for two-stage on-device wake word detection[C]&#x2F;&#x2F;2018 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). IEEE, 2018: 5494-5498.</p>
+</blockquote>
+<h4 id="思想-3"><a href="#思想-3" class="headerlink" title="思想"></a>思想</h4><ol>
+<li>two stage，用命令词模型的DNN输出，提取67维特征，作为二级DNN的输入</li>
+<li>把filler model不是简单的用non speech和非命令词speech训练，而是把每个音素也作为分类label，使得filler model数量变多，命令词模型的DNN输出提取的不止67维，更高维，作为二级DNN输入，也就是说filler model分类变多，命令词的label类别变多，效果反而会提升。</li>
+</ol>
+<hr>
+<blockquote>
+<p>He Y, Prabhavalkar R, Rao K, et al. Streaming small-footprint keyword spotting using sequence-to-sequence models[C]&#x2F;&#x2F;Automatic Speech Recognition and Understanding Workshop (ASRU), 2017IEEE.</p>
+</blockquote>
+<ul>
+<li><input disabled type="checkbox"> </li>
+</ul>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Bai Y, Yi J, Ni H, et al. End-to-end keywords spotting based on connectionist temporal classification for mandarin[C]&#x2F;&#x2F;2016 10th International Symposium on Chinese Spoken Language Processing (ISCSLP). IEEE, 2016: 1-5.&#x3D;&#x3D;</p>
+</blockquote>
+<h4 id="思想-4"><a href="#思想-4" class="headerlink" title="思想"></a>思想</h4><ul>
+<li>用 LVCSR 做kws</li>
+<li>用CTC代替DNN-HMM</li>
+<li>用 timed factor transducer 进行decode</li>
+</ul>
+<h4 id="实验-3"><a href="#实验-3" class="headerlink" title="实验"></a>实验</h4><ul>
+<li><p>用 EESEN 框架训练 ctc model</p>
+</li>
+<li><p>CTC建模单元mandarin syllable</p>
+</li>
+<li><p>CTC输入特征 MFCC 优于 FBank</p>
+</li>
+</ul>
+<hr>
+<p>ps.雷博：走fst不用限制时长（比如固定1s、2s），可以一直走很长fst，直到有命令词。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B9%9D%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3017,445 +3321,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%8D%81%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%8D%81%EF%BC%89/" itemprop="url">命令词论文笔记（十）端到端命令词识别</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
-                2021-06-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%8D%81%EF%BC%89/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2021/06/29/命令词/命令词论文笔记（十）/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="端到端命令词识别"><a href="#端到端命令词识别" class="headerlink" title="端到端命令词识别"></a>端到端命令词识别</h1><blockquote>
-<p>&#x3D;&#x3D;Yiming Wang et al. “Wake Word Detection with Streaming Transformers” International Conference on Acoustics, Speech, and Signal Processing (2021).&#x3D;&#x3D;</p>
-<p>github代码：<a target="_blank" rel="noopener" href="https://github.com/freewym/espresso">https://github.com/freewym/espresso</a></p>
-</blockquote>
-<h3 id="思想"><a href="#思想" class="headerlink" title="思想"></a>思想</h3><ul>
-<li>之前的transformer是非流式，需要输入一整个序列，知道transformer-XL提出流式后，才能流式，但是transformer适用于长序列，没有文章表明对于短序列（比如唤醒任务）效果也好，本文做了实验；</li>
-<li>唤醒任务不关心唤醒词出现在序列的哪个位置，只关心有没有出现，因此不用transformer提出的基于整个句子的position embedding，而是采用相对位置编码relative positional encoding，将位置编码为层的隐藏值；</li>
-<li>$Q&#x3D;W_QX$，$&#x3D;K&#x3D;W_KX$，$V&#x3D;W_VX$  $\in{\mathbb{R}^{d_h\times{T}}}$</li>
-<li>$h_i&#x3D;(V+E)a_i\in{\mathbb{R}^{d_h}}$，  $\large{a_i&#x3D;softmax(\frac{[Q^T(K+E)]_i}{\sqrt{d_h}})}\in{\mathbb{R}^{T}}$</li>
-</ul>
-<p>（之前是：$h_i&#x3D;Va_i\in{\mathbb{R}^{d_h}}$，  $\large{a_i&#x3D;softmax(\frac{[Q^TK]_i}{\sqrt{d_h}})}\in{\mathbb{R}^{T}}$）</p>
-<ul>
-<li>state-caching是选择哪些参数来更新，之前的参数要不要更新（gradient stopping）</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%8D%81%EF%BC%89/image-20211230161921604.png" alt="image-20211230161921604" style="zoom:80%;">
-
-<ul>
-<li>本文探索了look-ahead of the future chunk, and different gradient stopping,layer dependency, and positional embedding strategies 对性能的影响</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%8D%81%EF%BC%89/image-20211230161946436.png" alt="image-20211230161946436" style="zoom:80%;">
-
-<h3 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h3><ul>
-<li><p>baseline：5层1维空洞卷积 dilated convolution，48个filter，kernel size&#x3D;5， leading to 30 frames for both left and right context   ，58k参数量</p>
-</li>
-<li><p>streaming transfomer：前两层1维卷积，然后3层attention层，32维embedding，4head，48k参数量</p>
-</li>
-<li><p>chunk size 27，27是实验得到的最优值，太短了效果下降，太长了效果没有明显改善但是带来了延迟</p>
-</li>
-</ul>
-<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><ul>
-<li><p>mobvoi数据集</p>
-</li>
-<li><p>初始学习率1e-3，Adam，学习率减半，epoch不超过15，或者学习率小于1e-5停止训练</p>
-</li>
-<li><p>学习率warm-up在该实验中无效，可能由于任务简单</p>
-</li>
-<li><p>建模单元是？</p>
-</li>
-</ul>
-<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><ul>
-<li>效果劣于Alignment-free LF-MMI；</li>
-<li>without state-caching效果优于with state-caching；</li>
-<li>stream transformer一定要加 look-ahead chunk，看见未来信息，不然效果不好</li>
-<li>用相对位置编码relative positional embedding  更适合唤醒任务，这个embedding放在value上效果更好</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%8D%81%EF%BC%89/image-20211230162010582.png" alt="image-20211230162010582">
-
-<ul>
-<li>最好的一组：without state-caching，transformer + look-ahead + relative embedding to value，每小时虚警0.5次的条件下，“hi xiaowen”误拒率0.6%，“nihao wenwen” 误拒率0.6%</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Sun, Ming et al. “Max-pooling loss training of long short-term memory networks for small-footprint keyword spotting.” <em>2016 IEEE Spoken Language Technology Workshop (SLT)</em> (2016): 474-480.&#x3D;&#x3D;  citations：93</p>
-</blockquote>
-<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>输入t帧语音特征，输出t帧*类别，二分类，word level labels，关键词alexa和非关键词background</p>
-</li>
-<li><p>提出max-pooling loss，是在keyword区域内模型输出的最大后验概率，加入loss function（目标之一是最大化keyword输出的某帧后验概率）</p>
-</li>
-<li><p>后处理：每30帧计算一次是否触发，30帧的滑动窗口，平滑窗口内的后验概率，若大于阈值，视为触发，触发后的40帧不再计算（lock out period），以免重复触发；有触发的音频发送完后，会多送入20帧（latency windows），以防没送完。</p>
-</li>
-<li><p>loss function：$\large{L_T^{maxpool}&#x3D;-\sum\limits_{t\in{\hat{L}}}lny_t^{k_t^+}-\sum\limits_{p&#x3D;1}^Plny_{l_p^+}^{k_p^+}}$</p>
-<p>其中：$\hat{L}$是非keyword区域的其他区域，$l_p$：keyword帧区域；$k_p^+$：target keyword label；$l_p^+$：keyword帧区域内的最大后验概率对应的帧，$k_t^+$：target nonkeyword label</p>
-<p>也就是说，只有keyword区域时，用第二项计算，非keyword区域时（positive sample里的非keyword区域也算），用第一项计算；</p>
-<p>因此非keyword计算&#x2F;更新的帧远多于keyword参与计算&#x2F;更新的帧数，会有正负样本不平衡的问题；</p>
-</li>
-<li><p>为了减少匹配keyword初始段的类似帧的误触发，将当前帧与左右相邻帧进行堆叠，再送入DNN，作为baseline。</p>
-</li>
-</ul>
-<h3 id="网络-1"><a href="#网络-1" class="headerlink" title="网络"></a>网络</h3><ul>
-<li>LSTM</li>
-<li>参数量：$n &#x3D; n_c×n_r×4+n_i×n_c×4+n_r×n_o+n_c×n_r+n_c×3$</li>
-</ul>
-<h3 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h3><ul>
-<li>LSTM参数量118k，随机初始化时，ce loss的初始学习率0.00001，max-pooling的初始学习率0.00005；ce模型作为初始预训练模型时，max-pooling的初始学习率0.00005 ；</li>
-<li>数据集非开源，用了大量房间内的远场数据</li>
-</ul>
-<h3 id="结果-1"><a href="#结果-1" class="headerlink" title="结果"></a>结果</h3><ul>
-<li>比CE训练得好；其中，ce预训练模型再用max-pooling loss训练的模型效果最好</li>
-</ul>
-<h3 id="启发"><a href="#启发" class="headerlink" title="启发"></a>启发</h3><ul>
-<li>逐帧出分类结果的适用模型是看得范围比较远的模型，比如lstm，甚至我感觉lstm后面区域的帧分类结果才比较准确，因为只看前面几帧，比如读一个“小源小源”的“小”，就要求lstm二分类，分类正确，这着实有点为难了（对于单向lstm来说），因此小区域的cnn（tdnn）还不是很适用，大感受野的cnn、lstm会比较使用于逐帧都有分类结果的任务。</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Hou, Jingyong, et al. “Mining effective negative training samples for keyword spotting.” <em>ICASSP 2020-2020 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)</em>. IEEE, 2020.&#x3D;&#x3D;西北工业大学</p>
-<p>&#x3D;&#x3D;github开源代码&#x3D;&#x3D;：<a target="_blank" rel="noopener" href="https://github.com/jingyonghou/KWS_Max-pooling_RHE">https://github.com/jingyonghou/KWS_Max-pooling_RHE</a> KWS_Max-pooling_RHE</p>
-</blockquote>
-<h3 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h3><ul>
-<li>把最近的KWS架构分为两种：<ol>
-<li>keyword&#x2F;filler posterior modeling followed by a search algorithm；最近都是alexa那种hmm</li>
-<li>end-to-end (E2E) based architectures ；把keyword作为建模单元，逐帧判断是否是keyword，二分类任务（如果只有一个keyword）</li>
-</ol>
-</li>
-</ul>
-<h3 id="思想-1"><a href="#思想-1" class="headerlink" title="思想"></a>思想</h3><ul>
-<li>针对论文“Max-pooling loss training of long short-term memory networks for small-footprint keyword spotting”使用的max-pooling loss存在的正负样本不平衡的问题，做出了改进：<ul>
-<li>为了缓解对齐标签不准确的影响，训练初期epoch做的max-pooling来自对齐keyword区域内的最大后验概率帧，训练后期的max-pooling来自正样本全句的keyword类别的最大后验概率帧，这是由于后期模型训练得比较好了；[一点点用]</li>
-<li>在keyword区域的结尾再做max-pooling，而不是中间？？？</li>
-<li>训练的正样本里的其他非keyword区域的帧，不用来计算loss了，丢弃之；</li>
-<li>二分类，只用一个输出结点（sigmoid），而不是原论文的两个结点（softmax）</li>
-<li>对负样本进行下采样，没有用到负样本的所有帧</li>
-</ul>
-</li>
-<li>借鉴目标检测论文“Training region-based object detectors with online hard example mining”提出Mining <strong>regional hard examples (RHE)</strong>   来缓解类不平衡问题，具体做法：</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%8D%81%EF%BC%89/image-20211231111939439.png" alt="image-20211231111939439" style="zoom:80%;">
-
-<p>简单说来，就是负样本的输出概率中，keyword分类的概率高的（二分类keyword分类高于非keyword的）取出来，这些是难训练的负样本；</p>
-<p>至于怎么取出来，是把分类高的进行从高到低排序，取出高的，周围一小区域帧就不考虑了（不列入难训负样本），然后遍历所有帧，取出来难训负样本，然后只保留rP帧，P是正样本帧数，r是正负样本比例；</p>
-<h3 id="实验-2"><a href="#实验-2" class="headerlink" title="实验"></a>实验</h3><ul>
-<li>数据集mobvoi：<ul>
-<li>keyword时长0.3s-2s；</li>
-</ul>
-</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%8D%81%EF%BC%89/image-20211231114324350.png" alt="image-20211231114324350" style="zoom:80%;">
-
-<ul>
-<li>谱增广SpecAugment：对每个minibatch里1&#x2F;3样本time masking，1&#x2F;3样本frequency masking，1&#x2F;3样本time masking和frequency masking；<ul>
-<li>time masking：随机选50帧特征设为0（mel-filter bank&#x3D;0）；</li>
-<li>frequency masking：在所有帧中，随机选30维（40维特征）特征设为0；</li>
-</ul>
-</li>
-</ul>
-<h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><ul>
-<li>GRU：2层单向，128结点，一层projection层 ReLU激活函数，128结点；学习率0.0005；</li>
-<li>dilated TCN；第一层1×1的1维causal 卷积，8层dilated causal  卷积，卷积核8，8 dilated rates are {1,2,4,8,1,2,4,8}，感受野210帧，relu激活函数，filter数量64；学习率0.01；</li>
-<li>minibatch size&#x3D;400；Adam optimization；不少于15epoch</li>
-<li>学习率warm-up（前200minibatch小学习率，逐渐增加至0.0005&#x2F;0.01）；</li>
-</ul>
-<h3 id="结果-2"><a href="#结果-2" class="headerlink" title="结果"></a>结果</h3><ul>
-<li>GRU优于TCN</li>
-<li>用“Efficient keyword spotting using dilated convolutions and gating“效果不差</li>
-<li>负样本下采样的max-pooling相比于负样本全用的max-pooling，有改进一点</li>
-<li>RHE很有用</li>
-<li>对该数据集 specaugment很有用</li>
-<li>最佳超参数：正负帧数比例1：10；RHE处理时前后的$\triangle$&#x3D;200帧（不用再处理的时长）</li>
-</ul>
-<h3 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h3><ul>
-<li>不是很懂这个到底是比如平滑后验概率和阈值判断，还是逐帧分类？</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Hou, Jingyong, et al. “Region proposal network based small-footprint keyword spotting.” <em>IEEE Signal Processing Letters</em> 26.10 (2019): 1471-1475.&#x3D;&#x3D;ciations：14 西北工业大学 侯</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/jingyonghou/RPN_KWS">https://github.com/jingyonghou/RPN_KWS</a></p>
-</blockquote>
-<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>借鉴目标检测领域的anchor-based region proposal network（RPN）jointly optimize keyword detection and location  loss function：分类准确度+区域估计准确度</li>
-</ul>
-<h3 id="模型-1"><a href="#模型-1" class="headerlink" title="模型"></a>模型</h3><ul>
-<li>GRU作为特征抽取器M0，输入声学特征x，输出高级特征h，$\mathbf{h}&#x3D;M_0(\mathbf{x};\theta)$</li>
-<li>Region classifiction：子网络M1选出一些anchors（keyword起止时间）（分类），输入高级特征h，输出K个anchor分类概率，$\vec{y_t}&#x3D;M_1(h_t;\theta_1)$，只有一个关键词（唤醒词）的任务，则y是标量，输出一个概率；？一个linear层</li>
-<li>Region Transformation ：子网络M2 predicts the transformation needed to extract the full keyword associated with that region  （回归）有点像二级，在一级唤醒后才触发，anchor是positive anchor才会计算，输入高级特征h，输出anchor的转换向量，$\vec{p_t}&#x3D;M_2(h_t;\theta_2)$，每个anchor都有一个$p_t^i$向量，向量元素为平移shifting因子和scaling因子；MSE loss 进行更新，一个linear层</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%8D%81%EF%BC%89/image-20220316143124725.png" alt="image-20220316143124725" style="zoom:67%;">
-
-<ul>
-<li><p>Anchors  锚（框框区域）：对每帧t，t作为终止时间，往前一些步作为起始时间，有K个不同的起始时间，K个anchors ，K是超参，用cv集调参；</p>
-</li>
-<li><p>举例：anchor $P(t_1,t_2)$（一个很小的区域），标签$Q(t_3,t_4)$，（t1、t3表示区域开始帧，t2、t4表示区域结束帧），希望P变换到Q，因此对P做平移u，使得P中点与Q中点重合，在scale v，使得区域长度和Q一样长：</p>
-<p>$u&#x3D;(t3+t4)&#x2F;2-(t1+t2)&#x2F;2$</p>
-<p>$v&#x3D;(t4-t3)&#x2F;(t2-t1)$</p>
-<p>用的时候，M2预测的是$\hat{u}&#x3D;u&#x2F;l$，scale因子$\hat{v}&#x3D;log(v)$，其中，$l&#x3D;t_2-t_1$</p>
-</li>
-<li><p>确定哪些是positive anchor：用IoU区域判断，大于阈值0.7就认为是positive anchor</p>
-<p>$IoU(P,Q)&#x3D;\frac{P \cap Q}{P \cup Q}$</p>
-<p>$P \cap Q &#x3D; max(min(t_2,t_4)-max(t_1,t_3),0)$</p>
-<p>$P \cup Q &#x3D; (t_4-t_3) + (t_2-t_1) - (P\cap Q)$</p>
-</li>
-</ul>
-<p>ps.论文“Shrivastava A ,  Kundu A ,  Dhir C , et al. Optimize What Matters: Training DNN-Hmm Keyword Spotting Model Using End Metric[C]&#x2F;&#x2F; ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). IEEE, 2021”也是用了iou，不过是作为loss funciton进行训练的，keyword spotting最近经常使用目标检测提出的方法，可以关注一波目标检测最新的方法；</p>
-<ul>
-<li>目标函数MTL objective function   $\large{Loss&#x3D;\frac{1}{N}\sum\limits_{i&#x3D;1}^NL_c(y(i),y^*(i))+\frac{\lambda}{N_+}\sum\limits_{i:a(i)\in{A^+}}L_r(p(i),p^*(i))}$</li>
-</ul>
-<p>其中，$A^+$是positive anchor，$p(i)&#x3D;(\hat{u}(i),\hat{v}(i))$，        $L_c$是预测概率 $y(i)$ 和标签 $y_i^*$ 之间的交叉熵，$L_r$是预测转换向量 $p(i)$ 和训练目标 $p^*(i)$ 之间的 MSE loss，所有样本训练M1，只对正样本训练M2</p>
-<ul>
-<li>推理：找到每帧最大后验概率y对应的，大于阈值，则唤醒？</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Zhang Y, Suda N, Lai L, et al. Hello edge: Keyword spotting on microcontrollers[J]. arXiv preprint arXiv:1711.07128, 2017.&#x3D;&#x3D; citations：225 </p>
-<p>github开源代码：<a target="_blank" rel="noopener" href="https://github.com/ARM-software/ML-KWS-for-MCU">https://github.com/ARM-software/ML-KWS-for-MCU</a></p>
-<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/222741730">Hello Edge: Keyword Spotting on Microcontrollers</a></p>
-</blockquote>
-<h3 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>模型采用 depthwise separable convolutional neural network (DS-CNN)</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Sørensen, Peter Mølgaard, Bastian Epp, and Tobias May. “A depthwise separable convolutional neural network for keyword spotting on an embedded system.” <em>EURASIP Journal on Audio, Speech, and Music Processing</em> 2020.1 (2020): 1-14.&#x3D;&#x3D;</p>
-<p>github开源代码：<a target="_blank" rel="noopener" href="https://github.com/PeterMS123/KWS-DS-CNN-for-embedded">https://github.com/PeterMS123/KWS-DS-CNN-for-embedded</a></p>
-</blockquote>
-<h3 id="思路-3"><a href="#思路-3" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>这篇和”Hello edge: Keyword spotting on microcontrollers”其实很像；</p>
-</li>
-<li><p>探索降低(scale?)网络复杂度时哪个参数对性能改变最大；</p>
-</li>
-<li><p>10个词的任务，在ARM Cortex M4</p>
-</li>
-<li><p>每次处理1s（49帧），20维，每次送入网络的输入是20*49</p>
-</li>
-<li><p>后处理：1s一个分类，然后帧移动0.25s又计算一次（也就是说1s计算4次），一共延长检测时间为$T_{integrate}$，然后看关键词的<strong>平均后验概率</strong>有没有超过阈值，然后如果触发了关键词，则后面一段时间$T_{refractory}$不再计算，以免多次触发；</p>
-<p>本文$T_{integrate}&#x3D;0.75s$，$T_{refractory}&#x3D;1s$；</p>
-</li>
-<li><p>数据增广的噪声源之一是开源噪声源：TUT database、DEMAND database；通过filtering and noise adding tool (FaNT) 工具添加背景噪声到干净音频中；</p>
-</li>
-<li><p>噪声添加进音频中分类两类，分为match和mismatch噪声；给训练集添加A噪声，测试带有A噪声的测试集，叫做match噪声集；给训练集添加A噪声，测试带有B噪声的测试集，叫做mismatch噪声集；match噪声集和mismatch噪声集都测试，就知道网络的泛化性如何了。</p>
-</li>
-<li><p>资源估计：</p>
-<ul>
-<li>Operations  计算量，网络的乘法数和加法数；</li>
-<li>Memory  内存，网络需要储存的参数量</li>
-<li>Execution time  执行时间，用处理器上的timer测量</li>
-</ul>
-</li>
-</ul>
-<h3 id="网络-2"><a href="#网络-2" class="headerlink" title="网络"></a>网络</h3><ul>
-<li>DS-CNN网络</li>
-</ul>
-<h3 id="实验-3"><a href="#实验-3" class="headerlink" title="实验"></a>实验</h3><ul>
-<li>为了查看(量化)系统复杂度与性能的关系：对比了2层10个滤波器，一直到9层300个滤波器的很多个模型；</li>
-<li>可以使用更大的学习率，因为每一层的梯度的大小更相似，这导致更快的模型收敛。</li>
-<li>数据集google speech commands，正负比例8：2</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Bai, Shaojie, J. Zico Kolter, and Vladlen Koltun. “An empirical evaluation of generic convolutional and recurrent networks for sequence modeling.” <em>arXiv preprint arXiv:1803.01271</em> (2018).&#x3D;&#x3D;citations：1782</p>
-<p>github开源代码： <a target="_blank" rel="noopener" href="http://github.com/locuslab/TCN">http://github.com/locuslab/TCN</a>  </p>
-</blockquote>
-<h3 id="思路-4"><a href="#思路-4" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>sequence modeling一般使用RNN，本文探讨了CNN能有比RNN更好的序列建模能力，更适合序列任务</p>
-</li>
-<li><p>提出TCN网络，TCN&#x3D;1D FCN + dilated casual convolutions</p>
-<p>其中，FCN是fully-convolutional network，隐层神经元数量和输入层数量相同，并且0padding，pad长度为(kernel size−1)，以保持后一层与前一层的长度相同；</p>
-<p>casual convolutions因果卷积：当前t之和之前t有关</p>
-</li>
-</ul>
-<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%8D%81%EF%BC%89/image-20220103135158616.png" alt="image-20220103135158616"></p>
-<ul>
-<li>$\large{F(s)&#x3D;(x*<em>df)(s)&#x3D;\sum\limits</em>{i&#x3D;0}^{k-1}f(i)\cdot{x_{s-d\cdot{i}}}}$</li>
-</ul>
-<p>其中，d&#x3D;1，和普通卷积一样；d&gt;1，对每帧意味着更大的输入范围；</p>
-<ul>
-<li><p>增加TCN感受野的方法：更大的filter size、更大的dilation factor；每层的历史信息&#x3D;(filter_size - 1)*dilation_factor</p>
-</li>
-<li><p>残差结构</p>
-</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Leem, Seong-Gyun, In-Chul Yoo, and Dongsuk Yook. “Multitask learning of deep neural network-based keyword spotting for IoT devices.” <em>IEEE Transactions on Consumer Electronics</em> 65.2 (2019): 188-194.&#x3D;&#x3D;citations:19 高丽大学</p>
-</blockquote>
-<h3 id="思路-5"><a href="#思路-5" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>GMM-HMM-Based Keyword Spotting：</p>
-<p>输入特征同时进入triphone训练的keyword model和monophone训练的filler model，log keyword路径分数 - log filler路径分数是否大于阈值（log-likelihood ratio），判断是否唤醒；</p>
-</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%8D%81%EF%BC%89/image-20220104164339520.png" alt="image-20220104164339520" style="zoom:80%;">
-
-<ul>
-<li><p>DNN-HMM-Based Keyword Spotting</p>
-<p>$P_{filler}(x)&#x3D;\alpha\max\limits_{k,i}P_{k,i}(x)+(1-\alpha)\min\limits_{k,i}P_{k,i}(x)$</p>
-<p>其中，$k$是可能的keyword系数，$i$是状态系数；</p>
-<p>[？]filler概率为keyword最大路径分数和最小路径分数加权求和？？</p>
-</li>
-<li><p>Multitask DNN architecture that predicts both triphone state probabilities for keyword models and monophone state probabilities for filler models </p>
-<p>前面层参数都相同，最后一层参数区分，输出keyword或者filler；</p>
-<p>这个思路好奇怪，本来是可以简单认为是分类任务，现在把一个分类任务变成两个分类任务</p>
-<p>$Loss&#x3D;\beta{Loss_{triphone}}+(1-\beta)Loss_{monophone}$</p>
-</li>
-</ul>
-<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%8D%81%EF%BC%89/image-20220104173023074.png" alt="image-20220104173023074" style="zoom:80%;">
-
-
-
-<hr>
-<blockquote>
-<p>Temporal Feedback Convolutional Recurrent Neural Networks for Keyword Spotting</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/tae-jun/temporal-feedback-crnn">https://github.com/tae-jun/temporal-feedback-crnn</a> （无内容）</p>
-</blockquote>
-<hr>
-<blockquote>
-<p>An End-to-End Architecture for Keyword Spotting and Voice Activity Detection</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/taylorlu/AudioKWS">https://github.com/taylorlu/AudioKWS</a></p>
-</blockquote>
-<p><a target="_blank" rel="noopener" href="https://github.com/jingyonghou/wakeword-benchmark">https://github.com/jingyonghou/wakeword-benchmark</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3506,7 +3371,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">126</span>
+                  <span class="site-state-item-count">127</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
