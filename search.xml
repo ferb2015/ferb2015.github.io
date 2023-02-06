@@ -12026,4 +12026,186 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>python</tag>
       </tags>
   </entry>
+  <entry>
+    <title>python 类装饰器 class decorator</title>
+    <url>/2023/02/06/python/python%20%E7%B1%BB%E8%A3%85%E9%A5%B0%E5%99%A8/</url>
+    <content><![CDATA[<h1 id="python-类装饰器-class-decorator"><a href="#python-类装饰器-class-decorator" class="headerlink" title="python 类装饰器 class decorator"></a>python 类装饰器 class decorator</h1><blockquote>
+<p>b站：<a href="https://www.bilibili.com/video/BV19U4y1d79C/?spm_id_from=333.788&vd_source=5e9891722f2b62adca440a5e92121b5b">【python】一个公式解决所有复杂的装饰器，理解了它以后任何装饰器都易如反掌！</a></p>
+</blockquote>
+<h3 id="类装饰器"><a href="#类装饰器" class="headerlink" title="类装饰器"></a>类装饰器</h3><p>举例</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Timer</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, func</span>):</span><br><span class="line">        self.func = func</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__call__</span>(<span class="params">self, *args, **kwargs</span>):</span><br><span class="line">        start = time.time()</span><br><span class="line">        ret = self.func(*args, **kwargs)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Time: <span class="subst">&#123;time.time() - start&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> ret</span><br><span class="line"></span><br><span class="line"><span class="meta">@Timer</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">a, b</span>):</span><br><span class="line">    <span class="keyword">return</span> a + b</span><br><span class="line"></span><br><span class="line"><span class="comment"># 完全等价</span></span><br><span class="line">add = Timer(add)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(add(<span class="number">2</span>, <span class="number">3</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行该python程序，输出</span></span><br><span class="line">Time: <span class="number">1.1920928955078125e-06</span></span><br><span class="line"><span class="number">5</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><code>add = Timer(add)</code> 这句话，Timer装饰器，把add从一个函数，变成了<strong>Timer类的对象</strong>（赋给右边add），因为Timer是一个类，相当于创建了一个类的对象。因此创建对象，括号内的add就会传入Timer类的<code>__init__</code>函数里，所以add作为一个参数被保存在了self.func里。然后整个Timer对象被保存在add这个变量名字里。</p>
+<p><code>add(2, 3)</code> 执行这句话时，相当于做了对象的调用，因此调用了Timer的<code>__call__</code>函数，因此参数(2, 3)就传入了<code>__call__</code>里，开始执行函数内部，self.func就是原来的add函数。</p>
+<h3 id="带参数的类装饰器"><a href="#带参数的类装饰器" class="headerlink" title="带参数的类装饰器"></a>带参数的类装饰器</h3><p>举例：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Timer</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, prefix</span>):</span><br><span class="line">        self.prefix = prefix</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__call__</span>(<span class="params">self, func</span>):</span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">            start = time.time()</span><br><span class="line">            ret = func(*args, **kwargs)</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;self.prefix&#125;</span><span class="subst">&#123;time.time() - start&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> ret</span><br><span class="line">        <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"><span class="meta">@Timer(<span class="params">prefix=<span class="string">&quot;curr_time: &quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">a, b</span>):</span><br><span class="line">    <span class="keyword">return</span> a + b</span><br><span class="line"></span><br><span class="line"><span class="comment"># 完全等价</span></span><br><span class="line">add = Timer(prefix=<span class="string">&quot;curr_time: &quot;</span>)(add)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(add(<span class="number">2</span>, <span class="number">3</span>))</span><br></pre></td></tr></table></figure>
+
+<p>想实现一个功能，先打印一个prefix字符串，再打印时间。</p>
+<p>Timer输入参数prefix，返回一个函数，比如把<code>Timer(prefix)</code>记为k，也就是<code>k=Timer(prefix)</code>，这个函数k当call时，也就是<code>k(add)</code>时，也要输出一个函数（再赋给add），因此在Timer类的<code>__call__()</code>方法里return的是一个函数对象，也就是<code>wrapper(*args, **kwargs)</code>。</p>
+<p>执行<code>add(2, 3)</code>时，也就是执行<code>wrapper(*args, **kwargs)</code>的函数内部代码。</p>
+<h3 id="类的装饰器"><a href="#类的装饰器" class="headerlink" title="类的装饰器"></a>类的装饰器</h3><p>上面更像是装饰器的类，这里介绍类的装饰器</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">add_str</span>(<span class="params">cls</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__str__</span>(<span class="params">self</span>):  <span class="comment">#通过重载__str__来改变它print的值</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">str</span>(self.__dict__)</span><br><span class="line">    cls.__str__ = __str__</span><br><span class="line">    <span class="keyword">return</span> cls</span><br><span class="line"></span><br><span class="line"><span class="meta">@add_str</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyObject</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, a, b</span>):</span><br><span class="line">        self.a = a</span><br><span class="line">        self.b = b</span><br><span class="line"></span><br><span class="line"><span class="comment"># 完全等价</span></span><br><span class="line"><span class="comment"># MyObject = add_str(MyObject)</span></span><br><span class="line"></span><br><span class="line">o = MyObject(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line"><span class="built_in">print</span>(o)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">&#123;<span class="string">&#x27;a&#x27;</span>: <span class="number">1</span>, <span class="string">&#x27;b&#x27;</span>: <span class="number">2</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在python里面，一个自定义类class的对象，当 print 它时，它不会打印出什么，只会打印出这个对象是一个什么类。</p>
+<p><strong>可以通过重载它的<code>__str__</code>函数，来改变它print出来的结果</strong>。</p>
+<p>但是每个class都改很麻烦，于是写一个装饰类的装饰器。</p>
+<p>上面的例子中，<code>add_str</code>输入是一个class，返回也是这个class（同一个class），只不过重载了它的print方法，把cls的<code>__str__</code>函数替换成了自定义的<code>__str__</code>函数。</p>
+]]></content>
+      <categories>
+        <category>python</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SVM视频 李宏毅</title>
+    <url>/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/</url>
+    <content><![CDATA[<h1 id="SVM视频-李宏毅"><a href="#SVM视频-李宏毅" class="headerlink" title="SVM视频 李宏毅"></a>SVM视频 李宏毅</h1><blockquote>
+<p>李宏毅机器学习(2017) <a href="https://www.bilibili.com/video/BV13x411v7US?p=31">P31 20- Support Vector Machine (SVM)</a></p>
+<p>2023.1.12</p>
+</blockquote>
+<p>SVM 由 hinge loss 和 kernel 构成</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106161238543.png" alt="image-20230106161238543" style="zoom: 33%;">
+
+<h2 id="hinge-loss"><a href="#hinge-loss" class="headerlink" title="hinge loss"></a>hinge loss</h2><p>二分类 </p>
+<p>step 1. 输入到输出的关系是 当f(x)&gt;0 , y&#x3D;1; 当f(x)&lt;0，y&#x3D;-1；数据集标签只有1或-1；</p>
+<p>step 2. 设置loss function，如果直接用$\delta$ 函数，不可微，于是用一个可微函数 l， 统计输出和真实标签是否一致的次数。</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106161340195.png" alt="image-20230106161340195" style="zoom:50%;">
+
+<p>如果把真实输出标签 $\hat y^n$ 、模型输出 $f(x)$ 和 loss值做成一张图。我们希望 $\hat y^n \cdot f(x)$ 越同向时，loss越小，也就是 当 $y^n$ 为正数时，希望 $f(x)$ 也是正数，并且 $f(x)$ 越大（ $\hat y^n \cdot f(x)$值越大 ）loss值越小；当 $y^n$ 为负数时，希望 $f(x)$ 也是负数，并且 $f(x)$ 越负（ $\hat y^n \cdot f(x)$ 值越大 ） loss值越小；</p>
+<p>在图上表示为，横轴值越大，纵轴值越小。</p>
+<p>直接用 $\delta$ 函数作为loss 小于0时loss为1，大于0时loss为0，不可微分。因此用其他不同的函数作为loss function。</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106161718947.png" alt="image-20230106161718947" style="zoom:50%;">
+
+
+
+<p>当loss function设置为 平方loss （square loss）$l(f(x),y)&#x3D;(yf(x)-1)^2$ 是<strong>不合理</strong>的，因为虽然满足y&#x3D;1 f(x)越接近1 loss越小，y&#x3D;-1 f(x)越接近-1 loss越小的条件，但是当 yf(x) 很大时，loss也会很大，这不是我们希望的。</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106163449648.png" alt="image-20230106163449648" style="zoom:50%;">
+
+
+
+<p>把 yf(x)乘积用sigmoid封装一下，再进行square loss，于是loss function 写作 $l(f(x),y)&#x3D;(\sigma(yf(x))-1)^2$ 。（下图的蓝线）</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106164613584.png" alt="image-20230106164613584" style="zoom:50%;">
+
+
+
+<p>loss function 也可以用 sigmoid+ce：先做sigmoid再做CE。（比sigmoid+square更好）</p>
+<p>其中 CE的函数是 $\log(1&#x2F;p)&#x3D;-\log(p)$ ，这里p是做完sigmoid的函数，也就是 $\sigma(f(x))$ ，所以loss function 是 $-\log(\sigma(f(x)))&#x3D;-\log(1&#x2F;1+e^{-f(x)})&#x3D;\log(1+e^{-yf(x)})$ 。这里y&#x3D;-1时 $1-\sigma(f(x))&#x3D;\sigma(-f(x))$ 。</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106165418155.png" alt="image-20230106165418155" style="zoom:50%;">
+
+
+
+<p>hinge loss：</p>
+<p>只要 y&#x3D;1 时 f(x)&gt;1 或 y&#x3D;-1时 f(x)&lt;-1，loss就等于0，此时f(x)变化不会对loss有改进、有帮助了。</p>
+<p>penalty区域表示虽然 y(f(x))同向，但是还不够好，还要更好（loss还可以下降）。这个”更好”的位置叫做”margin“（这里是1）。</p>
+<p>注意下面的好还要更好，指的是右下角图里sigmoid+ce和hinge loss的对比（黑点），对于sigmoid+ce来说，已经在good enough区域了，但是loss还是可以下降的（还可以更好），对于hinge来说，在good enough区域，loss下降不了了。</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106171214437.png" alt="image-20230106171214437" style="zoom:50%;">
+
+
+
+
+
+<p>Linear SVM</p>
+<p>linear指的是function是linear的。</p>
+<p>二分类，f(x)&gt;0是一个类，f(x)&lt;0是一个类。</p>
+<p>loss function是凸函数。</p>
+<p><strong>loss function用hinge loss就是 SVM，如果loss function用cross entropy就是LR逻辑回归。</strong></p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106172350809.png" alt="image-20230106172350809" style="zoom:50%;">
+
+
+
+<p>linear svm的梯度下降推导：</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106175953527.png" alt="image-20230106175953527" style="zoom:50%;">
+
+
+
+<p>linear SVM另一种常见的写法：</p>
+<p>把 l(f) 公式里用 $\varepsilon $表示，因为  $\varepsilon$ 的公式是 $\max(0,1-yf(x))$ ，所以认为$ \varepsilon$ 既$\ge$第一项，又 $\ge$第二项，这本身和原公式是不等价的，因为 $ \varepsilon$  可以取很大的数来满足 $\ge$ 的条件，但是max公式里无法得到一个$ \varepsilon$使得这个 $ \varepsilon$可以是一个很大的数。但是！由于这里的目标是<strong>最小化</strong> loss function，因此这里的 “max” 和 “$\ge$” 的条件是可以等价的。（最小化，限制了$ \varepsilon$不能取很大的数，最大就是max中的最大值）。</p>
+<p>$ \varepsilon \ge 0$ ，$ \varepsilon \ge 1-\hat yf(x)$ 条件。可以写成 $\hat yf(x) \ge 1- \varepsilon^n $ ，这个是常见的SVM公式，物理意义是 yf(x)大于等于一个margin，这个margin是soft的，本来是“1”，但有时候没办法都满足大于等于1，因此margin稍微做一个放宽，减一个 $\varepsilon$，margin变成 $1- \varepsilon$ 。</p>
+<p>因为 $\varepsilon$ 会放宽 margin ，这里 $ \varepsilon$ 叫 slack variable，物理意义是放宽、松弛margin。这个松弛变量是正的，因为如果是负的变成更严格的条件了。</p>
+<p>由于是有约束的，用quadradic programming 方法来解。也可以和上文一样用梯度下降来解。</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106180009368.png" alt="image-20230106180009368" style="zoom:50%;">
+
+
+
+<h2 id="kernel-method"><a href="#kernel-method" class="headerlink" title="kernel method"></a>kernel method</h2><p><strong>这里认为（能最小化loss的）权重w是不同数据点的加权求和</strong> 写作 $w^*&#x3D;\sum_n\alpha_n^*x^n$</p>
+<p>解释理由是w初始化0，更新过程是w是一个有关数据点x加权求和的结果。</p>
+<p>因为hige loss的很多点出来会是0，因此有很多数据点x对应的权重为0，对结果不起作用，如果权重$\alpha$不等于0，它对结果起作用，称为support vector。</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106180325878.png" alt="image-20230106180325878" style="zoom:50%;">
+
+<p>这里n是训练集，$\alpha$是不同weight，k是不同维度。把k维合成一个向量w。这里 $c^n(w)$ 是loss的偏微分。</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206100841565.png" alt="image-20230206100841565" style="zoom: 50%;">
+
+
+
+<p>这里把列向量 $X^T$ 乘以x（内积），得到的列向量记为 $K(x^n, x)$，称为kernel function。</p>
+<p>计算 $f(x)$ 时，是将此数据点 $x$ ，与数据集的所有 $X$ 计算内积。</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206101142084.png" alt="image-20230206101142084" style="zoom:50%;">
+
+
+
+
+
+
+
+<p>直接先做x和z的kernel funciton，会比各自做feature transform，再做inner product更快。</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206112108738.png" alt="image-20230206112108738" style="zoom:50%;">
+
+
+
+<p>举例：</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206112537325.png" alt="image-20230206112537325" style="zoom:50%;">
+
+
+
+<p>举例：</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206113700910.png" alt="image-20230206113700910" style="zoom:50%;">
+
+
+
+
+
+
+
+<p>可以理解成是做了一次神经网络，神经网络的参数个数等于数据集的大小n，输入向量 $x$ （多维特征）乘以神经元参数值$x^n$（这个$x^n$是$x_1$、$x_2$、$x_3$、…），得到 $x^n \cdot x$ 向量（下图画的x到x1有好多线，如果只有一条线，是x只有一维，如果多条线，是x是多维特征），然后经过kernel function（比如tanh），然后和$\alpha$进行加权求和，得到某一个数据x下的f(x)。</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206120110190.png" alt="image-20230206120110190" style="zoom:50%;">
+
+
+
+
+
+<p>kernel function：投影到高维后的内积，物理含义像“相似性”。我们不用把输入特征x映射（变换）到某一个向量，因为这可能不好表示（这个向量不一定能表示这个输入特征），但是如果可以直接在高维空间中得到二者的相似性，这是我们更想要知道的。</p>
+<p>判断哪些kernel function是可以的：通过mercer theory进行检查。</p>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206122348191.png" alt="image-20230206122348191" style="zoom:50%;">
+
+
+
+<p>SVM related methods</p>
+<ul>
+<li>Support Vector Regression (SVR)<ul>
+<li>[Bishop chapter 7.1.4]</li>
+</ul>
+</li>
+<li>Ranking SVM<ul>
+<li>[Alpaydin, Chapter 13.11]</li>
+</ul>
+</li>
+<li>One-class SVM<ul>
+<li>[Alpaydin, Chapter 13.11]</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206123519579.png" alt="image-20230206123519579" style="zoom:50%;">
+
+]]></content>
+      <categories>
+        <category>深度学习</category>
+      </categories>
+      <tags>
+        <tag>深度学习</tag>
+      </tags>
+  </entry>
 </search>

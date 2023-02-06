@@ -288,6 +288,344 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/" itemprop="url">kaldi实现迁移学习</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/kaldi 迁移学习/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="kaldi实现迁移学习"><a href="#kaldi实现迁移学习" class="headerlink" title="kaldi实现迁移学习"></a>kaldi实现迁移学习</h1><blockquote>
+<p>speechhome 课程 Kaldi语音识别理论与实践 石颖 第9节 <a target="_blank" rel="noopener" href="https://edu.speechhome.com/p/t_pc/course_pc_detail/video/v_632490ece4b050af23b7c9e2">https://edu.speechhome.com/p/t_pc/course_pc_detail/video/v_632490ece4b050af23b7c9e2</a></p>
+</blockquote>
+<p>两种方式的迁移学习：</p>
+<ol>
+<li>较多训练数据训练好的模型的参数作为初始模型参数，更新 其他领域数据&#x2F;新模型结构（只有一些层不一样）的模型参数。</li>
+<li>固定训练好的模型的大部分参数，只更新部分层（新领域数据特别特别少时，用该方法）</li>
+</ol>
+<h2 id="方法1实现："><a href="#方法1实现：" class="headerlink" title="方法1实现："></a>方法1实现：</h2><p>以最后一层不一样举例，要调整最后一层结构，变成想要的输出维度。</p>
+<h3 id="步骤1-把初始模型的输出维度更换成想要的维度："><a href="#步骤1-把初始模型的输出维度更换成想要的维度：" class="headerlink" title="步骤1. 把初始模型的输出维度更换成想要的维度："></a>步骤1. 把初始模型的输出维度更换成想要的维度：</h3><p><strong>思路：</strong>准备一个config文件，只保留输出维度相关的component（其他component都不要），然后用该config文件重新初始化模型，这时候旧模型的输出component会被新config里的component覆盖，旧模型其余会保留；</p>
+<p><strong>做法：</strong>打开config文件，手动删除其他component，只保留输出维度相关的component</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009181943628.png" alt="image-20221009181943628"></p>
+<p>然后在vim中输入 <code>:%s/旧维度/新维度/g</code>进行替换，就是把config里的比如输出维度4368换成2000。</p>
+<p>然后在命令行输入：<code>nnet3-init final.mdl final.config final.change.output_dim.mdl</code></p>
+<p>就可以了。</p>
+<h3 id="步骤2-用新模型作为初始模型，在新数据集上进行训练："><a href="#步骤2-用新模型作为初始模型，在新数据集上进行训练：" class="headerlink" title="步骤2. 用新模型作为初始模型，在新数据集上进行训练："></a>步骤2. 用新模型作为初始模型，在新数据集上进行训练：</h3><p>在 run.sh中的 <code>steps/nnet3/chain/train.py --trainer.input-model final.change.output_dim.mdl</code></p>
+<h2 id="方法2实现："><a href="#方法2实现：" class="headerlink" title="方法2实现："></a>方法2实现：</h2><p>固定某些层参数名</p>
+<p>第一种粗暴的方法：打开mdl.txt，将component的名称手动更改为Fixed的component</p>
+<p>比如把<AffineComponent>改为<FixedAffineComponent></FixedAffineComponent></AffineComponent></p>
+<p>但是这样要改的地方很多。</p>
+<p>第二种方法 【推荐】：</p>
+<p>新建一个config文件（文件的第一个字段是要进行哪种操作，第二个字段是这个操作要应用在哪个component上）</p>
+<p>该图的意思是对tdnn1-5层的仿射变换层更改为参数不可变的仿射变换层。</p>
+<p>（比如保存在fix_config&#x2F;edit_config）</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009182908327.png" alt="image-20221009182908327"></p>
+<p>然后在命令行输入：<code>nnet3-copy --edits-config=fix_config/edit_config --binary=false final.raw final.fix.tdnn1-5.raw</code></p>
+<p>然后在 run.sh中的 <code>steps/nnet3/chain/train.py --trainer.input-model final.fix.tdnn1-5.raw</code></p>
+<hr>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009183631092.png" alt="image-20221009183631092" style="zoom:80%;">
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%E7%9A%84%E8%AF%8D%E5%85%B8L.fst/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%E7%9A%84%E8%AF%8D%E5%85%B8L.fst/" itemprop="url">kaldi的词典L.fst、L_disambig.fst</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%E7%9A%84%E8%AF%8D%E5%85%B8L.fst/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/kaldi的词典L.fst/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="kaldi的词典L-fst、L-disambig-fst"><a href="#kaldi的词典L-fst、L-disambig-fst" class="headerlink" title="kaldi的词典L.fst、L_disambig.fst"></a>kaldi的词典L.fst、L_disambig.fst</h1><p>权重：0.693147182</p>
+<p>这是概率&#x3D;0.5，这里取-log表示在FST中</p>
+<p>$0.693147182&#x3D;-log_e(0.5)$</p>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%E7%9A%84%E8%AF%8D%E5%85%B8L.fst/image-20211230105520591.png" alt="image-20211230105520591" style="zoom:80%;">
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/lattice/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2179,867 +2517,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/" itemprop="url">识别论文笔记（三）声学模型</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
-                2022-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
-                    <span itemprop="name">语音识别</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/识别论文笔记（三）/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="声学模型"><a href="#声学模型" class="headerlink" title="声学模型"></a>声学模型</h1><blockquote>
-<p>&#x3D;&#x3D;Vaswani, Ashish, et al. “Attention is all you need.” <em>Advances in neural information processing systems</em> 30 (2017).&#x3D;&#x3D;citations：42175</p>
-<p>官方 github tensorflow：<a target="_blank" rel="noopener" href="https://github.com/tensorflow/tensor2tensor">https://github.com/tensorflow/tensor2tensor</a>  </p>
-<p>gihub Chainer：<a target="_blank" rel="noopener" href="https://github.com/soskek/attention_is_all_you_need">https://github.com/soskek/attention_is_all_you_need</a></p>
-<p>github pytorch：<a target="_blank" rel="noopener" href="https://github.com/jadore801120/attention-is-all-you-need-pytorch">https://github.com/jadore801120/attention-is-all-you-need-pytorch</a></p>
-<p>github tensorflow：<a target="_blank" rel="noopener" href="https://github.com/Kyubyong/transformer">https://github.com/Kyubyong/transformer</a></p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/huggingface/transformers">https://github.com/huggingface/transformers</a></p>
-<p>公众号：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI3ODgwODA2MA==&mid=2247503240&idx=3&sn=6a18f24c9a030b4186488f6c51875135&chksm=eb53d91bdc24500d26f17f40953cfdba3a358d92a783fc5b7201f69c108334504cee2b43aae3&mpshare=1&scene=1&srcid=0611Osv6LaxD6g0XcYPZ6EmF&sharer_sharetime=1652854390830&sharer_shareid=7dfde0689a805163a3af5547f5e7bbff&version=4.0.0.6023&platform=win#rd">位置编码在注意机制中的作用</a></p>
-<p>知乎：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/347678607">如何理解Transformer论文中的positional encoding，和三角函数有什么关系？</a></p>
-<p><a target="_blank" rel="noopener" href="https://kazemnejad.com/blog/transformer_architecture_positional_encoding/#the-intuition">https://kazemnejad.com/blog/transformer_architecture_positional_encoding/#the-intuition</a></p>
-<p><a target="_blank" rel="noopener" href="https://nlp.seas.harvard.edu/2018/04/03/attention.html">https://nlp.seas.harvard.edu/2018/04/03/attention.html</a> [待看，据说很好]</p>
-<p><a target="_blank" rel="noopener" href="http://jalammar.github.io/illustrated-transformer/">http://jalammar.github.io/illustrated-transformer/</a></p>
-</blockquote>
-<h5 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
-<li>提出一种新的序列模型，效果好，简单，没用到RNN&#x2F;CNN；</li>
-<li>之前的序列模型想要建模 序列内不同位置的特征之间关系 是 随着特征之间距离远近而计算量大或小的；</li>
-</ul>
-<h5 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
-<li>改变了以往的序列模型结构，采用了self-attention机制，encoder-decoder，point-wise feedward；</li>
-</ul>
-<h5 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
-<li>机器翻译任务 28.4 BLEU on the WMT 2014 Englishto-German translation task；</li>
-</ul>
-<h5 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><ul>
-<li>由于encoder的attention是注意整个输入，因此非流式</li>
-</ul>
-<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>提出一种新的简单的序列转换模型（sequence transduction models），Transformer，完全基于注意力机制，没使用递归和卷积；使用stacked self-attention，encoder和decoder只使用position-wise（point-wise）的全连接层；</li>
-<li>Self-attention  ：是一种将单个序列的不同位置联系起来的注意力机制；</li>
-<li>Transformer结构图：</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517152824052.png" alt="image-20220517152824052" style="zoom:80%;">
-
-<ul>
-<li><p><strong>Encoder</strong>：input sequence of symbol representations  X 到sequence of continuous representations  Z 的映射；</p>
-<ul>
-<li>stack堆叠了6层相同的层，每层有两个子层，第一层是多头注意力机制multi-head self-attention mechanism  ，第二层是按位置的全连接前馈层 position-wise fully connected feed-forward network ，子层都用了残差结构，残差相加再layernorm层归一化，$LayerNorm(x + Sublayer(x))  $，再embedding，$\large d_{model}&#x3D;512$，因此encoder输出512维embedding；</li>
-</ul>
-</li>
-<li><p><strong>Decoder</strong>：给定整条Z序列，生成输出序列，一次一个输出，auto-regressive 自回归的；在生成下一个符号时，使用先前生成的符号作为额外的输入</p>
-<ul>
-<li>stack堆叠了6层相同的层，每层有三个子层：</li>
-<li>第一层是多头注意力机制multi-head self-attention mechanism ，masking：decoder里的attention只关注前面的position信息；</li>
-<li>第二层对encoder的embedding做多头注意力机制，叫”encoder-decoder attention” layers  ，query序列来自上一层的deocder层，key和value来自encoder输出的embedding序列；</li>
-<li>第三层也是position-wise fully connected feed-forward network，子层都用了残差结构，残差相加再layernorm层归一化；</li>
-</ul>
-</li>
-<li><p><strong>Attention</strong>函数：对于一个输出，是一个query和一组key，value对的映射关系，获得映射关系叫做attention；</p>
-<ul>
-<li>output：value向量的加权和，其中“权重”表示query和key的相关程度；</li>
-</ul>
-</li>
-<li><p><strong>Scaled Dot-Product Attention</strong> ：transformer里使用的attention叫按比例点乘（Scaled Dot-Product）的attention；query向量维度 $d_k$ ，key向量维度 $d_k$ ， value向量维度 $d_v$ ，</p>
-<p>除以$\sqrt{d_k}$ （scaled），对weight用softmax进行标准化；</p>
-<p>$\large Attention(Q,K,V)&#x3D;softmax(\frac{QK^T}{\sqrt{d_k}})V$</p>
-<p>其中，$\large Q \in \mathbb{R}^{L_q \times d_k}$  ,  $\large K \in \mathbb{R}^{L\times d_k}$,   $\large V \in \mathbb{R}^{L \times d_v}$</p>
-<p>这里Q,K,V对应下面multi-head的Q&#x3D;qW，下面虽然写的QW，但其实是Q&#x3D;qW，或者说Q&#x3D;EW，E是输入，维度是L*d_k</p>
-<p>点乘：对应位置相乘，求和 ：$\large q\cdot k&#x3D;\sum_{i&#x3D;1}^{d_k}q_ik_i$</p>
-<p>不加scaled的话，点乘结果会很大，softmax之后，反向传播梯度很小；</p>
-<p>输出序列z，其中元素 $z_i \in \mathbb{R}^d$  , 输入序列x，其中元素 $x_i\in \mathbb{R}^d$</p>
-<p>对每个元素z_i，是由输入通过线性变换的加权求和得到的：$\large z_i&#x3D;\sum\limits_{j&#x3D;1}^n\alpha_{ij}(x_jW^V)$</p>
-<p>对每个权重系数，是通过softmax函数计算得到：$\large \alpha_{ij}&#x3D;\frac{\exp e_{ij}}{\sum_{k&#x3D;1}^n\exp e_{ik}}$</p>
-<p>对每个$e_{ij}$，是通过compatibility function来比较两个输入元素：$\large e_{ij}&#x3D;\frac{(x_iW^Q)(x_jW^K)^T}{\sqrt{d_z}}$     ，这里的compatibility function用的是Scaled dot product   缩放点乘</p>
-<p>$\large W^Q, W^K, W^V \in \mathbb{R}^{d_x\times d_z}$</p>
-<p>self-attention：把input 经过三个不同的transform W，得到Q,K,V矩阵，然后Q和K点乘（matmul），softmax得到A’，A’与V矩阵想乘（乘完加）得到输出编码向量O</p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517154501406.png" alt="image-20220517154501406" style="zoom:80%;">
-
-<ul>
-<li><strong>Multi-Head Attention</strong> ：</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517160647491.png" alt="image-20220517160647491" style="zoom:80%;">
-
-<p>举例，multi分开，和只用一个大矩阵确实是不同的：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="comment"># x=torch.Tensor([[0.1,0.2],[0.3,0.4]])</span></span><br><span class="line">x=torch.randn([<span class="number">2</span>,<span class="number">2</span>])</span><br><span class="line"><span class="comment"># wq=torch.Tensor([[0.1,0.1],[0.2,0.2]])</span></span><br><span class="line">wq=torch.randn([<span class="number">2</span>,<span class="number">2</span>])</span><br><span class="line">wq1=wq[:,<span class="number">0</span>].unsqueeze(<span class="number">1</span>) <span class="comment">#torch.Tensor([[0.1],[0.2]])</span></span><br><span class="line">wq2=wq[:,<span class="number">1</span>].unsqueeze(<span class="number">1</span>) <span class="comment">#torch.Tensor([[0.1],[0.2]])</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># wk=torch.Tensor([[0.2,0.1],[0.3,0.4]])</span></span><br><span class="line">wk=torch.randn([<span class="number">2</span>,<span class="number">2</span>])</span><br><span class="line">wk1=wk[:,<span class="number">0</span>].unsqueeze(<span class="number">1</span>)</span><br><span class="line">wk2=wk[:,<span class="number">1</span>].unsqueeze(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># wk1=torch.Tensor([[0.2],[0.3]])</span></span><br><span class="line"><span class="comment"># wk2=torch.Tensor([[0.1],[0.4]])</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># wv=torch.Tensor([[0.1,0.4],[0.5,0.4]])</span></span><br><span class="line">wv=torch.randn([<span class="number">2</span>,<span class="number">2</span>])</span><br><span class="line">wv1=wv[:,<span class="number">0</span>].unsqueeze(<span class="number">1</span>)</span><br><span class="line">wv2=wv[:,<span class="number">1</span>].unsqueeze(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># wv1=torch.Tensor([[0.1],[0.5]])</span></span><br><span class="line"><span class="comment"># wv2=torch.Tensor([[0.4],[0.4]])</span></span><br><span class="line"></span><br><span class="line">q=torch.matmul(x,wq)</span><br><span class="line">q1=torch.matmul(x,wq1)</span><br><span class="line">q2=torch.matmul(x,wq2)</span><br><span class="line"></span><br><span class="line">k=torch.matmul(x,wk)</span><br><span class="line">k1=torch.matmul(x,wk1)</span><br><span class="line">k2=torch.matmul(x,wk2)</span><br><span class="line"></span><br><span class="line">v=torch.matmul(x,wv)</span><br><span class="line">v1=torch.matmul(x,wv1)</span><br><span class="line">v2=torch.matmul(x,wv2)</span><br><span class="line"></span><br><span class="line">soft=nn.Softmax(dim=-<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(torch.matmul(soft(torch.matmul(q1,k1.T)),v1))</span><br><span class="line"><span class="built_in">print</span>(torch.matmul(soft(torch.matmul(q2,k2.T)),v2))</span><br><span class="line"><span class="built_in">print</span>(torch.matmul(soft(torch.matmul(q,k.T)),v))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;**********&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(torch.matmul((torch.matmul(q1,k1.T)),v1))</span><br><span class="line"><span class="built_in">print</span>(torch.matmul((torch.matmul(q2,k2.T)),v2))</span><br><span class="line"><span class="built_in">print</span>(torch.matmul((torch.matmul(q,k.T)),v))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出：</span></span><br><span class="line">tensor([[<span class="number">2.0207</span>],</span><br><span class="line">        [<span class="number">1.9740</span>]])</span><br><span class="line">tensor([[-<span class="number">5.3267</span>],</span><br><span class="line">        [-<span class="number">5.5147</span>]])</span><br><span class="line">tensor([[ <span class="number">2.1874</span>, -<span class="number">5.1253</span>],</span><br><span class="line">        [ <span class="number">2.2269</span>, -<span class="number">5.2313</span>]])</span><br><span class="line">**********</span><br><span class="line">tensor([[-<span class="number">3.9927</span>],</span><br><span class="line">        [-<span class="number">6.4066</span>]])</span><br><span class="line">tensor([[-<span class="number">20.5387</span>],</span><br><span class="line">        [-<span class="number">31.8073</span>]])</span><br><span class="line">tensor([[  <span class="number">4.7729</span>, -<span class="number">11.1790</span>],</span><br><span class="line">        [  <span class="number">7.1683</span>, -<span class="number">16.7890</span>]])</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<ul>
-<li><p><strong>Position-wise Feed-Forward Networks</strong>  ：由两个线性层组成，中间的激活函数用relu，不同位置的输入作用都是一样的（就是位置无关），逐位置，</p>
-<ul>
-<li>$\large FFN(x) &#x3D; \max(0; xW_1 + b_1)W_2 + b_2 $ </li>
-<li>输入输出维度都是512，神经元结点2048；</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5be05ou_6LWr,size_20,color_FFFFFF,t_70,g_se,x_16.png" alt="img" style="zoom:80%;">
-
-<ul>
-<li>Feed Forward Module作用：<ul>
-<li>非线性变换，强化模型的表达能力</li>
-<li>输入映射到高维再映射到低维，模型学习到更加抽象的特征</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>Embeddings and Softmax</strong>  ：在embedding层，权重乘以$\sqrt {d_{model}}$</p>
-</li>
-<li><p><strong>Positional Encoding</strong>  ：序列模型要有序列性（就是要有个顺序），而attention是当前帧和其他所有帧点乘，因此其它帧的相对位置信息，attention是考虑不到的，因此要加上位置编码来表示位置信息；</p>
-<ul>
-<li><p>Positional Encoding和token embedding<strong>相加</strong>，作为encoder和decoder的底部输入。Positional Encoding和embedding具有同样的维度$d_{model}$，因此这两者可以直接相加。</p>
-</li>
-<li><p>$\large PE_{(pos,2i)}&#x3D;sin(pos&#x2F;10000^{2i&#x2F;d_{model}})$</p>
-<p>$\large PE_{(pos,2i+1)}&#x3D;cos(pos&#x2F;10000^{2i&#x2F;d_{model}})$</p>
-<p>其中，i是第i维 $i\in[0,d_{model}&#x2F;2)$；pos表示token在序列中的位置，比如第一个token就是0；</p>
-<p>每一维做的操作不一样（sin或cos）</p>
-<p>比如：第二个token，即PE(1)，有$d_{model}$维，比如是512维，表示为：$PE(1)&#x3D;[sin(1&#x2F;10000^0),cos(1&#x2F;10000^0),sin(1&#x2F;10000^{2&#x2F;512}),cos(1&#x2F;10000^{2&#x2F;512}),…]$</p>
-</li>
-<li><p>出发点是三角函数 $sin(a+b) &#x3D; sin(a)cos(b) + cos(b)sin(a)$， b 是一个固定的 offset 也就是常数了，所以 pos+k 的编码就可以通过 pos 的编码来线性表示了。不同位置就是同一个频率的不同相位。</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220518151014315.png" alt="image-20220518151014315" style="zoom:80%;">
-</li>
-<li><p>每一组单位向量会随着 pos 的增大而旋转，但是旋转周期不同，按照论文里面的设置，最小的旋转周期是 2pi，最大的旋转周期是 10000 x 2pi。把 position 表示成多组不同旋转周期的单位向量，能有助于泛化到训练时没有见过的长度；</p>
-</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220518150310638.png" alt="image-20220518150310638" style="zoom:80%;">
-
-<ul>
-<li><p>训练的loss：输出符号与真实标签的cross entropy；训练时decoder输入：真实标签groundtruth；输出是词表vocabulary的大小</p>
-</li>
-<li><p>测试时decoder输入：一开始BEIGIN符号，然后一个输出；<br>把第一个输出作为第二个输入，得到第二个输出；<br>把第二个输出作为第三个输入，得到第三个输出……</p>
-</li>
-<li><p>绝对位置编码中，Q、K、V都要加位置编码</p>
-</li>
-<li><p>复杂度比较：</p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517164139955.png" alt="image-20220517164139955" style="zoom:80%;">
-
-<h3 id="抽象"><a href="#抽象" class="headerlink" title="抽象"></a>抽象</h3><blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.jiqizhixin.com/articles/2017-06-28-5">https://www.jiqizhixin.com/articles/2017-06-28-5</a></p>
-</blockquote>
-<p>self attention：相比 recurrent 不存在梯度消失问题，这点显然。对比 CNN 更加适合文本，因为能够看到更远距离的信息，这点展开说明——因为文本语义的抽象不同于图像语义的抽象，后者看下一层的局部就行，前者经常需要看很远的地方。比如现在 “苹果” 这个词我要对它做一个抽象，按 “苹果公司” 抽象还是按 “水果” 抽象呢？这个选择可能依赖于几十个 step 之外的词。诚然，CNN 叠高了之后可以看到很远的地方，但是 CNN 本来需要等到很高层的时候才能完成的抽象，self attention 在很底层的时候就可以做到，这无疑是非常巨大的优势。</p>
-<p>RNN是指不同 step 之间要顺序执行从影响速度的 recurrence。而这个 decoder 每一层对不同位置的计算是并行的。当前位置的计算不依赖前面位置的计算结果。 当然这也是因为他使用的是 ground truth 做输入，砍掉相邻两步之间 hidden state 这条连接了。 为了并行， 模型的灵活性受到了限制。不过，在测试阶段 decode 下一个词依赖于上一个输出，所以仍然是 recurrence 的。</p>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Chorowski, Jan K., et al. “Attention-based models for speech recognition.” <em>Advances in neural information processing systems</em> 28 (2015).&#x3D;&#x3D;citations：2267</p>
-</blockquote>
-<h5 id="解决什么问题-1"><a href="#解决什么问题-1" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
-<li>attention用在语音识别任务里效果不好的问题；机器翻译的注意力机制模型 直接用来做语音识别任务时，会出现只对训练集类似的话才识别得好 的问题、它只适用于track跟踪它所识别的内容在输入序列中的绝对位置absolute localtion；</li>
-</ul>
-<h5 id="用了什么方法-1"><a href="#用了什么方法-1" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
-<li><ol>
-<li>在注意力机制中引入location-awareness；2. 改变注意力机制，防止它过多地注意在单个帧上；</li>
-</ol>
-</li>
-</ul>
-<h5 id="效果如何-1"><a href="#效果如何-1" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
-<li>引入location-awareness，PER从18.7%下降到18%；防止只注意单帧，PER下降到17.6%</li>
-</ul>
-<h5 id="还存在什么问题-1"><a href="#还存在什么问题-1" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><p>- </p>
-<h3 id="论文思路"><a href="#论文思路" class="headerlink" title="论文思路"></a>论文思路</h3><ul>
-<li><p>为什么机器翻译和手写识别的attention不能直接用与语音识别任务：</p>
-<ul>
-<li>机器翻译和语音识别任务的区别：机器翻译的输入长度短（只有几十个词），识别是几千帧，因此很多语音片段是相似的，区分它们是一个挑战；</li>
-<li>手写识别和语音识别任务的区别：笔迹和背景区分明显，“噪声小”，语音识别的背景噪声可能很大，信噪比低，没有清晰的结构；</li>
-<li>因此对识别任务的attention model的要求是：<strong>能够处理长输入和带噪输入</strong>；</li>
-</ul>
-</li>
-<li><p>机器翻译模型直接用于语音识别任务会带来的问题：</p>
-<ul>
-<li>长句子错误率高；</li>
-<li>只适用于跟踪它所识别的内容在输入序列中的绝对位置；因此短句尚可，对于长句不可行；</li>
-</ul>
-</li>
-<li><p>修改注意力机制：</p>
-<ul>
-<li>目的：使之能够注意到：1）前一个step的焦点位置（the location of the focus from the previous step ）、2）输入序列的特征（the features of the input sequence）</li>
-<li>如何实现：在注意力机制的输入中，添加辅助卷积特征；该卷积特征是从对前一个step的attention权重进行卷积而来的；（location awareness）</li>
-</ul>
-</li>
-<li><p>早期的注意力机制公式：</p>
-<ul>
-<li>content-based 注意力机制：$\large \alpha_i&#x3D;Attend(s_{i-1},h)$</li>
-</ul>
-<p>**Attend **操作：对h中的每个元素分别打分并将分数标准化：$\large e_{i,j}&#x3D;Score(s_{i-1},h_j)$、     $\large \alpha_{i,j}&#x3D;exp(e_{i,j})&#x2F;\sum\limits_{j&#x3D;1}^Lexp(e_{i,j})$</p>
-<p>可以看出，在不同位置处的$h_j$如果元素值很相似，score分数会很接近，这就是相似语音片段“similar speech fragments” 问题，该问题可通过encoder用 BiRNN，或编码了h的上下文信息的CNN来缓解；但是h能力有限，因此通过上下文进行消歧的可能性是有限的；</p>
-<p>因此，提出 location-based 注意力机制来缓解没考虑h位置的问题：</p>
-<ul>
-<li>location-based 注意力机制：$\large \alpha_i&#x3D;Attend(s_{i-1},\alpha_{i-1})$</li>
-</ul>
-<p>但是，这样也有问题，没依赖输入h，只依赖s，这样得到的距离信息方差很大；</p>
-<p>因此，提出混合location和content的注意力机制：</p>
-<ul>
-<li>hybrid 注意力机制：$\large \alpha_i&#x3D;Attend(s_{i-1},\alpha_{i-1},h)$</li>
-</ul>
-<p>使用前一个的对齐$\alpha_{i−1}$从h中选择一个短的元素列表（content-based attention ）；</p>
-<p>获得注意力机制权重后，神经网络的走向：</p>
-<p>$\large g_i&#x3D;\sum\limits_{j&#x3D;1}^L\alpha_{i,j}h_j$</p>
-<p>$\large y_i \sim Generate(s_{i-1},g_i)$</p>
-<p>$\large s_i&#x3D;Recurrency(s_{i-1},g_i,y_i)$</p>
-<p>其中，$\alpha_i \in R^L$ 是attention权重，称为alignment；$g_i$ ：glimpse；Recurrency  为GRU或LSTM；</p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516120833285.png" alt="image-20220516120833285" style="zoom: 67%;">
-
-<ul>
-<li><p>attention-based recurrent sequence generator （ARSG）with Convolutional Features  ：</p>
-<p>content-based注意力机制的 <strong>score</strong> 操作：$\large e_{i,j}&#x3D;Score(s_{i-1},h_j)&#x3D;w^Ttanh(Ws_{i-1}+Vh_j)+b$</p>
-<p>将content-based扩展为location-aware：通过考虑前一个step的alignment $\alpha_{i-1}$：对previous alignment $\alpha_{i-1}$的每个位置 $j$ ，通过与矩阵$F$卷积（$F\in R^{k \times r}$），来提取 $k$ 向量（$\large f_{i,j}\in R^k$）:</p>
-<p>$\large f_i&#x3D;F*\alpha_{i-1}$</p>
-<p>因此hybrid的 <strong>score</strong> 操作为：$\large e_{i,j}&#x3D;Score(s_{i-1},\alpha_{i-1},h)&#x3D;w^Ttanh(Ws_{i-1}+Vh_j+Uf_{i,j})+b$</p>
-</li>
-<li><p>Score Normalization: Sharpening and Smoothing</p>
-<p>score操作完，标准化后得到权重α，但是这个标准化 $\large \alpha_{i,j}&#x3D;exp(e_{i,j})&#x2F;\sum\limits_{j&#x3D;1}^Lexp(e_{i,j})$ 有几个问题：</p>
-<ol>
-<li>$h$ 序列很长时，$g_i$会更容易从无关 $h_j$ 获得信息，就是噪声信息了，（因为score $\alpha_{i,j}$总为正数且和为1），这样对于每一帧 $i$ ，都会更不容易关注到与 $i$ 真正相关的帧信息；</li>
-<li>$h$ 序列很长时，计算复杂度会显得很大，注意力机制每帧都要考虑所有帧，$O(LT)$；</li>
-</ol>
-<p>但是用softmax标准化的好处是会只关注于单个特征向量$h_j$，而不是多个不同 j 的h；</p>
-<p>解决noisy glimpse方法：通过 <strong>Sharpening</strong> 化，锐化，具体实现的方法有：</p>
-<ul>
-<li>方法1：让$\alpha$分布更极端，区分更大；通过引入inverse temperature β &gt; 1</li>
-</ul>
-<p>$\large \alpha_{i,j}&#x3D;exp(\beta e_{i,j})&#x2F;\sum\limits_{j&#x3D;1}^Lexp(\beta e_{i,j})$</p>
-<p>或者keep only the top-k frames according to the scores and re-normalize them ，但是复杂度没下降，还可能会更关注更窄的帧；</p>
-<ul>
-<li>方法2：windows attention机制：只看窗口长度的h：$\large \tilde h&#x3D;(h_{p_i-w,…h_{p_i+w-1}})$ ，复杂度$O(L+T)$；训练和推理阶段都能用；</li>
-</ul>
-<p>Sharpening对长句子有效，但是也会降低短句子性能，这个现象，论文作者认为，假设Sharpening的作用是有助于模型从多个得分最高的帧中进行选择。。。。</p>
-<p>把无界的exp函数换成有界的sigmoid函数：称为 <strong>smoothing</strong> 化：</p>
-<ul>
-<li>Smoothing  :   $\large \alpha_{i,j}&#x3D;\sigma(e_{i,j}&#x2F;\sum\limits_{j&#x3D;1}^L\sigma(e_{i,j}))$</li>
-</ul>
-</li>
-</ul>
-<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><ul>
-<li>建模单元phoneme，61个phone，一个eos token，39？</li>
-<li>Timit数据集，这个数据集都是很短的小于5s，测试时会特地把音频拼接构造长句子，输入特征40维，一阶二阶差分120维，3维能量，共123维；</li>
-<li>不同的参数子集被重复使用的次数不同; 编码器的为T次，注意权重为LT, ARSG的所有其他参数为L次。 这使得导数的尺度变化很大，因此用自适应学习率算法<strong>AdaDelta</strong>优化器（两个超参$\epsilon$和$\rho$）</li>
-<li>初始化为标准差0.01的高斯分布，RNN进一步正交初始化；</li>
-<li>batchsize&#x3D;1！由于TIMIT数据集很小，一开始加正则，后面没加正则；100K参数量；</li>
-<li>encoder：3层 Bi GRU，256结点；encoder输出 h：512维；generator ：单层 GRU，256结点，输出64维？；</li>
-</ul>
-<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><p>不同模型结果：</p>
-<p>baseline其实并不差，并且也能学到对齐信息，</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516162335200.png" alt="image-20220516162335200" style="zoom:80%;">
-
-<p>锐化里windows方法对齐效果最好：</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516162155924.png" alt="image-20220516162155924" style="zoom: 80%;">
-
-
-
-<p>对于repeat phone：</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516162653073.png" alt="image-20220516162653073" style="zoom:80%;">
-
-
-
-
-
-
-
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Prabhavalkar, Rohit, et al. “A Comparison of Sequence-to-Sequence Models for Speech Recognition.” <em>Interspeech</em>. 2017.&#x3D;&#x3D; google citations：268</p>
-</blockquote>
-<h5 id="解决什么问题-2"><a href="#解决什么问题-2" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
-<li>比较了识别模型的性能，对比了多个端到端模型在识别任务的性能；</li>
-</ul>
-<h5 id="用了什么方法-2"><a href="#用了什么方法-2" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
-<li>不同模型都以字母建模，CTC、RNN-T、attention based、RNNT with attention的端到端识别模型，不加LM；</li>
-</ul>
-<h5 id="效果如何-2"><a href="#效果如何-2" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
-<li>在口述测试集、数值测试集优于baseline，但在有较多专有名词的问答搜索测试集，会比basline差；</li>
-<li>总的来说只用字母建模，没有用语言模型，这个声学模型的建模能力还是非常牛逼的；</li>
-</ul>
-<h5 id="还存在什么问题-2"><a href="#还存在什么问题-2" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><ul>
-<li>端到端模型与LM的结合实验；</li>
-</ul>
-<h3 id="论文思路-1"><a href="#论文思路-1" class="headerlink" title="论文思路"></a>论文思路</h3><ul>
-<li><p>比较CTC、RNN-T、attention based、RNNT with attention的端到端识别模型，（比较时它们都是用grapheme字母建模，没有词典、lm）</p>
-</li>
-<li><p>attention based依赖LM，否则在不同数据集上表现差异很大</p>
-</li>
-<li><p>发现端到端模型可以隐式学习从口语到书面形式的映射（比如说”one hundred dollars” 能输出 “$100”）（以前这种问题更多是用正则做的）</p>
-</li>
-<li><p>端到端模型结构：</p>
-<ul>
-<li>RNNT：可流式识别，但用双向encoder，就不流式了；</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513112532431.png" alt="image-20220513112532431" style="zoom:80%;">
-
-<ul>
-<li>attention-based：比如las、</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513112556714.png" alt="image-20220513112556714" style="zoom:80%;">
-
-<ul>
-<li><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513112646296.png" alt="image-20220513112646296" style="zoom: 80%;">
-   - RNN Transducer with Attention :把RNN-T里的prediction network换成las里的attention decoder；和las相同，要添加sos和eos label，</li>
-</ul>
-<h3 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h3><ul>
-<li>数据集：12500 h</li>
-<li>数据扩展（即使1w小时了也还要数据扩展）目的是对噪声和混响更robust：生成multicondition training (MTR) data：distorted using a room simulator 、by adding in noise samples extracted from YouTube videos and environmental recordings of daily events 、</li>
-<li>the overall SNR is between 0dB and 30dB, with an average of 12dB  ，信噪比不低于0dB，不高于30dB，平均12dB</li>
-<li>log-mel  特征80维，25ms帧长，10ms帧移，送给模型时下采样3倍，</li>
-<li>标签：26个字母a-z，10个数字0-9，空格，标签符号</li>
-<li>ctc：encoder：5层 blstm，350结点（700结点），用这个训好（收敛了）的encoder权重，作为其他端到端模型的初始权重，这可以加速其他模型的收敛；</li>
-<li>rnnt：encoder和上同，prediction network 单层gru，700结点；joint network 单层前馈网络，700结点，tanh激活函数；解码 beam search 的beam&#x3D;15</li>
-<li>attention-based  ：decoder：一或两层gru，700结点；</li>
-<li>baseline：ctc模型，训好用smbr再训，8192 CD phonemes，解码：pruned, first-pass, 5-gram language model   ，再用更大的5-gramLM进行rescore ；词典 包含百万个词</li>
-<li>RNN-T剪枝是走了t步剪枝（frame-synchronous decoding）；attention剪枝是输出u个符号剪枝（label-synchronous decoding）</li>
-<li>为了防止attention-based模型输出非常短的话语，只有当模型输出一个概率大于阈值的<eos>标签时，才允许终止下一个标签预测过程；</eos></li>
-</ul>
-<h3 id="结果-1"><a href="#结果-1" class="headerlink" title="结果"></a>结果</h3><ul>
-<li>CTC直接解码字母时，不接语言模型会非常差</li>
-<li>这样看来attention-based model效果比RNNT好</li>
-<li>在numeric 测试集（从口语映射到书面领域），attention和rnnt相比于baseline有明显改善，认为 the ability to examine the input acoustics in addition to the previous sequence of predicted tokens is particularly helpful</li>
-<li>在voice-search  测试集，比baseline差，分析是因为没加LM；</li>
-<li>发现端到端模型很难识别专有名词proper nouns  （比如地名、实体名）</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513143125662.png" alt="image-20220513143125662" style="zoom:80%;">
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/" itemprop="url">识别论文笔记（四）语言模型</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
-                2022-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
-                    <span itemprop="name">语音识别</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/识别论文笔记（四）/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="语言模型"><a href="#语言模型" class="headerlink" title="语言模型"></a>语言模型</h1><blockquote>
-<p>&#x3D;&#x3D;Dauphin Y N, Fan A, Auli M, et al. Language modeling with gated convolutional networks[C]&#x2F;&#x2F;International conference on machine learning. PMLR, 2017: 933-941.&#x3D;&#x3D; citations：1542 1Facebook  </p>
-</blockquote>
-<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>用于语言模型建模中，用stacked conv，gated temporal convolutions  代替rnn，用了gated linear units（GLU），比RNN低延迟，效果好；</li>
-<li>门控线性单元通过为梯度提供线性路径，同时保持非线性能力，减少了深度架构的梯度消失问题；</li>
-<li>提出新的gated convolutional networks，卷积网络可以通过堆叠来表示较大的上下文大小，并在越来越大的上下文中提取具有更抽象特征的层次特征</li>
-<li>$\text{GLU}(a, b) &#x3D; a \otimes \sigma(b)$</li>
-<li>：<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531121501451.png" alt="image-20220531121501451" style="zoom:80%;"></li>
-</ul>
-<p>输出 $\large h\in \mathbb R^{N\times n}$</p>
-<p>通过两个仿射变换，其中一个仿射变化通过激活函数，然后二者再做对应位置相乘</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531121429219.png" alt="image-20220531121429219" style="zoom:80%;">
-
-
-
-<ul>
-<li><p><strong>Gating Mechanisms</strong>  ：RNN中，没有input门和forget门，信息很容易通过每个时间步的转换消失。但是卷积网络不存在同样的消失梯度，我们通过实验发现它们不需要遗忘门。因此只需要考虑output gate输出门</p>
-<ul>
-<li>考虑只拥有输出门的模型，它允许网络控制哪些信息应该通过层的层次传播。</li>
-</ul>
-</li>
-<li><p>gated linear unit  梯度：<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531144046865.png" alt="image-20220531144046865" style="zoom:80%;"></p>
-</li>
-<li><p>之前的那种，lstm式门控的梯度gated tanh unit  （GTU）： <img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531144405468.png" alt="image-20220531144405468" style="zoom:80%;"></p>
-</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Yan H, Deng B, Li X, et al. TENER: adapting transformer encoder for named entity recognition[J]. arXiv preprint arXiv:1911.04474, 2019.&#x3D;&#x3D;</p>
-</blockquote>
-<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>为什么位置编码只加在attention层的输入是不够的，说的是输入位置编码PE经过W后，$PEWqWk^TPE^T$会失去了位置信息（不同位置的关系不明显了），即使网络更新了W参数，位置信息也不明显，所以要给位置信息单独的参数来更新，不和输入E的参数共享</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220602114200130.png" alt="image-20220602114200130" style="zoom:80%;">
-
-
-
-
-
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Shaw, Peter, Jakob Uszkoreit, and Ashish Vaswani. “Self-attention with relative position representations.” <em>arXiv preprint arXiv:1803.02155</em> (2018).&#x3D;&#x3D;citation 988 Google </p>
-<p><a target="_blank" rel="noopener" href="https://medium.com/@_init_/how-self-attention-with-relative-position-representations-works-28173b8c245a">How Self-Attention with Relative Position Representations works</a></p>
-<p>github：tensor2tensor：<a target="_blank" rel="noopener" href="https://github.com/tensorflow/tensor2tensor/blob/9e0a894034d8090892c238df1bd9bd3180c2b9a3/tensor2tensor/layers/common_attention.py#L1556-L1587">https://github.com/tensorflow/tensor2tensor/blob/9e0a894034d8090892c238df1bd9bd3180c2b9a3/tensor2tensor/layers/common_attention.py#L1556-L1587</a></p>
-<p>[好] 知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/105001610">Transformer改进之相对位置编码(RPE)</a></p>
-<p>博客园：[<a target="_blank" rel="noopener" href="https://www.cnblogs.com/shiyublog/p/11185625.html">NLP] 相对位置编码(一) Relative Position Representatitons (RPR) - Transformer </a></p>
-<p>csdn <a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/107939242">论文阅读笔记：Self-Attention with Relative Position Representations</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/364828960">https://zhuanlan.zhihu.com/p/364828960</a></p>
-</blockquote>
-<h3 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>为什么只在输入加位置信息是不够的：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/105001610%EF%BC%8C%E5%9B%A0%E4%B8%BA%E8%BE%93%E5%85%A5%E6%9C%89%E4%BD%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%EF%BC%8C%E7%BB%8F%E8%BF%87%E4%BB%BF%E5%B0%84%E5%8F%98%E6%8D%A2W%E5%90%8E%E4%BD%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%E5%B0%B1%E6%B2%A1%E4%BA%86%EF%BC%8C%E5%B9%B6%E4%B8%94%E8%AE%AD%E7%BB%83%E6%9B%B4%E6%96%B0%E5%8F%82%E6%95%B0%E5%90%8E%EF%BC%8C%E6%89%93%E5%8D%B0%E5%87%BA%E6%9D%A5%E7%9C%8B%E4%BE%9D%E7%84%B6%E6%B2%A1%E6%9C%89%E4%BA%86%E4%BD%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%EF%BC%9B">https://zhuanlan.zhihu.com/p/105001610，因为输入有位置信息，经过仿射变换W后位置信息就没了，并且训练更新参数后，打印出来看依然没有了位置信息；</a></p>
-</li>
-<li><p>提出相对位置编码 Relative Position Representations  (RPR)，之前的transformer的位置编码只在encoder和decoder的输入，现在在模型中加入可训练的位置编码，表示距离；</p>
-</li>
-<li><p>Relation-aware Self-Attention  ：对attention里的k，v引入输入pair之间的edge信息；将输入建模为一个标记的、有向的、完全连通的图</p>
-</li>
-<li><p>具体做法是在计算attention score和weighted value时各加入一个可训练的表示相对位置的参数，并且multi head之间可以共享。具体的：</p>
-<p>输入元素 $x_i$ 和 $x_j$ 之间的edge记为向量 $\large \alpha _{ij}^V, \alpha _{ij}^K \in \mathbb{R}^{d_a} $， 可以在关注头head之间共享</p>
-<p>有2个RPR的表征</p>
-<p>attention机制里的<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519103208774.png" alt="image-20220519103208774" style="zoom: 80%;">变为：<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519103224268.png" alt="image-20220519103224268" style="zoom: 80%;"></p>
-<p>attention机制里的<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519103257357.png" alt="image-20220519103257357" style="zoom: 80%;">变为<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519103321485.png" alt="image-20220519103321485" style="zoom: 80%;"></p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519102007123.png" alt="image-20220519102007123" style="zoom:80%;">
-
-
-
-<ul>
-<li><p>对于线性序列，边缘可以捕获输入元素之间相对位置差的信息。本文的最大相对位置被裁剪到k的最大绝对值。这是基于假设：精确的相对位置信息在一定距离以外是没有用的。剪切最大距离还可以使模型推广到训练中没有看到的序列长度。因此，本文只考虑2k + 1个unique edge labels  唯一边标签</p>
-<p>最大单词数被clipped在一个绝对的值k以内。向左k个, 再左边均为0， 向右k个，再右边均为k, 所表示的index范围</p>
-<p>$a_{ik}^K$   ， $a_{ik}^V$  就表示了xi和xj的相对位置信息，所以他们只和 i 和 j 的差值k有关。具体如下：</p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519102853385.png" alt="image-20220519102853385" style="zoom:80%;">
-
-<ul>
-<li>实现：</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519104753501.png" alt="image-20220519104753501" style="zoom:80%;">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Dai, Zihang, et al. “Transformer-xl: Attentive language models beyond a fixed-length context.” <em>arXiv preprint arXiv:1901.02860</em> (2019).&#x3D;&#x3D; citations：1864 Google Brain  </p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/kimiyoung/transformer-xl">https://github.com/kimiyoung/transformer-xl</a>  </p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/huggingface/transformers/blob/0a6b9048d1d5de5b965a8757dd56fef87ed9d7e1/src/transformers/models/transfo_xl/modeling_transfo_xl.py">https://github.com/huggingface/transformers/blob/0a6b9048d1d5de5b965a8757dd56fef87ed9d7e1/src/transformers/models/transfo_xl/modeling_transfo_xl.py</a></p>
-<p><a target="_blank" rel="noopener" href="https://towardsdatascience.com/transformer-xl-explained-combining-transformers-and-rnns-into-a-state-of-the-art-language-model-c0cfe9e5a924">Transformer-XL Explained: Combining Transformers and RNNs into a State-of-the-art Language Model</a></p>
-<p>博客园 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/jiangxinyang/p/11534492.html">NLP中的预训练语言模型（三）—— XL-Net和Transformer-XL</a></p>
-<p><a target="_blank" rel="noopener" href="https://jaketae.github.io/study/relative-positional-encoding/">https://jaketae.github.io/study/relative-positional-encoding/</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_34914551/article/details/119866975">https://blog.csdn.net/qq_34914551/article/details/119866975</a></p>
-<p>科学空间：<a target="_blank" rel="noopener" href="https://kexue.fm/archives/8130">让研究人员绞尽脑汁的Transformer位置编码</a></p>
-<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/334355417">相对位置编码和绝对位置编码原理及源码</a></p>
-<p>[很不错]  博客园：[<a target="_blank" rel="noopener" href="https://www.cnblogs.com/shiyublog/p/11236212.html">NLP] 相对位置编码(二) Relative Positional Encodings - Transformer-XL </a></p>
-<p>&#x3D;&#x3D;知乎 chao yang：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/344604604">Conformer ASR中的Relative Positional Embedding&#x3D;&#x3D;</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/397269153">https://zhuanlan.zhihu.com/p/397269153</a></p>
-<p><a target="_blank" rel="noopener" href="https://gudgud96.github.io/2020/04/01/annotated-music-transformer/">https://gudgud96.github.io/2020/04/01/annotated-music-transformer/</a></p>
-<p>公众号 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI5MDUyMDIxNA==&mid=2247571522&idx=3&sn=5220cd96db90f5e5a180ae04be755c66&chksm=ec1d35bbdb6abcad5af3f387e0a55c76f8a9ff21f27c9c1a6d20ecb1af5b8e316b565d210328&mpshare=1&scene=1&srcid=0518S7ex1MAJiZw3NGDWc5RB&sharer_sharetime=1653906114213&sharer_shareid=7dfde0689a805163a3af5547f5e7bbff&version=4.0.0.6023&platform=win#rd">实践教程 | PyTorch中相对位置编码的理解</a></p>
-</blockquote>
-<h5 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
-<li>让transformer模型有机会学习更长的依赖关系；</li>
-</ul>
-<h5 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
-<li>提出一个叫Tansformer-XL的结构，组成由segment-level recurrence mechanism 和 a novel positional encoding scheme</li>
-</ul>
-<h5 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
-<li>80% longer than RNNs and 450% longer than vanilla Transformers</li>
-</ul>
-<h5 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><p>- </p>
-<h3 id="思路-3"><a href="#思路-3" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>Transformers模型可以学会很长的依赖关系，但是由于训练集的长度不是很长，一般没有机会学会很长的依赖，本文提出一种Transformer-XL架构，不干扰时序相关性的前提下，能够学习超出固定长度的更长的依赖性。Transformer-XL 由segment-level 分段递归结构和novel 位置编码组成；</li>
-<li>之前的transformer训练时是固定长度（固定长度比如512个字符，一篇文章截断成固定长度片段），并且固定长度的片段是通过选择连续的符号块来创建的，而不考虑句子或任何其他语义边界，预测前面几个symbols时能用到的上下文信息就很少，该问题称为context fragmentation 。因此，在self-attention network  中引入 <strong>recurrence</strong> 递归的思想，复用previous segments的隐状态作为当前current segment的记忆（<strong>memory</strong>）模块；并且传递来自上一段的信息也可以解决上下文碎片context fragmentation的问题。</li>
-<li>建模语言模型：Given a corpus of tokens $x&#x3D;(x_1,…,x_T)$, 语言模型的任务是估计联合概率$P(x)$，其中，$\large P(x)&#x3D;\prod_tP(x_t|x_{&lt;t})$</li>
-<li>之前的transormer： vanilla Transformer model   （Al-Rfou et al. (2018)  ）：信息只在segment内部流动（其实这个segment长度也是很长的，但是对于特别特别长，篇章级别的文本，就无法处理，因为训练时把篇章截断成segment了）</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220516170152731.png" alt="image-20220516170152731" style="zoom:80%;">
-
-<ul>
-<li>Transformer-XL：<strong>segment-level recurrence mechanism</strong></li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220516170208952.png" alt="image-20220516170208952" style="zoom:80%;">
-
-
-
-<p>第n层，第$\tau$个segment（d维）$s_{\tau}$，其神经元结点 $h_{\tau}^n \in R^{L\times d}$ ，则 下一个segment $s_{\tau+1}$为：</p>
-<p>(extended context)  ：$\large \tilde h_{\tau+1}^{n-1}&#x3D;[SG(h_{\tau}^{n-1}) \circ h_{\tau+1}^{n-1}]$</p>
-<p>(query, key, value vectors)  ：$\large q_{\tau + 1}^n , k_{\tau+1}^n, v_{\tau+1}^n &#x3D; h_{\tau+1}^{n-1}W_q^T, \tilde h_{\tau+1}^{n-1}W_k^T, \tilde h_{\tau+1}^{n-1}W_v^T$</p>
-<p>(self-attention + feed-forward)  ：$\large h_{\tau+1}^{n}&#x3D;TransformerLayer(q_{\tau+1}^n,k_{\tau+1}^n,v_{\tau+1}^n)$</p>
-<p>其中，SG(·) 表示 stop-gradient，就是里面的参数不更新了 ，[hu ◦ hv] 表示沿着length维度，把两个隐层序列concatenate起来；</p>
-<p>由于扩展上下文$\tilde h_{\tau+1}^{n-1}$是和前一个segment $h_{\tau}^{n-1}$有关的（因为拼接了前一个segment的h），因此计算当前segment的qkv，也是和前一个segment有关的；[recurrence 递归、循环]</p>
-<p>（RNN-LM是接收前一个符号，层都是当前层，这个transformer-xl是接收前一segment符号<strong>序列</strong>，并且是作用到下一层）</p>
-<p>复杂度$O(N\times L)$，L是每个segment长度，N是层数</p>
-<ul>
-<li><p>faster evaluation ： 计算下一个segment时，可以reuse上一个segment信息，上一个segment信息已经有了，当前segment不需要重新计算，因此比 vanilla model在推理时快了1800倍；</p>
-</li>
-<li><p>&#x3D;&#x3D;relative position embedding scheme&#x3D;&#x3D;：之前的位置编码，对于不同segment，同一内部的位置编码结果都是一样的，这区分不开不同segment位置，因此用相对位置编码（其实绝对位置编码，相对位置编码，对于不同segment编码还是一样的，相对位置编码感觉并没有解决不同segment内部的编码位置结果可以做到不一样）；</p>
-<ul>
-<li><p>之前的：$\large h_{\tau+1}&#x3D;f(h_\tau,    E_{s_{\tau+1}}+U_{1:L})$              、        $\large h_{\tau}&#x3D;f(h_{\tau-1}, E_{s_{\tau}}+U_{1:L})$   </p>
-<p>其中，$E_{s_{\tau}}\in \mathbb R^{d\times L}$表示$s_{\tau}$的词向量，$f$表示transformation函数，$\large U\in  R^{L_{max},d}$，   可以看出位置编码是一样的，</p>
-<p><strong>绝对位置编码</strong>，计算attention分数 ：</p>
-<p>$\large A_{i,j}^{abs}&#x3D;E_{x_i}^TW_q^TW_kE_{x_j} + E_{x_i}^TW_q^TW_kU_j + U_i^TW_q^TW_kE_{x_j} + U_i^TW_q^TW_kU_j&#x3D;(E_{x_i}^T+U_i^T)W_q^TW_k(E_{x_i}+U_i)$</p>
-</li>
-</ul>
-<p>​       其中，$ E_{x_i} \in \mathbb{R}^{d\times 1}$，$ W \in \mathbb{R}^{d\times d}$</p>
-<p>​	 绝对位置编码中，Q、K、V都要加位置编码；</p>
-<p>​	（相对位置编码，V没做）</p>
-<ul>
-<li><p>下面提出改进绝对位置编码的“相对位置编码”，感觉并不是为了不同segment，而是就是想用一个相对值，并且$R_{i,j}$也不是本文提出的，但是本文提出了不依赖位置的$u$，$v$ ；</p>
-</li>
-<li><p><strong>相对位置编码</strong>：它是每个注意力模块的一部分（有参数需要更新），而不是仅在第一层之前编码位置，并且基于标记之间的相对距离而不是它们的绝对位置。</p>
-</li>
-<li><p>要知道 $k_{\tau,j}$ 和 $q_{\tau,i}$ 的相对距离，即 $i-j$</p>
-</li>
-<li><p>相对位置编码，计算attention分数：</p>
-<p>$\large A_{i,j}^{rel}&#x3D;E_{x_i}^TW_q^TW_{k,E}E_{x_j} + E_{x_i}^TW_q^TW_{k,R}R_{i-j} + u^TW_{k,E}E_{x_j} + v^TW_{k,R}R_{i-j}$</p>
-<p>$\large &#x3D;(E_{x_i}^TW_q^T+u^T)W_{k,E}E_{x_j} + (E_{x_i}^TW_q^T + v^T )W_{k,R}R_{i-j}  $</p>
-<p>输出维度 $\in \mathbb{R}^{L\times L}$</p>
-<p>其中，$\large R \in \mathbb{R}^{L_{max}\times d}$是正弦函数矩阵sinusoid encoding matrix，这个是直接计算出来的，里面没有要学习&#x2F;更新的参数；</p>
-<p>（感觉公式里是反过来的，E是d * L而不是L *  d）</p>
-<p>$u \in \mathbb{R}^d$ ，是一个向量，代替query   $U_i^TW_q^T$     ，所有query位置的query向量都是相同的，这意味着无论查询位置如何，对不同单词的attentive bias都应该是相同的；</p>
-<p>$v \in \mathbb{R}^d$ 代替   $U_i^TW_q^T$  ；（不需要给query位置编码）</p>
-<p>引入了上一片段的隐层表示只会用在key和value上，对于query还是保持原来的样子，query只是表示查询的词，而key，value表示的是表示这个查询的词的相关信息，我们要改变的是只是信息；</p>
-<p>因为是相对位置，所以query的绝对位置信息U_i就不需要了</p>
-<p>$W_{k,E} \in \mathbb{R}^{d\times d}$：content-based key vectors；$W_{k,R} \in \mathbb{R}^{d\times d}$：location-based key vectors；</p>
-<p>因此要学习&#x2F;更新的参数是：u，v，$W_{k,E}$、$W_{k,R}$</p>
-<p>相对位置编码计算attention分数的公式中</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220517170411148.png" alt="image-20220517170411148" style="zoom:80%;">
-
-<p>　　a）基于内容的“寻址”，即没有添加位置向量，词对词的分数。</p>
-<p>　　b）基于内容的位置偏置，相当于当前内容的位置偏差。</p>
-<p>　　c）全局的内容偏置，用于衡量key的重要性。</p>
-<p>　　d）全局的位置偏置，根据key和query调整位置的重要性。</p>
-<p>a）部分基本不变，只是对于key的位置向量的权重矩阵和词向量的权重矩阵不再共享；b）部分引入了相对位置向量$R_{i−j}$，是一个的预先给定好的正弦编码矩阵，不需要学习；c）对于query的位置向量采用可以学习的初始化向量来表示，$u^T$表示对key中词E的位置向量，d）同上，$v^T$表示对key中位置R的位置向量；</p>
-</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220518201007774.png" alt="image-20220518201007774" style="zoom:80%;">
-
-<ul>
-<li><p>一个N层Transformer-XL 的前向过程（以单头注意力机制为例）：</p>
-<p>$\large \tilde h_{\tau}^{n-1}&#x3D;[SG(m_{\tau}^{n-1}) \circ h_{\tau}^{n-1}]$</p>
-<p>$\large q_{\tau }^n , k_{\tau}^n, v_{\tau}^n &#x3D; h_{\tau}^{n-1}W{<em>q^n}^T, \tilde h</em>{\tau}^{n-1}W{<em>{k,E}^n}^T, \tilde h</em>{\tau}^{n-1}W{_v^n}^T$</p>
-<p>$\large A_{\tau,i,j}^n&#x3D;{q_{\tau,i}^n}^Tk$………………….没写完，看下面：</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220517170434999.png" alt="image-20220517170434999" style="zoom:80%;">
-</li>
-<li><p>简化相对位置编码计算过程：</p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531104156028.png" alt="image-20220531104156028" style="zoom:80%;">
-
-
-
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531104230759.png" alt="image-20220531104230759" style="zoom:80%;">
-
-
-
-
-
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220518210923007.png" alt="image-20220518210923007" style="zoom:80%;">
-
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220517151401322.png" alt="image-20220517151401322" style="zoom:80%;">
-
-
-
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/1453927-20191008092720538-235885034.png" alt="img" style="zoom:80%;">
-
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/1453927-20191008092738028-1669727199.png" alt="img" style="zoom:80%;">
-
-<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><p>数据集：WikiText-103   </p>
-<p>评价指标：困惑度：20.5 to 18.3  </p>
-<p>等等</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/9/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/11/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/9/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/11/">&gt;</a>
   </nav>
 
 
@@ -3085,7 +2567,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">130</span>
+                  <span class="site-state-item-count">132</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

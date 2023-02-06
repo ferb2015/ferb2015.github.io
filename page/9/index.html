@@ -288,6 +288,400 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/Wenet/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet/" itemprop="url">基于Wenet的语音识别</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/Wenet/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="基于Wenet的语音识别"><a href="#基于Wenet的语音识别" class="headerlink" title="基于Wenet的语音识别"></a>基于Wenet的语音识别</h1><p>​																																																																												2022.5.7</p>
+<h4 id="带LM的方案："><a href="#带LM的方案：" class="headerlink" title="带LM的方案："></a>带LM的方案：</h4><p>现CTC&#x2F;AED方案：</p>
+<p>只在推理用：预训练的LM参与CTC解码，CTC解码完将n-best送入attention decoder，作为attention decoder的解码空间，二遍解码；</p>
+<p>还可以有的方案：</p>
+<ol>
+<li><p>cold fusion：预训练LM参数不更新，与CTC&#x2F;AED AM模型融合，只更新AM模型，然后推理解码CTC+LM，（不）送入attention decoder？？（这里的更新am，要有领域wav+text时，更新才有效）</p>
+</li>
+<li><p>shallow fusion：只在推理用：attention decoder解码时引入预训练LM分数，影响rescore路径；</p>
+</li>
+</ol>
+<p>（参考las：$\large s(y|x)&#x3D;\frac{logP(y|x)}{|y|<em>c}+\lambda logP</em>{LM}(y)$）</p>
+<ol start="3">
+<li>rescore，但是ctc n-best是给decoder输出每个符号的限制范围，不是只在ctc的beam条路径中选一条，而是decoder也可以做beam search</li>
+</ol>
+<p>班博说：</p>
+<ul>
+<li><p>如果没有领域数据</p>
+<ul>
+<li><p>比如文言文出师表这种，即使am训练得再好，如果不依赖lm，那么ctc出来的n-best里就不会有文言文这条候选路径，那么即使后面怎么rescore都无效；</p>
+</li>
+<li><p>ctc解码过程中引入lm，出来的可能会有效，然后再可选加&#x2F;不加rescore；</p>
+</li>
+<li><p>ctc解码过程中纯纯声学模型过程，语言模型有起一点作用但是很弱，我们对通用语料训练得到的am的唯一要求就是发音准确，对它没有语言模型的要求，甚至希望它能减少语言模型的依赖，因为后期要加领域数据训练的语言模型</p>
+<p>这里encoder+ctc之所以有一点语言模型作用（我一开始以为它是纯纯am，只是音到字的建模，没有字到字的建模），是因为不然发同音字，它出来的可以是任意字，而很不容易发出对的字，但是实际上大部分都是发对的字，说明有语言模型的作用在里头）</p>
+</li>
+<li><p>更好的结合方式是，ctc解码纯纯声学模型，再用领域数据的语言模型rescore，这时候按字建模就不合适了，不然n-best可能都没那条路径，最好的就是按音素&#x2F;音节建模，避开字建模，这样n-best好出来；</p>
+</li>
+<li><p>字、词、声韵母、音素不同建模+领域TLG+领域rescoring</p>
+</li>
+</ul>
+</li>
+<li><p>如果有领域数据</p>
+<ul>
+<li><p>领域数据是弱标注时：字+领域TLG+领域rescoring</p>
+<p>（弱标注指的是有领域的音频但是没有标注，放到腾讯&#x2F;百度&#x2F;讯飞等开放平台上得到asr结果，如果多家都是一样的，则认为这个标注是对的，称为弱标注）</p>
+</li>
+<li><p>领域数据是人工标注时：字+领域TLG+领域rescoring</p>
+</li>
+</ul>
+</li>
+<li><p>中英混：查看CTC出来的n-best（这个n可以很大），与标注文本之间的WER，如果n&gt;1的第n条路径WER低于1-best，说明有提升的空间（说明候选路径里有通过rescore能校准的可能性，再去调研rescore方法），如果wer没有差别，说明此方法不可行，要探索其他方法</p>
+</li>
+</ul>
+<p>班博说：</p>
+<ol>
+<li><p>跟业务确定现在的50小时数据是否为真实课堂场景数据</p>
+<ul>
+<li>如果业务反馈该数据可以代表真实环境，那么研究院没必要继续跟进</li>
+<li>如果业务反馈该数据不能代表真实环境，那么需要提供接近真实的场景测试数据</li>
+</ul>
+</li>
+<li><p>如果新的真实场景数据ASR结果较差，或者提高中英混效果，研究院可以研究的点</p>
+<ul>
+<li>字、词、声韵母、音素不同建模+领域TLG+领域rescoring</li>
+<li>第三方弱标注领域音频，训练字+领域TLG+领域resocring</li>
+<li>第三方人工标注领域音频，训练字+领域TLG+领域resocring</li>
+</ul>
+</li>
+</ol>
+<p>$\large y\in \mathbb R^{L\times e}$</p>
+<hr>
+<p>encoder、decoder的输入都要加位置编码，</p>
+<p>decoder最下面（第一个）的attention是mask attention，mask就是下三角矩阵，只看见previous，输入不是逐符号输入的，而是整句文本都输入，整句话提取embedding，然后做attention，一次到位，并不是我想象得那种第一个符号输出作为第二个符号的输入那样，</p>
+<p>第二个attention，Inter-attention</p>
+<h2 id="训练耗时"><a href="#训练耗时" class="headerlink" title="训练耗时"></a>训练耗时</h2><p>4台8卡（32卡），1w小时，1个epoch 2.5小时，80个epoch大约8天</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet/v2-5169789bc1a176f10f950f9c7b79c7d9_r.jpg" alt="preview"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E7%BC%96%E8%AF%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E7%BC%96%E8%AF%91/" itemprop="url">编译Wenet runtime</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E7%BC%96%E8%AF%91/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/Wenet编译/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="编译Wenet-runtime"><a href="#编译Wenet-runtime" class="headerlink" title="编译Wenet runtime"></a>编译Wenet runtime</h1><p>需要有cmake、g++</p>
+<p>在wenet&#x2F;runtime&#x2F;server&#x2F;x86 进行：mkdir build &amp;&amp; cd build &amp;&amp; cmake .. &amp;&amp; cmake –build .</p>
+<h1 id="调试wenet"><a href="#调试wenet" class="headerlink" title="调试wenet"></a>调试wenet</h1><p>需要有gdb（安装的gdb 9.2，.&#x2F;configure –prefix&#x3D;… &amp;&amp; make -j all &amp;&amp; make install）（安装gdb需要有texinfo（安装的texinfo 6.6，.&#x2F;configure –prefix&#x3D;… &amp;&amp; make -j all &amp;&amp; make install））</p>
+<h1 id="编译、调试成功"><a href="#编译、调试成功" class="headerlink" title="编译、调试成功"></a>编译、调试成功</h1><p>10.22.24.2（yelong port&#x3D;51720  password&#x3D;123）</p>
+<h1 id="调试decoder-main"><a href="#调试decoder-main" class="headerlink" title="调试decoder_main"></a>调试decoder_main</h1><p>用的cgdb调试</p>
+<p>首先之前编译cmake时，没有加可选debug的选项，因此不可调试，在<strong>CMakeLists.txt</strong>加入</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SET(CMAKE_BUILD_TYPE &quot;Debug&quot;) </span><br><span class="line">SET(CMAKE_CXX_FLAGS_DEBUG &quot;$ENV&#123;CXXFLAGS&#125; -O0 -Wall -g -ggdb&quot;)</span><br><span class="line">SET(CMAKE_CXX_FLAGS_RELEASE &quot;$ENV&#123;CXXFLAGS&#125; -O3 -Wall&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>重新编译：在build里：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">cmake clean ..</span></span><br><span class="line">cmake  -DCMAKE_BUILD_TYPE=Debug ..</span><br><span class="line">cmake  -DCMAKE_BUILD_TYPE=Debug --build .</span><br><span class="line">make	# 记得还要一步 make</span><br></pre></td></tr></table></figure>
+
+<p>然后在Libtorch下调试：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">cgdb build/bin/decoder_main</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">然后在界面中打断点：比如</span> </span><br><span class="line">b asr_decoder.cc:194</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">无tlg</span></span><br><span class="line">run  --chunk_size -1 --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang.char.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">不调试运行就是：</span></span><br><span class="line">./build/bin/decoder_main --chunk_size -1 --wav_scp /home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang.char.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">要打印n_best：加 --output_nbest <span class="literal">true</span></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">tlg</span></span><br><span class="line">run --acoustic_scale 5 --beam 5.0 --lattice_beam 7.5 --max_active 7000 --ctc_weight 1 --rescoring_weight 0 --chunk_size -1  --fst_path /data_local/yelong/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_lin/TLG.fst  --wav_scp home/yelong/data/wenet/examples/aishell/s0/data/xueyuan/wav.scp.1 --model_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/final.zip  --dict_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang_test_aban-c009_lin/words.txt --unit_path /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/lang.char.txt</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="gdb调试报错warning-Error-disabling-address-space-randomization-Operation-not-permitted"><a href="#gdb调试报错warning-Error-disabling-address-space-randomization-Operation-not-permitted" class="headerlink" title="gdb调试报错warning: Error disabling address space randomization: Operation not permitted"></a>gdb调试报错warning: Error disabling address space randomization: Operation not permitted</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://gitee.com/openeuler/community/issues/I1KPAQ">https://gitee.com/openeuler/community/issues/I1KPAQ</a></p>
+</blockquote>
+<p>启动docker时加参数</p>
+<p>启动容器时加上–cap-add&#x3D;SYS_PTRACE –security-opt seccomp&#x3D;unconfined选项可以解决该问题</p>
+<p>docker run -it –cap-add&#x3D;SYS_PTRACE –security-opt seccomp&#x3D;unconfined mobvoiwenet&#x2F;wenet:latest bash</p>
+<p>在172.17.84.128的docker里编译，不加debug，是可以编译成功的，</p>
+<p>但是加debug后</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20LM/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2136,349 +2530,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/" itemprop="url">kaldi实现迁移学习</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
-                2022-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
-                    <span itemprop="name">语音识别</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/kaldi 迁移学习/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="kaldi实现迁移学习"><a href="#kaldi实现迁移学习" class="headerlink" title="kaldi实现迁移学习"></a>kaldi实现迁移学习</h1><blockquote>
-<p>speechhome 课程 Kaldi语音识别理论与实践 石颖 第9节 <a target="_blank" rel="noopener" href="https://edu.speechhome.com/p/t_pc/course_pc_detail/video/v_632490ece4b050af23b7c9e2">https://edu.speechhome.com/p/t_pc/course_pc_detail/video/v_632490ece4b050af23b7c9e2</a></p>
-</blockquote>
-<p>两种方式的迁移学习：</p>
-<ol>
-<li>较多训练数据训练好的模型的参数作为初始模型参数，更新 其他领域数据&#x2F;新模型结构（只有一些层不一样）的模型参数。</li>
-<li>固定训练好的模型的大部分参数，只更新部分层（新领域数据特别特别少时，用该方法）</li>
-</ol>
-<h2 id="方法1实现："><a href="#方法1实现：" class="headerlink" title="方法1实现："></a>方法1实现：</h2><p>以最后一层不一样举例，要调整最后一层结构，变成想要的输出维度。</p>
-<h3 id="步骤1-把初始模型的输出维度更换成想要的维度："><a href="#步骤1-把初始模型的输出维度更换成想要的维度：" class="headerlink" title="步骤1. 把初始模型的输出维度更换成想要的维度："></a>步骤1. 把初始模型的输出维度更换成想要的维度：</h3><p><strong>思路：</strong>准备一个config文件，只保留输出维度相关的component（其他component都不要），然后用该config文件重新初始化模型，这时候旧模型的输出component会被新config里的component覆盖，旧模型其余会保留；</p>
-<p><strong>做法：</strong>打开config文件，手动删除其他component，只保留输出维度相关的component</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009181943628.png" alt="image-20221009181943628"></p>
-<p>然后在vim中输入 <code>:%s/旧维度/新维度/g</code>进行替换，就是把config里的比如输出维度4368换成2000。</p>
-<p>然后在命令行输入：<code>nnet3-init final.mdl final.config final.change.output_dim.mdl</code></p>
-<p>就可以了。</p>
-<h3 id="步骤2-用新模型作为初始模型，在新数据集上进行训练："><a href="#步骤2-用新模型作为初始模型，在新数据集上进行训练：" class="headerlink" title="步骤2. 用新模型作为初始模型，在新数据集上进行训练："></a>步骤2. 用新模型作为初始模型，在新数据集上进行训练：</h3><p>在 run.sh中的 <code>steps/nnet3/chain/train.py --trainer.input-model final.change.output_dim.mdl</code></p>
-<h2 id="方法2实现："><a href="#方法2实现：" class="headerlink" title="方法2实现："></a>方法2实现：</h2><p>固定某些层参数名</p>
-<p>第一种粗暴的方法：打开mdl.txt，将component的名称手动更改为Fixed的component</p>
-<p>比如把<AffineComponent>改为<FixedAffineComponent></FixedAffineComponent></AffineComponent></p>
-<p>但是这样要改的地方很多。</p>
-<p>第二种方法 【推荐】：</p>
-<p>新建一个config文件（文件的第一个字段是要进行哪种操作，第二个字段是这个操作要应用在哪个component上）</p>
-<p>该图的意思是对tdnn1-5层的仿射变换层更改为参数不可变的仿射变换层。</p>
-<p>（比如保存在fix_config&#x2F;edit_config）</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009182908327.png" alt="image-20221009182908327"></p>
-<p>然后在命令行输入：<code>nnet3-copy --edits-config=fix_config/edit_config --binary=false final.raw final.fix.tdnn1-5.raw</code></p>
-<p>然后在 run.sh中的 <code>steps/nnet3/chain/train.py --trainer.input-model final.fix.tdnn1-5.raw</code></p>
-<hr>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/image-20221009183631092.png" alt="image-20221009183631092" style="zoom:80%;">
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%E7%9A%84%E8%AF%8D%E5%85%B8L.fst/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%E7%9A%84%E8%AF%8D%E5%85%B8L.fst/" itemprop="url">kaldi的词典L.fst、L_disambig.fst</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
-                2022-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
-                    <span itemprop="name">语音识别</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%E7%9A%84%E8%AF%8D%E5%85%B8L.fst/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/kaldi的词典L.fst/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="kaldi的词典L-fst、L-disambig-fst"><a href="#kaldi的词典L-fst、L-disambig-fst" class="headerlink" title="kaldi的词典L.fst、L_disambig.fst"></a>kaldi的词典L.fst、L_disambig.fst</h1><p>权重：0.693147182</p>
-<p>这是概率&#x3D;0.5，这里取-log表示在FST中</p>
-<p>$0.693147182&#x3D;-log_e(0.5)$</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%E7%9A%84%E8%AF%8D%E5%85%B8L.fst/image-20211230105520591.png" alt="image-20211230105520591" style="zoom:80%;">
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/8/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/10/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/8/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/10/">&gt;</a>
   </nav>
 
 
@@ -2524,7 +2580,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">130</span>
+                  <span class="site-state-item-count">132</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
