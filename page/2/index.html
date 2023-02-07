@@ -288,6 +288,182 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%AD%E9%9F%B3%E4%BA%91%E5%B9%B3%E5%8F%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%AD%E9%9F%B3%E4%BA%91%E5%B9%B3%E5%8F%B0/" itemprop="url">《语音识别原理与应用》洪青阳 第15章 工程应用实践————语音云平台</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-30T00:00:00+08:00">
+                2023-01-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index">
+                    <span itemprop="name">工程实践</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%AD%E9%9F%B3%E4%BA%91%E5%B9%B3%E5%8F%B0/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/30/工程实践/语音云平台/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="语音云平台"><a href="#语音云平台" class="headerlink" title="语音云平台"></a>语音云平台</h1><blockquote>
+<p>《语音识别原理与技术》洪青阳 工业应用实践 书、PPT 15.2</p>
+</blockquote>
+<p>语音云平台可通过RESTful的方式给开发者提供一个通用的HTTP接口。</p>
+<p>如图所示，系统通过HTTP的协议来进行调用。客户端采用HTTP Post，发Post请求到服务器，然后获取服务器的响应，根据响应的代码，判断操作是否成功。客户端负责语音的采集，并将采集后的语音上传到服务端，由服务端进行语音识别，并将结果返回到客户端。</p>
+<p>部署不是一个识别引擎，so就够了，底层还要有一个服务程序，服务程序来调用识别引擎，服务程序再和外围客户端去交互。</p>
+<p><img src="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%AD%E9%9F%B3%E4%BA%91%E5%B9%B3%E5%8F%B0/image-20230130180710118.png" alt="image-20230130180710118"></p>
+<p>HTTP协议服务一般通过高级语言，如go、Python或Java等语言实现，接收HTTP多路并发请求，使用多线程技术调用引擎进行识别，并用JSON格式返回识别结果。</p>
+<p>HTTP接口协议包括如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">传送字节流</span><br><span class="line">必选字段:</span><br><span class="line">userid: 用户名称，可使用用户手机号码</span><br><span class="line">token: 系统分配</span><br><span class="line"></span><br><span class="line">file: 文件标识</span><br><span class="line">语音缓冲（可以合并传，也可分段传，但不能有间隔符）：</span><br><span class="line">buffer1(录音缓冲区）+</span><br><span class="line">buffer2(录音缓冲区）+</span><br><span class="line">buffer3(录音缓冲区）+</span><br><span class="line">...</span><br><span class="line">bufferN(录音缓冲区）</span><br><span class="line">识别成功服务器返回:</span><br><span class="line">&#123;&quot;result&quot;:&quot;语音识别识别内容文本&quot;,&quot;errCode&quot;:&quot;0&quot;,&quot;wavurl&quot;:&quot;xxx.wav&quot;&#125;</span><br><span class="line">wavurl是识别结果文本对应的语音文件url地址.默认是空&quot;&quot;</span><br><span class="line">识别结果是utf-8 编码。</span><br><span class="line"></span><br><span class="line">识别失败服务器返回：</span><br><span class="line">类似下面这个:&#123;&quot;result&quot;:&quot;&quot;,&quot;errCode&quot;:&quot;-1&quot;,&quot;AsrRetCode&quot;:&quot;5&quot;&#125;</span><br><span class="line">识别失败,会返回errCode!=0 </span><br><span class="line">说明:file内容字节流长度不能小于4000Byte</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>以下是客户端采用C代码实现CURL调用的例子。上传一句话的buffer，然后返回识别结果。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;time.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fentl.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/timeb.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;process.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;curl/curl.h&quot;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&quot;curl/easy.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">size_t</span> <span class="title function_">asrwritefunc</span><span class="params">(<span class="type">void</span> *ptr, <span class="type">size_t</span> size, <span class="type">size_t</span> nmemb, <span class="type">int</span> *index)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> count=<span class="number">0</span>;</span><br><span class="line">    <span class="type">char</span> result[<span class="number">2048</span>];</span><br><span class="line">    <span class="type">size_t</span> result len = size * nmemb;</span><br><span class="line">    result[<span class="number">0</span>]=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span>(result_len&gt;=<span class="number">2000</span>) result_len=<span class="number">2000</span>; </span><br><span class="line">    <span class="keyword">if</span>(result_len&gt;<span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">memcpy</span>(result, ptr, result_len); </span><br><span class="line">        result[result_len]=<span class="string">&#x27;\0&#x27;</span>; </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;result=%s&quot;</span>,result);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;result_len=%d&quot;</span>, result_len); </span><br><span class="line">    <span class="keyword">return</span> result_len;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">test_asr</span><span class="params">(<span class="type">int</span> index,<span class="type">char</span> *audiodata,<span class="type">int</span> content_len)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">static</span> <span class="type">int</span> boot;</span><br><span class="line">    <span class="type">static</span> <span class="type">char</span> userid[<span class="number">64</span>], token[<span class="number">28</span>]; </span><br><span class="line">    <span class="type">static</span> <span class="type">char</span> ycasr_ur1[<span class="number">128</span>]; </span><br><span class="line">    <span class="type">char</span> tmp[<span class="number">1024</span>];</span><br><span class="line">    <span class="keyword">if</span>((use_asr&amp;<span class="number">16</span>) == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">-1</span>; </span><br><span class="line">    <span class="keyword">if</span>(boot==<span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        boot=<span class="number">1</span>;</span><br><span class="line">        GetPrivateProfileString(<span class="string">&quot;SET&quot;</span>,<span class="string">&quot;URL&quot;</span>,<span class="string">&quot;http://127.0.0.1:3998/dotcasr&quot;</span>,ycasr_url,<span class="number">28</span>,config);</span><br><span class="line">        GetPrivateProfileString(<span class="string">&quot;SET&quot;</span>,<span class="string">&quot;USERID&quot;</span>,<span class="string">&quot;13600000001&quot;</span>,userid,<span class="number">32</span>,config);</span><br><span class="line">        GetPrivateProfileString(<span class="string">&quot;SET&quot;</span>,<span class="string">&quot;TOKEN&quot;</span>,<span class="string">&quot;xxxx13600000001&quot;</span>,token,<span class="number">64</span>, config);</span><br><span class="line">    &#125; </span><br><span class="line">    </span><br><span class="line">    <span class="type">time_t</span> now=time(<span class="literal">NULL</span>);</span><br><span class="line">    <span class="type">char</span> host[MAX_BUFFER_SIZE];</span><br><span class="line">    <span class="built_in">memset</span>(host, <span class="number">0</span>, <span class="keyword">sizeof</span>(host));</span><br><span class="line">    _snprintf(host, <span class="keyword">sizeof</span>(host), <span class="string">&quot;%s&quot;</span>, ycasr_url); </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;host:%s&quot;</span>,host); </span><br><span class="line">    CURL *curl; </span><br><span class="line">    CURLcode res;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">curl_httppost</span> *<span class="title">post</span>=</span><span class="literal">NULL</span>; </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">curl_httppost</span> *<span class="title">last</span>=</span><span class="literal">NULL</span>;</span><br><span class="line">    curl_formadd(&amp;post, &amp;last, CURLFORM_COPYNAME, <span class="string">&quot;userid&quot;</span>, CURLFORM_COPYCONTENTS, userid, CURLFORM_END);</span><br><span class="line">    curl <span class="title function_">formadd</span><span class="params">(&amp;post, &amp;last, CURLFORM_COPYNAME, <span class="string">&quot;token&quot;</span>, CURLFORM_COPYCONTENTS, token, CURLFORM_END)</span>;</span><br><span class="line"></span><br><span class="line">    curl_formadd(&amp;post, &amp;last, CURLFORM_COPYNAME, <span class="string">&quot;file&quot;</span>, </span><br><span class="line">        CURLFORM BUFFER,<span class="string">&quot;upload.wav&quot;</span>, </span><br><span class="line">        CURLFORM BUFFERPTR, audiodata,</span><br><span class="line">        CURLFORM BUFFERLENGTH, content_len, </span><br><span class="line">        CURLFORM_END);</span><br><span class="line">    </span><br><span class="line">    curl = curl_easy_init();</span><br><span class="line">    cur1_easy_setopt(curl, CURLOPT_URL, host); </span><br><span class="line">    curl_easy_setopt(curl, CURLOPT_TIMEOUT, <span class="number">30</span>); </span><br><span class="line">    curl easy <span class="title function_">setopt</span><span class="params">(curl, CURLOPT_HTTPPOST, post)</span>;</span><br><span class="line">    curl <span class="title function_">easy_setopt</span><span class="params">(curl, CURLOPT_WRITEFUNCTION, asrwritefunc)</span>;</span><br><span class="line">    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &amp;index); </span><br><span class="line">    res = curl_easy_perform(curl); </span><br><span class="line">    <span class="keyword">if</span>(res != CURLE OK)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;perform curl error:8d.\n&quot;</span>, res);</span><br><span class="line">        <span class="comment">//return -l;</span></span><br><span class="line">    &#125;</span><br><span class="line">    curl_easy_cleanup(curl); </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> buffer[<span class="number">256000</span>];</span><br><span class="line">    <span class="type">int</span> c=<span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> res=<span class="number">-1</span>,size=<span class="number">0</span>,index=<span class="number">1</span>:</span><br><span class="line"></span><br><span class="line">    FILE* fp1=fopen(<span class="string">&quot;test.wav&quot;</span>,<span class="string">&quot;r+b&quot;</span>); </span><br><span class="line">    <span class="keyword">if</span>(fp1=<span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;open test.wav fail!&quot;</span>); </span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        fseek(fp1,<span class="number">100</span>,SEEK_SET);<span class="comment">//跳过wav 头 </span></span><br><span class="line">        <span class="keyword">while</span>(!feof(fp1))</span><br><span class="line">        &#123;</span><br><span class="line">            sizemfread(buffer+c,<span class="number">1</span>,<span class="number">8000</span>,fp1);</span><br><span class="line">            <span class="keyword">if</span>(size&lt;<span class="number">0</span>) <span class="keyword">break</span>; </span><br><span class="line">            c=c+size:</span><br><span class="line">            <span class="keyword">if</span>(c&gt;=<span class="number">240000</span>) <span class="keyword">break</span>;    <span class="comment">//最大 240K</span></span><br><span class="line">        &#125;</span><br><span class="line">        fclose(fp1);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(c&gt;<span class="number">8000</span>) res=test_asr(index,buffer,c); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>语音云平台在服务器上运行，一般有强大的计算能力，因此可在其上使用复杂的声学模型和较大的语言模型，以支持各种场景的“任意说”识别，并通过 HTTP接口支持各种客户端调用。除了公有云,语音云平台也应支持私有云部署，以避免数据泄密。</p>
+<h3 id="语音云平台—流识别"><a href="#语音云平台—流识别" class="headerlink" title="语音云平台—流识别"></a>语音云平台—流识别</h3><p>语音云平台还可通过流的方式进行语音识别，</p>
+<p>如语音云平台的客户端一次可送200ms左右的片段，服务端接收后进行拼接，累计到1s 时长时即可开始识别。这个识别过程也是部分解码，只是令牌传播过程可以显示中间结果。等句子传送结束后，再进行 Lattice 回溯解码，得到最后识别结果。</p>
+<p><img src="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%AD%E9%9F%B3%E4%BA%91%E5%B9%B3%E5%8F%B0/image-20230130182109183.png" alt="image-20230130182109183"></p>
+<p>流识别结果跟整句识别略微有差别，但影响不大，能够保证实用性能。流识别方式可以边说边识别，大大缩短时延，有效提升响应速度。</p>
+<p>现在工业界部署的云平台，普遍采用流识别方式。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%86%E5%88%AB%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2105,252 +2281,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/" itemprop="url">CRF视频 李宏毅</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-06T00:00:00+08:00">
-                2023-01-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
-                    <span itemprop="name">深度学习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2023/01/06/深度学习/CRF 视频 李宏毅/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="CRF视频-李宏毅"><a href="#CRF视频-李宏毅" class="headerlink" title="CRF视频 李宏毅"></a>CRF视频 李宏毅</h1><blockquote>
-<p>李宏毅机器学习(2017) <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV13x411v7US?p=35">P35 24- Structured Learning - Sequence Labeling1:43:31</a> 结构化预测-序列标注</p>
-</blockquote>
-<p>HMM的问题：不能保证正确的 $\hat y$ 代入 $P(x,\hat y)$ 一定小于错误的 $y$ 代入的 $P(x,y)$。</p>
-<p>举例，根据训练数据集统计得到，N后接V有9次，V后接a有9次，N后接D有1次，D后接a有1次，虽然数据集里没有 N-&gt;V-&gt;a的情况出现过，但是假设已知前一个词性是N，输出word是a，猜测当前词性的时候，我们会根据概率猜测是V，而不是D，虽然数据集里有出现过N-&gt;D-&gt;a的数据情况，但是HMM居然会猜测出、脑补出数据集没有的情况。</p>
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105163909907.png" alt="image-20230105163909907" style="zoom:50%;">
-
-<p>但是这种脑补能力，在数据集特别小的情况下，效果不一定差，可能还比其他的方法好。</p>
-<p>HMM产生这种脑补能力的原因是 构成 P(x,y) 的两项 P(y) 和 P(x,y) 是分开训练（或者统计）的，二者没有联系、<strong>独立</strong>的，因为无法保证正确的 P(x,y) 和错误的 P(x,y) 之间的关系。</p>
-<h2 id="CRF"><a href="#CRF" class="headerlink" title="CRF"></a>CRF</h2><p>假设 P(x,y)正比于 一个指数函数 $exp(w \cdot \phi(x,y))$ 。</p>
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105173335468.png" alt="image-20230105173335468" style="zoom:50%;">
-
-<p>分母对y求和，所以和y无关，可以用一个只和x有关的函数 Z(x) 来简化。</p>
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105175039773.png" alt="image-20230105175039773" style="zoom:50%;">
-
-<p>举例说明为什么这个公式成立：</p>
-<p>这里的 $N_{s,t}(x,y) $ 是当前句子里能产生某 (s,t) pair的次数。</p>
-<p>s是tag，对应y；t是word，对应x；</p>
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105175437435.png" alt="image-20230105175437435" style="zoom:50%;">
-
-
-
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105181504783.png" alt="image-20230105181504783" style="zoom:50%;">
-
-
-
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105181518147.png" alt="image-20230105181518147" style="zoom: 50%;">
-
-
-
-
-
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105181533693.png" alt="image-20230105181533693" style="zoom:50%;">
-
-
-
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105183109361.png" alt="image-20230105183109361" style="zoom:50%;">
-
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105183144443.png" alt="image-20230105183144443" style="zoom:50%;">
-
-
-
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105183158243.png" alt="image-20230105183158243" style="zoom:50%;">
-
-<p>这里CRF分成两部分，但是也可以不止两部分，是很灵活的，可以由我们任意定义。</p>
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230105183250365.png" alt="image-20230105183250365" style="zoom:50%;">
-
-<p>这里O(w)是整个序列，所以是每个位置的p(y|x)累加后的P越大越好（每个位置的p(y|x)越大越好是交叉熵的思路）</p>
-<p>CRF希望找到一个weight，能让看到过的pair出现的概率大（第一项），没看过的pair出现的概率小（减掉的第二项）</p>
-<p>而HMM对于 求能让y最大的P(y|x)，虽然也是转换成让y最大的P(x,y)，但是转换成P(y)*P(x|y)后P(y)和P(x|y)是分开算的。</p>
-<p>因为这里是最大化一个函数，因此不是用梯度下降，而是梯度上升，</p>
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106093247099.png" alt="image-20230106093247099" style="zoom:50%;">
-
-<p>这里 $\theta$ 就是 weight $w$ 。求目标函数的梯度：</p>
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106093355700.png" alt="image-20230106093355700" style="zoom:50%;">
-
-
-
-<p>梯度的计算过程：</p>
-<p>$\hat y$ 是真实标签（是word对应真实的那个tag） </p>
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106093609656.png" alt="image-20230106093609656" style="zoom:50%;">
-
-
-
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106093636292.png" alt="image-20230106093636292" style="zoom:50%;">
-
-
-
-<p>这里exp(a)对w的导数等于 $\exp(a)\partial a&#x2F;\partial w$ ，$ P(x,y)$ 等于 $\exp(w \cdot \phi(x,y))$ ，$P(y|x)&#x3D;P(x,y)&#x2F;\sum_{y’} P(x,y’)$ 。</p>
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106093428964.png" alt="image-20230106093428964" style="zoom:50%;">
-
-<p>这里第二项是遍历所有可能的tag。</p>
-<p>因为是梯度上升，所以如果导数是正的，则参数weight w会增大；导数是负的，w会减小。因此右边第一项N越大，w越大，第二项越大，w越小。这里不要只想成参数，要还是想成权重，所以是如果训练集有的pair（第一项），权重增加，在训练集没有但是比如概率挺大（第二项），这个（s,t) pair的权重要减小。</p>
-<p>由之前的定义，上一张图只算了一个$w_{s,t}$ 的偏微分（还有不同的part 比如 $w_{s,s’}$ ），因此写成vector形式，对整个vector w来说，  <strong>$N_{s,t}$ 的向量 用 $ \phi$ 表示</strong>。</p>
-<p>对整个vector来说（考虑不同的 $(s,t)$ 组合（就是也可以是 $(s,s’)$ ））：</p>
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106113726590.png" alt="image-20230106113726590" style="zoom:50%;">
-
-<p>对某个样本 $(x^n,\hat y^n)$ 来说，更新公式写成vector形式，正确的出现次数 减去 其他出现的次数乘以概率</p>
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106114741214.png" alt="image-20230106114741214" style="zoom:50%;">
-
-
-
-
-
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106115351208.png" alt="image-20230106115351208" style="zoom:50%;">
-
-
-
-
-
-
-
-<img src="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106120341374.png" alt="image-20230106120341374" style="zoom:50%;">
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2401,7 +2331,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">133</span>
+                  <span class="site-state-item-count">134</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
