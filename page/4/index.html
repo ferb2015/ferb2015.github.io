@@ -288,6 +288,705 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/" itemprop="url">CVAE论文</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-08T00:00:00+08:00">
+                2022-12-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/12/08/深度学习/CVAE论文/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="CVAE"><a href="#CVAE" class="headerlink" title="CVAE"></a>CVAE</h1><blockquote>
+<p>Sohn, Kihyuk, Honglak Lee, and Xinchen Yan. “Learning structured output representation using deep conditional generative models.” <em>Advances in neural information processing systems</em> 28 (2015). citations：2250 </p>
+<p><a target="_blank" rel="noopener" href="http://ijdykeman.github.io/ml/2016/12/21/cvae.html">http://ijdykeman.github.io/ml/2016/12/21/cvae.html</a> （翻译：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/sddai/p/10523431.html%EF%BC%89">https://www.cnblogs.com/sddai/p/10523431.html）</a></p>
+<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/79871846">Conditional VAE</a></p>
+</blockquote>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>提出一种生成模型的训练方法，该模型在随机梯度变分 Bayes框架下进行有效训练，此外，我们提供了新的策略来构建robust的结构化预测 算法，是一个深度条件 生成模型，用于使用高斯潜变量进行结构化输出预测。例如在 训练中输入噪声注入和多尺度预测目标。												</p>
+<p>structured output 我理解的是多种特征、属性都有一点的结构化输出</p>
+<p>multi-modal distribution 我理解就是组成output分布的多种特征、属性，多种特征的分布组成了多模态分布</p>
+<p>在分割精度、条件对数似然估计和生成样本的可视化方面表现出色</p>
+<p>对生成模型（或者说预测任务）的要求有两个：1.可以形成好的概率分布probabilistic inference（生成的样本和训练样本的分布是接近的）；2. 可以生成出不一样的样本，不能生成出来的样本都很接近，要是不一样的。</p>
+<p>提出conditional variational auto-encoder (CVAE).CVAE是一个有条件的  有向图模型（z生成x，有个方向），其输入观测调节了产生输出的高斯潜变量 的先验 p(z)</p>
+<p>主要改进如下：</p>
+<ul>
+<li>提出了cvae，我们提出了CVAE及其在SGVB框架中可有效训练的变体， ，并引入了新的策略来增强结构化预测模型的鲁棒性。</li>
+<li>我们用高斯随机神经元 证明了我们提出的算法在建模结构化输出变量的多模态分布方面的有效性</li>
+<li>我们在CUB和LFW数据集上实现了强大的语义对象分割性能。</li>
+</ul>
+<p>目标不仅是估计 $p(x)$ ，并且是在某个条件，比如s下的x发生的概率，p(x|s)，目标变成也要知道条件s对x会起到什么影响。</p>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>recognition network：$q_\phi(z|x)$ 或者 $q_\phi(z|x,y)$  x（或x,y）条件下预测出的z的分布；</p>
+<p>prior network  ：$p_\theta(z)$ 或者 $p_\theta(z|x)$ x条件下z的真实分布、先验分布；</p>
+<h2 id="Related-work"><a href="#Related-work" class="headerlink" title="Related work"></a>Related work</h2><p>The stochastic feed-forward neural network (SFNN)随机前馈神经网络(SFNN)是一个条件有向图模型 ，它结合了实值确定性神经元和二元随机神经元。</p>
+<p>SFNN使用广义EM的蒙特卡罗变体进行训练，从前馈建议分布中提取多个样本 ，并用不同的重要性权重对它们进行加权</p>
+<p>作者提出的叫做Gaussian stochastic neural network，用高斯隐变量替换了sfnn里的二元随机神经元binary stochastic neurons.</p>
+<h2 id="Preliminary-Variational-Auto-encoder"><a href="#Preliminary-Variational-Auto-encoder" class="headerlink" title="Preliminary: Variational Auto-encoder"></a>Preliminary: Variational Auto-encoder</h2><p>回顾VAE，VAE用似然的variational lower bound作为目标函数，公式为<br>$$<br>\begin{aligned}<br>\log p_\theta(\mathbf{x}) &amp; &#x3D;K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)+\mathbb{E}<em>{q_\phi(\mathbf{z} \mid \mathbf{x})}\left[-\log q_\phi(\mathbf{z} \mid \mathbf{x})+\log p_\theta(\mathbf{x}, \mathbf{z})\right] \<br>&amp; \geq-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}) | p_\theta(\mathbf{z})\right)+\mathbb{E}</em>{q_\phi(\mathbf{z} \mid \mathbf{x})}\left[\log p_\theta(\mathbf{x} \mid \mathbf{z})\right]<br>\end{aligned}<br>$$<br>其中，$q_\phi(\mathbf{z} \mid \mathbf{x})$ 是 recognition model，用来近似真实后验 $p_\theta(\mathbf{z} \mid \mathbf{x})$ 。recognition model结构是MLP。</p>
+<p>假设z服从高斯分布，则 $-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}) | p_\theta(\mathbf{z})\right)$ 可以忽略，$\mathbb{E}_{q_\phi(\mathbf{z} \mid \mathbf{x})}\left[\log p_\theta(\mathbf{x} \mid \mathbf{z})\right]$ 可以用 $L$ 个 $z$ 样本表示，则带有高斯隐变量的VAE目标写成：</p>
+<p>$$<br>\widetilde{\mathcal{L}}<em>{\mathrm{VAE}}(\mathbf{x} ; \theta, \phi)&#x3D;-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}) | p_\theta(\mathbf{z})\right)+\frac{1}{L} \sum</em>{l&#x3D;1}^L \log p_\theta\left(\mathbf{x} \mid \mathbf{z}^{(l)}\right)<br>$$<br>其中，$\mathbf{z}^{(l)}&#x3D;g_\phi\left(\mathbf{x}, \epsilon^{(l)}\right), \epsilon^{(l)} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ 。用了重参数技巧，把  $q_\phi(\mathbf{z} \mid \mathbf{x})$ 函数用 $g_\phi\left(\mathbf{x}, \epsilon\right)$ 函数代替，这个 $g_\phi(\cdot, \cdot)$ 是一个deterministic、differentiable的函数，里头的参数是data $\mathbf{x}$ 和 noise variable $\epsilon$ 。这种trick允许误差通过高斯隐变量反向传播，这在VAE训练中是必不可少的，因为它由多个mlp组成，用于识别和生成模型。因此，使用随机梯度下降(SGD)可以有效地训练VAE。</p>
+<h2 id="Deep-Conditional-Generative-Models-for-Structured-Output-Prediction"><a href="#Deep-Conditional-Generative-Models-for-Structured-Output-Prediction" class="headerlink" title="Deep Conditional Generative Models for Structured Output Prediction"></a>Deep Conditional Generative Models for Structured Output Prediction</h2><p>如下图所示 Fig1(a) 展示了x拟合y的分布，$p_\theta(y|x)$ ，Fig1(b)、Fig1(c)、Fig1(d)展示了三种conditional generative model (CGM)  。</p>
+<p>Fig1(b) 是先验网络和生成网络、decoder，说的是x条件下生成z的真实分布，z和x共同作用生成y，我们输入给定的数据点x，由于生成z会有随机性，$p_\theta(y|x,z)$ 允许建模多种模式，因此生成的y也有随机性，y有很多种可能生成的样子，是一个one-to-many过程；</p>
+<p>z的先验来自x，也可以放宽限制，把 $p_\theta(z)$ 写成 $p_\theta(z|x)$  。</p>
+<p>Fig1(c)是识别网络、encoder；</p>
+<img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208092952774.png" alt="image-20221208092952774" style="zoom: 67%;">
+
+<p>Deep CGMs 用 maximize the conditional log-likelihood训练，通常很难直接计算目标函数，因此也像VAE一样用SGVB框架（求导）训练。</p>
+<p>variational lower bound of the model 写为：<br>$$<br>\log p_\theta(\mathbf{y} \mid \mathbf{x}) \geq-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)+\mathbb{E}<em>{q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})}\left[\log p_\theta(\mathbf{y} \mid \mathbf{x}, \mathbf{z})\right]<br>$$<br>empirical lower bound 写为：<br>$$<br>\widetilde{\mathcal{L}}</em>{\mathrm{CVAE}}(\mathbf{x}, \mathbf{y} ; \theta, \phi)&#x3D;-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)+\frac{1}{L} \sum_{l&#x3D;1}^L \log p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(l)}\right)<br>$$<br>其中，$\mathbf{z}^{(l)}&#x3D;g_\phi\left(\mathbf{x,y}, \epsilon^{(l)}\right), \epsilon^{(l)} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ , $L$ 是样本数。</p>
+<p>这种模型称为 conditional variational auto-encoder (CVAE) ，识别模型变成了 $q_\phi(z|x,y)$ ，生成模型变成了 $p_\theta (y|x,z)$ 。如Fig1(d)是一个CVAE结构，有一个循环结构，给定数据x，有一个初始预测的 $\hat y$ ，$q_\phi(z|x,\hat y)$ 采样出 z，再  $p_\theta (y|x,z)$ 生成 $y$ （重建）。</p>
+<p>上式的推导过程为：</p>
+<p>在条件VAE中，我们假设要建模的变量是 $y$ ，条件是 $x$ 。隐变量 $z$ 的近似分布 $q_\phi(z \mid x, y)$ 和真 实后验概率 $p_\theta(z \mid x, y)$ 之间的 KL-divergence 记为:<br>$$<br>\begin{aligned}<br> K L\left[q_\phi(z \mid x, y) | p_\theta(z \mid x, y)\right]  &amp;&#x3D;\int q_\phi(z \mid x, y) \log \frac{q_\phi(z \mid x, y)}{p_\theta(z \mid x, y)} d \phi \<br>&amp;&#x3D;\int q_\phi(z \mid x, y) \log \frac{q_\phi(z \mid x, y) p_\theta(y \mid x) p_\theta(x)}{p_\theta(z, x, y)} d \phi<br>\end{aligned}<br>$$<br>展开:<br>$$<br>\begin{aligned}<br>&amp; &#x3D;\int q_\phi(z \mid x, y) \log _\phi(z \mid x, y) d \phi+\int q_\phi(z \mid x, y) \operatorname{logp}_\theta(y \mid x) d \phi+  \int q_\phi(z \mid x, y) \operatorname{logp}_\theta(x) d \phi  -\int q_\phi(z \mid x, y) \operatorname{logp}_\theta(z, x, y) d \phi<br>\end{aligned}<br>$$<br>其中，第二项:<br>$$<br>\int q_\phi(z \mid x, y) \log p_\theta(y \mid x) d \phi&#x3D;\log <em>\theta(y \mid x)<br>$$<br>其余三项合并，原式<br>$$<br>K L\left[q_\phi(z \mid x, y)|| p_\theta(z \mid x, y)\right]&#x3D;\log <em>\theta(y \mid x)+\int q_\phi(z \mid x, y) \log \frac{q_\phi(z \mid x, y)}{p_\theta(y \mid x, z) p_\theta(z \mid x)} d \phi<br>$$<br>由于左侧 $K L \geq 0$ ，因此:<br>$$<br>\begin{aligned}<br>&amp; \log <em>\theta(y \mid x) \geq-\int q_\phi(z \mid x, y) \log \frac{q_\phi(z \mid x, y)}{p_\theta(y \mid x, z) p_\theta(z \mid x)} d \phi \<br>&amp; &#x3D;\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log p_\theta(y \mid x, z)+\log p_\theta(z \mid x)-q_\phi(z \mid x, y)\right] d \phi \<br>&amp; &#x3D;\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log <em>\theta(y \mid x, z)\right]-\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log q_\phi(z \mid x, y)-\log <em>\theta(z \mid x)\right] \<br>&amp; &#x3D;\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log <em>\theta(y \mid x, z)\right]-K L\left[q_\phi(z \mid x, y)|| p_\theta(z \mid x)\right]<br>\end{aligned}<br>$$<br>左侧 $\log <em>\theta(y \mid x)$ 是基于条件 $x$ 的后验概率，右侧是条件VAE的ELBO:<br>$$<br>E L B O&#x3D;\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log p_\theta(y \mid x, z)\right]-K L\left[q_\phi(z \mid x, y) | p_\theta(z \mid x)\right]<br>$$<br>第一项是对隐变量 $z \sim p_\phi(z \mid x, y)$ 的期望下的极大似然估计，第二项是 $q_\phi$ 与先验的KL约束。同 样，第一项也要通过采样来估计，具体而言:<br>$$<br>\widetilde{\mathcal{L}}</em>{\mathrm{CVAE}}(\mathbf{x}, \mathbf{y} ; \theta, \phi)&#x3D;-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)+\frac{1}{L} \sum</em>{l&#x3D;1}^L \log p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(l)}\right)<br>$$</p>
+<h3 id="Output-inference-and-estimation-of-the-conditional-likelihood"><a href="#Output-inference-and-estimation-of-the-conditional-likelihood" class="headerlink" title="Output inference and estimation of the conditional likelihood"></a>Output inference and estimation of the conditional likelihood</h3><p>推理的时候，评估模型预测准确度时，用z的期望（不采样z）作为样本z（不是直接采样一个z） $\mathbf{y}^*&#x3D;\arg \max _{\mathbf{y}} p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^<em>\right), \mathbf{z}^</em>&#x3D;\mathbb{E}[\mathbf{z} \mid \mathbf{x}] ^2$</p>
+<p>计算这个期望可以用采样多个z的平均值，那么生成的样本变成 $\mathbf{y}^*&#x3D;\arg \max <em>{\mathbf{y}} \frac{1}{L} \sum</em>{l&#x3D;1}^L p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(l)}\right), \mathbf{z}^{(l)} \sim p_\theta(\mathbf{z} \mid \mathbf{x})$ 。</p>
+<p>还有一种估计CGM的方法，是比较测试集的条件似然conditional likelihood，直接从prior network（ $p_\theta(z|x)$ ）里采样z个样本（这里z 的先验依赖于x），取似然平均，称为 Monte Carlo (MC) sampling  ：<br>$$<br>p_\theta(\mathbf{y} \mid \mathbf{x}) \approx \frac{1}{S} \sum_{s&#x3D;1}^S p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(s)}\right), \quad \mathbf{z}^{(s)} \sim p_\theta(\mathbf{z} \mid \mathbf{x})<br>$$<br>但是这个方法需要样本数很多才准。因此作者提出用**重要性采样 **importance sampling 来估计条件似然：</p>
+<p>这里impotance sampling原理是 $\mathbb{E}<em>{p(a)}[\tau]&#x3D;\mathbb{E}</em>{p(b)}[\frac{p(a)}{p(b)}\tau]$<br>$$<br>p_\theta(\mathbf{y} \mid \mathbf{x}) \approx \frac{1}{S} \sum_{s&#x3D;1}^S \frac{p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(s)}\right) p_\theta\left(\mathbf{z}^{(s)} \mid \mathbf{x}\right)}{q_\phi\left(\mathbf{z}^{(s)} \mid \mathbf{x}, \mathbf{y}\right)}, \quad \mathbf{z}^{(s)} \sim q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})<br>$$<br>由上面的KL散度可知，$q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})$ 和 $p_\theta(\mathbf{z} \mid \mathbf{x})$ 越接近越好，越接近说明采样的样本z更接近真实分布，可以用来衡量该样本对结果准确度的重要性。</p>
+<h3 id="Learning-to-predict-structured-output"><a href="#Learning-to-predict-structured-output" class="headerlink" title="Learning to predict structured output"></a>Learning to predict structured output</h3><p>用SGVB框架训练有个问题，就是训练时最优化了 $q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})$ ，但是测试、推理时用的是 $p_\theta(\mathbf{z} \mid \mathbf{x})$ ，（ 先验网络函数在训练里没有更新、$\theta$ 更新是通过生成网络 $p_\theta(y|x,z)$ 更新的 ），因此，可以在训练目标中<strong>加大KL散度项的权重</strong>，也就是让  $q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})$ 和 $p_\theta(\mathbf{z} \mid \mathbf{x})$ 分布更接近，这样可以让训练和测试时隐变量z编码的差异没那么大。即 $-(1+\beta) K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)$ with $\beta \geq 0$。 加大权重虽然想法很好，但是在实验中发现没什么效果。</p>
+<p>因此要找别的方法来减少训练和测试之间的差异，作者通过让 $q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})&#x3D;p_\theta(\mathbf{z} \mid \mathbf{x})$ ，也就是识别网络和预测网络用同一个网络。</p>
+<p>则目标函数变成：<br>$$<br>\widetilde{\mathcal{L}}<em>{\mathrm{GSNN}}(\mathbf{x}, \mathbf{y} ; \theta, \phi)&#x3D;\frac{1}{L} \sum</em>{l&#x3D;1}^L \log p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(l)}\right), \text { where } \mathbf{z}^{(l)}&#x3D;g_\theta\left(\mathbf{x}, \epsilon^{(l)}\right), \epsilon^{(l)} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})<br>$$<br>称这种模型叫 Gaussian stochastic neural network (GSNN)  。结合CVAE和GSMN两种模型，就是两种都用，目标函数变成：<br>$$<br>\widetilde{\mathcal{L}}<em>{hybrid}&#x3D;\alpha\widetilde{\mathcal{L}}</em>{CVAE}+(1-\alpha)\widetilde{\mathcal{L}}_{GSNN}<br>$$</p>
+<h3 id="CVAE-for-image-segmentation-and-labeling"><a href="#CVAE-for-image-segmentation-and-labeling" class="headerlink" title="CVAE for image segmentation and labeling"></a>CVAE for image segmentation and labeling</h3><p>针对语义分割任务（属于 structured output prediction task  ）（语音分割应该是每个像素有某类语义），作者对于训练预测网络，提出两种训练方法：</p>
+<ol>
+<li>multi-scale prediction objective 多尺度预测目标（或者说output，预测出多个尺度的输出）；</li>
+<li>structured input noise 结构化输入噪声；</li>
+</ol>
+<h4 id="Training-with-multi-scale-prediction-objective"><a href="#Training-with-multi-scale-prediction-objective" class="headerlink" title="Training with multi-scale prediction objective"></a>Training with multi-scale prediction objective</h4><p>训练过程中，如下图所示，预测出原始输出的1&#x2F;4、预测出原始输出的1&#x2F;2、预测出原始输出，每个scale预测都有对应scale真实的重建误差。</p>
+<p>比如要训练一张图片，一次前向传播中，就输出了1&#x2F;4图片、1&#x2F;2图片和整张图片。</p>
+<img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208115448455.png" alt="image-20221208115448455" style="zoom:67%;">
+
+
+
+<h4 id="Training-with-input-omission-noise"><a href="#Training-with-input-omission-noise" class="headerlink" title="Training with input omission noise"></a>Training with input omission noise</h4><p>给网络输入噪声是一种正则化方法，作者给输入input加噪，相当于给重建目标增加了难度。具体地，输入比如是图片，那么给输入图片随机一部分mask成0，相当于输入信息变少了（加噪了），给模型增加了难度，可以使得模型的泛化性变好。</p>
+<h2 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h2><p>数据集 MNIST，任务是visual object segmentation and labeling  图像分割、图像标记。</p>
+<p>为了强调通过随机神经网络进行概率推断对于结构化输出变量的重要性，做了一个实验，是将图片分成四个象限，输入三个象限，让模型预测第四个象限、更大胆点，让模型预测更多的象限，随着模型要预测的东西越多（本来只要预测图片的一小部分，逐渐到要预测整张图片），生成的图片和输入图片就会越不同。</p>
+<img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208145203584.png" alt="image-20221208145203584" style="zoom:67%;">
+
+<p>CVAE预测得更真实</p>
+<p><img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208144045383.png" alt="image-20221208144045383"></p>
+<h3 id="Visual-Object-Segmentation-and-Labeling"><a href="#Visual-Object-Segmentation-and-Labeling" class="headerlink" title="Visual Object Segmentation and Labeling"></a>Visual Object Segmentation and Labeling</h3><p>todo</p>
+<h3 id="Object-Segmentation-with-Partial-Observations"><a href="#Object-Segmentation-with-Partial-Observations" class="headerlink" title="Object Segmentation with Partial Observations"></a>Object Segmentation with Partial Observations</h3><img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208145555694.png" alt="image-20221208145555694" style="zoom:67%;">
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/" itemprop="url">VAE论文</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-06T00:00:00+08:00">
+                2022-12-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/12/06/深度学习/VAE论文/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="VAE"><a href="#VAE" class="headerlink" title="VAE"></a>VAE</h1><blockquote>
+<p>Kingma, Diederik P., and Max Welling. “Auto-encoding variational bayes.” <em>arXiv preprint arXiv:1312.6114</em> (2013). citations：23824 阿姆斯特丹大学</p>
+<p>b站视频 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1q64y1y7J2/?spm_id_from=333.337.search-card.all.click&vd_source=5e9891722f2b62adca440a5e92121b5b">[论文简析]VAE: Auto-encoding Variational Bayes[1312.6114]</a></p>
+</blockquote>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>目的是想要在有连续隐变量的条件下估计数据分布。提出基于自编码器和基于变分贝叶斯的方法，能够通过梯度下降的变分贝叶斯就能实现估计数据分布。</p>
+<p>两个贡献：</p>
+<ol>
+<li>证明了变分下界的重参数化产生一个可以使用标准随机梯度方法直接优化的下界估计量。</li>
+<li>证明了对于每个数据点具有连续潜在变量的独立同分布数据集，通过使用所提出的下限估计量将近似推理模型(也称为识别模型)拟合到棘手的后验，可以使后验推理特别有效。</li>
+</ol>
+<h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><p>想要做的是：有一个高维的数据x，和相对低维的变量z，想根据z条件下、根据参数 $\theta$ 估计出 $p_\theta (x|z)$ ；并且生成的数据点x，又能在参数 $\phi$ 的条件下，估计出$q_\phi (z|x)$ 来。</p>
+<p>想要找到 $p_{\theta^*}(x|z)$ 和 $p_{\theta^*}(z)$ 之间的是如何映射的，映射关系。（*表示groundtruth）</p>
+<img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221205174352023.png" alt="image-20221205174352023" style="zoom:50%;">
+
+
+
+<p>概念：variational  ，变分，我理解就是在观测值x的条件下的隐变量z的某个特性；比如变分估计，就是 $q(z|x)$ 。</p>
+<p>把x理解为数据样本，比如图像，z理解为特征，比如图像的颜色、大小等。x一般比z的维度高。</p>
+<h3 id="Problem-scenario"><a href="#Problem-scenario" class="headerlink" title="Problem scenario"></a>Problem scenario</h3><ol>
+<li><p>Intractability:  想要求的是数据分布 marginal likelihood   $p_\theta (x)&#x3D;\int p_\theta(z)p_\theta(x|z)dz$  这是intractable，因为很高维，可能是好多个积分，很难求的、很难估计的（用mean-field VB  方法不好求解），估计隐变量的真实后验密度函数pdf  $p_\theta(z|x)&#x3D;p_\theta(x|z)p_\theta(z)&#x2F;p_\theta (x)$ 也是intractable （所以不能用em求解这种带隐变量的概率分布问题）。但在NN里是可以实现的，可以用一个NN去拟合 $p_\theta(z|x)$ ，去接近这个分布。</p>
+</li>
+<li><p>A large dataset:   用minibatch进行参数更新，才不会使得参数更新太慢，相比于Monte Carlo EM  这种逐数据更新的方式来说要快得多。</p>
+</li>
+</ol>
+<p>解决了相关问题：</p>
+<ol>
+<li>有效近似了ML最大似然估计、MAP最大后验估计里面的参数 $\theta$ 。</li>
+<li>在给定观测值 $x$ 的条件下，有效近似了隐变量 $z$ 的后验概率 $p(z|x)$ 。</li>
+<li>有效近似了 $x$ 的 marginal inference ，因此可以生成样本 $x$ ， 估计了 $p(x)$ 。（在计算机视觉的应用包括图像去噪、图像插值和超分辨）</li>
+</ol>
+<p>为了解决以上3个问题，需要引入一个recognition model   $q_\phi(z|x)$ ，它是 $p_\theta(z|x)$ 的近似（ $p_\theta(z|x)$ 很难算）（mean-field variational inference  方法里也提过用一个近似q，但是这个近似q的参数是单独算出来的），VAE提出了一种新的计算方法、目标，是把 $\phi$ （recognition model 的参数）和 $\theta$ （generative model 的参数）在一个目标里学习、更新参数。只要 $q_\phi(z|x)$ 和 $p_\theta(z|x)$ 很接近，就相当于把 $p_\theta(z|x)$  估计出来了，而衡量两个分布之间相似程度的方法有KL散度，只要两个分布很接近，即KL散度很小，那么q也就是我们想要的p了，因此目标有一个是最小化KL散度。</p>
+<p>把隐变量 $z$ 向量称为“code”，把 recognition model $q_\phi(z|x)$ 称为probabilistic encoder  ，把 generative model  $p_\theta(x|z)$ 称为probabilistic decoder  。</p>
+<p>encoder $q_\phi(z|x)$：给定一个数据点 $x$ ，它服从一个分布（比如高斯分布），从中采样出向量code $z$；</p>
+<p>decoder $p_\theta(x|z)$：给定向量code $z$ ，服从一个分布，从中采样出 $x$ ；</p>
+<h3 id="The-variational-bound"><a href="#The-variational-bound" class="headerlink" title="The variational bound"></a>The variational bound</h3><p>开始进行公式推导。</p>
+<p>参考李宏毅PPT的推导：</p>
+<p>1</p>
+<img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206114625872.png" alt="image-20221206114625872" style="zoom:50%;">
+
+
+
+<p>2</p>
+<img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206114438846.png" alt="image-20221206114438846" style="zoom:50%;">
+
+<p>3</p>
+<img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206114417218.png" alt="image-20221206114417218" style="zoom:50%;">
+
+<p>总marginal likelihood  由多个独立样本点的marginal likelihood 组成：$\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(1)}, \cdots, \mathbf{x}^{(N)}\right)&#x3D;\sum_{i&#x3D;1}^N \log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right)$ 。可以写成：（参考李宏毅的推导）<br>$$<br>\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right)&#x3D;D_{K L}\left(q_{\boldsymbol{\phi}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right) | p_{\boldsymbol{\theta}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right)\right)+\mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)<br>$$</p>
+<p>（ $\mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)$ 即李宏毅PPT的 $L_b$ ）</p>
+<p>第一项是近似分布和真实分布之间的KL散度距离，非负的；第二项称为 (variational) lower bound，是数据点i的marginal likelihood 的下界，</p>
+<p><strong>左边 $\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right) $ 是一个常数（x给定了），想要最小化KL散度，也就是最大化lower bound。</strong></p>
+<p>variational lower bound ：<br>$$<br>\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right) \geq \mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)&#x3D;\mathbb{E}<em>{q</em>{\boldsymbol{\phi}}(\mathbf{z} \mid \mathbf{x})}\left[-\log q_{\boldsymbol{\phi}}(\mathbf{z} \mid \mathbf{x})+\log p_{\boldsymbol{\theta}}(\mathbf{x}, \mathbf{z})\right]<br>$$<br>也可以写成：<br>$$<br>\mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)&#x3D;-D_{K L}\left(q_{\boldsymbol{\phi}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right) | p_{\boldsymbol{\theta}}(\mathbf{z})\right)+\mathbb{E}<em>{q</em>{\boldsymbol{\phi}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right)}\left[\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)} \mid \mathbf{z}\right)\right]<br>$$<br>第一项叫做regularization loss，是让估计的q接近z的先验分布；第二项叫 reconstruction loss，当在z条件下采样出的x与真实的数据x越接近，该概率会越大，和autoencoder一样，因此叫做重建误差。</p>
+<p>想求<strong>偏导、最优化</strong> $\mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)$  ，同时更新variational parameters $\phi$ 和 generative parameters $\theta$ 。但是lower bound的梯度（即 $\phi$）算起来有点问题，自然的想到用蒙特卡洛方法：$\nabla_{\boldsymbol{\phi}} \mathbb{E}<em>{q_\phi(\mathbf{z})}[f(\mathbf{z})]&#x3D;\mathbb{E}</em>{q_\phi(\mathbf{z})}\left[f(\mathbf{z}) \nabla_{q_{\boldsymbol{\phi}}(\mathbf{z})} \log q_{\boldsymbol{\phi}}(\mathbf{z})\right] \simeq \frac{1}{L} \sum_{l&#x3D;1}^L f(\mathbf{z}) \nabla_{q_{\boldsymbol{\phi}}\left(\mathbf{z}^{(l)}\right)} \log q_{\boldsymbol{\phi}}\left(\mathbf{z}^{(l)}\right)$ where $\mathbf{z}^{(l)} \sim q_{\boldsymbol{\phi}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right)$ 。</p>
+<p>蒙特卡洛推导过程：</p>
+<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206150822009.png" alt="image-20221206150822009"></p>
+<p>这个梯度估计量会有很高的方差、不稳定。</p>
+<p>因此作者提出SGVB估计方法，来进行参数求导。</p>
+<h3 id="参数求导-The-SGVB-estimator-and-AEVB-algorithm"><a href="#参数求导-The-SGVB-estimator-and-AEVB-algorithm" class="headerlink" title="参数求导 The SGVB estimator and AEVB algorithm"></a>参数求导 The SGVB estimator and AEVB algorithm</h3><p>VAE提出一种实用的估计下界及其导数、求参数的方法。</p>
+<p>原本是直接求导，但是把求导项 $\nabla_\theta \mathbb{E}_{p_\theta(z)}\left[f_\theta(z)\right]$ 展开，发现有一项 $\int_z f_\theta(z) \nabla_\theta p_\theta(z) d z$ 不好求。</p>
+<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206151849341.png" alt="image-20221206151849341"></p>
+<p>因此作者想了一个方法，重参数技巧  reparameterization trick  。引入一个独立变量 $\epsilon$ （和 $\theta$ 、 $\phi$  、x、z 都无关），用它来产生“随机性”，之后 <strong>随机性都由 $\epsilon$ 来产生</strong>。</p>
+<p>之前抽样的随机性，这是没法用反向传播的，现在随机性用 $\epsilon$ ，就可以反向传播了。</p>
+<p>已知 $\widetilde{\mathbf{z}} \sim q_\phi(\mathbf{z} \mid \mathbf{x})$ ，重参数化，用一个可微函数，条件是 $x$ 和噪声 $\epsilon$ 的函数 $g$ ，来表示原来的 $q$ ：<br>$$<br>\widetilde{\mathbf{z}}&#x3D;g_{\boldsymbol{\phi}}(\boldsymbol{\epsilon}, \mathbf{x}) \quad \text { with } \quad \boldsymbol{\epsilon} \sim p(\boldsymbol{\epsilon})<br>$$<br>此时再用蒙特卡洛法估计期望，就可以写成：<br>$$<br>\mathbb{E}<em>{q_\phi\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right)}[f(\mathbf{z})]&#x3D;\mathbb{E}</em>{p(\boldsymbol{\epsilon})}\left[f\left(g_{\boldsymbol{\phi}}\left(\boldsymbol{\epsilon}, \mathbf{x}^{(i)}\right)\right)\right] \simeq \frac{1}{L} \sum_{l&#x3D;1}^L f\left(g_\phi\left(\boldsymbol{\epsilon}^{(l)}, \mathbf{x}^{(i)}\right)\right) \quad \text { where } \quad \boldsymbol{\epsilon}^{(l)} \sim p(\boldsymbol{\epsilon})<br>$$<br>用到公式(2)，得到一般随机梯度变分贝叶斯（SGVB）估计  $\widetilde{\mathcal{L}}^A\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right) \simeq \mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)$ :<br>$$<br>\begin{aligned}<br>&amp; \widetilde{\mathcal{L}}^A\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)&#x3D;\frac{1}{L} \sum_{l&#x3D;1}^L \log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}, \mathbf{z}^{(i, l)}\right)-\log q_{\boldsymbol{\phi}}\left(\mathbf{z}^{(i, l)} \mid \mathbf{x}^{(i)}\right) \<br>&amp; \text { where } \quad \mathbf{z}^{(i, l)}&#x3D;g_{\boldsymbol{\phi}}\left(\boldsymbol{\epsilon}^{(i, l)}, \mathbf{x}^{(i)}\right) \quad \text { and } \quad \boldsymbol{\epsilon}^{(l)} \sim p(\boldsymbol{\epsilon})<br>\end{aligned}<br>$$</p>
+<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206153613903.png" alt="image-20221206153613903"></p>
+<p>由于引入了 $\epsilon$ ，原L_b公式写为：</p>
+<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206153745705.png" alt="image-20221206153745705"></p>
+<h4 id="根据高斯公式展开，能发现lower-bound的一些性质。"><a href="#根据高斯公式展开，能发现lower-bound的一些性质。" class="headerlink" title="根据高斯公式展开，能发现lower bound的一些性质。"></a>根据高斯公式展开，能发现lower bound的一些性质。</h4><p>由于 $\large D_{KL}(q_\phi(z|x^{(i)})||p_\theta(z))&#x3D;\int_zq_\phi(z|x)log(\frac{p_\theta(z)}{q_\phi(z|x)})&#x3D;\int_zq_\phi(z|x)log(p_\theta(z))-\int_zq_\phi(z|x)log(q_\phi(z|x))$</p>
+<p>第一项 $\int_zq_\phi(z|x)log(p_\theta(z))$ 带入高斯公式：</p>
+<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206153956085.png" alt="image-20221206153956085"></p>
+<p>第二项 $\int_zq_\phi(z|x)log(q_\phi(z|x))$ 代入高斯公式：</p>
+<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206154144826.png" alt="image-20221206154144826"></p>
+<p>上面就是KL表达式，L_b 还有第二项；第二项参数更新用MSE loss（或者比如BCE loss），让产生的样本x和真实样本尽可能接近（和autoencoder一样）：</p>
+<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206155025433.png" alt="image-20221206155025433"></p>
+<p>更新流程为：</p>
+<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206132704893.png" alt="image-20221206132704893"></p>
+<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206162145590.png" alt="image-20221206162145590"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/" itemprop="url">VAE 视频 李宏毅</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-05T00:00:00+08:00">
+                2022-12-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/12/05/深度学习/VAE 视频 李宏毅/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="VAE-视频-李宏毅"><a href="#VAE-视频-李宏毅" class="headerlink" title="VAE 视频 李宏毅"></a>VAE 视频 李宏毅</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Ux411S7Yk?p=17&vd_source=5e9891722f2b62adca440a5e92121b5b">李宏毅机器学习(2016) P17.无监督学习——深度生成模型</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV13x411v7US/?spm_id_from=333.999.0.0&vd_source=5e9891722f2b62adca440a5e92121b5b">李宏毅机器学习(2017) p28 17- unsupervised learning - deep generative models</a></p>
+<p>openai 写的 generative model的博客：<a target="_blank" rel="noopener" href="https://openai.com/blog/generative-models/">https://openai.com/blog/generative-models/</a></p>
+</blockquote>
+<p>回顾 Autoencoder：</p>
+<p>image经过encoder，生成一个向量code，再经过decoder，输出一张图片，目标是输入输出尽可能接近；</p>
+<p>使用时，输入随意一个向量code到decoder中，看输出什么image；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202115750027.png" alt="image-20221202115750027" style="zoom:50%;">
+
+
+
+<p>VAE示意图：</p>
+<p>autoencoder只用一个向量code，vae则是把code做了一系列操作：</p>
+<p>encoder输出一个和code维度相同的向量，记作 $m$ ；encoder同时也输出一个和code维度相同的向量，记作 $\sigma$ ；然后实现准备一个均匀分布，从中随机采样出一个向量（维度和code相同），记作 $e$ ，然后将 $\sigma$ 取exp，与均匀分布样本 $e$ 相乘，再加上 $m$，这里都是element-wise，对应元素相乘、加；</p>
+<p>VAE的目标从autoencoder的一个目标增加到两个，一个是和AE一样的最小化重建误差，还有一个是最小化 一个和 $\sigma$ 有关的误差；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202115951114.png" alt="image-20221202115951114" style="zoom:50%;">
+
+<p>但是VAE生成出来的图片很模糊，这还能用吗？VAE的优势是什么呢？</p>
+<p>取中间向量code的其中两个维度出来，画成直角坐标系，在坐标系上不同的地方取点，然后和之前8维再形成code，送入decoder，观察输出image；</p>
+<p>这样做的目的是想看看这两个维度选取不一样的值，对于最终图片的影响。如果图片按某种趋势变化，可以侧面反映出某一个维度的作用、物理含义；比如图片逐渐旋转，可以表示出某一个维度起到的作用是旋转图片；从而改变这个维度的值，就能控制输出图片朝着我们想要的方向生成；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202140646680.png" alt="image-20221202140646680" style="zoom:50%;">
+
+<p>如下图所示，横轴代表code的某一维的不同值，纵轴也是代表code的某一维的不同值；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202141718600.png" alt="image-20221202141718600" style="zoom:50%;">
+
+<p>那么为什么VAE具有这种效果，也就是说，为什么取某个维度的左右两边不同值，就能起到朝某个趋势变化的作用呢？</p>
+<p>原本的autoencoder中，如下面的例子，输入满月图，中间code是某个值a，输入半月图，中间code是某个值b，当我们把code人为取一个a和b中间的值，送入decoder，是否输出的是一个介于满月和半月的图片呢？答案是否定的，因为NN是一个非线性过程，code并不具有线性关系，也就是不具有code和输出的一个趋势变换的关系，不是说code取一个中间值，就能输出一个介于两者之间的图片的；</p>
+<p>那么为什么VAE能实现呢？这是因为VAE在训练时，decoder的输入，也就是中间变量code，它并不是一个单个、唯一的值，而是一个小的范围，也就是code+小范围的noise才是decoder的输入。我们希望（训练目标）是输入code a + 小范围noise（code a’ ）时，输出的都是满月；输入code b + 小范围noise（code b’）时，输出都是半月，因此，可能会出现这么一种情况，这两个范围分别取到某个值时，code a + noise a &#x3D; code b + noise b，两个code’ 是相等的，输出对应的既是满月、又是半月，称为“image overlap”，那么输出是要学的是满月还是半月呢？答案是模型要尽可能学到在该输入下，能生成满月的能力，也要学到能生成半月的能力，因此，输入a和b中间值时（从ab范围中sample一个值），输出的就是一个既像满月、又像半月的图片，也就是半满月。因此，VAE具有“趋势性”（我取的），它的code中间值是有物理意义的。</p>
+<p><img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202141948165.png" alt="image-20221202141948165"></p>
+<p>基于上述VAE能起到的作用解释，为了给一点物理涵义，这里把几个变量都赋予意义：$m$ 认为是和autoencoder一样的向量code（original code）；变换后的$c$ 认为是加了noise的code；$\sigma$ 认为是noise的方差（其实是 $\exp(\sigma)$ 才表示方差），代表噪声应该要有多大。而因为NN出来可正可负，加exp确保是正值，$\exp(\sigma)$ 表示方差；因此，正态分布中采样的样本 $e$ 乘以方差（本来标准正态每个维度方差相同，乘以一个不同的方差），得到不同方差的正态分布，结果也是一个正态分布模样的样本，理解成噪声。加上 $m$ 就是 原始code + noise了。</p>
+<p>方差 $\exp(\sigma)$ 决定了noise的大小，而 $\sigma$ 来自 NN，因此是NN encoder决定了noise的大小，这也是可学习、可更新的参数；</p>
+<p>由于是模型自己学的参数，只用最小化重建误差作为目标的话，就会出现方差（ $\exp(\sigma)$ ）等于0的结果，因为方差越小，重建误差越小，这样就没有noise了。因此要新增加一个目标函数，在最小化重建误差的同时，也要限制方差不可以太小。</p>
+<p>具体实现“限制方差不可以太小”的目标表达式为：$\sum_{i&#x3D;1}^3(exp(\sigma_i)-(1+\sigma_i)+(m_i)^2)$</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202142940904.png" alt="image-20221202142940904" style="zoom:50%;">
+
+<p>解释表达式：</p>
+<p>蓝线是 $\exp(\sigma_i)$ ，红线是 $1+\sigma_i$ ，绿线是 $\exp(\sigma_i) - (1+\sigma_i)$ ，目标minimize也就是绿线希望取最小值，也就是 $\sigma_i$ 接近0时，此时方差 $\exp(\sigma_i)$ 接近1，方差代表噪声（一部分），因此不会噪声等于0的情况了。（之所以要最小化它，是想让 $\sigma$ 有小，但也别太小（小到0）或者直接限制 $\sigma$ 大于等于0，这样 $\exp(\sigma)$ 也不会趋近于0啊？）</p>
+<p>$(m_i)^2$ 是正则项，提高泛化性。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202170229264.png" alt="image-20221202170229264" style="zoom:50%;">
+
+
+
+<p>以上是定性分析。下面是公式分析。</p>
+<p>每个生成器输出，比如图像，想象成是高维空间上的一个点，比如20×20的图片，想象成是400维空间中的一个点。</p>
+<p>如果能估计出 $P(x)$ ，采样出的样本就比较是我们所希望的，<strong>因为 $P(x)$ 做采样时会倾向于采样出 $P(x)$ 中概率高的那些样本</strong>。</p>
+<p>比如下图的 $P(x)$ 分布，概率高的地方采样都比较像宝可梦，概率低的地方采样比较不像，概率高的地方更容易采样，因此这个 $P(x)$ 估计是合理的。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205093748168.png" alt="image-20221205093748168" style="zoom:50%;">
+
+
+
+<p>可以用混合高斯分布来估计概率分布</p>
+<p>把估计的概率分布 $P(x)$ 近似为 $\sum_mP(m)P(x|m)$ ，其中， $P(m)$ 是不同高斯分布的权重weight，$P(x|m)$ 是不同的高斯分布，$m$ 代表第几个高斯；</p>
+<p>采样 $x$ 的过程就变成：</p>
+<ol>
+<li>从一系列权重分布 $P(m)$ 中采样出某一个值，代表采样出第 $m$ 个高斯（比如从[0.2,0.3,0.4,0.1]的权重向量中（其实应该是权重分布），按照权重分布选出某一个权重，比如0.4，对应第3个）；</li>
+<li>从这第 $m$ 个高斯分布中采样出样本，记作 $x$；（比如从第3个高斯分布中采样出一个样本来）</li>
+</ol>
+<p>虽然概率分布写作不同高斯的不同weight求和，但是采样的时候，是先根据weight采样出第几个高斯、再从该高斯中采样出样本，作为最终采样的样本；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205095132363.png" alt="image-20221205095132363" style="zoom:50%;">
+
+<p>用混合高斯分布来估计概率分布，可以看到，采样的时候，其实是从某一个具体的高斯中采样的，x看作是某一类中采样了（称作cluster），这样似乎并不好，更好的做法是用（distributed representation）中采样，就是x并不属于某一个class或cluster，而是用一个vector来描述它各个不同维度、面向的特质。</p>
+<p>VAE可以理解为 混合高斯分布的distributed representation版本；VAE的具体做法、流程是：</p>
+<p>从一个标准高斯分布中采样出一个样本 $z$  （ $z\sim N(0,I)$ ） （$z$ 是向量vector，<strong>向量 $z$ 的每个维度表示一种特质attribute</strong>，每一维之间相互独立）（采样出来的是连续变量，可以取高斯分布中的任意值），然后变量 $z$ 送入到某一个函数，输出两个向量，一个是均值向量，一个是方差向量（方差是矩阵，这里只取对角阵），根据该均值 $\mu (z)$ 和方差 $\sigma(z)$，就得到了一个高斯分布 $z\sim N(\mu(z),\sigma(z))$ ，这个高斯分布的均值就是这个 $\mu (z)$，方差就是这个 $\sigma(z)$ ，然后再从这个高斯分布中采样，采样出来的样本叫做 $x$ 。</p>
+<p>因此z是连续变量、无穷多个可能，由z得到的高斯分布也是连续的，也就是说<strong>有无限个、无穷多个高斯分布</strong>（而不是离散的，用有限个高斯分布去估计 $P(x)$ ）。不同的z对应到不同的高斯分布。每个z都有对应的高斯分布。</p>
+<p>用这种方式估计出来的 $P(x)$ 写成的表达式为： $P(x)&#x3D;\int_zP(z)P(x|z)dz$ 。即先从标准正态 $P(z)$ 中采样 $z$ ，再根据 $z$ 得到均值方差，得到高斯分布 $P(x|z)$ ，再采样得到 $x$ 。</p>
+<p>这里变量 $z$ 送入到某一个函数，函数用的神经网络NN。</p>
+<p>$z$ 服从的分布这里是高斯分布，也可以用别的分布。p(z)简单（高斯）不影响p(x)可以是一个很复杂的分布，因为p(x|z)是用NN拟合，NN拟合能力很强。之所以p(z)用高斯，因为高斯常见，z的attribute特质用高斯分布来描述比较合理。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205095944153.png" alt="image-20221205095944153" style="zoom:50%;">
+
+
+
+<p>目标是找到、估计一个分布，使得 $P(x)$ 最大，也就是最大似然估计。</p>
+<p>我们现在有的是数据、观测值 $x$ ，为了最大似然估计，我们需要另一个分布，叫 $q(z|x)$，让x从某个高斯分布中采样出z来（z不是纯靠前面的标准正态 $P(z)$ 采样的了，而是通过 $q(z|x)$ 中采样的了）。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205151712109.png" alt="image-20221205151712109" style="zoom:50%;">
+
+<p>数学推导一下：</p>
+<p>目标是最大化观测值x的似然。这里 $logP(x)&#x3D;logP(x)\int_zq(z|x)dz&#x3D;\int_zq(z|x)logP(x)dz$ （ $\int_zq(z|x)dz&#x3D;1$ ），x给定下的z。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205152007417.png" alt="image-20221205152007417" style="zoom:50%;">
+
+
+
+<p>得到：<br>$$<br>\log P(x) \geq \int_z q(z \mid x) \log \left(\frac{P(x \mid z) P(z)}{q(z \mid x)}\right) d z<br>$$<br>称为 <strong>lower bound</strong>，$L_b$ 。</p>
+<p>之所以要引入 $q(z|x)$ ，把目标函数写成和 $P(x|z)$ 、 $q(z|x)$ 有关的形式，是因为最大化 $logP(x)$ 变成了 $L_b$ 。而在 $x$ 给定下， $q(z|x)$ 的变化不影响 $logP(x)$，（$logP(x)$不变），因此此时最大化 $L_b$ ，改变 $q(z|x)$ 使得 $L_b$ 尽可能接近 $logP(x)$ （减少KL散度距离）；再然后， $L_b$ 更大时，由于 $logP(x)$ 一定大于等于 $L_b$ ，所以 $logP(x)$ 也会更大，逐渐最大似然。</p>
+<p>如果只用 $P(x|z)$ 这一项，而不是两项都用，可能会出现 $L_b$ 增加，$logP(x)$ 减少的情况（但还是满足$logP(x)$ 大于等于 $L_b$ ）。</p>
+<p>？不理解为什么不能直接最大化logP(x)而是要转成最大化L_b。 ？</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205153652816.png" alt="image-20221205153652816" style="zoom:50%;">
+
+<p>进一步展开公式，将 $L_b$ 展开，可以写成两个式子</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205163038825.png" alt="image-20221205163038825" style="zoom:50%;">
+
+
+
+<p>左式的目标变成最小化 $KL(q(z|x)||P(z))$ ，也就是让 $q(z|x)$ 接近标准正态分布 $P(z)$ ；</p>
+<p>右式的目标变成最大化从 $q(z|x)$ 分布中采样 $z$ ，再由 $z\sim N(\mu(z),\sigma(z))$ 中采样出 $x$，使得该高斯函数的均值最接近 $x$ ；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205163213233.png" alt="image-20221205163213233" style="zoom:50%;">
+
+
+
+
+
+<p>可以看出，VAE的目标是尽可能接近数据集的数据，作为生成器可能是不够真实的。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2052,634 +2751,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/" itemprop="url">端到端合成论文——声学模型——Tacotron</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
-                2022-11-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90/" itemprop="url" rel="index">
-                    <span itemprop="name">语音合成</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/11/14/合成/合成论文笔记(1)/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="端到端合成论文——声学模型——Tacotron"><a href="#端到端合成论文——声学模型——Tacotron" class="headerlink" title="端到端合成论文——声学模型——Tacotron"></a>端到端合成论文——声学模型——Tacotron</h1><blockquote>
-<p>&#x3D;&#x3D;Wang, Yuxuan, et al. “Tacotron: Towards end-to-end speech synthesis.” <em>arXiv preprint arXiv:1703.10135</em> (2017).&#x3D;&#x3D; Google  citations: 1430</p>
-<p>知乎 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/101064153">Tacotron&amp;Tacotron2——基于深度学习的端到端语音合成模型</a></p>
-<p>语音合成-从入门到放弃.pdf 第 5 章 声学模型  </p>
-</blockquote>
-<h5 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
-<li>语音合成有很多组件（pipelines）（前端文本处理、声学模型、声码器）（multi-stage model），通常构建、设计这些组件难度较高。而一个集成的端到端TTS系统（single model）有很多好处：<ul>
-<li>可以减轻了费力的特征工程的需要；</li>
-<li>可以用更多的属性、特征（比如说话人id特征、语种特征、情感特征），因为可以在模型输入用这些特征，使得整个模型都有这个特征信息，而不是只在某些component用到，其他component没用到；</li>
-<li>适应新数据也可能更容易；</li>
-<li>multi-stage model的每个component都可能会出错（预测错），只要一个组件错误，就会影响整个系统的，使得整个系统的出错可能性比起single model来得更高；</li>
-<li></li>
-</ul>
-</li>
-</ul>
-<h5 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
-<li>提出端到端语音合成模型，直接从characters 合成语音，该模型叫 tacotron。只要给&lt;文本，音频&gt;训练对pair，就能训练得到一个效果较好的语音合成器。逐帧生成语音（帧级别），因此比样本级别自回归方法生成语音来得快得多。</li>
-</ul>
-<h5 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
-<li><p>直接输入的是文本characters，直接预测输出的是逐帧的音频谱raw linear spectrogram；</p>
-</li>
-<li><p>英语MOS分3.82，自然度naturalness方面优于工业上的参数系统；</p>
-</li>
-<li><p>很好训练，随机初始化去训练就能得到不错的模型；</p>
-</li>
-<li><p>改进了原始端到端结构（vanilla seq2seq paradigm  ）</p>
-</li>
-</ul>
-<h5 id="存在什么问题"><a href="#存在什么问题" class="headerlink" title="存在什么问题"></a>存在什么问题</h5><ul>
-<li>效果相比于wavenet没有明显提升；</li>
-</ul>
-<h2 id="模型总体结构"><a href="#模型总体结构" class="headerlink" title="模型总体结构"></a>模型总体结构</h2><p>输入文本characters（不是音素序列，是字符序列），输出预测的逐帧的谱 raw linear spectrogram。</p>
-<p>模型总体结构包括一个encoder，一个attention-based 的 decoder，一个后处理网络post-processing net；</p>
-<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221107153002024.png" alt="image-20221107153002024"></p>
-<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108170533821.png" alt="image-20221108170533821"></p>
-<h3 id="ENCODER"><a href="#ENCODER" class="headerlink" title="ENCODER"></a>ENCODER</h3><p>输入文本序列characters，one-hot -&gt; embedding -&gt; pre-net -&gt; CBHG module -&gt; attention</p>
-<h3 id="Encoder-pre-net"><a href="#Encoder-pre-net" class="headerlink" title="Encoder pre-net"></a>Encoder pre-net</h3><p>输入character序列，做embedding，经过非线性变换（激活函数），经过dropout，bottleneck层（加速收敛，减少过拟合，提高泛化性）；</p>
-<h3 id="CBHG-MODULE"><a href="#CBHG-MODULE" class="headerlink" title="CBHG MODULE"></a>CBHG MODULE</h3><p>CBHG是conv bank highway gru</p>
-<p>CBHG模块作为encoder的其中一部分，提取pre-net的输出序列（一些非线性变换后的特征），到更高阶特征；</p>
-<p>CBHC模块包括一组一维卷积，然后残差连接，然后highway层，作为双向GRU的输入；</p>
-<h4 id="1-D-convolutional-filters-一维卷积"><a href="#1-D-convolutional-filters-一维卷积" class="headerlink" title="1-D convolutional  filters 一维卷积"></a>1-D convolutional  filters 一维卷积</h4><p>作用类似unigram、bigram，K-grams，用来提取上下文信息，提取局部信息；</p>
-<p>实现是用$K$个滤波器，其中第$k$个滤波器长度是$k$；举例：$k&#x3D;1$，只卷当前的字符；$k&#x3D;2$，卷前后两个字符；$k&#x3D;K$，卷前后范围$K$个字符，因此就是一组滤波器长度不一样的卷积组；</p>
-<p>每个滤波器卷积都对应一个输出（步长为1（保持原始的时间分辨率）），把所有滤波器卷积输出都堆叠（stack）在一起，相当于提取了不同范围上下文信息了（multi-scale那意思）；再沿着时间轴做max-pooling，相当于做了smooth平滑操作，让相邻帧更像一点；</p>
-<blockquote>
-<p>highway networks (Srivastava et al., 2015)  </p>
-</blockquote>
-<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108104125133.png" alt="image-20221108104125133"></p>
-<h3 id="DECODER"><a href="#DECODER" class="headerlink" title="DECODER"></a>DECODER</h3><p>自回归</p>
-<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108173745272.png" alt="image-20221108173745272"></p>
-<h3 id="Decoder-RNN"><a href="#Decoder-RNN" class="headerlink" title="Decoder RNN"></a>Decoder RNN</h3><p>输入是 Attention RNN的输出 和 context vector 拼接起来的向量，经过GRU，得到输出；</p>
-<p>而context vector来自Attention RNN的输出作为query，encoder作为key，做attention操作得到的向量；</p>
-<p>预测输出是80维的mel谱。不是直接输出频谱spectrogram，因为波形谱的可能性很多，size很大，256维？生成很耗时，而mel-spectrogram虽然损失了信息，但是相比spectrogram就小了很多，且由于它是针对人耳来设计的，因此对最终生成的波形的质量不会有很多影响。</p>
-<p>&#x3D;&#x3D;每个decoder step，不是预测一帧，而是预测多帧！输出多帧，并且是不重叠的帧；&#x3D;&#x3D;这样做的好处是可以大大缩减计算量（不减少的话，一个样本得输出几百帧），并且发现可以加速模型收敛（因为用的RNN预测，RNN对于几百帧的输出不友好，对于较少帧数的输出比较友好，并且帧数长了，产生需要的时间也是线性增加的）；每次预测r帧，decoder的序列长度变为1&#x2F;r长；</p>
-<p>&#x3D;&#x3D;推理过程开dropout&#x3D;&#x3D;模拟推理过程可能出错的情况！！不是每次都用RNNR概率最大的那个值，而是需要增加随机性；（其他比如GPT2，是通过在输出的概率分布的采样，来作为输出，来增加随机性）；</p>
-<p>怎么知道合成完了？通过一个二分类器（输出一个标量数值，通过阈值判断），每次把RNN输出送进分类器，判断是否结束；</p>
-<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108174036419.png" alt="image-20221108174036419" style="zoom:50%;">
-
-
-
-<h3 id="post-processing-network-and-waveform-synthesis"><a href="#post-processing-network-and-waveform-synthesis" class="headerlink" title="post-processing network  and waveform synthesis"></a>post-processing network  and waveform synthesis</h3><p>输入整个mel谱序列，通过decoder的non casual CBHG生成linear-scale spectrogram，linear spectrogram和waveform相比只少了一个phase信息（只差一个linear transform），因此不用很强的再后处理(vocoder)，只用一个较为简单的Griffin-Lim algorithm，来增加相位信息，输出幅度谱；</p>
-<p>用Griffin-Lim algorithm 进行相位估计，然后做逆短时傅里叶变换（STFT）；</p>
-<p>decoder CBHG可以替换成其他module来生成其他东西，比如换成wavnet那样的vocoder，就是直接输出波形了；</p>
-<p>之所以需要post-processing，而不是靠RNN来输出linear spectrogram，是因为RNN是从前向后的（单向）（预测到某一个step时，可能发现前面预测错了，但是没法改了），然后加一个CBHG，可以看从前向后和从后向前的信息，这样会更好；</p>
-<p>两个loss，都要最小化</p>
-<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108174727511.png" alt="image-20221108174727511" style="zoom:50%;">
-
-<p>这里voceder理解成不在主模型外的，是单独的一个模块（单独训练好的）；</p>
-<h2 id="细节参数"><a href="#细节参数" class="headerlink" title="细节参数"></a>细节参数</h2><h3 id="模型参数"><a href="#模型参数" class="headerlink" title="模型参数"></a>模型参数</h3><p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108110927345.png" alt="image-20221108110927345"></p>
-<h3 id="训练参数"><a href="#训练参数" class="headerlink" title="训练参数"></a>训练参数</h3><h3 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h3><p>tacotron相比于wavenet，主要是在输入上需要的信息少了，也能起到好的效果，这对于人们训练一个语音合成系统减少了很多工作量，输入只要字符序列就可以了（训练时只要字符序列和音频pair）；</p>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Shen, Jonathan, et al. “Natural tts synthesis by conditioning wavenet on mel spectrogram predictions.” <em>2018 IEEE international conference on acoustics, speech and signal processing (ICASSP)</em>. IEEE, 2018.&#x3D;&#x3D; citations：1958</p>
-</blockquote>
-<h5 id="解决什么问题-1"><a href="#解决什么问题-1" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><p>- </p>
-<h5 id="用了什么方法-1"><a href="#用了什么方法-1" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
-<li>提出Tacotron2，在tacotron基础上输出mel谱，再用改进的wavenet vocoder来生成波形；</li>
-</ul>
-<h5 id="效果如何-1"><a href="#效果如何-1" class="headerlink" title="效果如何"></a>效果如何</h5><p>- </p>
-<p>- </p>
-<h5 id="存在什么问题-1"><a href="#存在什么问题-1" class="headerlink" title="存在什么问题"></a>存在什么问题</h5><p>- </p>
-<h2 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h2><p>主要有两部分组成，Spectrogram Prediction Network  和 WaveNet Vocoder  。</p>
-<p>Spectrogram Prediction Network类似tacotron的结构，然后把tacotron的decoder重的CBHG替换成了wavenet vocoder；</p>
-<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108123420015.png" alt="image-20221108123420015" style="zoom:67%;">
-
-<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221109102922783.png" alt="image-20221109102922783" style="zoom: 67%;">
-
-<h3 id="Spectrogram-Prediction-Network"><a href="#Spectrogram-Prediction-Network" class="headerlink" title="Spectrogram Prediction Network"></a>Spectrogram Prediction Network</h3><p>可以理解为声学模型</p>
-<h4 id="encoder"><a href="#encoder" class="headerlink" title="encoder"></a>encoder</h4><p>输入字符序列 👉 embedding(512维) 👉 固定滤波器长度的卷积(512个滤波器，滤波器长度5*1，3层卷积，(每次看5个character)) 👉 BN ReLu 👉 BLSTM</p>
-<p>这里没有采用tacotron1中的CHBG模块，也能取得好效果，看来卷积滤波器长度变化不是特别重要？</p>
-<p>再送入注意力机制生成编码向量，这里用的是location-sensitive attention(LSA)位置敏感注意力，该注意力机制的对齐函数为：<br>$$<br>\operatorname{score}\left(s_{i-1}, h_j\right)&#x3D;v_a^T \tanh \left(W s_{i-1}+V h_j+U f_{i, j}+b\right)<br>$$<br>其中, $v_a, W, V, U$ 为待训练参数, $b$ 是偏置值, $s_{i-1}$ 为上一时间步 $i-1$ 的解码器隐状态, $h_j$ 为当前时间步 $j$ 的编码器隐状态, $f_{i, j}$ 为上一个解码步的注意力权重 $\alpha_{i-1}$ 经卷积获得的位置特征, 如下式<br>$$<br>f_{i, j}&#x3D;F * \alpha_{i-1}<br>$$</p>
-<p>其中，$\alpha_{i-1}$是经过 softmax 的注意力权重的累加和。  </p>
-<h4 id="decoder"><a href="#decoder" class="headerlink" title="decoder"></a>decoder</h4><p>自回归循环神经网络，每个step输出<strong>一帧</strong>；</p>
-<p><strong>pre-net</strong> ：2层FC + relu，作为信息瓶颈对学习注意力至关重要；</p>
-<p>pre-net输出 和 attention context进行拼接，作为LSTM的输入；</p>
-<p>LSTM输出再与 attention context进行拼接，通过线性变换进行投影，来预测一帧的target谱；</p>
-<p>LSTM 的输出用来计算新的编码向量，最后新计算出来的编码向量与 LSTM 输出做拼接，送入映射层以计算输出。  ？</p>
-<p>（attention context在decoder中用了两次）</p>
-<p>输出有两种形式，一种是频谱帧，另一种是停止符的概率，后者是一个简单二分类问题，决定解码过程是否结束。为了能够有效加速计算，减小内存占用，引入缩减因子 r（Reduction Factor），即每一个时间步允许解码器预测 r 个频谱帧进行输出。解码完成后，送入后处理网络处理以生成最终的梅尔频谱；<br>$$<br>s_{f i n a l}&#x3D;s_i+s_i^{\prime}<br>$$<br>其中, $s_i$ 是解码器输出, $s_{\text {final }}$ 表示最终输出的梅尔频谱, $s_i^{\prime}$ 是后处理网络的输出, 解码器的输出经过后处 理网络之后获得 $s_i^{\prime}$ ；</p>
-<p>预测的target谱（mel谱）经过post-net(5层卷积)，生成频谱帧；</p>
-<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221109104613410.png" alt="image-20221109104613410" style="zoom:67%;">
-
-<p>推理时，对decoder的pre-net开dropout！（本来网络里这个地方没有加dropout的，但是在推理过程中加了！）目的是为了在推理时输出能有变化；</p>
-<p>没有用tacotron1中的reduction factor  （$r$）</p>
-<h3 id="WaveNet-vocoder"><a href="#WaveNet-vocoder" class="headerlink" title="WaveNet vocoder"></a>WaveNet vocoder</h3><p>在 Tacotron-2 原始论文中，直接将梅尔频谱送入声码器 WaveNet 生成最终的时域波形。但是 WaveNet 计算复杂度过高，几乎无法实际使用，因此可以使用其它声码器，比如 Griffin-Lim、 HiFiGAN 等 。</p>
-<ul>
-<li><input disabled type="checkbox"> [TODO] [声码器还不是很懂，这块还要再看一下]</li>
-</ul>
-<h3 id="loss-function"><a href="#loss-function" class="headerlink" title="loss function"></a>loss function</h3><ol>
-<li>进入后处理网络 post-net **前后 **的平方损失mse loss：</li>
-</ol>
-<p>$$<br>MselLoss &#x3D;\frac{1}{n} \sum_{i&#x3D;1}^n\left(y_{\text {real }, i}^{\text {mel }}-y_{b e f \text { ore }, i}^{\text {mel }}\right)^2+\frac{1}{n} \sum_{i&#x3D;1}^n\left(y_{\text {real }, i}^{\text {mel }}-y_{a f \text { ter }, i}^{\text {mel }}\right)^2<br>$$</p>
-<p>​	其中，$y_{\text {real }, i}^{\text {mel }}$ 表示从音频中提取的真实频谱  ，$y_{b e f \text { ore }, i}^{\text {mel }}$， $y_{a f \text { ter }, i}^{\text {mel }}$ 分别为进入后处理网络前、后的解码器输出，$n$  为每批的样本数。  </p>
-<ol start="2">
-<li>从 CBHG 模块中输出<strong>线性谱</strong>的平方损失：</li>
-</ol>
-<p>$$<br>LinearLoss &#x3D;\frac{1}{n} \sum_{i&#x3D;1}^n\left(y_{\text {real }, i}^{\text {linear }}-y_i^{\text {linear }}\right)^2<br>$$</p>
-<p>​	其中, $y_{\text {real }, i}^{\text {linear }}$ 是从真实语音中计算获得的线性谱, $y_i^{\text {linear }}$ 是从 CBHG 模块输出的线性谱。</p>
-<ol start="3">
-<li><p>停止符交叉熵<br>$$<br>StopTokenLoss &#x3D;-[y \cdot \log (p)+(1-y) \cdot \log (1-p)]<br>$$</p>
-<p>其中，$y$为停止符真实概率分布，  $p$ 是解码器线性映射输出的预测分布。  </p>
-</li>
-<li><p>$L2$ 正则化？？<br>$$<br>RegulationLoss $&#x3D;\frac{1}{K} \sum_{k&#x3D;1}^K w_k^2<br>$$<br>其中$K$ 为参数总数, $w_k$为模型中的参数，这里排除偏置值、 RNN 以及线性映射中的参数。</p>
-<p>最终的损失函数为上述 4 个部分的损失之和，如下式：</p>
-</li>
-</ol>
-<p>$$<br>Loss &#x3D; MelLoss + LinearLoss + StopTokenLoss + RegulationLoss<br>$$</p>
-<h2 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h2><p>wavenet最好是用tacotron产生的谱作为输入进行训练，会比用真实谱进行训练的效果好（让wavenet知道tacotron产生的谱长什么样，才能得到最好的结果）；</p>
-<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108175319842.png" alt="image-20221108175319842" style="zoom: 67%;">
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%20set/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20set/" itemprop="url">C++ set</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
-                2022-11-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20set/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/11/14/算法/C++ set/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="C-set"><a href="#C-set" class="headerlink" title="C++ set"></a>C++ set</h1><p><a target="_blank" rel="noopener" href="https://cplusplus.com/reference/set/set/find/">https://cplusplus.com/reference/set/set/find/</a></p>
-<h2 id="判断元素在不在set中"><a href="#判断元素在不在set中" class="headerlink" title="判断元素在不在set中"></a>判断元素在不在set中</h2><p>可以用count()函数，如果为0，则不在set中；大于0，在set中；</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">set&lt;<span class="type">int</span>&gt; ss;</span><br><span class="line">ss.<span class="built_in">insert</span>(<span class="number">1</span>);</span><br><span class="line">ss.<span class="built_in">insert</span>(<span class="number">2</span>);</span><br><span class="line">cout&lt;&lt;ss.<span class="built_in">count</span>(<span class="number">1</span>)&lt;&lt;<span class="string">&#x27; &#x27;</span>&lt;&lt;ss.<span class="built_in">count</span>(<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E7%AE%97%E6%B3%95/C++%20vector/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20vector/" itemprop="url">C++ vector</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
-                2022-11-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20vector/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/11/14/算法/C++ vector/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>C++ vector</p>
-<h2 id="新建vector数组"><a href="#新建vector数组" class="headerlink" title="新建vector数组"></a>新建vector数组</h2><ol>
-<li><p>已知内容：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">vector&lt;<span class="type">int</span>&gt; a = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>&#125;;</span><br><span class="line"><span class="comment">// 注意，不是[1,2,3,4,5]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 或者</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> i[<span class="number">6</span>] = &#123;<span class="number">6</span>,<span class="number">1</span>,<span class="number">3</span>,<span class="number">2</span>,<span class="number">4</span>,<span class="number">7</span>&#125;;</span><br><span class="line"><span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">a</span><span class="params">(i,i+<span class="number">6</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化固定长度，初值为0</span></span><br><span class="line"><span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">vec</span><span class="params">(k, <span class="number">0</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化固定长度，无初值</span></span><br><span class="line"><span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">vec</span><span class="params">(k)</span></span>;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>不知道长度，每次用push进去</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vector&lt;<span class="type">int</span>&gt; a;</span><br><span class="line">a.<span class="built_in">push_back</span>(<span class="number">1</span>);</span><br><span class="line">a.<span class="built_in">push_back</span>(<span class="number">2</span>);</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="新建二维vector数组"><a href="#新建二维vector数组" class="headerlink" title="新建二维vector数组"></a>新建二维vector数组</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vector&lt;vector&lt;<span class="type">int</span>&gt;&gt; <span class="built_in">visited</span>(h, <span class="built_in">vector</span>&lt;<span class="type">int</span>&gt;(w));</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h2 id="得到vector最后一个元素"><a href="#得到vector最后一个元素" class="headerlink" title="得到vector最后一个元素"></a>得到vector最后一个元素</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">merged.<span class="built_in">back</span>()</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="计数"><a href="#计数" class="headerlink" title="计数"></a>计数</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// vector中0的个数</span></span><br><span class="line"><span class="type">int</span> s1 = <span class="built_in">accumulate</span>(students.<span class="built_in">begin</span>(), students.<span class="built_in">end</span>(), <span class="number">0</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>​	</p>
-<h2 id="新建一个"><a href="#新建一个" class="headerlink" title="新建一个"></a>新建一个</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ret.<span class="built_in">push_back</span>(vector &lt;<span class="type">int</span>&gt; ());</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="在末尾添加元素"><a href="#在末尾添加元素" class="headerlink" title="在末尾添加元素"></a>在末尾添加元素</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ret.<span class="built_in">back</span>().<span class="built_in">push_back</span>(node-&gt;val);</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="切片、截取部分"><a href="#切片、截取部分" class="headerlink" title="切片、截取部分"></a>切片、截取部分</h2><p>取vector区间的元素<br>取数组{1, 4, 3, 2, 5}在[1, 3]区间的元素为{4, 3, 2}</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">std::vector&lt;<span class="type">int</span>&gt; v&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>&#125;; </span><br><span class="line"><span class="function">std::vector&lt;<span class="type">int</span>&gt; <span class="title">result</span><span class="params">(v.begin() + <span class="number">1</span>,v.begin() + <span class="number">3</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//————————————————</span></span><br><span class="line"><span class="comment">//版权声明：本文为CSDN博主「thisiszdy」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。</span></span><br><span class="line"><span class="comment">//原文链接：https://blog.csdn.net/thisiszdy/article/details/120086664</span></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<p>以下有点麻烦啊。。。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; Arrs &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>&#125;; </span><br><span class="line">    <span class="comment">// 假设有这么个数组,要截取第2个元素到第6个元素：2，3，4,5,6对应索引分别为 1，2，3,4,5</span></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt;::const_iterator First = Arrs.<span class="built_in">begin</span>() + <span class="number">1</span>;  <span class="comment">// 找到第  2 个迭代器 （idx=1）</span></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt;::const_iterator Second = Arrs.<span class="built_in">begin</span>() + <span class="number">6</span>; <span class="comment">// 找到第  6 个迭代器 （idx=5）的下一个位置 </span></span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; Arr2;</span><br><span class="line">    Arr2.<span class="built_in">assign</span>(First,Second);  <span class="comment">// [First,Second)  左闭右开区间</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">auto</span> i : Arr2)&#123;</span><br><span class="line">        cout &lt;&lt; i&lt;&lt;<span class="string">&quot;--&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// ————————————————</span></span><br><span class="line"><span class="comment">// 版权声明：本文为CSDN博主「索隆啊」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。</span></span><br><span class="line"><span class="comment">// 原文链接：https://blog.csdn.net/qq_36758461/article/details/120059080</span></span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2730,7 +2801,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">134</span>
+                  <span class="site-state-item-count">137</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

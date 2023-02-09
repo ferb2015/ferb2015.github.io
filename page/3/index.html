@@ -288,6 +288,573 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF/" itemprop="url">《语音识别原理与应用》洪青阳 第8章 语言模型————平滑技术</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
+                2023-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">语言模型</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/10/语言模型/平滑技术/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="语言模型平滑技术"><a href="#语言模型平滑技术" class="headerlink" title="语言模型平滑技术"></a>语言模型平滑技术</h1><blockquote>
+<p>《语音识别原理与技术》洪青阳</p>
+</blockquote>
+<p>语言模型的概率需要通过大量的文本语料来估计，采用最大似然算法。但由于统计语料有限，所以会存在数据稀疏的情況，这可能导致零概率或估计不准的问题，因此对语料中未出现或少量出现的词序列，需要采用平滑技术进行间接预测。</p>
+<p>概括起来，平滑技术主要有三种。</p>
+<ul>
+<li>折扣法( Discounting)：从已有观察值概率调配一些给未观察值概率，例如 Good-Turing（吉德-图灵）折扣法。</li>
+<li>插值法（Interpolation）：将高阶模型和低阶模型做线性组合，如Jelinek-Mercer 插值法，也可做非线性组合，如Kneser-Ney 插值法。</li>
+<li>回退法(Back-off）：基于低阶模型估计未观察到的高阶模型，例如Katz 回退法。</li>
+</ul>
+<h2 id="Good-Turing-折扣法"><a href="#Good-Turing-折扣法" class="headerlink" title="Good-Turing 折扣法"></a>Good-Turing 折扣法</h2><p>Good-Turing 折扣法是从已有观察值概率调配一些给未观察值概率。设总词数为 $N$，出现1次的词数为 $N_1$，出现 $c$ 次的词数为 $N$，因此有<br>$$<br>N&#x3D;\sum_ccN_c<br>$$<br>平滑后，出现次数 $c$ 被替换为 $c^*&#x3D;\frac{(c+1)N_{c+1}}{N_c}$，其对应的概率为<br>$$<br>P_{GT}&#x3D;\frac{c^*}{N}<br>$$</p>
+<p>例如，给定分词后的句子语料（假设只有两句)：</p>
+<ul>
+<li>“我们 明年 会 有全新 的 开始”</li>
+<li>“我们 彼此 祝福 着 等待 再见 那 一 天”</li>
+</ul>
+<p>统计词频数：“我们°出现2次，“明年”出现1次，……，“天” 出现1次，即</p>
+<p>折扣前：$N&#x3D;16$， $N_1&#x3D;14$, $N_2 &#x3D;1$</p>
+<p>折扣后：$P_0^*&#x3D;\frac{N_1}{N}&#x3D;\frac{14}{16}$ ，$P_1^*&#x3D;\frac{c_1^*}{N}&#x3D;\frac{2}{14*16}$</p>
+<p>由于Good-Turing 折扣法设有考虑高阶模型和低阶模型之间的关系，所以一般不单独使用，而是作为其他平滑技术的一个配套方法。</p>
+<h2 id="Jelinek-Mercer-插值法"><a href="#Jelinek-Mercer-插值法" class="headerlink" title="Jelinek-Mercer 插值法"></a>Jelinek-Mercer 插值法</h2><p>Jelinek-Mercer 是一种线性插值法。为了避免出现P(W)&#x3D;0或接近于零的情况，可以用三元模型、二元模型和一元模型的相对概率做插值。最简单的线性插值如下：<br>$$<br>\hat{P}\left(w_t \mid w_{t-2} w_{t-1}\right)&#x3D;\lambda_1 P\left(w_t \mid w_{t-2} w_{t-1}\right)+\lambda_2 P\left(w_t \mid w_{t-1}\right)+\lambda_3 P\left(w_t\right)<br>$$<br>其中, $\lambda_1+\lambda_2+\lambda_3&#x3D;1$ 。</p>
+<p>还有一种方法是基于上下文设置权重系数，高频的上下文通常会有高的权重系数。把语料库分为 training data held-out data 和 test data 三部分，固定好 training<br>data 的n-gram 概率，寻求以下式子的最大值：<br>$$<br>\begin{aligned}<br>\hat{P}\left(w_t \mid w_{t-2} w_{t-1}\right) &amp; &#x3D;\lambda_1\left(w_{t-2}^{t-1}\right) P\left(w_t \mid w_{t-2} w_{t-1}\right)+\lambda_2\left(w_{t-2}^{t-1}\right) P\left(w_t \mid w_{t-1}\right) \<br>&amp; +\lambda_3\left(w_{t-2}^{t-1}\right) P\left(w_t\right)<br>\end{aligned}<br>$$<br>其中, $\lambda_1\left(w_{t-2}^{t-1}\right) 、 \lambda_2\left(w_{t-2}^{t-1}\right)$ 和 $\lambda_3\left(w_{t-2}^{t-1}\right)$ 基于 held-out data 通过最大似然优化得到, 即保持 $n$-gram 概率不变, 寻求使得这批集外数据预测概率最高的权重系数。</p>
+<h2 id="Kneser-Ney-插值法"><a href="#Kneser-Ney-插值法" class="headerlink" title="Kneser-Ney 插值法"></a>Kneser-Ney 插值法</h2><p>在训练数据非常少的情况下，更适合采用 Kneser-Ney 插值法。Kneser-Ney是一种非线性插值法，它以 Absolote discounting（绝对折扣）插值方法该变而来。</p>
+<p>Absolute discounting 方法充分利用高阶和低阶语言模型，把高阶的概率信息分配给低阶的一元模型。例如，针对二元模型，Absolute discounting 平滑公式表示如下：<br>$$<br>P_{\mathrm{abs}}\left(w_t \mid w_{t-1}\right)&#x3D;\frac{\max \left(c\left(w_{t-1} w_t\right)-d, 0\right)}{\sum_{w^{\prime}} c\left(w_{t-1} w^{\prime}\right)}+\lambda P_{\mathrm{abs}}\left(w_t\right)<br>$$<br>其中, $c\left(w_{t-1} w^{\prime}\right)$ 表示 $w_{t-1} w^{\prime}$ 的组合次数, $w^{\prime}$ 是任意一个词, $d$ 是一个固定的折扣 值, $\lambda$ 是一个规整常量。</p>
+<p>$P_{abs}(w_t)$ 是一元模型，它按单词出 现次数进行统计，这样可能会存在出现次数异常偏大现象。比如“杯子〞 出现频次较高，因此单独的“杯子” 按出现次数统计可能会比 “茶” 出现次数多，即 $P_abs(杯子)&gt;P_{abs}(茶)$ ，这样会使 Absolote discounting平滑公式因 $P_{abs}(w)$ 值过大出现“喝杯子”比“喝茶”概率高的奇怪现象。</p>
+<p>Kneser-Ney 插值法对此做了改进，保留了 Absolute discounting 平滑公式的第一部分，但重写了第二部分。第二部分中的概率不是词单独出现的概率，而是与其他词组合的概率。Kneser-Ney 平滑公式如下：<br>$$<br>P_{\mathrm{KN}}\left(w_t \mid w_{t-1}\right)&#x3D;\frac{\max \left(c\left(w_{t-1} w_t\right)-d, 0\right)}{\sum_{w^{\prime}} c\left(w_{t-1} w^{\prime}\right)}+\lambda \frac{\left|\left{w_{t-1}: c\left(w_{t-1}, w_t\right)&gt;0\right}\right|}{\left|\left{w_{j-1}: c\left(w_{j-1}, w_j\right)&gt;0\right}\right|}<br>$$<br>其中, $\lambda$ 是规整的常量, $d$ 是一个固定的折扣值, $w_{j-1} w_j$ 是任意两个词的组合。第 一部分的分母可进一步表示为一元模型统计, 因此 Kneser-Ney 平滑公式还可简 化为<br>$$<br>P_{\mathrm{KN}}\left(w_t \mid w_{t-1}\right)&#x3D;\frac{\max \left(c\left(w_{t-1} w_t\right)-d, 0\right)}{c\left(w_{t-1}\right)}+\lambda \frac{\left|\left{w_{t-1}: c\left(w_{t-1}, w_t\right)&gt;0\right}\right|}{\left|\left{w_{j-1}: c\left(w_{j-1}, w_j\right)&gt;0\right}\right|}<br>$$<br>Kneser-Ney 平滑法还有一个改进版本，其分别针对一元、二元、三元和三元以上的组合，设定不同的折扣值d，这种配置会取得更佳的平滑效果。</p>
+<h2 id="Katz-回退法"><a href="#Katz-回退法" class="headerlink" title="Katz 回退法"></a>Katz 回退法</h2><p>Katz 在 1987 年发表的论文中, 在 Good-Turing 折扣法的基础上, 提出了蚥 进的平滑技术，其主要贡献是回退法。</p>
+<p>例如, 计算 $P\left(w_t \mid w_{t-2} w_{t-1}\right)$, 当出现的三元统计次数不是很多时, 可以采用 Good-Turing 折扣法进行平滑。当完全没有相关的三元统计时, 可以使用二元语法来估计, 如果没有相关的二元统计, 那么我们就用一元模型估计。</p>
+<p>综合起来, 采用 Katz 平滑技术的概率估计公式如下:<br>$$<br>P\left(w_t \mid w_{t-2} w_{t-1}\right)&#x3D;\left{\begin{array}{cl}<br>\frac{C\left(w_{t-2} w_{t-1} w_t\right)}{C\left(w_{t-2} w_{t-1}\right)}, &amp; \text { 当 } C&gt;C^{\prime} \text { 时 } \<br>d \frac{C\left(w_{t-2} w_{t-1} w_t\right)}{C\left(w_{t-2} w_{t-1}\right)}, &amp; \text { 当 } 0&lt;C&lt;C^{\prime} \text { 时 } \<br>\text { backoff }\left(w_{t-2} w_{t-1}\right) P\left(w_t \mid w_{t-1}\right) &amp;<br>\end{array}\right.<br>$$<br>其中, $C$ 是 $C\left(w_{t-2} w_{t-1} w_t\right)$ 的简写, 表示三个词同时出现的次数。 $C^{\prime}$ 是一个计数囯 值, 当 $C&gt;C^{\prime}$ 时, 直接采用最大似然法估计概率; 当 $0&lt;C&lt;C^{\prime}$ 时, 则采用 Good-Turing 折扣法。 $d$ 是折扣系数。backoff $\left(w_{t-2} w_{t-1}\right)$ 是回退权重, 计算回退权 重, 是先采用折扣法计算低阶统计概率, 然后得到<br>$$<br>\text { backoff }\left(w_{t-2} w_{t-1}\right)&#x3D;\frac{1-\sum P\left(w \mid w_{t-2} w_{t-1}\right)}{\sum P\left(w^{\prime} \mid w_{t-1}\right)}&#x3D;\frac{1-\sum P\left(w \mid w_{t-2} w_{t-1}\right)}{1-\sum P\left(w \mid w_{t-1}\right)}<br>$$<br>其中, $w$ 是在训练语料中 $w_{t-2} w_{t-1}$ 之后出现的词, $w^{\prime}$ 是在训练语料中 $w_{t-2} w_{t-1}$ 之后 末出现的词。</p>
+<p>采用 Katz 回退法, 训练好的语宆模型格式如下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">\data</span><br><span class="line">ngram 1=n1 # 一元语言模型</span><br><span class="line">ngram 2=n2二元语言模型 </span><br><span class="line">ngram 3=n3三元语言模型</span><br><span class="line"></span><br><span class="line">\1-grams :</span><br><span class="line">pro_1 wordl back_pro1</span><br><span class="line"></span><br><span class="line">\2-grams :</span><br><span class="line">pro_2 word1 word2 back_pro2</span><br><span class="line"></span><br><span class="line">\3-grams:</span><br><span class="line">pro_3 word1 word2 word3</span><br><span class="line"></span><br><span class="line">\end \</span><br></pre></td></tr></table></figure>
+
+
+
+<p>其中, pro_1 是一元模型 (1-grams) 单词的对数概率, pro_2 是二元模型 (2-grams 的对数概率, pro_3 是三元模型 (3-grams) 的对数概率。一元模型和二元模型后面分别带有回退权重 back_pro1 和 back_pro2。</p>
+<p>如果要得到三个词出现的概率 $P$ (word3&#x2F;word1,word2), 则根据以上语言模型, 其计算过程如下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">if (存在 (word1, word2, word3) 的三元模型) &#123; </span><br><span class="line">	return pro_ 3 (word1, word2, word3) ;</span><br><span class="line">&#125;else if (存在 (word1, word2) 二元模型) &#123;</span><br><span class="line">	return back_pro2 (word1, word2) *P (word3 / word2) ; </span><br><span class="line">&#125;else&#123;</span><br><span class="line">	return P(word3 | word2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if (存在 (word1, word2) 的二元模型) &#123;</span><br><span class="line">	return pro_ 2 (word1, word2);</span><br><span class="line">&#125;else&#123;</span><br><span class="line">	return back_pro2(word1)*pro_1 (word2) :</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>如果不存在(word 1,word 2 ,word 3 )的三元模型, 则采用回退法, 即结合回退权 重 back_pro2(word1,word2) 来计算: back_pro2(word1,word2) $* P($ word3&#x2F;word2)。如 “拨打 郑州 局” 这样的组合, 如果语料库中没有，即没有相应的三元模型, 则 查找 “拨打 郑州” 和 “郑州 局” 的组合概率和回退概率。注意, 概率均为对数 概率，假设值如下：</p>
+<p>$-3.220352$ 拨打 郑州 $-0.4072262$</p>
+<p>$-3.012735$ 郑州 局 $-0.3083073$</p>
+<p>则 $P($ “拨打 郑州 局” $)&#x3D;P($ “局 | 拨打 郑州” $)&#x3D;$ back_pro2(拨打,郑州)*P(局 郑州 $)&#x3D;\ln \left(\mathrm{e}^{-0.4072262 *} \mathrm{e}^{-3.012735}\right)&#x3D;-3.4199612$ 。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/%E8%AF%86%E5%88%AB/TDNNF%E6%8E%A8%E5%AF%BC%E8%BF%87%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/01/10/%E8%AF%86%E5%88%AB/TDNNF%E6%8E%A8%E5%AF%BC%E8%BF%87%E7%A8%8B/" itemprop="url">《语音识别原理与应用》洪青阳 第10章 DNN-HMM TDNNF推导过程</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
+                2023-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/10/%E8%AF%86%E5%88%AB/TDNNF%E6%8E%A8%E5%AF%BC%E8%BF%87%E7%A8%8B/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/10/识别/TDNNF推导过程/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="TDNNF推导过程"><a href="#TDNNF推导过程" class="headerlink" title="TDNNF推导过程"></a>TDNNF推导过程</h1><blockquote>
+<p>《语音识别原理与应用》洪青阳 P215</p>
+</blockquote>
+<p>2018 年，著名的语音学者 Daniel Povey对TDNN 网络做了进一步的改进提出了因子分解的 TDNN，即带有半正交矩阵的TDNN-F，TDNN-F建立在奇异值分解 ( Singular Value Decomposition, SVD)的基础上。作为最著名的矩阵分解方法，SVD 是减少已训练的模型大小的一种有效方法，因为通过SVD我们可以将每个权重矩阵分解为两个因子矩阵，通过丟弃相对更小的奇异值，优化网络参数。</p>
+<p>TDNNF 特点：</p>
+<ul>
+<li>通过奇异值分解(SVD) ，把每个权重矩阵因子分解为两个更小的矩阵，减少神经网络参数。</li>
+<li>TDNN-F限定其中一个矩阵为半正交的(semi-orthogonal)。</li>
+<li>类似残差网络，TDNN-F采用跳层连接，减少梯度的消失。</li>
+</ul>
+<p>TDNN-F 的内部结构与经过SVD压缩的 TDNN 是相同的。虽然经过 SVD 压缩的 TDNN 在随机初始化后，直接训练带有瓶颈层的模型会更高效，但是训练不稳定的问题时有发生。为了避免这种情况，TDNN-F 会在进行完SVD 分解后，将两个分解因子矩阵中的一个约束为半正交矩阵。这种做法既符合 SVD 的要求和特点，也不会损失网络的建模能力。</p>
+<p>我们来看具体的推导过程。TDNN-F 把一个权重矩阵M分解为两个矩阵A和B，并限定其中B为半正交的矩阵。<br>$$<br>M&#x3D;AB<br>$$<br>迭代优化M如下：<br>$$<br>M^{\prime} \leftarrow M-\varepsilon \Delta M<br>$$<br>定义<br>$$<br>P&#x3D;M M^{\top}<br>$$<br>TDNN-F的限制条件是使 $P&#x3D;I$，定义<br>$$<br>Q&#x3D;p-I<br>$$<br>TDNN-F 的优化目标等价于使用最小化函数<br>$$<br>f&#x3D;\operatorname{tr}\left(Q Q^{\top}\right)<br>$$<br>对Q、P、M求偏导，分别得到<br>$$<br>\begin{aligned}<br>&amp; \frac{\partial f}{\partial Q}&#x3D;2 Q \<br>&amp; \frac{\partial f}{\partial P}&#x3D;2 Q \<br>&amp; \frac{\partial f}{\partial M}&#x3D;4 Q M<br>\end{aligned}<br>$$<br>因此，可如下迭代优化权重矩阵M：<br>$$<br>\begin{gathered}<br>\Delta M&#x3D;\nabla_N f&#x3D;\frac{\partial f}{\partial M}&#x3D;4 Q M \<br>M^{\prime} \leftarrow M-4 \varepsilon Q M<br>\end{gathered}<br>$$<br>其中， $\varepsilon$ 是学习率。</p>
+<p>假如原来 $M$ 是 $128 \times 128$ 矩阵, 通过因子分解，得到的 $A$ 为 $128 \times 32$ 矩阵, $B$ 为 $32 \times 128$ 矩阵, 其中 32 是中间瓶颈层的节点数。这样网络参数量从 $128 \times 128$ 个减 少到 $128 \times 32 \times 2$ 个, 即从 16384 个减到 8192 个, 权重运算量也会大为诚少。</p>
+<p>随着网络的加深, 为了减少梯度消失的情况, 在 TDNN-F 网络中还增加了跳层连接, 即将之前层的输出加上当前层的输出作为下一层的输入。这种构造与残差结构类似, 目的都是为了减少梯度消失的情况。同时, 为了防止模型过拟合, 在每个 TDNN-F 的单元结构中还㴛加了 dropout 层。</p>
+<h1 id="kaldi中的TDNN-F"><a href="#kaldi中的TDNN-F" class="headerlink" title="kaldi中的TDNN-F"></a>kaldi中的TDNN-F</h1><p>参考Kaldi 的配置文件，采用40 维FBank特征，则 TDNN-F 的结构如下表所示。我们解释一下tdnnf-layer的参数</p>
+<ul>
+<li>l2-regularize：设置L2 正则系数。</li>
+<li>dropout-proportion：设置丢弃（dropout）的比例。</li>
+<li>bypass-scale：设置跳连接时针对上一层输出节点的尺度，默认值为 0.66，不应该大于1。当设为0时，则不进行跳连接操作。</li>
+<li>time-stride ：控制时间维度拼接，time-stride&#x3D;1表示在线性层使用Append(-1,0)，在仿射变换时使用 Append(0.1)。设置当time-stride 为负数时，如-1，则表示先使用右偏置，再使用左偏置。</li>
+<li>bottleneck-dim：设置分解矩阵后的维度。</li>
+</ul>
+<p>TDNN-F 网络结构信息表：</p>
+<p>tdnnf-layer	name&#x3D;tdnnf2	12-regularize&#x3D;0.01	dropout-proportion&#x3D;0.0	bypass-scale&#x3D;0.66	dim&#x3D;1536	bottleneck-dim&#x3D;160	time-stride&#x3D;1</p>
+<p>第一个隐藏层的输出是1536 维的特征。第二个隐藏层接收上层的输人。先进行因子分解，因为 time-strde&#x3D;1，所以在线性变换时输入的特征是当前帧与左偏移一帧的拼接帧。通过线性变换将特征维度减少到瓶颈节点数，不同于普通的线性变换，这里限制B矩阵为半正交矩阵，同时使用了 L2 正则系统。接着经过 1536x160 （time-stride&#x3D;1，仿射变换时的输入是当前帧与右偏移一帧的拼接帧）权重矩阵计算，并进行仿射变换得到 1536 维的输出。上面两生完成了增加中间层、减少参数数量的操作。再使用 ReLU 两数作为激活函数，进行批处理规整（batchnorm）计算，然后再根据 dropout-proportion 的值进行dropout。 最后由于 bypass-scale&#x3D;0.66 不为0，所以要进行跳连接，将第一个隐藏层的output 和第二个隐藏层的 output 相加作为第三个隐藏层的输人。</p>
+<p>TDNN-F与CNN结合：CNN提取局部频域特征，TDNN-F提取上下文时域特征。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/" itemprop="url">《语音识别原理与应用》洪青阳 第11章 序列区分性训练————Lattice-based和Lattice-free MMI</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
+                2023-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/10/识别/mmi书 洪青阳/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="序列区分性训练"><a href="#序列区分性训练" class="headerlink" title="序列区分性训练"></a>序列区分性训练</h1><blockquote>
+<p>《语音识别原理与应用》洪青阳 第11章</p>
+<p>《11. 序列区分性训练.pptx》</p>
+</blockquote>
+<p>原理公式 直接看PPT或者书就行。</p>
+<h2 id="MMI-求导"><a href="#MMI-求导" class="headerlink" title="MMI 求导"></a>MMI 求导</h2><p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230116234330915.png" alt="image-20230116234330915"></p>
+<p>其中，$\alpha_t^u(j)$ 为第 $u$ 条句子 $t$ 时刻的观察值$ o_t^u$ 的在DNN输出节点（状态） $j$ 的激活输出。</p>
+<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230116234504909.png" alt="image-20230116234504909"></p>
+<p>$\gamma_u^{NUM}(s_t^u&#x3D;j)$ 是针对训练标注，$t$ 时刻为状态 $j$ 的后验概率，其计算采用标准的<strong>前向-后向算法</strong>，复杂度相对较低。而 $\gamma_u^{DEN}(s_t^u&#x3D;j)$ 虽然也是 $t$ 时刻为状态 $j$ 的后验概率，但要穷举所有可能的词序列对应的状态序列，计算量巨大无比。</p>
+<p>我自己的理解：</p>
+<ul>
+<li>分子网是要计算到某个标注（对齐）状态的所有可能路径（到某个状态的所有可能路径求和通过前后向算法），然后整个对齐标注状态序列，就是对所有时刻 t的状态 j 连乘 就得到分子网（偏导对象是某个时刻t，某个时刻j，这里其实没有算连乘）。</li>
+<li>分母网也是到某个时刻t的状态j的可能路径概率求和，但是很多不同词序列都有可能在某个时刻t能够处在状态j，因此要对这些所有的不同词序列求和。而分子网考虑的文本序列就是标注序列。</li>
+</ul>
+<h2 id="Lattice-based-MMI"><a href="#Lattice-based-MMI" class="headerlink" title="Lattice-based MMI"></a>Lattice-based MMI</h2><p>分母网用n-best代替所有路径的方案比较粗糙，更好的方案是为每个训练句子生成一个词图lattice，来近似mmi的分母部分。</p>
+<p>这样, $\gamma_u^{\mathrm{DEN}}\left(s_t^u&#x3D;j\right)$ 就可通过汇总 Lattice 所有可能的词序列的概率得到。由 于 Lattice 的路径有限, 故需要的计算量将大为降低。</p>
+<p>事实上, $\gamma_u^{\mathrm{NUM}}\left(s_t^u&#x3D;j\right)$ 的前向和后向概率也可通过 Lattice 计算。因此, <strong>每条训练句子均需要生成正确标注和竞争路径对应的 Lattice，包含采用音素 (不需词典) 的简化版语言模型。</strong></p>
+<h4 id="基于DNN-HMM的Lattice-based-MMI训练流程如下："><a href="#基于DNN-HMM的Lattice-based-MMI训练流程如下：" class="headerlink" title="基于DNN-HMM的Lattice-based MMI训练流程如下："></a>基于DNN-HMM的Lattice-based MMI训练流程如下：</h4><ul>
+<li>Step1：基于CE准则，训练一个DNN-HMM做为种子模型，并用该模型做状态级别的强制对齐，并生成正确标注对应的Lattice，即MMI分子部分对应的Numerator Lattice；</li>
+<li>Step2：基于一元语言模型构建HCLG，然后对每条训练句子做识别，得到各种竞争路径，保存为MMI分母部分对应的Denominator Lattice。</li>
+<li>Step3：进行Lattice-based MMI训练。</li>
+</ul>
+<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230117001637221.png" alt="image-20230117001637221"></p>
+<p>分母网也是用DNN-HMM生成的。分母网是固定的状态序列，无法根据新训练的声学模型动态更新。</p>
+<h2 id="Lattice-free-MMI"><a href="#Lattice-free-MMI" class="headerlink" title="Lattice-free MMI"></a>Lattice-free MMI</h2><p>2016年，D. Povey等人提出Lattice-free MMI方案，把分母部分用音素级别的有限状态转换器（FST）图表示，这样可以不用Lattice，做到纯序列区分性训练（Sequence Discriminative Training）。</p>
+<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230117001830073.png" alt="image-20230117001830073"></p>
+<p>Lattice-free MMI（LF-MMI）采用音素语言模型（Phone LM）替代词语言模型（Word LM），这样就不需要词典，因此HCLG精简为<strong>HCP</strong>，其中C由决策树生成，P代表Phone LM，Kaldi设为4-gram，基于训练数据的对齐音素序列训练而成，并且低于3元不采用回退和插值，即3元组合本身不存在的话，不考虑更低元的语言模型，以免引起更多混淆。</p>
+<p>由于音素个数比词个数少很多，因此Phone LM产生的FST图很小，最后得到的HCP（即针对MMI分母的FST图）也会小很多，可以直接放到GPU训练。事实上，这个HCP可认为是串接HMM的FST形式，MMI训练的前后-后向计算将基于该FST图进行，HMM 状态之间的转移概率也可根据 FST 找到对应值。</p>
+<p>Lattice-free MMI 对应 $\gamma_u^{N U M}\left(s_t^u&#x3D;j\right)$ 的 FST 的前向-后向计算量较少, 可在 CPU 中运行。而对应 $\gamma_u^{\mathrm{DEN}}\left(s_t^u&#x3D;j\right)$ 的 FST 的前向-后向计算量较大, 一般要在 GPU 中 运行, 并且有两处特殊处理:</p>
+<ul>
+<li>不采用对数和指数运算, 为了避免目标函数值突变, 同时需对前向和后向 计算结果做规整。</li>
+<li>先做 $\gamma_u^{\mathrm{DEN}}\left(s_t^u&#x3D;j\right)$ 计算, 再做 $\gamma_u^{\mathrm{NUM}}\left(s_t^u&#x3D;j\right)$ 计算，以减少内存占用。</li>
+</ul>
+<h4 id="Lattice-free-MMI-的训练流程"><a href="#Lattice-free-MMI-的训练流程" class="headerlink" title="Lattice-free MMI 的训练流程"></a>Lattice-free MMI 的训练流程</h4><ul>
+<li>Step1：MMI分母部分 $\gamma_u^{\mathrm{DEN}}\left(s_t^u&#x3D;j\right)$ 的FST<strong>前向-后向计算</strong>直接使用音素级别的FST图，不需要每个句子分别解码得到的Lattice；</li>
+<li>Step2：基于GMM-HMM或DNN-HMM对齐得到句子的Lattice（以FST形式保存），进行MMI分子部分 $\gamma_u^{\mathrm{NUM}}\left(s_t^u&#x3D;j\right)$ 的<strong>前向-后向计算</strong>。</li>
+<li>Step3：进行Lattice-free MMI训练。</li>
+</ul>
+<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230118001853394.png" alt="image-20230118001853394"></p>
+<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230118001913981.png" alt="image-20230118001913981"></p>
+<p><img src="/2023/01/10/%E8%AF%86%E5%88%AB/mmi%E4%B9%A6%20%E6%B4%AA%E9%9D%92%E9%98%B3/image-20230118001934327.png" alt="image-20230118001934327"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2104,705 +2671,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/" itemprop="url">CVAE论文</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-08T00:00:00+08:00">
-                2022-12-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
-                    <span itemprop="name">深度学习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/12/08/深度学习/CVAE论文/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="CVAE"><a href="#CVAE" class="headerlink" title="CVAE"></a>CVAE</h1><blockquote>
-<p>Sohn, Kihyuk, Honglak Lee, and Xinchen Yan. “Learning structured output representation using deep conditional generative models.” <em>Advances in neural information processing systems</em> 28 (2015). citations：2250 </p>
-<p><a target="_blank" rel="noopener" href="http://ijdykeman.github.io/ml/2016/12/21/cvae.html">http://ijdykeman.github.io/ml/2016/12/21/cvae.html</a> （翻译：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/sddai/p/10523431.html%EF%BC%89">https://www.cnblogs.com/sddai/p/10523431.html）</a></p>
-<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/79871846">Conditional VAE</a></p>
-</blockquote>
-<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>提出一种生成模型的训练方法，该模型在随机梯度变分 Bayes框架下进行有效训练，此外，我们提供了新的策略来构建robust的结构化预测 算法，是一个深度条件 生成模型，用于使用高斯潜变量进行结构化输出预测。例如在 训练中输入噪声注入和多尺度预测目标。												</p>
-<p>structured output 我理解的是多种特征、属性都有一点的结构化输出</p>
-<p>multi-modal distribution 我理解就是组成output分布的多种特征、属性，多种特征的分布组成了多模态分布</p>
-<p>在分割精度、条件对数似然估计和生成样本的可视化方面表现出色</p>
-<p>对生成模型（或者说预测任务）的要求有两个：1.可以形成好的概率分布probabilistic inference（生成的样本和训练样本的分布是接近的）；2. 可以生成出不一样的样本，不能生成出来的样本都很接近，要是不一样的。</p>
-<p>提出conditional variational auto-encoder (CVAE).CVAE是一个有条件的  有向图模型（z生成x，有个方向），其输入观测调节了产生输出的高斯潜变量 的先验 p(z)</p>
-<p>主要改进如下：</p>
-<ul>
-<li>提出了cvae，我们提出了CVAE及其在SGVB框架中可有效训练的变体， ，并引入了新的策略来增强结构化预测模型的鲁棒性。</li>
-<li>我们用高斯随机神经元 证明了我们提出的算法在建模结构化输出变量的多模态分布方面的有效性</li>
-<li>我们在CUB和LFW数据集上实现了强大的语义对象分割性能。</li>
-</ul>
-<p>目标不仅是估计 $p(x)$ ，并且是在某个条件，比如s下的x发生的概率，p(x|s)，目标变成也要知道条件s对x会起到什么影响。</p>
-<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>recognition network：$q_\phi(z|x)$ 或者 $q_\phi(z|x,y)$  x（或x,y）条件下预测出的z的分布；</p>
-<p>prior network  ：$p_\theta(z)$ 或者 $p_\theta(z|x)$ x条件下z的真实分布、先验分布；</p>
-<h2 id="Related-work"><a href="#Related-work" class="headerlink" title="Related work"></a>Related work</h2><p>The stochastic feed-forward neural network (SFNN)随机前馈神经网络(SFNN)是一个条件有向图模型 ，它结合了实值确定性神经元和二元随机神经元。</p>
-<p>SFNN使用广义EM的蒙特卡罗变体进行训练，从前馈建议分布中提取多个样本 ，并用不同的重要性权重对它们进行加权</p>
-<p>作者提出的叫做Gaussian stochastic neural network，用高斯隐变量替换了sfnn里的二元随机神经元binary stochastic neurons.</p>
-<h2 id="Preliminary-Variational-Auto-encoder"><a href="#Preliminary-Variational-Auto-encoder" class="headerlink" title="Preliminary: Variational Auto-encoder"></a>Preliminary: Variational Auto-encoder</h2><p>回顾VAE，VAE用似然的variational lower bound作为目标函数，公式为<br>$$<br>\begin{aligned}<br>\log p_\theta(\mathbf{x}) &amp; &#x3D;K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)+\mathbb{E}<em>{q_\phi(\mathbf{z} \mid \mathbf{x})}\left[-\log q_\phi(\mathbf{z} \mid \mathbf{x})+\log p_\theta(\mathbf{x}, \mathbf{z})\right] \<br>&amp; \geq-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}) | p_\theta(\mathbf{z})\right)+\mathbb{E}</em>{q_\phi(\mathbf{z} \mid \mathbf{x})}\left[\log p_\theta(\mathbf{x} \mid \mathbf{z})\right]<br>\end{aligned}<br>$$<br>其中，$q_\phi(\mathbf{z} \mid \mathbf{x})$ 是 recognition model，用来近似真实后验 $p_\theta(\mathbf{z} \mid \mathbf{x})$ 。recognition model结构是MLP。</p>
-<p>假设z服从高斯分布，则 $-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}) | p_\theta(\mathbf{z})\right)$ 可以忽略，$\mathbb{E}_{q_\phi(\mathbf{z} \mid \mathbf{x})}\left[\log p_\theta(\mathbf{x} \mid \mathbf{z})\right]$ 可以用 $L$ 个 $z$ 样本表示，则带有高斯隐变量的VAE目标写成：</p>
-<p>$$<br>\widetilde{\mathcal{L}}<em>{\mathrm{VAE}}(\mathbf{x} ; \theta, \phi)&#x3D;-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}) | p_\theta(\mathbf{z})\right)+\frac{1}{L} \sum</em>{l&#x3D;1}^L \log p_\theta\left(\mathbf{x} \mid \mathbf{z}^{(l)}\right)<br>$$<br>其中，$\mathbf{z}^{(l)}&#x3D;g_\phi\left(\mathbf{x}, \epsilon^{(l)}\right), \epsilon^{(l)} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ 。用了重参数技巧，把  $q_\phi(\mathbf{z} \mid \mathbf{x})$ 函数用 $g_\phi\left(\mathbf{x}, \epsilon\right)$ 函数代替，这个 $g_\phi(\cdot, \cdot)$ 是一个deterministic、differentiable的函数，里头的参数是data $\mathbf{x}$ 和 noise variable $\epsilon$ 。这种trick允许误差通过高斯隐变量反向传播，这在VAE训练中是必不可少的，因为它由多个mlp组成，用于识别和生成模型。因此，使用随机梯度下降(SGD)可以有效地训练VAE。</p>
-<h2 id="Deep-Conditional-Generative-Models-for-Structured-Output-Prediction"><a href="#Deep-Conditional-Generative-Models-for-Structured-Output-Prediction" class="headerlink" title="Deep Conditional Generative Models for Structured Output Prediction"></a>Deep Conditional Generative Models for Structured Output Prediction</h2><p>如下图所示 Fig1(a) 展示了x拟合y的分布，$p_\theta(y|x)$ ，Fig1(b)、Fig1(c)、Fig1(d)展示了三种conditional generative model (CGM)  。</p>
-<p>Fig1(b) 是先验网络和生成网络、decoder，说的是x条件下生成z的真实分布，z和x共同作用生成y，我们输入给定的数据点x，由于生成z会有随机性，$p_\theta(y|x,z)$ 允许建模多种模式，因此生成的y也有随机性，y有很多种可能生成的样子，是一个one-to-many过程；</p>
-<p>z的先验来自x，也可以放宽限制，把 $p_\theta(z)$ 写成 $p_\theta(z|x)$  。</p>
-<p>Fig1(c)是识别网络、encoder；</p>
-<img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208092952774.png" alt="image-20221208092952774" style="zoom: 67%;">
-
-<p>Deep CGMs 用 maximize the conditional log-likelihood训练，通常很难直接计算目标函数，因此也像VAE一样用SGVB框架（求导）训练。</p>
-<p>variational lower bound of the model 写为：<br>$$<br>\log p_\theta(\mathbf{y} \mid \mathbf{x}) \geq-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)+\mathbb{E}<em>{q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})}\left[\log p_\theta(\mathbf{y} \mid \mathbf{x}, \mathbf{z})\right]<br>$$<br>empirical lower bound 写为：<br>$$<br>\widetilde{\mathcal{L}}</em>{\mathrm{CVAE}}(\mathbf{x}, \mathbf{y} ; \theta, \phi)&#x3D;-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)+\frac{1}{L} \sum_{l&#x3D;1}^L \log p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(l)}\right)<br>$$<br>其中，$\mathbf{z}^{(l)}&#x3D;g_\phi\left(\mathbf{x,y}, \epsilon^{(l)}\right), \epsilon^{(l)} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ , $L$ 是样本数。</p>
-<p>这种模型称为 conditional variational auto-encoder (CVAE) ，识别模型变成了 $q_\phi(z|x,y)$ ，生成模型变成了 $p_\theta (y|x,z)$ 。如Fig1(d)是一个CVAE结构，有一个循环结构，给定数据x，有一个初始预测的 $\hat y$ ，$q_\phi(z|x,\hat y)$ 采样出 z，再  $p_\theta (y|x,z)$ 生成 $y$ （重建）。</p>
-<p>上式的推导过程为：</p>
-<p>在条件VAE中，我们假设要建模的变量是 $y$ ，条件是 $x$ 。隐变量 $z$ 的近似分布 $q_\phi(z \mid x, y)$ 和真 实后验概率 $p_\theta(z \mid x, y)$ 之间的 KL-divergence 记为:<br>$$<br>\begin{aligned}<br> K L\left[q_\phi(z \mid x, y) | p_\theta(z \mid x, y)\right]  &amp;&#x3D;\int q_\phi(z \mid x, y) \log \frac{q_\phi(z \mid x, y)}{p_\theta(z \mid x, y)} d \phi \<br>&amp;&#x3D;\int q_\phi(z \mid x, y) \log \frac{q_\phi(z \mid x, y) p_\theta(y \mid x) p_\theta(x)}{p_\theta(z, x, y)} d \phi<br>\end{aligned}<br>$$<br>展开:<br>$$<br>\begin{aligned}<br>&amp; &#x3D;\int q_\phi(z \mid x, y) \log _\phi(z \mid x, y) d \phi+\int q_\phi(z \mid x, y) \operatorname{logp}_\theta(y \mid x) d \phi+  \int q_\phi(z \mid x, y) \operatorname{logp}_\theta(x) d \phi  -\int q_\phi(z \mid x, y) \operatorname{logp}_\theta(z, x, y) d \phi<br>\end{aligned}<br>$$<br>其中，第二项:<br>$$<br>\int q_\phi(z \mid x, y) \log p_\theta(y \mid x) d \phi&#x3D;\log <em>\theta(y \mid x)<br>$$<br>其余三项合并，原式<br>$$<br>K L\left[q_\phi(z \mid x, y)|| p_\theta(z \mid x, y)\right]&#x3D;\log <em>\theta(y \mid x)+\int q_\phi(z \mid x, y) \log \frac{q_\phi(z \mid x, y)}{p_\theta(y \mid x, z) p_\theta(z \mid x)} d \phi<br>$$<br>由于左侧 $K L \geq 0$ ，因此:<br>$$<br>\begin{aligned}<br>&amp; \log <em>\theta(y \mid x) \geq-\int q_\phi(z \mid x, y) \log \frac{q_\phi(z \mid x, y)}{p_\theta(y \mid x, z) p_\theta(z \mid x)} d \phi \<br>&amp; &#x3D;\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log p_\theta(y \mid x, z)+\log p_\theta(z \mid x)-q_\phi(z \mid x, y)\right] d \phi \<br>&amp; &#x3D;\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log <em>\theta(y \mid x, z)\right]-\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log q_\phi(z \mid x, y)-\log <em>\theta(z \mid x)\right] \<br>&amp; &#x3D;\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log <em>\theta(y \mid x, z)\right]-K L\left[q_\phi(z \mid x, y)|| p_\theta(z \mid x)\right]<br>\end{aligned}<br>$$<br>左侧 $\log <em>\theta(y \mid x)$ 是基于条件 $x$ 的后验概率，右侧是条件VAE的ELBO:<br>$$<br>E L B O&#x3D;\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log p_\theta(y \mid x, z)\right]-K L\left[q_\phi(z \mid x, y) | p_\theta(z \mid x)\right]<br>$$<br>第一项是对隐变量 $z \sim p_\phi(z \mid x, y)$ 的期望下的极大似然估计，第二项是 $q_\phi$ 与先验的KL约束。同 样，第一项也要通过采样来估计，具体而言:<br>$$<br>\widetilde{\mathcal{L}}</em>{\mathrm{CVAE}}(\mathbf{x}, \mathbf{y} ; \theta, \phi)&#x3D;-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)+\frac{1}{L} \sum</em>{l&#x3D;1}^L \log p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(l)}\right)<br>$$</p>
-<h3 id="Output-inference-and-estimation-of-the-conditional-likelihood"><a href="#Output-inference-and-estimation-of-the-conditional-likelihood" class="headerlink" title="Output inference and estimation of the conditional likelihood"></a>Output inference and estimation of the conditional likelihood</h3><p>推理的时候，评估模型预测准确度时，用z的期望（不采样z）作为样本z（不是直接采样一个z） $\mathbf{y}^*&#x3D;\arg \max _{\mathbf{y}} p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^<em>\right), \mathbf{z}^</em>&#x3D;\mathbb{E}[\mathbf{z} \mid \mathbf{x}] ^2$</p>
-<p>计算这个期望可以用采样多个z的平均值，那么生成的样本变成 $\mathbf{y}^*&#x3D;\arg \max <em>{\mathbf{y}} \frac{1}{L} \sum</em>{l&#x3D;1}^L p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(l)}\right), \mathbf{z}^{(l)} \sim p_\theta(\mathbf{z} \mid \mathbf{x})$ 。</p>
-<p>还有一种估计CGM的方法，是比较测试集的条件似然conditional likelihood，直接从prior network（ $p_\theta(z|x)$ ）里采样z个样本（这里z 的先验依赖于x），取似然平均，称为 Monte Carlo (MC) sampling  ：<br>$$<br>p_\theta(\mathbf{y} \mid \mathbf{x}) \approx \frac{1}{S} \sum_{s&#x3D;1}^S p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(s)}\right), \quad \mathbf{z}^{(s)} \sim p_\theta(\mathbf{z} \mid \mathbf{x})<br>$$<br>但是这个方法需要样本数很多才准。因此作者提出用**重要性采样 **importance sampling 来估计条件似然：</p>
-<p>这里impotance sampling原理是 $\mathbb{E}<em>{p(a)}[\tau]&#x3D;\mathbb{E}</em>{p(b)}[\frac{p(a)}{p(b)}\tau]$<br>$$<br>p_\theta(\mathbf{y} \mid \mathbf{x}) \approx \frac{1}{S} \sum_{s&#x3D;1}^S \frac{p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(s)}\right) p_\theta\left(\mathbf{z}^{(s)} \mid \mathbf{x}\right)}{q_\phi\left(\mathbf{z}^{(s)} \mid \mathbf{x}, \mathbf{y}\right)}, \quad \mathbf{z}^{(s)} \sim q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})<br>$$<br>由上面的KL散度可知，$q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})$ 和 $p_\theta(\mathbf{z} \mid \mathbf{x})$ 越接近越好，越接近说明采样的样本z更接近真实分布，可以用来衡量该样本对结果准确度的重要性。</p>
-<h3 id="Learning-to-predict-structured-output"><a href="#Learning-to-predict-structured-output" class="headerlink" title="Learning to predict structured output"></a>Learning to predict structured output</h3><p>用SGVB框架训练有个问题，就是训练时最优化了 $q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})$ ，但是测试、推理时用的是 $p_\theta(\mathbf{z} \mid \mathbf{x})$ ，（ 先验网络函数在训练里没有更新、$\theta$ 更新是通过生成网络 $p_\theta(y|x,z)$ 更新的 ），因此，可以在训练目标中<strong>加大KL散度项的权重</strong>，也就是让  $q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})$ 和 $p_\theta(\mathbf{z} \mid \mathbf{x})$ 分布更接近，这样可以让训练和测试时隐变量z编码的差异没那么大。即 $-(1+\beta) K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)$ with $\beta \geq 0$。 加大权重虽然想法很好，但是在实验中发现没什么效果。</p>
-<p>因此要找别的方法来减少训练和测试之间的差异，作者通过让 $q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})&#x3D;p_\theta(\mathbf{z} \mid \mathbf{x})$ ，也就是识别网络和预测网络用同一个网络。</p>
-<p>则目标函数变成：<br>$$<br>\widetilde{\mathcal{L}}<em>{\mathrm{GSNN}}(\mathbf{x}, \mathbf{y} ; \theta, \phi)&#x3D;\frac{1}{L} \sum</em>{l&#x3D;1}^L \log p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(l)}\right), \text { where } \mathbf{z}^{(l)}&#x3D;g_\theta\left(\mathbf{x}, \epsilon^{(l)}\right), \epsilon^{(l)} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})<br>$$<br>称这种模型叫 Gaussian stochastic neural network (GSNN)  。结合CVAE和GSMN两种模型，就是两种都用，目标函数变成：<br>$$<br>\widetilde{\mathcal{L}}<em>{hybrid}&#x3D;\alpha\widetilde{\mathcal{L}}</em>{CVAE}+(1-\alpha)\widetilde{\mathcal{L}}_{GSNN}<br>$$</p>
-<h3 id="CVAE-for-image-segmentation-and-labeling"><a href="#CVAE-for-image-segmentation-and-labeling" class="headerlink" title="CVAE for image segmentation and labeling"></a>CVAE for image segmentation and labeling</h3><p>针对语义分割任务（属于 structured output prediction task  ）（语音分割应该是每个像素有某类语义），作者对于训练预测网络，提出两种训练方法：</p>
-<ol>
-<li>multi-scale prediction objective 多尺度预测目标（或者说output，预测出多个尺度的输出）；</li>
-<li>structured input noise 结构化输入噪声；</li>
-</ol>
-<h4 id="Training-with-multi-scale-prediction-objective"><a href="#Training-with-multi-scale-prediction-objective" class="headerlink" title="Training with multi-scale prediction objective"></a>Training with multi-scale prediction objective</h4><p>训练过程中，如下图所示，预测出原始输出的1&#x2F;4、预测出原始输出的1&#x2F;2、预测出原始输出，每个scale预测都有对应scale真实的重建误差。</p>
-<p>比如要训练一张图片，一次前向传播中，就输出了1&#x2F;4图片、1&#x2F;2图片和整张图片。</p>
-<img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208115448455.png" alt="image-20221208115448455" style="zoom:67%;">
-
-
-
-<h4 id="Training-with-input-omission-noise"><a href="#Training-with-input-omission-noise" class="headerlink" title="Training with input omission noise"></a>Training with input omission noise</h4><p>给网络输入噪声是一种正则化方法，作者给输入input加噪，相当于给重建目标增加了难度。具体地，输入比如是图片，那么给输入图片随机一部分mask成0，相当于输入信息变少了（加噪了），给模型增加了难度，可以使得模型的泛化性变好。</p>
-<h2 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h2><p>数据集 MNIST，任务是visual object segmentation and labeling  图像分割、图像标记。</p>
-<p>为了强调通过随机神经网络进行概率推断对于结构化输出变量的重要性，做了一个实验，是将图片分成四个象限，输入三个象限，让模型预测第四个象限、更大胆点，让模型预测更多的象限，随着模型要预测的东西越多（本来只要预测图片的一小部分，逐渐到要预测整张图片），生成的图片和输入图片就会越不同。</p>
-<img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208145203584.png" alt="image-20221208145203584" style="zoom:67%;">
-
-<p>CVAE预测得更真实</p>
-<p><img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208144045383.png" alt="image-20221208144045383"></p>
-<h3 id="Visual-Object-Segmentation-and-Labeling"><a href="#Visual-Object-Segmentation-and-Labeling" class="headerlink" title="Visual Object Segmentation and Labeling"></a>Visual Object Segmentation and Labeling</h3><p>todo</p>
-<h3 id="Object-Segmentation-with-Partial-Observations"><a href="#Object-Segmentation-with-Partial-Observations" class="headerlink" title="Object Segmentation with Partial Observations"></a>Object Segmentation with Partial Observations</h3><img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208145555694.png" alt="image-20221208145555694" style="zoom:67%;">
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/" itemprop="url">VAE论文</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-06T00:00:00+08:00">
-                2022-12-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
-                    <span itemprop="name">深度学习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/12/06/深度学习/VAE论文/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="VAE"><a href="#VAE" class="headerlink" title="VAE"></a>VAE</h1><blockquote>
-<p>Kingma, Diederik P., and Max Welling. “Auto-encoding variational bayes.” <em>arXiv preprint arXiv:1312.6114</em> (2013). citations：23824 阿姆斯特丹大学</p>
-<p>b站视频 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1q64y1y7J2/?spm_id_from=333.337.search-card.all.click&vd_source=5e9891722f2b62adca440a5e92121b5b">[论文简析]VAE: Auto-encoding Variational Bayes[1312.6114]</a></p>
-</blockquote>
-<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>目的是想要在有连续隐变量的条件下估计数据分布。提出基于自编码器和基于变分贝叶斯的方法，能够通过梯度下降的变分贝叶斯就能实现估计数据分布。</p>
-<p>两个贡献：</p>
-<ol>
-<li>证明了变分下界的重参数化产生一个可以使用标准随机梯度方法直接优化的下界估计量。</li>
-<li>证明了对于每个数据点具有连续潜在变量的独立同分布数据集，通过使用所提出的下限估计量将近似推理模型(也称为识别模型)拟合到棘手的后验，可以使后验推理特别有效。</li>
-</ol>
-<h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><p>想要做的是：有一个高维的数据x，和相对低维的变量z，想根据z条件下、根据参数 $\theta$ 估计出 $p_\theta (x|z)$ ；并且生成的数据点x，又能在参数 $\phi$ 的条件下，估计出$q_\phi (z|x)$ 来。</p>
-<p>想要找到 $p_{\theta^*}(x|z)$ 和 $p_{\theta^*}(z)$ 之间的是如何映射的，映射关系。（*表示groundtruth）</p>
-<img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221205174352023.png" alt="image-20221205174352023" style="zoom:50%;">
-
-
-
-<p>概念：variational  ，变分，我理解就是在观测值x的条件下的隐变量z的某个特性；比如变分估计，就是 $q(z|x)$ 。</p>
-<p>把x理解为数据样本，比如图像，z理解为特征，比如图像的颜色、大小等。x一般比z的维度高。</p>
-<h3 id="Problem-scenario"><a href="#Problem-scenario" class="headerlink" title="Problem scenario"></a>Problem scenario</h3><ol>
-<li><p>Intractability:  想要求的是数据分布 marginal likelihood   $p_\theta (x)&#x3D;\int p_\theta(z)p_\theta(x|z)dz$  这是intractable，因为很高维，可能是好多个积分，很难求的、很难估计的（用mean-field VB  方法不好求解），估计隐变量的真实后验密度函数pdf  $p_\theta(z|x)&#x3D;p_\theta(x|z)p_\theta(z)&#x2F;p_\theta (x)$ 也是intractable （所以不能用em求解这种带隐变量的概率分布问题）。但在NN里是可以实现的，可以用一个NN去拟合 $p_\theta(z|x)$ ，去接近这个分布。</p>
-</li>
-<li><p>A large dataset:   用minibatch进行参数更新，才不会使得参数更新太慢，相比于Monte Carlo EM  这种逐数据更新的方式来说要快得多。</p>
-</li>
-</ol>
-<p>解决了相关问题：</p>
-<ol>
-<li>有效近似了ML最大似然估计、MAP最大后验估计里面的参数 $\theta$ 。</li>
-<li>在给定观测值 $x$ 的条件下，有效近似了隐变量 $z$ 的后验概率 $p(z|x)$ 。</li>
-<li>有效近似了 $x$ 的 marginal inference ，因此可以生成样本 $x$ ， 估计了 $p(x)$ 。（在计算机视觉的应用包括图像去噪、图像插值和超分辨）</li>
-</ol>
-<p>为了解决以上3个问题，需要引入一个recognition model   $q_\phi(z|x)$ ，它是 $p_\theta(z|x)$ 的近似（ $p_\theta(z|x)$ 很难算）（mean-field variational inference  方法里也提过用一个近似q，但是这个近似q的参数是单独算出来的），VAE提出了一种新的计算方法、目标，是把 $\phi$ （recognition model 的参数）和 $\theta$ （generative model 的参数）在一个目标里学习、更新参数。只要 $q_\phi(z|x)$ 和 $p_\theta(z|x)$ 很接近，就相当于把 $p_\theta(z|x)$  估计出来了，而衡量两个分布之间相似程度的方法有KL散度，只要两个分布很接近，即KL散度很小，那么q也就是我们想要的p了，因此目标有一个是最小化KL散度。</p>
-<p>把隐变量 $z$ 向量称为“code”，把 recognition model $q_\phi(z|x)$ 称为probabilistic encoder  ，把 generative model  $p_\theta(x|z)$ 称为probabilistic decoder  。</p>
-<p>encoder $q_\phi(z|x)$：给定一个数据点 $x$ ，它服从一个分布（比如高斯分布），从中采样出向量code $z$；</p>
-<p>decoder $p_\theta(x|z)$：给定向量code $z$ ，服从一个分布，从中采样出 $x$ ；</p>
-<h3 id="The-variational-bound"><a href="#The-variational-bound" class="headerlink" title="The variational bound"></a>The variational bound</h3><p>开始进行公式推导。</p>
-<p>参考李宏毅PPT的推导：</p>
-<p>1</p>
-<img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206114625872.png" alt="image-20221206114625872" style="zoom:50%;">
-
-
-
-<p>2</p>
-<img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206114438846.png" alt="image-20221206114438846" style="zoom:50%;">
-
-<p>3</p>
-<img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206114417218.png" alt="image-20221206114417218" style="zoom:50%;">
-
-<p>总marginal likelihood  由多个独立样本点的marginal likelihood 组成：$\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(1)}, \cdots, \mathbf{x}^{(N)}\right)&#x3D;\sum_{i&#x3D;1}^N \log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right)$ 。可以写成：（参考李宏毅的推导）<br>$$<br>\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right)&#x3D;D_{K L}\left(q_{\boldsymbol{\phi}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right) | p_{\boldsymbol{\theta}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right)\right)+\mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)<br>$$</p>
-<p>（ $\mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)$ 即李宏毅PPT的 $L_b$ ）</p>
-<p>第一项是近似分布和真实分布之间的KL散度距离，非负的；第二项称为 (variational) lower bound，是数据点i的marginal likelihood 的下界，</p>
-<p><strong>左边 $\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right) $ 是一个常数（x给定了），想要最小化KL散度，也就是最大化lower bound。</strong></p>
-<p>variational lower bound ：<br>$$<br>\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right) \geq \mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)&#x3D;\mathbb{E}<em>{q</em>{\boldsymbol{\phi}}(\mathbf{z} \mid \mathbf{x})}\left[-\log q_{\boldsymbol{\phi}}(\mathbf{z} \mid \mathbf{x})+\log p_{\boldsymbol{\theta}}(\mathbf{x}, \mathbf{z})\right]<br>$$<br>也可以写成：<br>$$<br>\mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)&#x3D;-D_{K L}\left(q_{\boldsymbol{\phi}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right) | p_{\boldsymbol{\theta}}(\mathbf{z})\right)+\mathbb{E}<em>{q</em>{\boldsymbol{\phi}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right)}\left[\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)} \mid \mathbf{z}\right)\right]<br>$$<br>第一项叫做regularization loss，是让估计的q接近z的先验分布；第二项叫 reconstruction loss，当在z条件下采样出的x与真实的数据x越接近，该概率会越大，和autoencoder一样，因此叫做重建误差。</p>
-<p>想求<strong>偏导、最优化</strong> $\mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)$  ，同时更新variational parameters $\phi$ 和 generative parameters $\theta$ 。但是lower bound的梯度（即 $\phi$）算起来有点问题，自然的想到用蒙特卡洛方法：$\nabla_{\boldsymbol{\phi}} \mathbb{E}<em>{q_\phi(\mathbf{z})}[f(\mathbf{z})]&#x3D;\mathbb{E}</em>{q_\phi(\mathbf{z})}\left[f(\mathbf{z}) \nabla_{q_{\boldsymbol{\phi}}(\mathbf{z})} \log q_{\boldsymbol{\phi}}(\mathbf{z})\right] \simeq \frac{1}{L} \sum_{l&#x3D;1}^L f(\mathbf{z}) \nabla_{q_{\boldsymbol{\phi}}\left(\mathbf{z}^{(l)}\right)} \log q_{\boldsymbol{\phi}}\left(\mathbf{z}^{(l)}\right)$ where $\mathbf{z}^{(l)} \sim q_{\boldsymbol{\phi}}\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right)$ 。</p>
-<p>蒙特卡洛推导过程：</p>
-<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206150822009.png" alt="image-20221206150822009"></p>
-<p>这个梯度估计量会有很高的方差、不稳定。</p>
-<p>因此作者提出SGVB估计方法，来进行参数求导。</p>
-<h3 id="参数求导-The-SGVB-estimator-and-AEVB-algorithm"><a href="#参数求导-The-SGVB-estimator-and-AEVB-algorithm" class="headerlink" title="参数求导 The SGVB estimator and AEVB algorithm"></a>参数求导 The SGVB estimator and AEVB algorithm</h3><p>VAE提出一种实用的估计下界及其导数、求参数的方法。</p>
-<p>原本是直接求导，但是把求导项 $\nabla_\theta \mathbb{E}_{p_\theta(z)}\left[f_\theta(z)\right]$ 展开，发现有一项 $\int_z f_\theta(z) \nabla_\theta p_\theta(z) d z$ 不好求。</p>
-<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206151849341.png" alt="image-20221206151849341"></p>
-<p>因此作者想了一个方法，重参数技巧  reparameterization trick  。引入一个独立变量 $\epsilon$ （和 $\theta$ 、 $\phi$  、x、z 都无关），用它来产生“随机性”，之后 <strong>随机性都由 $\epsilon$ 来产生</strong>。</p>
-<p>之前抽样的随机性，这是没法用反向传播的，现在随机性用 $\epsilon$ ，就可以反向传播了。</p>
-<p>已知 $\widetilde{\mathbf{z}} \sim q_\phi(\mathbf{z} \mid \mathbf{x})$ ，重参数化，用一个可微函数，条件是 $x$ 和噪声 $\epsilon$ 的函数 $g$ ，来表示原来的 $q$ ：<br>$$<br>\widetilde{\mathbf{z}}&#x3D;g_{\boldsymbol{\phi}}(\boldsymbol{\epsilon}, \mathbf{x}) \quad \text { with } \quad \boldsymbol{\epsilon} \sim p(\boldsymbol{\epsilon})<br>$$<br>此时再用蒙特卡洛法估计期望，就可以写成：<br>$$<br>\mathbb{E}<em>{q_\phi\left(\mathbf{z} \mid \mathbf{x}^{(i)}\right)}[f(\mathbf{z})]&#x3D;\mathbb{E}</em>{p(\boldsymbol{\epsilon})}\left[f\left(g_{\boldsymbol{\phi}}\left(\boldsymbol{\epsilon}, \mathbf{x}^{(i)}\right)\right)\right] \simeq \frac{1}{L} \sum_{l&#x3D;1}^L f\left(g_\phi\left(\boldsymbol{\epsilon}^{(l)}, \mathbf{x}^{(i)}\right)\right) \quad \text { where } \quad \boldsymbol{\epsilon}^{(l)} \sim p(\boldsymbol{\epsilon})<br>$$<br>用到公式(2)，得到一般随机梯度变分贝叶斯（SGVB）估计  $\widetilde{\mathcal{L}}^A\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right) \simeq \mathcal{L}\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)$ :<br>$$<br>\begin{aligned}<br>&amp; \widetilde{\mathcal{L}}^A\left(\boldsymbol{\theta}, \boldsymbol{\phi} ; \mathbf{x}^{(i)}\right)&#x3D;\frac{1}{L} \sum_{l&#x3D;1}^L \log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}, \mathbf{z}^{(i, l)}\right)-\log q_{\boldsymbol{\phi}}\left(\mathbf{z}^{(i, l)} \mid \mathbf{x}^{(i)}\right) \<br>&amp; \text { where } \quad \mathbf{z}^{(i, l)}&#x3D;g_{\boldsymbol{\phi}}\left(\boldsymbol{\epsilon}^{(i, l)}, \mathbf{x}^{(i)}\right) \quad \text { and } \quad \boldsymbol{\epsilon}^{(l)} \sim p(\boldsymbol{\epsilon})<br>\end{aligned}<br>$$</p>
-<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206153613903.png" alt="image-20221206153613903"></p>
-<p>由于引入了 $\epsilon$ ，原L_b公式写为：</p>
-<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206153745705.png" alt="image-20221206153745705"></p>
-<h4 id="根据高斯公式展开，能发现lower-bound的一些性质。"><a href="#根据高斯公式展开，能发现lower-bound的一些性质。" class="headerlink" title="根据高斯公式展开，能发现lower bound的一些性质。"></a>根据高斯公式展开，能发现lower bound的一些性质。</h4><p>由于 $\large D_{KL}(q_\phi(z|x^{(i)})||p_\theta(z))&#x3D;\int_zq_\phi(z|x)log(\frac{p_\theta(z)}{q_\phi(z|x)})&#x3D;\int_zq_\phi(z|x)log(p_\theta(z))-\int_zq_\phi(z|x)log(q_\phi(z|x))$</p>
-<p>第一项 $\int_zq_\phi(z|x)log(p_\theta(z))$ 带入高斯公式：</p>
-<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206153956085.png" alt="image-20221206153956085"></p>
-<p>第二项 $\int_zq_\phi(z|x)log(q_\phi(z|x))$ 代入高斯公式：</p>
-<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206154144826.png" alt="image-20221206154144826"></p>
-<p>上面就是KL表达式，L_b 还有第二项；第二项参数更新用MSE loss（或者比如BCE loss），让产生的样本x和真实样本尽可能接近（和autoencoder一样）：</p>
-<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206155025433.png" alt="image-20221206155025433"></p>
-<p>更新流程为：</p>
-<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206132704893.png" alt="image-20221206132704893"></p>
-<p><img src="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/image-20221206162145590.png" alt="image-20221206162145590"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/" itemprop="url">VAE 视频 李宏毅</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-05T00:00:00+08:00">
-                2022-12-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
-                    <span itemprop="name">深度学习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/12/05/深度学习/VAE 视频 李宏毅/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="VAE-视频-李宏毅"><a href="#VAE-视频-李宏毅" class="headerlink" title="VAE 视频 李宏毅"></a>VAE 视频 李宏毅</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Ux411S7Yk?p=17&vd_source=5e9891722f2b62adca440a5e92121b5b">李宏毅机器学习(2016) P17.无监督学习——深度生成模型</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV13x411v7US/?spm_id_from=333.999.0.0&vd_source=5e9891722f2b62adca440a5e92121b5b">李宏毅机器学习(2017) p28 17- unsupervised learning - deep generative models</a></p>
-<p>openai 写的 generative model的博客：<a target="_blank" rel="noopener" href="https://openai.com/blog/generative-models/">https://openai.com/blog/generative-models/</a></p>
-</blockquote>
-<p>回顾 Autoencoder：</p>
-<p>image经过encoder，生成一个向量code，再经过decoder，输出一张图片，目标是输入输出尽可能接近；</p>
-<p>使用时，输入随意一个向量code到decoder中，看输出什么image；</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202115750027.png" alt="image-20221202115750027" style="zoom:50%;">
-
-
-
-<p>VAE示意图：</p>
-<p>autoencoder只用一个向量code，vae则是把code做了一系列操作：</p>
-<p>encoder输出一个和code维度相同的向量，记作 $m$ ；encoder同时也输出一个和code维度相同的向量，记作 $\sigma$ ；然后实现准备一个均匀分布，从中随机采样出一个向量（维度和code相同），记作 $e$ ，然后将 $\sigma$ 取exp，与均匀分布样本 $e$ 相乘，再加上 $m$，这里都是element-wise，对应元素相乘、加；</p>
-<p>VAE的目标从autoencoder的一个目标增加到两个，一个是和AE一样的最小化重建误差，还有一个是最小化 一个和 $\sigma$ 有关的误差；</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202115951114.png" alt="image-20221202115951114" style="zoom:50%;">
-
-<p>但是VAE生成出来的图片很模糊，这还能用吗？VAE的优势是什么呢？</p>
-<p>取中间向量code的其中两个维度出来，画成直角坐标系，在坐标系上不同的地方取点，然后和之前8维再形成code，送入decoder，观察输出image；</p>
-<p>这样做的目的是想看看这两个维度选取不一样的值，对于最终图片的影响。如果图片按某种趋势变化，可以侧面反映出某一个维度的作用、物理含义；比如图片逐渐旋转，可以表示出某一个维度起到的作用是旋转图片；从而改变这个维度的值，就能控制输出图片朝着我们想要的方向生成；</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202140646680.png" alt="image-20221202140646680" style="zoom:50%;">
-
-<p>如下图所示，横轴代表code的某一维的不同值，纵轴也是代表code的某一维的不同值；</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202141718600.png" alt="image-20221202141718600" style="zoom:50%;">
-
-<p>那么为什么VAE具有这种效果，也就是说，为什么取某个维度的左右两边不同值，就能起到朝某个趋势变化的作用呢？</p>
-<p>原本的autoencoder中，如下面的例子，输入满月图，中间code是某个值a，输入半月图，中间code是某个值b，当我们把code人为取一个a和b中间的值，送入decoder，是否输出的是一个介于满月和半月的图片呢？答案是否定的，因为NN是一个非线性过程，code并不具有线性关系，也就是不具有code和输出的一个趋势变换的关系，不是说code取一个中间值，就能输出一个介于两者之间的图片的；</p>
-<p>那么为什么VAE能实现呢？这是因为VAE在训练时，decoder的输入，也就是中间变量code，它并不是一个单个、唯一的值，而是一个小的范围，也就是code+小范围的noise才是decoder的输入。我们希望（训练目标）是输入code a + 小范围noise（code a’ ）时，输出的都是满月；输入code b + 小范围noise（code b’）时，输出都是半月，因此，可能会出现这么一种情况，这两个范围分别取到某个值时，code a + noise a &#x3D; code b + noise b，两个code’ 是相等的，输出对应的既是满月、又是半月，称为“image overlap”，那么输出是要学的是满月还是半月呢？答案是模型要尽可能学到在该输入下，能生成满月的能力，也要学到能生成半月的能力，因此，输入a和b中间值时（从ab范围中sample一个值），输出的就是一个既像满月、又像半月的图片，也就是半满月。因此，VAE具有“趋势性”（我取的），它的code中间值是有物理意义的。</p>
-<p><img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202141948165.png" alt="image-20221202141948165"></p>
-<p>基于上述VAE能起到的作用解释，为了给一点物理涵义，这里把几个变量都赋予意义：$m$ 认为是和autoencoder一样的向量code（original code）；变换后的$c$ 认为是加了noise的code；$\sigma$ 认为是noise的方差（其实是 $\exp(\sigma)$ 才表示方差），代表噪声应该要有多大。而因为NN出来可正可负，加exp确保是正值，$\exp(\sigma)$ 表示方差；因此，正态分布中采样的样本 $e$ 乘以方差（本来标准正态每个维度方差相同，乘以一个不同的方差），得到不同方差的正态分布，结果也是一个正态分布模样的样本，理解成噪声。加上 $m$ 就是 原始code + noise了。</p>
-<p>方差 $\exp(\sigma)$ 决定了noise的大小，而 $\sigma$ 来自 NN，因此是NN encoder决定了noise的大小，这也是可学习、可更新的参数；</p>
-<p>由于是模型自己学的参数，只用最小化重建误差作为目标的话，就会出现方差（ $\exp(\sigma)$ ）等于0的结果，因为方差越小，重建误差越小，这样就没有noise了。因此要新增加一个目标函数，在最小化重建误差的同时，也要限制方差不可以太小。</p>
-<p>具体实现“限制方差不可以太小”的目标表达式为：$\sum_{i&#x3D;1}^3(exp(\sigma_i)-(1+\sigma_i)+(m_i)^2)$</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202142940904.png" alt="image-20221202142940904" style="zoom:50%;">
-
-<p>解释表达式：</p>
-<p>蓝线是 $\exp(\sigma_i)$ ，红线是 $1+\sigma_i$ ，绿线是 $\exp(\sigma_i) - (1+\sigma_i)$ ，目标minimize也就是绿线希望取最小值，也就是 $\sigma_i$ 接近0时，此时方差 $\exp(\sigma_i)$ 接近1，方差代表噪声（一部分），因此不会噪声等于0的情况了。（之所以要最小化它，是想让 $\sigma$ 有小，但也别太小（小到0）或者直接限制 $\sigma$ 大于等于0，这样 $\exp(\sigma)$ 也不会趋近于0啊？）</p>
-<p>$(m_i)^2$ 是正则项，提高泛化性。</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202170229264.png" alt="image-20221202170229264" style="zoom:50%;">
-
-
-
-<p>以上是定性分析。下面是公式分析。</p>
-<p>每个生成器输出，比如图像，想象成是高维空间上的一个点，比如20×20的图片，想象成是400维空间中的一个点。</p>
-<p>如果能估计出 $P(x)$ ，采样出的样本就比较是我们所希望的，<strong>因为 $P(x)$ 做采样时会倾向于采样出 $P(x)$ 中概率高的那些样本</strong>。</p>
-<p>比如下图的 $P(x)$ 分布，概率高的地方采样都比较像宝可梦，概率低的地方采样比较不像，概率高的地方更容易采样，因此这个 $P(x)$ 估计是合理的。</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205093748168.png" alt="image-20221205093748168" style="zoom:50%;">
-
-
-
-<p>可以用混合高斯分布来估计概率分布</p>
-<p>把估计的概率分布 $P(x)$ 近似为 $\sum_mP(m)P(x|m)$ ，其中， $P(m)$ 是不同高斯分布的权重weight，$P(x|m)$ 是不同的高斯分布，$m$ 代表第几个高斯；</p>
-<p>采样 $x$ 的过程就变成：</p>
-<ol>
-<li>从一系列权重分布 $P(m)$ 中采样出某一个值，代表采样出第 $m$ 个高斯（比如从[0.2,0.3,0.4,0.1]的权重向量中（其实应该是权重分布），按照权重分布选出某一个权重，比如0.4，对应第3个）；</li>
-<li>从这第 $m$ 个高斯分布中采样出样本，记作 $x$；（比如从第3个高斯分布中采样出一个样本来）</li>
-</ol>
-<p>虽然概率分布写作不同高斯的不同weight求和，但是采样的时候，是先根据weight采样出第几个高斯、再从该高斯中采样出样本，作为最终采样的样本；</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205095132363.png" alt="image-20221205095132363" style="zoom:50%;">
-
-<p>用混合高斯分布来估计概率分布，可以看到，采样的时候，其实是从某一个具体的高斯中采样的，x看作是某一类中采样了（称作cluster），这样似乎并不好，更好的做法是用（distributed representation）中采样，就是x并不属于某一个class或cluster，而是用一个vector来描述它各个不同维度、面向的特质。</p>
-<p>VAE可以理解为 混合高斯分布的distributed representation版本；VAE的具体做法、流程是：</p>
-<p>从一个标准高斯分布中采样出一个样本 $z$  （ $z\sim N(0,I)$ ） （$z$ 是向量vector，<strong>向量 $z$ 的每个维度表示一种特质attribute</strong>，每一维之间相互独立）（采样出来的是连续变量，可以取高斯分布中的任意值），然后变量 $z$ 送入到某一个函数，输出两个向量，一个是均值向量，一个是方差向量（方差是矩阵，这里只取对角阵），根据该均值 $\mu (z)$ 和方差 $\sigma(z)$，就得到了一个高斯分布 $z\sim N(\mu(z),\sigma(z))$ ，这个高斯分布的均值就是这个 $\mu (z)$，方差就是这个 $\sigma(z)$ ，然后再从这个高斯分布中采样，采样出来的样本叫做 $x$ 。</p>
-<p>因此z是连续变量、无穷多个可能，由z得到的高斯分布也是连续的，也就是说<strong>有无限个、无穷多个高斯分布</strong>（而不是离散的，用有限个高斯分布去估计 $P(x)$ ）。不同的z对应到不同的高斯分布。每个z都有对应的高斯分布。</p>
-<p>用这种方式估计出来的 $P(x)$ 写成的表达式为： $P(x)&#x3D;\int_zP(z)P(x|z)dz$ 。即先从标准正态 $P(z)$ 中采样 $z$ ，再根据 $z$ 得到均值方差，得到高斯分布 $P(x|z)$ ，再采样得到 $x$ 。</p>
-<p>这里变量 $z$ 送入到某一个函数，函数用的神经网络NN。</p>
-<p>$z$ 服从的分布这里是高斯分布，也可以用别的分布。p(z)简单（高斯）不影响p(x)可以是一个很复杂的分布，因为p(x|z)是用NN拟合，NN拟合能力很强。之所以p(z)用高斯，因为高斯常见，z的attribute特质用高斯分布来描述比较合理。</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205095944153.png" alt="image-20221205095944153" style="zoom:50%;">
-
-
-
-<p>目标是找到、估计一个分布，使得 $P(x)$ 最大，也就是最大似然估计。</p>
-<p>我们现在有的是数据、观测值 $x$ ，为了最大似然估计，我们需要另一个分布，叫 $q(z|x)$，让x从某个高斯分布中采样出z来（z不是纯靠前面的标准正态 $P(z)$ 采样的了，而是通过 $q(z|x)$ 中采样的了）。</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205151712109.png" alt="image-20221205151712109" style="zoom:50%;">
-
-<p>数学推导一下：</p>
-<p>目标是最大化观测值x的似然。这里 $logP(x)&#x3D;logP(x)\int_zq(z|x)dz&#x3D;\int_zq(z|x)logP(x)dz$ （ $\int_zq(z|x)dz&#x3D;1$ ），x给定下的z。</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205152007417.png" alt="image-20221205152007417" style="zoom:50%;">
-
-
-
-<p>得到：<br>$$<br>\log P(x) \geq \int_z q(z \mid x) \log \left(\frac{P(x \mid z) P(z)}{q(z \mid x)}\right) d z<br>$$<br>称为 <strong>lower bound</strong>，$L_b$ 。</p>
-<p>之所以要引入 $q(z|x)$ ，把目标函数写成和 $P(x|z)$ 、 $q(z|x)$ 有关的形式，是因为最大化 $logP(x)$ 变成了 $L_b$ 。而在 $x$ 给定下， $q(z|x)$ 的变化不影响 $logP(x)$，（$logP(x)$不变），因此此时最大化 $L_b$ ，改变 $q(z|x)$ 使得 $L_b$ 尽可能接近 $logP(x)$ （减少KL散度距离）；再然后， $L_b$ 更大时，由于 $logP(x)$ 一定大于等于 $L_b$ ，所以 $logP(x)$ 也会更大，逐渐最大似然。</p>
-<p>如果只用 $P(x|z)$ 这一项，而不是两项都用，可能会出现 $L_b$ 增加，$logP(x)$ 减少的情况（但还是满足$logP(x)$ 大于等于 $L_b$ ）。</p>
-<p>？不理解为什么不能直接最大化logP(x)而是要转成最大化L_b。 ？</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205153652816.png" alt="image-20221205153652816" style="zoom:50%;">
-
-<p>进一步展开公式，将 $L_b$ 展开，可以写成两个式子</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205163038825.png" alt="image-20221205163038825" style="zoom:50%;">
-
-
-
-<p>左式的目标变成最小化 $KL(q(z|x)||P(z))$ ，也就是让 $q(z|x)$ 接近标准正态分布 $P(z)$ ；</p>
-<p>右式的目标变成最大化从 $q(z|x)$ 分布中采样 $z$ ，再由 $z\sim N(\mu(z),\sigma(z))$ 中采样出 $x$，使得该高斯函数的均值最接近 $x$ ；</p>
-<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205163213233.png" alt="image-20221205163213233" style="zoom:50%;">
-
-
-
-
-
-<p>可以看出，VAE的目标是尽可能接近数据集的数据，作为生成器可能是不够真实的。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2853,7 +2721,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">134</span>
+                  <span class="site-state-item-count">137</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

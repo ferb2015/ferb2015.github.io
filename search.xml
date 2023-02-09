@@ -12395,4 +12395,440 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>数学</tag>
       </tags>
   </entry>
+  <entry>
+    <title>python @property、@.setter</title>
+    <url>/2023/02/09/python/python%20@property/</url>
+    <content><![CDATA[<h1 id="python-property、-setter"><a href="#python-property、-setter" class="headerlink" title="python @property、@.setter"></a>python @property、@.setter</h1><h2 id="函数作为参数"><a href="#函数作为参数" class="headerlink" title="函数作为参数"></a>函数作为参数</h2><blockquote>
+<p>b站：<a href="https://www.bilibili.com/video/BV1zg41197cy/?spm_id_from=333.788&vd_source=5e9891722f2b62adca440a5e92121b5b">Python中各种@property、@xxx.setter、@classmethod、@staticmethod 都是些啥啊？</a></p>
+</blockquote>
+<p>函数作为参数，可以传入函数，但是没写return的话，就会变成返回NoneType</p>
+<p>举例：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">say</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;something&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">func_1</span>(<span class="params">func</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;start&quot;</span>)</span><br><span class="line">    func()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;end&quot;</span>)</span><br><span class="line">    </span><br><span class="line">func_1(say)</span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">start</span><br><span class="line">something</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+
+<p>但是由于func_1没有return，当执行的函数赋给一个变量时，比如：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">my_func = func_1(say)</span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">start</span><br><span class="line">something</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"><span class="comment"># my_func 是一个class NoneType的对象</span></span><br><span class="line"><span class="comment"># 所以不能:</span></span><br><span class="line">my_func()</span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">TypeError: <span class="string">&#x27;NoneType&#x27;</span> <span class="built_in">object</span> <span class="keyword">is</span> <span class="keyword">not</span> <span class="built_in">callable</span></span><br></pre></td></tr></table></figure>
+
+<p>由于没有return，这个变量是一个NoneType类的对象。</p>
+<p><code>my_func = func_1(say)</code>这句话，我们希望的是<strong>拿到函数的引用</strong>，然后去用这个变量做其它事情，执行其它代码。	</p>
+<p>如何使得这个变量也是一个函数呢？！通过 <strong>定义内部方法，然后返回这个引用</strong>！</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">func_1</span>(<span class="params">func</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">inner_func</span>():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;start&quot;</span>)</span><br><span class="line">        func()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;end&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> inner_func</span><br><span class="line"></span><br><span class="line">my_func = func_1(say)</span><br><span class="line">my_func()</span><br></pre></td></tr></table></figure>
+
+
+
+<p>因此，这里 func_1 是为了改变、优化传入进来的函数的执行结果。</p>
+<p>内部的inner_func通常名字叫“wrapper”</p>
+<h2 id="Python中的-property、-xxx-setter"><a href="#Python中的-property、-xxx-setter" class="headerlink" title="Python中的@property、@xxx.setter"></a>Python中的@property、@xxx.setter</h2><blockquote>
+<p>廖雪峰：<a href="https://www.liaoxuefeng.com/wiki/1016959663602400/1017502538658208">使用@property</a></p>
+</blockquote>
+<p>举例，一个检查分数，返回分数的函数：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Student</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_score</span>(<span class="params">self</span>):</span><br><span class="line">         <span class="keyword">return</span> self._score</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_score</span>(<span class="params">self, value</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(value, <span class="built_in">int</span>):</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">&#x27;score must be an integer!&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> value &lt; <span class="number">0</span> <span class="keyword">or</span> value &gt; <span class="number">100</span>:</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">&#x27;score must between 0 ~ 100!&#x27;</span>)</span><br><span class="line">        self._score = value</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s = Student()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.set_score(<span class="number">60</span>) <span class="comment"># ok!</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.get_score()</span><br><span class="line"><span class="number">60</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.set_score(<span class="number">9999</span>)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  ...</span><br><span class="line">ValueError: score must between <span class="number">0</span> ~ <span class="number">100</span>!</span><br></pre></td></tr></table></figure>
+
+
+
+<p>用@后面添加一个要进行额外操作的方法名称。</p>
+<p>能检查参数，又可以用类似属性这样简单的方式来访问类的变量。</p>
+<p>Python内置的<code>@property</code>装饰器就是负责把一个方法变成属性调用的：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Student</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">score</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self._score</span><br><span class="line"></span><br><span class="line"><span class="meta">    @score.setter</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">score</span>(<span class="params">self, value</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(value, <span class="built_in">int</span>):</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">&#x27;score must be an integer!&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> value &lt; <span class="number">0</span> <span class="keyword">or</span> value &gt; <span class="number">100</span>:</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">&#x27;score must between 0 ~ 100!&#x27;</span>)</span><br><span class="line">        self._score = value</span><br></pre></td></tr></table></figure>
+
+<p><code>@property</code>的实现比较复杂，我们先考察如何使用。把一个getter方法变成属性，只需要加上<code>@property</code>就可以了，此时，<code>@property</code>本身又创建了另一个装饰器<code>@score.setter</code>，负责把一个setter方法变成属性赋值，于是，我们就拥有一个可控的属性操作：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>s = Student()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.score = <span class="number">60</span> <span class="comment"># OK，实际转化为s.set_score(60)</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.score <span class="comment"># OK，实际转化为s.get_score()</span></span><br><span class="line"><span class="number">60</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.score = <span class="number">9999</span></span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  ...</span><br><span class="line">ValueError: score must between <span class="number">0</span> ~ <span class="number">100</span>!</span><br></pre></td></tr></table></figure>
+
+<p>注意到这个神奇的<code>@property</code>，我们在对实例属性操作的时候，就知道该属性很可能不是直接暴露的，而是通过getter和setter方法来实现的。</p>
+<blockquote>
+<p>chatgpt的回答：</p>
+</blockquote>
+<p>Python 中的 <code>property</code> 是一个内置装饰器，它可以把一个类中的方法设置为属性的读取&#x2F;设置&#x2F;删除方法。</p>
+<p>使用方法如下：</p>
+<ol>
+<li><p>定义 getter 方法，返回需要作为属性读取的值。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Example</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, value</span>):</span><br><span class="line">        self._value = value</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_value</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self._value</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在 getter 方法上使用 @property 装饰器，将其标记为属性。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Example</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, value</span>):</span><br><span class="line">        self._value = value</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">value</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self._value</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果需要为属性提供写入操作，可以定义一个 setter 方法，并在该方法上使用 @property 名称的 setter 装饰器。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Example</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, value</span>):</span><br><span class="line">        self._value = value</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">value</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self._value</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @value.setter</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">value</span>(<span class="params">self, value</span>):</span><br><span class="line">        self._value = value</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果需要为属性提供删除操作，可以定义一个 deleter 方法，并在该方法上使用 @property 名称的 deleter 装饰器。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Example</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, value</span>):</span><br><span class="line">        self._value = value</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">value</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self._value</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @value.setter</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">value</span>(<span class="params">self, value</span>):</span><br><span class="line">        self._value = value</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @value.deleter</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">value</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">del</span> self._value</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>然后，你可以使用如下语句来读取、写入和删除属性值：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">example = Example(<span class="number">10</span>)</span><br><span class="line"><span class="built_in">print</span>(example.value) <span class="comment"># 读取属性值</span></span><br><span class="line">example.value = <span class="number">20</span>   <span class="comment"># 写入属性值</span></span><br><span class="line"><span class="keyword">del</span> example.value     <span class="comment"># 删除</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<blockquote>
+<p>b站：<a href="https://www.bilibili.com/video/BV1zg41197cy/?spm_id_from=333.788&vd_source=5e9891722f2b62adca440a5e92121b5b">Python中各种@property、@xxx.setter、@classmethod、@staticmethod 都是些啥啊？</a> 说得不好</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">User</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, name</span>):</span><br><span class="line">        self._name = name</span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">name</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self._name</span><br><span class="line"><span class="meta">    @name.setter</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">name</span>(<span class="params">self, name</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(name) &lt; <span class="number">5</span>:</span><br><span class="line">            <span class="keyword">raise</span> Exception(<span class="string">&quot;至少5个字符&quot;</span>)</span><br><span class="line">        self._name = name</span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_user</span>(<span class="params">cls</span>):</span><br><span class="line">        <span class="keyword">return</span> (cls(<span class="string">&#x27;people&#x27;</span>))</span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">lenght</span>():</span><br><span class="line">        <span class="keyword">return</span> <span class="number">18</span></span><br></pre></td></tr></table></figure>
+
+<p>@property和@.setter搭配使用</p>
+]]></content>
+      <categories>
+        <category>python</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python下划线</title>
+    <url>/2023/02/09/python/python%E4%B8%8B%E5%88%92%E7%BA%BF/</url>
+    <content><![CDATA[<h1 id="python下划线"><a href="#python下划线" class="headerlink" title="python下划线"></a>python下划线</h1><h2 id="python代码里的-下划线"><a href="#python代码里的-下划线" class="headerlink" title="python代码里的_ 下划线"></a>python代码里的_ 下划线</h2><blockquote>
+<p><a href="https://cloud.tencent.com/developer/article/1582867">我终于把Python中下划线的含义弄清楚了（憋了很久了）</a></p>
+</blockquote>
+<h3 id="1-前单下划线：-var"><a href="#1-前单下划线：-var" class="headerlink" title="1. 前单下划线： _var"></a>1. 前单下划线： <code>_var</code></h3><h4 id="变量或方法名加-单下划线："><a href="#变量或方法名加-单下划线：" class="headerlink" title="变量或方法名加 单下划线："></a>变量或方法名加 单下划线：</h4><p>变量或方法名加 单下划线 时，向其他程序员的<em>提示</em>，即以单个下划线开头的变量或方法供内部使用（表示私有），这不是Python强制执行的，直接访问也是可以访问的。</p>
+<p>举例：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Test</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.foo = <span class="number">11</span></span><br><span class="line">        self._bar = <span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p>如果你实例化这个类并试图访问它的构造函数中定义的foo和_bar属性，会发生什么?让我们来看看:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt;&gt;&gt; t = Test()</span><br><span class="line">&gt;&gt;&gt; t.foo</span><br><span class="line">11</span><br><span class="line">&gt;&gt;&gt; t._bar</span><br><span class="line">23</span><br></pre></td></tr></table></figure>
+
+<p>看到_bar中的前一个下划线并没有阻止我们“进入”类并访问该变量的值。</p>
+<p>这是因为Python中的单个下划线前缀仅仅是一种约定。</p>
+<h4 id="函数单下划线-从模块导入："><a href="#函数单下划线-从模块导入：" class="headerlink" title="函数单下划线 从模块导入："></a>函数单下划线 从模块导入：</h4><p>举例：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># This is my_module.py:</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">external_func</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="number">23</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_internal_func</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="number">42</span></span><br></pre></td></tr></table></figure>
+
+<p>现在，如果使用通配符导入来从模块中导入所有名称，Python将不会导入带有前导下划线的名称(除非模块定义了覆盖此行为的_all__列表):</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&gt;&gt;&gt; from my_module import *</span><br><span class="line">&gt;&gt;&gt; external_func()</span><br><span class="line">23</span><br><span class="line">&gt;&gt;&gt; _internal_func()</span><br><span class="line">NameError: <span class="string">&quot;name &#x27;_internal_func&#x27; is not defined&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>顺便说一下，应该避免通配符导入，因为它们使名称空间中出现的名称变得不清楚。</p>
+<p>与通配符导入不同，常规导入不受主要的单下划线命名约定的影响:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&gt;&gt;&gt; import my_module</span><br><span class="line">&gt;&gt;&gt; my_module.external_func()</span><br><span class="line">23</span><br><span class="line">&gt;&gt;&gt; my_module._internal_func()</span><br><span class="line">42</span><br></pre></td></tr></table></figure>
+
+<p>单下划线是一种Python命名约定，表示某个名称是供内部使用的。它通常不是由Python解释器强制执行的，只是对程序员的提示。</p>
+<h3 id="2-后单下划线：-var"><a href="#2-后单下划线：-var" class="headerlink" title="2. 后单下划线： var_"></a>2. 后单下划线：<code> var_</code></h3><p>有时候，一个变量最合适的名字已经被一个关键字代替了。因此，类或def之类的名称在Python中不能用作变量名。在这种情况下，你可以添加一个下划线打破命名冲突:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&gt;&gt;&gt; def make_object(name, class):</span><br><span class="line">SyntaxError: <span class="string">&quot;invalid syntax&quot;</span></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; def make_object(name, class_):</span><br><span class="line">...     pass</span><br></pre></td></tr></table></figure>
+
+<p>总之，惯例使用单个尾划线(后缀)来避免与Python关键字的命名冲突。在PEP 8中解释了这种约定。</p>
+<h3 id="3-前双下划线：-var"><a href="#3-前双下划线：-var" class="headerlink" title="3.前双下划线： __var"></a>3.前双下划线： <code>__var</code></h3><p>这个比较特殊！python会改变其 <strong>变量、方法</strong> 名！</p>
+<p>双下划线前缀导致Python解释器重写属性名，以避免子类中的命名冲突。</p>
+<p>这也叫做名字拼写——解释器改变变量的名字的方式使得在以后扩展类时很难产生冲突。</p>
+<p>举例：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">XHX</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.foo = <span class="number">11</span></span><br><span class="line">        self._bar = <span class="number">23</span></span><br><span class="line">        self.__baz = <span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p>让我们看看这个对象的属性使用内置的dir()函数:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&gt;&gt;&gt; <span class="built_in">dir</span>(XHX())</span><br><span class="line">[<span class="string">&#x27;_XHX__baz&#x27;</span>, <span class="string">&#x27;__class__&#x27;</span>, <span class="string">&#x27;__delattr__&#x27;</span>, <span class="string">&#x27;__dict__&#x27;</span>, <span class="string">&#x27;__dir__&#x27;</span>, <span class="string">&#x27;__doc__&#x27;</span>, <span class="string">&#x27;__eq__&#x27;</span>, <span class="string">&#x27;__format__&#x27;</span>, <span class="string">&#x27;__ge__&#x27;</span>, <span class="string">&#x27;__getattribute__&#x27;</span>, <span class="string">&#x27;__gt__&#x27;</span>, <span class="string">&#x27;__hash__&#x27;</span>, <span class="string">&#x27;__init__&#x27;</span>, <span class="string">&#x27;__init_subclass__&#x27;</span>, <span class="string">&#x27;__le__&#x27;</span>, <span class="string">&#x27;__lt__&#x27;</span>, <span class="string">&#x27;__module__&#x27;</span>, <span class="string">&#x27;__ne__&#x27;</span>, <span class="string">&#x27;__new__&#x27;</span>, <span class="string">&#x27;__reduce__&#x27;</span>, <span class="string">&#x27;__reduce_ex__&#x27;</span>, <span class="string">&#x27;__repr__&#x27;</span>, <span class="string">&#x27;__setattr__&#x27;</span>, <span class="string">&#x27;__sizeof__&#x27;</span>, <span class="string">&#x27;__str__&#x27;</span>, <span class="string">&#x27;__subclasshook__&#x27;</span>, <span class="string">&#x27;__weakref__&#x27;</span>, <span class="string">&#x27;_bar&#x27;</span>, <span class="string">&#x27;foo&#x27;</span>]</span><br></pre></td></tr></table></figure>
+
+<p>这会给我们一个带有对象属性的列表。让我们看看这个列表：</p>
+<p><code>self.foo</code>在属性列表中，foo变量显示为未修改的foo。</p>
+<p><code>self._bar</code>的行为方式是一样的，它在类中显示为_bar。就像我之前说的，前导下划线只是一种惯例。给程序员的提示。</p>
+<p><code>self.__baz</code>看起来有点不同。当在该列表中搜索_baz时，将看到没有具有该名称的变量。它变成了 <code>_XHX__baz</code>！也就是 <code>_类名__变量名</code></p>
+<p>前面多了一个类名了！这是Python解释器应用的命名混乱。这样做是为了保护变量不被子类覆盖。</p>
+<p>举例：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ManglingTest</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.__mangled = <span class="string">&#x27;hello&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_mangled</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self.__mangled</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ManglingTest().get_mangled()</span><br><span class="line"><span class="string">&#x27;hello&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ManglingTest().__mangled	<span class="comment"># 应该用：ManglingTest()._ManglingTest__mangled</span></span><br><span class="line">AttributeError: <span class="string">&quot;&#x27;ManglingTest&#x27; object has no attribute &#x27;__mangled&#x27;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果这里没有用下划线，假设变量名叫 self.mangled，<code>ManglingTest().mangled</code>就可以正常返回的。</p>
+<p>并且不止是变量，方法（函数）也会变！</p>
+<p>举例：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MangledMethod</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__method</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="number">42</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">call_it</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self.__method()</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>MangledMethod().__method()	<span class="comment"># 应该用：MangledMethod()._MangledMethod__method()</span></span><br><span class="line">AttributeError: <span class="string">&quot;&#x27;MangledMethod&#x27; object has no attribute &#x27;__method&#x27;&quot;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>MangledMethod().call_it()</span><br><span class="line"><span class="number">42</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-前后双下划线-var"><a href="#4-前后双下划线-var" class="headerlink" title="4. 前后双下划线__var__"></a>4. 前后双下划线<code>__var__</code></h3><p>表示由Python语言定义的特殊方法。避免为自己的属性使用此命名方案。</p>
+<p>也叫“魔法函数”，也就是<strong>python内置的函数</strong>，尽量避免自己写函数时写这种前后双下划线的形式。</p>
+<h2 id="python调用C-的-下划线"><a href="#python调用C-的-下划线" class="headerlink" title="python调用C++的_ 下划线"></a>python调用C++的_ 下划线</h2><p>import一个下划线的包</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> _wenet</span><br></pre></td></tr></table></figure>
+
+<p>这是在C++里写了这个module模块，python绑定了这个C++模块，在python里import时用的是加下划线的写法。</p>
+]]></content>
+      <categories>
+        <category>python</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>《pip笔记</title>
+    <url>/2023/02/08/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/pip%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h1 id="pip笔记"><a href="#pip笔记" class="headerlink" title="pip笔记"></a>pip笔记</h1><h2 id="安装python包超时失败"><a href="#安装python包超时失败" class="headerlink" title="安装python包超时失败"></a>安装python包超时失败</h2><blockquote>
+<p>stackoverflow ：<a href="https://stackoverflow.com/questions/43298872/how-to-solve-readtimeouterror-httpsconnectionpoolhost-pypi-python-org-port">How to solve ReadTimeoutError: HTTPSConnectionPool(host&#x3D;’pypi.python.org’, port&#x3D;443) with pip?</a></p>
+<p><a href="https://blog.csdn.net/zhangvalue/article/details/104271094">解决安装Python包时超时失败ReadTimeoutError: HTTPSConnectionPool(host&#x3D;’files.pythonhosted.org’, port&#x3D;443)</a></p>
+</blockquote>
+<p>遇到超时 timeout error：</p>
+<p><strong>方法1. 添加镜像源：</strong></p>
+<p>使用国内的镜像源安装。在原来安装时在命令里加一个参数 -i，然后在i后面加国内镜像地址。</p>
+<p>选择国内的镜像源列表如下：</p>
+<p>清华源： <a href="https://pypi.tuna.tsinghua.edu.cn/simple/">https://pypi.tuna.tsinghua.edu.cn/simple/</a></p>
+<p>阿里云： <a href="http://mirrors.aliyun.com/pypi/simple/">http://mirrors.aliyun.com/pypi/simple/</a></p>
+<p>中国科技大学： <a href="https://pypi.mirrors.ustc.edu.cn/simple/">https://pypi.mirrors.ustc.edu.cn/simple/</a></p>
+<p>豆瓣(douban)：<a href="http://pypi.douban.com/simple/">http://pypi.douban.com/simple/</a></p>
+<p>清华大学： <a href="https://pypi.tuna.tsinghua.edu.cn/simple/">https://pypi.tuna.tsinghua.edu.cn/simple/</a></p>
+<p>中国科学技术大学： <a href="http://pypi.mirrors.ustc.edu.cn/simple/">http://pypi.mirrors.ustc.edu.cn/simple/</a></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"> pip install statsmodels -i https://pypi.tuna.tsinghua.edu.cn/simple/</span><br><span class="line">Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple/</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>方法2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo pip install --default-timeout=100 xx包</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>方法3：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">python -m pip install --upgrade pip</span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>以下是chatgpt回答</p>
+</blockquote>
+<p>在安装Python包时如果超时失败，可以尝试以下几种方法：</p>
+<ol>
+<li>增加超时时间：可以在安装命令前添加参数，例如<code>pip install --default-timeout=1000 &lt;package-name&gt;</code>，以增加超时时间。</li>
+<li>更换镜像源：可以尝试使用国内镜像源进行安装，以减少安装时间。</li>
+<li>选择本地包：如果安装某个包时出现超时失败，可以尝试手动下载该包的.whl文件并使用<code>pip install &lt;whl-file&gt;</code>命令进行安装。</li>
+<li>尝试其他安装方法：如果使用<code>pip install</code>命令安装失败，可以尝试使用<code>conda install</code>或其他安装方法进行安装。</li>
+</ol>
+<h2 id="pip安装的路径在哪里"><a href="#pip安装的路径在哪里" class="headerlink" title="pip安装的路径在哪里"></a>pip安装的路径在哪里</h2><blockquote>
+<p>以下是chatgpt回答</p>
+</blockquote>
+<p>在 Windows 系统中，默认情况下 pip 安装的路径位于 Python 安装目录下的 Scripts 目录中，例如 <code>C:\PythonXX\Scripts</code>，其中 <code>XX</code> 代表 Python 的版本号。</p>
+<p>在 Linux 和 macOS 系统中，pip 安装的路径通常位于 <code>/usr/local/bin</code> 或 <code>/usr/bin</code> 目录中。</p>
+<p>可以使用以下命令查找 pip 安装的具体路径：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">which pip</span><br></pre></td></tr></table></figure>
+
+<p>或者在命令行中运行：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip show pip</span><br></pre></td></tr></table></figure>
+
+<p>它将显示 pip 包的详细信息，其中包括安装路径。</p>
+<h2 id="选择让pip安装在anaconda的虚拟环境中或默认环境中"><a href="#选择让pip安装在anaconda的虚拟环境中或默认环境中" class="headerlink" title="选择让pip安装在anaconda的虚拟环境中或默认环境中"></a>选择让pip安装在anaconda的虚拟环境中或默认环境中</h2><p>就是切换（activate激活）到虚拟环境中。</p>
+<p>有三类pip：</p>
+<ul>
+<li>第一类没有在anaconda环境中，也有装pip工具的，pip install时，安装的包的路径一般在 <code>/usr/bin</code>下；</li>
+<li>第二类在anaconda的base环境中，pip install时，安装的包的路径一般在 <code>XX/anaconda3/bin</code>下；</li>
+<li>第二类在anaconda的自建的环境中，pip install时，安装的包的路径一般在 <code>XX/anaconda3/envs/XX/bin</code>下；</li>
+</ul>
+<blockquote>
+<p>以下回答来自chatgpt</p>
+</blockquote>
+<p>如果想在 Anaconda 虚拟环境中使用 pip，请按以下步骤操作：</p>
+<ol>
+<li><p>创建虚拟环境：首先需要创建 Anaconda 虚拟环境，使用以下命令创建：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">conda create --name &lt;env_name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>&lt;env_name&gt;</code> 是虚拟环境的名称。</p>
+</li>
+<li><p>激活虚拟环境：使用以下命令激活虚拟环境：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">conda activate &lt;env_name&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在虚拟环境中安装 pip：在虚拟环境中使用以下命令安装 pip：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">conda install pip</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>现在，您已在 Anaconda 虚拟环境中安装了 pip，并且可以使用它来安装 Python 包。在使用 pip 安装包时，请确保该虚拟环境处于激活状态。</p>
+<h2 id="用pip安装自己写的包"><a href="#用pip安装自己写的包" class="headerlink" title="用pip安装自己写的包"></a>用pip安装自己写的包</h2><p>要用pip安装自己写的包，可以使用pip install命令，并传入该包的路径作为参数：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip install /path/to/your_package.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>如果该包未打包成.tar.gz或.whl文件，需要先打包，然后再使用pip install命令安装。</p>
+<p>打包方法：</p>
+<ol>
+<li><p>打包为.tar.gz文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">python setup.py sdist</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>打包为.whl文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">python setup.py bdist_wheel</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>完成打包后，就可以使用pip install命令安装自己写的包了。</p>
+<h2 id="安装完-发现有问题：XXXapi-so-undefined-symbol报错怎么办？"><a href="#安装完-发现有问题：XXXapi-so-undefined-symbol报错怎么办？" class="headerlink" title="安装完 发现有问题：XXXapi.so: undefined symbol报错怎么办？"></a>安装完 发现有问题：XXXapi.so: undefined symbol报错怎么办？</h2><blockquote>
+<p><a href="https://github.com/pytorch/pytorch/issues/10234">https://github.com/pytorch/pytorch/issues/10234</a><br>chatgpt</p>
+</blockquote>
+<p>这个错误通常是由于共享库中缺少必要的符号引起的。原因可能是：</p>
+<ol>
+<li><p>缺少依赖库：检查它是否已安装，并确保它在系统库搜索路径中，或者使用环境变量LD_LIBRARY_PATH来指定其位置。具体地：<code>export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64</code> 把这个库链接到lib的path里，再试一试。</p>
+</li>
+<li><p>版本不兼容：检查该库的版本与使用它的程序的版本是否兼容。</p>
+</li>
+<li><p>损坏的共享库：重新安装该库并确保其完整性。</p>
+</li>
+</ol>
+<p>如果仍然不能解决问题，可以在问题的具体环境下向社区寻求帮助，例如编程论坛或 Stack Overflow。</p>
+<p>具体报错为：<code>ImportError: /mnt/k/anaconda3/envs/wenet/lib/python3.8/site-packages/torch/lib/libtorch_cuda_cpp.so: undefined symbol: _ZNK3c104Type14isSubtypeOfExtERKSt10shared_ptrIS0_EPSo</code></p>
+<h2 id="torch下载慢"><a href="#torch下载慢" class="headerlink" title="torch下载慢"></a>torch下载慢</h2><p>解决方法：直接在浏览器里下载网页的链接wsl文件，然后pip install手动安装。</p>
+<p>另一种方法，换channel：</p>
+<blockquote>
+<p><a href="https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/">https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/</a><br>今天以pytorch1.7.1举栗子。<br>pytorch官网查看pytorch安装命令</p>
+</blockquote>
+<p><code>conda install pytorch==1.7.1 torchvision==0.8.2 torchaudio==0.7.2 cudatoolkit=11.0</code> -c pytorch<br>1<br>首先，使用命令将下述网址添加conda源</p>
+<p>conda config –add channels <a href="https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/">https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/</a><br>1<br>其次，最后使用新的安装命令，将-c pytorch去掉，表示从我们配置的新路径中下载</p>
+<p>conda install pytorch&#x3D;&#x3D;1.7.1 torchvision&#x3D;&#x3D;0.8.2 torchaudio&#x3D;&#x3D;0.7.2 cudatoolkit&#x3D;11.0</p>
+<h2 id="pip-install-r"><a href="#pip-install-r" class="headerlink" title="pip install -r"></a>pip install -r</h2><p>在 pip install 时可以通过使用 -r 参数来安装一个包的依赖。比如，如果你想要安装包A，并且包A需要包B才能工作，你可以使用以下命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip install -r requirements.txt</span><br></pre></td></tr></table></figure>
+
+<p>其中 requirements.txt 文件是一个文本文件，包含了需要安装的所有包的名称，比如：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">packageB</span><br><span class="line">packageA</span><br></pre></td></tr></table></figure>
+
+<p>运行以上命令后，pip 会先安装包B，再安装包A。</p>
+<h2 id="pip-install-链接已有的包"><a href="#pip-install-链接已有的包" class="headerlink" title="pip install 链接已有的包"></a>pip install 链接已有的包</h2><p>使用 pip install 命令可以从网络上下载并安装包，你也可以通过链接已有的包安装。使用“-f”参数即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip install -f &lt;path-to-dependency&gt; &lt;your-package&gt;</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>&lt;path-to-dependency&gt;</code>是已有包的路径，<code>&lt;your-package&gt;</code>是你的包名称。在执行此命令时，pip 将使用路径指向的包作为依赖安装。</p>
+<h2 id="pip-install参数解释"><a href="#pip-install参数解释" class="headerlink" title="pip install参数解释"></a>pip install参数解释</h2><blockquote>
+<p><a href="https://www.twle.cn/t/85">Python Pip 参考手册 - pip install 命令 ( 一 )</a></p>
+</blockquote>
+<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><p><code>pip install</code> 命令的语法格式如下</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip install [options] &lt;requirement specifier&gt; [package-index-options] ...</span><br></pre></td></tr></table></figure>
+
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip install [options] -r &lt;requirements file&gt; [package-index-options] ...</span><br></pre></td></tr></table></figure>
+
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip install [options] [-e] &lt;vcs project url&gt; ...</span><br></pre></td></tr></table></figure>
+
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip install [options] [-e] &lt;local project path&gt; ...</span><br></pre></td></tr></table></figure>
+
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip install [options] &lt;archive url/path&gt; ...</span><br></pre></td></tr></table></figure>
+
+<p><code>pip install</code> 命令可以从以下地址安装包</p>
+<ul>
+<li>使用需求说明符从 PiPY 或其它索引上安装</li>
+<li>VCS 项目网址</li>
+<li>本地项目目录</li>
+<li>本地或远程源代码归档</li>
+</ul>
+<p>pip 还支持从 「 需求文件 」 ( requirements file ) 安装，这为安装指定的整个环境提供了一种简便方法</p>
+<ul>
+<li><p><code>-c, --constraint &lt;file&gt;</code></p>
+<p>使用给定的约束文件约束版本，该选项可以重复添加</p>
+</li>
+<li><p><code>-r, --requirement &lt;file&gt;</code></p>
+<p>从给定的需求文件中安装，该选项可以重复添加</p>
+<p>按照惯例，需求文件名为 <code>requirements.txt</code></p>
+</li>
+<li><p><code>--no-deps</code></p>
+<p>不安装包的任何依赖项</p>
+</li>
+<li><p><code>--pre</code></p>
+<p>包含预发布版本和开发版本，默认只会包行稳定的版本</p>
+</li>
+<li><p><code>-e, --editable &lt;path/url&gt;</code></p>
+<p>在可编辑模式下从一个本地的项目路径或 VCS URL 中安装一个项目 ( 例如，setuptools 的 「 开发者模式 」 )</p>
+</li>
+<li><p><code>-t, --target &lt;dir&gt;</code></p>
+<p>将包安装到指定目录 <code>&lt;dir&gt;</code></p>
+<p>默认情况下，该选项并不会覆盖 <code>&lt;dir&gt;</code> 目录中已经存在的文件或目录，但可以使用 <code>--upgrade</code> 选项将已经存在的包更新到最新的版本</p>
+</li>
+<li><p><code>--user</code></p>
+<p>将所有的包安装到我们的平台的Python 用户安装目录，通常为 <code>~/.local/</code> 或 Windows 上为 <code>%APPDATA%Python</code> ( 更多详细信息，可以查看 Python 文档中的 <code>site.USER_BASE</code> 部分 )</p>
+</li>
+<li><p><code>--root &lt;dir&gt;</code></p>
+<p>安装与此备用根目录 <code>&lt;dir&gt;</code> 包含的所有内容</p>
+</li>
+<li><p><code>--prefix &lt;dir&gt;</code></p>
+<p>安装时，<code>lib</code> 、<code>bin</code> 和其它顶级目录的存放目录，也就是这些目录的路径前缀</p>
+</li>
+<li><p><code>-b, --build &lt;dir&gt;</code></p>
+<p>用于存放解压缩的包和构建的包</p>
+<p>请注意，初始构建仍发生在临时目录中</p>
+<p>可以通过适当地设置 <code>TMPDIR</code> 环境变量 （ Windows上的 <code>TEMP</code> ) 来控制临时目录的位置</p>
+<p>注意，如果使用了该参数，当构建发生故障时，并不会清空构建目录</p>
+</li>
+<li><p><code>--src &lt;dir&gt;</code></p>
+<p>用于存放迁出的可编辑项目</p>
+<p>在虚拟环境中，默认的目录为 <code>&lt;venv path&gt;/src</code>， 在全局安装中，默认的目录为 <code>&lt;current dir&gt;/src</code></p>
+</li>
+<li><p><code>-U, --upgrade</code></p>
+<p>更新所有指定的包到最新的可用版本。 依赖项的处理取决于所使用的升级策略</p>
+</li>
+<li><p><code>--upgrade-strategy &lt;upgrade_strategy&gt;</code></p>
+<p>确定应如何处理依赖项升级 ( 默认值：「 仅在需要时 」)</p>
+<ul>
+<li><code>eager</code> - 无论当前安装的版本是否满足升级包的要求，都会升级依赖项</li>
+<li><code>only-if-needed</code> - 仅在不满足升级包的要求时才升级</li>
+</ul>
+</li>
+<li><p><code>--force-reinstall</code></p>
+<p>重新安装所有的包，即使它们已经是最新的版本</p>
+</li>
+<li><p><code>-I, --ignore-installed</code></p>
+<p>忽略已经安装的包 ( 用重新安装取代 )</p>
+</li>
+<li><p><code>--ignore-requires-python</code></p>
+<p>忽略 Requires-Python 信息</p>
+</li>
+<li><p><code>--no-build-isolation</code></p>
+<p>在构建现代的源代码分发包是禁用隔离</p>
+<p>如果使用了此选项，则必须已安装 PEP518 规定的构建依赖项</p>
+</li>
+<li><p><code>--install-option &lt;options&gt;</code></p>
+<p>安装时提供给 <code>setup.py</code> 安装命令的额外参数( 使用方法类似于 <code>--install-option=&quot;--install-scripts=/usr/local/bin&quot;</code> )</p>
+<p>可以使用多个 <code>--install-option</code> 选项将多个选项传递给 <code>setup.py install</code></p>
+<p>如果你使用带有目录路径的选项，请确保使用绝对路径</p>
+</li>
+<li><p><code>--global-option &lt;options&gt;</code></p>
+<p>在 <code>bdist_wheel</code> 命令之前提供给 <code>setup.py</code> 调用的额外全局选项</p>
+</li>
+<li><p><code>--compile</code></p>
+<p>将 Python 源代码编译为 bytecode</p>
+</li>
+<li><p><code>--no-compile</code></p>
+<p>不要将 <a href="https://www.twle.cn/l/yufei/python30/python-30-index.html">Python</a> 源代码编译为 <code>bytecode</code></p>
+</li>
+<li><p><code>--no-warn-script-location</code></p>
+<p>当安装脚本不在 <code>PATH</code> 路径中时不要发出警告</p>
+</li>
+<li><p><code>--no-warn-conflicts</code></p>
+<p>出现已损坏的依赖关系时不要发出警告</p>
+</li>
+<li><p><code>--no-binary &lt;format_control&gt;</code></p>
+<p>不使用二进制包</p>
+<p>该选项可以重复添加，每增加一个就会自增当前的值</p>
+<p>可选的值有</p>
+<ul>
+<li><code>:all:</code> ：禁用所有二进制包</li>
+<li><code>:none:</code> ：清空集合，或者使用逗号之间的一个或多个包名称</li>
+</ul>
+<p>注意，某些软件包编译起来很棘手，并且，即使在添加了此选项后仍然可能无法安装</p>
+</li>
+<li><p><code>--only-binary &lt;format_control&gt;</code></p>
+<p>不使用源代码包</p>
+<p>该选项可以重复添加，每增加一个就会自增当前的值</p>
+<p>可选的值有</p>
+<ul>
+<li><code>:all:</code> ：禁用所有源代码包</li>
+<li><code>:none:</code> ：清空集合，或者使用逗号之间的一个或多个包名称</li>
+</ul>
+<p>注意，没有二进制发行版的软件包在使用此选项时将无法安装</p>
+</li>
+<li><p><code>--no-clean</code></p>
+<p>不要清空构建目录</p>
+</li>
+<li><p><code>--require-hashes</code></p>
+<p>对于可重复安装，需要根据哈希值来检查每个需求</p>
+<p>如果需求文件中的任何一项包含了 <code>--hash</code> 选项，则隐式包含此选项</p>
+</li>
+<li><p><code>--progress-bar &lt;progress_bar&gt;</code></p>
+<p>用于指定要显示的进度条类型，可选项有 <code>on</code>、<code>ascii</code>、<code>off</code>、<code>pretty</code>、<code>emoji</code>，默认为 <code>on</code></p>
+</li>
+<li><p><code>-i, --index-url &lt;url&gt;</code></p>
+<p>Python 包索引的基础 URL 地址，默认为 <a href="https://pypi.org/simple">https://pypi.org/simple</a></p>
+<p>该选项的值应该指向符合 PEP503 ( 简单存储库 API ) 的存储库或以相同格式布局的本地目录</p>
+</li>
+<li><p><code>--extra-index-url &lt;url&gt;</code></p>
+<p>除了 <code>--index-url</code> 之外的附加的 Python 包索引 URL，规则和 <code>--index-url</code> 一样</p>
+</li>
+<li><p><code>--no-index</code></p>
+<p>忽略包索引，使用 <code>--find-links</code> 指定的 URL</p>
+</li>
+<li><p><code>-f, --find-links &lt;url&gt;</code></p>
+<p>如果提供的 URL 或路径链接到一个 html 文件，则会解析该 html 文件以获取归档</p>
+<p>如果是本地目录，或 <code>file://url</code> 指向的是一个目录，那么就在该目录中查找归档</p>
+</li>
+<li><p><code>--process-dependency-links</code></p>
+<p>启用依赖关系链接的处理</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>工程实践</category>
+      </categories>
+      <tags>
+        <tag>工程实践</tag>
+      </tags>
+  </entry>
 </search>

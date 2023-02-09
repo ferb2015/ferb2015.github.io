@@ -288,6 +288,602 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/" itemprop="url">语言模型论文笔记（二）语言模型 自编码</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-22T00:00:00+08:00">
+                2022-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">语言模型</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/07/22/语言模型/语言模型论文笔记（二）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="语言模型-自编码"><a href="#语言模型-自编码" class="headerlink" title="语言模型 自编码"></a>语言模型 自编码</h1><blockquote>
+<p>&#x3D;&#x3D;Devlin, Jacob, et al. “Bert: Pre-training of deep bidirectional transformers for language understanding.” <em>arXiv preprint arXiv:1810.04805</em> (2018).&#x3D;&#x3D;citations：41870！</p>
+<p>code、pre-trained model ：github：<a target="_blank" rel="noopener" href="https://github.com/google-research/bert">https://github.com/google-research/bert</a>  </p>
+<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/46652512">【NLP】Google BERT模型原理详解</a></p>
+</blockquote>
+<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><ul>
+<li><strong>Unsupervised Feature-based Approaches</strong>  ：无标注文本训一个模型，用word embedding给下游任务</li>
+<li><strong>Unsupervised Fine-tuning Approaches</strong>  ：无标注文本训一个模型，加下游任务层，或者只把下游任务的一部分用无标注文本训练</li>
+</ul>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
+<li><p>提出新的<strong>语言表示模型</strong>，称为Bidirectional Encoder Representations from Transformers  （BERT），通过联合从左和从后的所有layer的上下文，预训练deep、双向的语言表示，训练文本来自未标注文本；得到预训练语言表示，后接输出层，就可以适合很多下游任务；</p>
+</li>
+<li><p>BERT是一种基于微调的表示模型，finetuning based representation model  ，适合sentence-level 和token-level的下游任务；</p>
+</li>
+<li><p>ELMo、ULMFiT、GPT称为“单向的”语言模型，因为一般是从左往后单向的，不然就是双向biLSTM，使用独立训练的从左到右和从右到左lm的浅级联，deep bidirectional representations  其实学的并不好，因此叫单向；</p>
+</li>
+<li><p>BERT的“双向”，体现在用的attention结构，因此能看见上下文；</p>
+</li>
+</ul>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><ul>
+<li>masked language model” (MLM) pre-training objective ，masked LM从输入中随机屏蔽一些token，目标是只基于上下文的词，预测屏蔽的原始词汇表id；这种和之前ELMo、ULMFiT、GPT就不太一样，能够很好的学习deep bidirectional representations；</li>
+<li>目标函数：$\large P(w_i|w_1,…,w_{i-1},w_{i+1},…,w_n)$</li>
+</ul>
+<img src="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220616094327833.png" alt="image-20220616094327833" style="zoom:80%;">
+
+<ul>
+<li>input由三个特征embedding求和组成，分别是<ul>
+<li>token embedding：第一个单词是CLS标志，可以用于之后的分类任务</li>
+<li>position embedding</li>
+<li>segment embedding：代表是不是属于同一段segment的信息特征，用来区别两种句子，因为预训练不光做LM还要做以两个句子为输入的分类任务</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220616102940478.png" alt="image-20220616102940478" style="zoom:80%;">
+
+<ul>
+<li><p><strong>“masked LM” (MLM)</strong>  ：随机屏蔽输入token的一部分，然后只预测那些被屏蔽的token；经验：每句话15%masked；</p>
+<p>一开始的masked做法：输入15%的单词变成[MASK]这个token，然后目标是**[MASK]token位置对应的输出概率为真实token要交叉熵最大** We only compute loss on masked tokens；</p>
+<p>后来的masked做法：输出的15%的单词不是全变成[MASK]这个token，而是80%可能性变成[MASK]，10%可能性变成随机token，10%可能性不变；</p>
+</li>
+<li><p><strong>Next Sentence Prediction (NSP)</strong>  ：训练预训练模型中，给输出又引入说一个任务（多任务？），叫做是不是”下一句话“的判断，输出二分类，判断是不是下一句话？这对于微调任务比如QA和NLI很有用，如果不是这些微调任务，预训练模型训练不需要这个C向量；</p>
+</li>
+<li><p><strong>Pre-training data</strong>  ：要用document-level corpus ，而不要用sentence-level的corpus，训练LM的文本一定要长，这样才能具备抽取长序列知识的能力；</p>
+</li>
+<li><p><strong>Fine-tuning BERT</strong>  ：？？？【TODO】</p>
+</li>
+</ul>
+<h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><p>multi-layer bidirectional Transformer  encoder  ，transformer decoder （用tensor2tensor库）</p>
+<p>词典：wordpiece后的30000个token</p>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Song, Kaitao, et al. “Mass: Masked sequence to sequence pre-training for language generation.” <em>arXiv preprint arXiv:1905.02450</em> (2019).&#x3D;&#x3D;citations：660</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/microsoft/MASS">https://github.com/microsoft/MASS</a>  </p>
+</blockquote>
+<h3 id="背景-1"><a href="#背景-1" class="headerlink" title="背景"></a>背景</h3><ul>
+<li>和bert一样的预训练模型，Pre-training and fine-tuning 方式训练</li>
+</ul>
+<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><ul>
+<li>提出 MAsked Sequence to Sequence pre-training (MASS)  ，用于基于encoder-decoder的language generation</li>
+</ul>
+<h3 id="方法-1"><a href="#方法-1" class="headerlink" title="方法"></a>方法</h3><h3 id="模型-1"><a href="#模型-1" class="headerlink" title="模型"></a>模型</h3><hr>
+<blockquote>
+<p>&#x3D;&#x3D;Lan, Zhenzhong, et al. “Albert: A lite bert for self-supervised learning of language representations.” <em>arXiv preprint arXiv:1909.11942</em> (2019).&#x3D;&#x3D;citations：3054 Google Research</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/google-research/ALBERT">https://github.com/google-research/ALBERT</a>  </p>
+</blockquote>
+<h3 id="背景-2"><a href="#背景-2" class="headerlink" title="背景"></a>背景</h3><ul>
+<li>虽然预训练模型能改善下游任务性能，但是由于预训练模型较大，也会造成计算量、内存、延时增加，为了解决该预训练模型带来的问题，本文提出两种更小内存消耗的方法，并且能减小训练BERT的速度；</li>
+</ul>
+<h3 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h3><ul>
+<li>提出 A lite bert 轻量级的BERT，自监督学习，语言表示</li>
+<li>用关注于建模句间相关性的自监督loss，改善了下游任务的输入是多句输入的任务性能；</li>
+</ul>
+<h3 id="方法-2"><a href="#方法-2" class="headerlink" title="方法"></a>方法</h3><ul>
+<li>SCALING UP REPRESENTATION LEARNING FOR NATURAL LANGUAGE  对于自然语言的scaling up表示学习</li>
+<li>CROSS-LAYER PARAMETER SHARING  </li>
+<li>SENTENCE ORDERING OBJECTIVES</li>
+</ul>
+<hr>
+<blockquote>
+<p>DistilBERT</p>
+<p><a target="_blank" rel="noopener" href="https://medium.com/huggingface/distilbert-8cf3380435b5">Smaller, faster, cheaper, lighter: Introducing DistilBERT, a distilled version of BERT</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%E6%95%B0%E6%8D%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%E6%95%B0%E6%8D%AE/" itemprop="url">预训练模型数据</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-22T00:00:00+08:00">
+                2022-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">语言模型</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%E6%95%B0%E6%8D%AE/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/07/22/语言模型/预训练模型数据/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="预训练数据集"><a href="#预训练数据集" class="headerlink" title="预训练数据集"></a>预训练数据集</h1><blockquote>
+<p>官网地址：<a target="_blank" rel="noopener" href="https://www.cluebenchmarks.com/">https://www.cluebenchmarks.com/</a></p>
+<p>数据地址：<a target="_blank" rel="noopener" href="https://github.com/CLUEbenchmark/CLUE">https://github.com/CLUEbenchmark/CLUE</a></p>
+</blockquote>
+<p>100GB原始语料库的大规模预训练数据集 </p>
+<p>CLUE官方总共收集了214 GB的原始语料库，大约760亿个单词，包含三个部分，CLUECorpus2020-small，CLUECorpus2020和CLUEOSCAR。 </p>
+<p>CLUECorpus2020-small包含14 GB的中文语料库，包括四个子部分：新闻，网页文本，维基百科和评论。 CLUECorpus2020包含100 GB的中文原始语料库，该语料库可从Common Crawl中检索。这个数据集可以直接用于预训练，而无需其他预处理，包含约2万9千个单独的文件，每个文件都处理成了预训练格式。</p>
+<p> CLUEOSCAR是一个庞大的多语种语料库，它是通过Common Crawl语料库的语言分类过滤得到的，包含250 GB的中文原始语料库，做进一步的处理后，最终得到100 GB的中文数据。</p>
+<p> 这部分数据可以用于LM的训练。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%E6%B1%87%E6%80%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%E6%B1%87%E6%80%BB/" itemprop="url">预训练模型汇总</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-22T00:00:00+08:00">
+                2022-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">语言模型</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%E6%B1%87%E6%80%BB/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/07/22/语言模型/预训练模型汇总/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="模型汇总"><a href="#模型汇总" class="headerlink" title="模型汇总"></a>模型汇总</h1><h2 id="huggingface-transformers-抱抱脸"><a href="#huggingface-transformers-抱抱脸" class="headerlink" title="huggingface transformers 抱抱脸"></a>huggingface transformers 抱抱脸</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/huggingface/transformers">https://github.com/huggingface/transformers</a></p>
+<p><a target="_blank" rel="noopener" href="https://huggingface.co/models">https://huggingface.co/models</a></p>
+</blockquote>
+<p>transformer大全</p>
+<p>找了几个模型比较小的：</p>
+<p><a target="_blank" rel="noopener" href="https://huggingface.co/uer/albert-base-chinese-cluecorpussmall">albert-base-chinese-cluecorpussmall</a> </p>
+<p><a target="_blank" rel="noopener" href="https://huggingface.co/voidful/albert_chinese_small">albert_chinese_small</a> </p>
+<p><a target="_blank" rel="noopener" href="https://huggingface.co/albert-base-v2">albert-base-v2</a> </p>
+<p><a target="_blank" rel="noopener" href="https://huggingface.co/voidful/albert_chinese_tiny">albert_chinese_tiny</a></p>
+<p><a target="_blank" rel="noopener" href="https://huggingface.co/clue/albert_chinese_tiny">albert_chinese_tiny</a></p>
+<p><a target="_blank" rel="noopener" href="https://huggingface.co/ckiplab/albert-tiny-chinese"> albert-tiny-chinese</a> </p>
+<p><a target="_blank" rel="noopener" href="https://huggingface.co/voidful/albert_chinese_base">albert_chinese_base</a></p>
+<p>可以参考中文拼写纠错模型的任务</p>
+<h2 id="Awesome-Pretrained-Chinese-NLP-Models"><a href="#Awesome-Pretrained-Chinese-NLP-Models" class="headerlink" title="Awesome Pretrained Chinese NLP Models"></a>Awesome Pretrained Chinese NLP Models</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/lonePatient/awesome-pretrained-chinese-nlp-models">https://github.com/lonePatient/awesome-pretrained-chinese-nlp-models</a></p>
+</blockquote>
+<p>一个多个模型的汇总项目，挺全的</p>
+<h2 id="Chinese-Transformer-XL"><a href="#Chinese-Transformer-XL" class="headerlink" title="Chinese-Transformer-XL"></a>Chinese-Transformer-XL</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/THUDM/Chinese-Transformer-XL">https://github.com/THUDM/Chinese-Transformer-XL</a></p>
+</blockquote>
+<p>智源研究院”文汇” 预训练模型Chinese-Transformer-XL的预训练和文本生成代码</p>
+<p>本模型使用了智源研究院发布的中文预训练语料<a target="_blank" rel="noopener" href="https://data.baai.ac.cn/data-set-details/0c8dc71dd06ae75a10ca422fb49b0751">WuDaoCorpus</a> 。具体地，我们使用了WuDaoCorpus中来自百度百科+搜狗百科（133G）、知乎（131G）、百度知道（38G）的语料，一共303GB数据。</p>
+<p>本模型使用了<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2005.14165">GPT-3</a> 的训练目标，同时使用能够更好地处理长序列建模的<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1901.02860">Transformer-XL</a> 替代了GPT中的Transformer。模型的结构与GPT-3 2.7B（32层，隐表示维度2560，每层32个注意力头）基本相同，因为Transformer-XL的结构改动，模型参数增加到了29亿。</p>
+<p>预训练模型大小：5.3G</p>
+<h2 id="GPT2-for-Multiple-Languages"><a href="#GPT2-for-Multiple-Languages" class="headerlink" title="GPT2 for Multiple Languages"></a><strong>GPT2</strong> for Multiple Languages</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/imcaspar/gpt2-ml">https://github.com/imcaspar/gpt2-ml</a></p>
+</blockquote>
+<p>训练数据15G</p>
+<p>预训练模型大小：15亿参数量（5G大小）</p>
+<h2 id="albert-zh"><a href="#albert-zh" class="headerlink" title="albert_zh"></a>albert_zh</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/brightmart/albert_zh">https://github.com/brightmart/albert_zh</a></p>
+</blockquote>
+<p>tf版本</p>
+<p>预训练模型大小：4M参数量</p>
+<h2 id="albert-pytorch"><a href="#albert-pytorch" class="headerlink" title="albert_pytorch"></a>albert_pytorch</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/lonePatient/albert_pytorch">https://github.com/lonePatient/albert_pytorch</a></p>
+</blockquote>
+<p>pytorch版本</p>
+<h2 id="OpenCLaP：多领域开源中文预训练语言模型仓库"><a href="#OpenCLaP：多领域开源中文预训练语言模型仓库" class="headerlink" title="OpenCLaP：多领域开源中文预训练语言模型仓库"></a>OpenCLaP：多领域开源中文预训练语言模型仓库</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/thunlp/OpenCLaP">https://github.com/thunlp/OpenCLaP</a></p>
+</blockquote>
+<p>数据来源法律文本和百度百科</p>
+<p>Bert模型大小370MB</p>
+<h2 id="好未来开源教育领域首个在线教学中文预训练模型TAL-EduBERT"><a href="#好未来开源教育领域首个在线教学中文预训练模型TAL-EduBERT" class="headerlink" title="好未来开源教育领域首个在线教学中文预训练模型TAL-EduBERT"></a>好未来开源教育领域首个在线教学中文预训练模型TAL-EduBERT</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/tal-tech/edu-bert">https://github.com/tal-tech/edu-bert</a></p>
+</blockquote>
+<p>数据2000万条（约包含3.8亿Tokens）教育领域中文ASR文本数据</p>
+<p>BERT 预训练模型大小：400M</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E9%A2%84%E8%AE%AD%E7%BB%83%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1836,532 +2432,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/27/Code-Switching/TLG%EF%BC%88%E4%B9%9D%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/06/27/Code-Switching/TLG%EF%BC%88%E4%B9%9D%EF%BC%89/" itemprop="url">TLG（九）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-06-27T00:00:00+08:00">
-                2022-06-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Code-Switching/" itemprop="url" rel="index">
-                    <span itemprop="name">Code-Switching</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/06/27/Code-Switching/TLG%EF%BC%88%E4%B9%9D%EF%BC%89/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/06/27/Code-Switching/TLG（九）/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="训练ngram-G"><a href="#训练ngram-G" class="headerlink" title="训练ngram G"></a>训练ngram G</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">训练LM</span></span><br><span class="line">langname=ngram_7g_train_en_zh_hua_lexicon_word</span><br><span class="line">local/train_lms_1gram.sh $langname/lexicon.1 $langname/text_split.biglettle $langname/lm_part_en5</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="生成-TLG种的-Lexicon-txt："><a href="#生成-TLG种的-Lexicon-txt：" class="headerlink" title="生成 TLG种的 Lexicon.txt："></a>生成 TLG种的 Lexicon.txt：</h4><blockquote>
-<p>&#x2F;home&#x2F;yelong&#x2F;data&#x2F;wenet&#x2F;examples&#x2F;aishell&#x2F;s0</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">生成lexicon.txt：</span></span><br><span class="line">dict=exp/aban-c009/lang.char.txt</span><br><span class="line">bpe_model=exp/aban-c009/bpe.model</span><br><span class="line"></span><br><span class="line">unit_file=$dict</span><br><span class="line">langname=ngram_7g_train_en_zh_hua_lexicon_word</span><br><span class="line">mkdir -p data/local/dict_aban-c009_$langname</span><br><span class="line">cp $unit_file data/local/dict_aban-c009_$langname/units.txt</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">把text_split.biglettle词频大于80的，放进词典，和声学的建模单元放一块，得到lexicon.1</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">去除声学词典里没有的OOV，中文拆成空格区分，英文bpe</span></span><br><span class="line">python split_sentence_oov.py data/local/dict_aban-c009_$langname/units.txt /home/yelong/data/kaldi/egs/librispeech/s5/$&#123;langname&#125;/lexicon.1 &gt; data/local/dict_aban-c009_$&#123;langname&#125;/lexicon.txt.nosplit</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">PS 等拆分为 ▁P ▁S</span></span><br><span class="line">python split_lexicon.py data/local/dict_aban-c009_$&#123;langname&#125;/lexicon.txt.nosplit &gt; data/local/dict_aban-c009_$&#123;langname&#125;/lexicon.txt</span><br><span class="line">c</span><br></pre></td></tr></table></figure>
-
-
-
-<p>用新的词典，对文本</p>
-<p>其中，split_sentence_oov.py为：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sentencepiece <span class="keyword">as</span> spm</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">sp = spm.SentencePieceProcessor()</span><br><span class="line">sp.load(<span class="string">&quot;/home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/bpe.model&quot;</span>)</span><br><span class="line"></span><br><span class="line">unit_table = <span class="built_in">set</span>()</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(sys.argv[<span class="number">1</span>], <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf8&#x27;</span>) <span class="keyword">as</span> fin:</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fin:</span><br><span class="line">        unit = line.split()[<span class="number">0</span>]</span><br><span class="line">        unit_table.add(unit)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">contain_oov</span>(<span class="params">units</span>):</span><br><span class="line">    <span class="keyword">for</span> unit <span class="keyword">in</span> units:</span><br><span class="line">        <span class="keyword">if</span> unit <span class="keyword">not</span> <span class="keyword">in</span> unit_table:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">__tokenize_by_bpe_model</span>(<span class="params">txt</span>):</span><br><span class="line">    tokens = []</span><br><span class="line">    <span class="comment"># CJK(China Japan Korea) unicode range is [U+4E00, U+9FFF], ref:</span></span><br><span class="line">    <span class="comment"># https://en.wikipedia.org/wiki/CJK_Unified_Ideographs_(Unicode_block)</span></span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;([\u4e00-\u9fff])&#x27;</span>)</span><br><span class="line">    <span class="comment"># Example:</span></span><br><span class="line">    <span class="comment">#   txt   = &quot;你好 ITS&#x27;S OKAY 的&quot;</span></span><br><span class="line">    <span class="comment">#   chars = [&quot;你&quot;, &quot;好&quot;, &quot; ITS&#x27;S OKAY &quot;, &quot;的&quot;]</span></span><br><span class="line">    chars = pattern.split(txt.upper())</span><br><span class="line">    mix_chars = [w <span class="keyword">for</span> w <span class="keyword">in</span> chars <span class="keyword">if</span> <span class="built_in">len</span>(w.strip()) &gt; <span class="number">0</span>]</span><br><span class="line">    <span class="keyword">for</span> ch_or_w <span class="keyword">in</span> mix_chars:</span><br><span class="line">        <span class="comment"># ch_or_w is a single CJK charater(i.e., &quot;你&quot;), do nothing.</span></span><br><span class="line">        <span class="keyword">if</span> pattern.fullmatch(ch_or_w) <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">if</span> contain_oov(ch_or_w):</span><br><span class="line">                <span class="keyword">return</span> <span class="string">&quot;yelong&quot;</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                tokens.append(ch_or_w)</span><br><span class="line">        <span class="comment"># ch_or_w contains non-CJK charaters(i.e., &quot; IT&#x27;S OKAY &quot;),</span></span><br><span class="line">        <span class="comment"># encode ch_or_w using bpe_model.</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">for</span> p <span class="keyword">in</span> sp.encode_as_pieces(ch_or_w):</span><br><span class="line">                <span class="keyword">if</span> contain_oov(ch_or_w):</span><br><span class="line">                    <span class="keyword">return</span> <span class="string">&quot;yelong&quot;</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    tokens.append(p)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> tokens</span><br><span class="line"></span><br><span class="line"><span class="comment">#src_file=&#x27;text_space_eng&#x27;</span></span><br><span class="line">src_file=sys.argv[<span class="number">2</span>]</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(src_file, <span class="string">&quot;r&quot;</span>, encoding=<span class="string">&quot;utf8&quot;</span>) <span class="keyword">as</span> fs:</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fs:</span><br><span class="line">        line = line.strip()</span><br><span class="line">        temp = __tokenize_by_bpe_model(line)</span><br><span class="line">        <span class="keyword">if</span> temp != <span class="string">&quot;yelong&quot;</span>:</span><br><span class="line">            <span class="built_in">print</span>(line, <span class="string">&quot; &quot;</span>.join(temp))</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="生成-TLG："><a href="#生成-TLG：" class="headerlink" title="生成 TLG："></a>生成 TLG：</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">生成L.fst和T.fst：</span></span><br><span class="line">langname=ngram_7g_train_en_zh_hua_lexicon_word</span><br><span class="line">tools/fst/compile_lexicon_token_fst.sh \</span><br><span class="line">    data/local/dict_aban-c009_$&#123;langname&#125; data/local/tmp_aban-c009_$&#123;langname&#125; data/local/lang_aban-c009_$&#123;langname&#125;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压为lm.arpa</span></span><br><span class="line">gunzip -c  /home/yelong/data/kaldi/egs/librispeech/s5/$langname/lm_part_en5/srilm/srilm.o3g.kn.gz &gt; /home/yelong/data/kaldi/egs/librispeech/s5/$langname/lm_part_en5/srilm/lm.arpa</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">生成G.fst、TLG.fst：</span></span><br><span class="line">tools/fst/make_tlg.sh /home/yelong/data/kaldi/egs/librispeech/s5/$langname/lm_part_en5/srilm/ data/local/lang_aban-c009_$langname data/lang_aban-c009_$langname</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h4 id="解码测试集"><a href="#解码测试集" class="headerlink" title="解码测试集"></a>解码测试集</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解码</span></span><br><span class="line">export GLOG_logtostderr=1</span><br><span class="line">export GLOG_v=3</span><br><span class="line"></span><br><span class="line">langname=ngram_7g_train_en_zh_hua_lexicon_word</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">docker：067：</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">wav_dir=/home/data/yelong/docker_seewo/corpus/ftv-5000s/10-sub-ftv-1w/</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">name=$(<span class="built_in">basename</span> <span class="variable">$wav_dir</span>)</span></span><br><span class="line">./tools/decode.sh --nj 10 --acoustic_scale 10 --lattice_beam 30 --max_active 7000 --ctc_weight 0.05 --rescoring_weight 1 --chunk_size -1  --blank_skip_thresh 0.98 --dict_path /home/aban-c009/lang_aban-c009_$langname/words.txt --fst_path /home/aban-c009/lang_aban-c009_$langname/TLG.fst  /home/data/yelong/docker_seewo/corpus/200/doc/wav.scp /home/data/yelong/docker_seewo/corpus/200/doc/text /home/aban-c009/final.zip  /home/aban-c009/lang_aban-c009_$langname/units.txt exp/aban-c009/200.11/lm_10_attention_rescore_ReduceBlankprob_1_OnlyCurBestEqualBlank</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/27/Code-Switching/rescore/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/06/27/Code-Switching/rescore/" itemprop="url">Rescore、Rescoring</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-06-27T00:00:00+08:00">
-                2022-06-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Code-Switching/" itemprop="url" rel="index">
-                    <span itemprop="name">Code-Switching</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/06/27/Code-Switching/rescore/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/06/27/Code-Switching/rescore/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Rescore、Rescoring"><a href="#Rescore、Rescoring" class="headerlink" title="Rescore、Rescoring"></a>Rescore、Rescoring</h1><p>任务：训好的中英混（中文为主）的声学模型，出来n-best路径，用训好的语言模型，对每条路径（文本序列）得到其语言模型分数，查看每条路径的分数，与之前的n-best每条路径声学模型分数，加权求和，从而选出一条文本序列，作为最终的文本序列；</p>
-<p>注意，这里并不是语言模型参与ctc解码过程（lattice过程中加入语言模型分数），而是出来的n-best进行rescoing；</p>
-<p>其中，这里的语言模型，可以是：</p>
-<ol>
-<li>预训练好的中英混模型，但是这个不太可能；</li>
-<li>预训练的中文模型（因为任务以中文为主），用现有中英混数据进行finetune（迁移学习）；</li>
-</ol>
-<p>注意，n-best出来最好有标点，给语言模型比较好？没有标点给语言模型，是不是不太好？</p>
-<p>用来rescore的pretrain LM的词典和声学模型的词典可以不同！！</p>
-<h2 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h2><p>finetune NN LM，字建模（词建模 词数太多，分类数太多）</p>
-<h2 id="做法"><a href="#做法" class="headerlink" title="做法"></a>做法</h2><ol>
-<li>首先用开源的预训练模型LM，对10best进行rescore，选取困惑度最小的路径最为最终结果<ol>
-<li><a target="_blank" rel="noopener" href="https://github.com/tal-tech/edu-bert">好未来开源模型</a>：效果变差：wer：4% —&gt; 5%</li>
-<li>hugging face开源中文模型Albert：wer：TODO</li>
-</ol>
-</li>
-<li>开源的预训练LM作为基础模型，用7G数据作为训练集，1.4w条中的部分作为验证集，fine-tune pretrain LM，得到新的LM，对10best进行rescore，选取困惑度最小的路径，<ol>
-<li>基于好未来开源预训练模型进行LM fine-tune，效果 TODO</li>
-<li>基于hugging face开源中文模型Albert，效果 TODO</li>
-</ol>
-</li>
-<li>开源的预训练纯中文模型，增加一些和声学模型的词典的英文bpe建模单元相同的英文字，修改模型，部分初始化置零，fine-tune pretrain LM</li>
-</ol>
-<p>step 1）中文NN LM，这个可以是开源的pretrain model</p>
-<p>step 2）固定一些参数，用其他领域中英数据 finetune</p>
-<p>step 3）基于步骤2，再固定一些参数，用垂直领域7G中英文本，finetune</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E8%B4%9D%E5%A3%B3%E6%89%BE%E6%88%BF%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92%E5%88%86%E4%BA%AB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/04/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E8%B4%9D%E5%A3%B3%E6%89%BE%E6%88%BF%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92%E5%88%86%E4%BA%AB/" itemprop="url">贝壳找房 语音唤醒分享</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-04-07T00:00:00+08:00">
-                2022-04-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/04/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E8%B4%9D%E5%A3%B3%E6%89%BE%E6%88%BF%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92%E5%88%86%E4%BA%AB/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/04/07/命令词/贝壳找房语音唤醒分享/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="贝壳找房-语音唤醒分享"><a href="#贝壳找房-语音唤醒分享" class="headerlink" title="贝壳找房 语音唤醒分享"></a>贝壳找房 语音唤醒分享</h1><blockquote>
-<p>家居场景下语音唤醒技术的探索与实践</p>
-<p>【语音之家】AI产业沙龙——语音技术在贝壳的应用</p>
-<p>2022.4.7</p>
-</blockquote>
-<p><img src="/2022/04/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E8%B4%9D%E5%A3%B3%E6%89%BE%E6%88%BF%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92%E5%88%86%E4%BA%AB/image-20220408120145302.png" alt="image-20220408120145302"></p>
-<ul>
-<li>搜索后处理<ul>
-<li>跳帧</li>
-<li>多阈值</li>
-<li>二遍决策</li>
-</ul>
-</li>
-<li>比赛的数据处理<ul>
-<li>音频规整</li>
-<li>波束形成</li>
-<li>数据模拟</li>
-<li>谱增强</li>
-</ul>
-</li>
-</ul>
-<p><img src="/2022/04/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E8%B4%9D%E5%A3%B3%E6%89%BE%E6%88%BF%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92%E5%88%86%E4%BA%AB/image-20220408121213161.png" alt="image-20220408121213161"></p>
-<p><img src="/2022/04/07/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E8%B4%9D%E5%A3%B3%E6%89%BE%E6%88%BF%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92%E5%88%86%E4%BA%AB/image-20220408185053043.png" alt="image-20220408185053043"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2412,7 +2482,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">134</span>
+                  <span class="site-state-item-count">137</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
