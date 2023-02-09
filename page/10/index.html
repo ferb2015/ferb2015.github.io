@@ -288,6 +288,168 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20%E8%A7%A3%E7%A0%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20%E8%A7%A3%E7%A0%81/" itemprop="url">Wenet脚本 解码</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20%E8%A7%A3%E7%A0%81/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/Wenet脚本 解码/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="解码"><a href="#解码" class="headerlink" title="解码"></a>解码</h1><h2 id="decode-main"><a href="#decode-main" class="headerlink" title="decode_main"></a>decode_main</h2><p>decode_main参数：</p>
+<ul>
+<li>rescoring_weight：如果为0，不需要rescore；不为0的任意值，要做rescore</li>
+<li>ctc_weight：rescore中，最终某条n-best分数 &#x3D; score_aed + ctc_weight * score_ctc</li>
+</ul>
+<h2 id="binding"><a href="#binding" class="headerlink" title="binding"></a>binding</h2><p>prefix beam search</p>
+<p>参考 <a target="_blank" rel="noopener" href="https://github.com/awni/speech">https://github.com/awni/speech</a></p>
+<p>之前的笔记中解码代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Author: Awni Hannun</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">This is an example CTC decoder written in Python. The code is</span></span><br><span class="line"><span class="string">intended to be a simple example and is not designed to be</span></span><br><span class="line"><span class="string">especially efficient.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">The algorithm is a prefix beam search for a model trained</span></span><br><span class="line"><span class="string">with the CTC loss function.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">For more details checkout either of these references:</span></span><br><span class="line"><span class="string">  https://distill.pub/2017/ctc/#inference</span></span><br><span class="line"><span class="string">  https://arxiv.org/abs/1408.2873</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> collections</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">NEG_INF = -<span class="built_in">float</span>(<span class="string">&quot;inf&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">make_new_beam</span>():</span><br><span class="line">    fn = <span class="keyword">lambda</span> : (NEG_INF, NEG_INF)</span><br><span class="line">    <span class="keyword">return</span> collections.defaultdict(fn)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">logsumexp</span>(<span class="params">*args</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Stable log sum exp.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">all</span>(a == NEG_INF <span class="keyword">for</span> a <span class="keyword">in</span> args):</span><br><span class="line">        <span class="keyword">return</span> NEG_INF</span><br><span class="line">    a_max = <span class="built_in">max</span>(args)</span><br><span class="line">    lsp = math.log(<span class="built_in">sum</span>(math.exp(a - a_max)</span><br><span class="line">                       <span class="keyword">for</span> a <span class="keyword">in</span> args))</span><br><span class="line">    <span class="keyword">return</span> a_max + lsp</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">decode</span>(<span class="params">probs, beam_size=<span class="number">3</span>, blank=<span class="number">0</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Performs inference for the given output probabilities.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Arguments:</span></span><br><span class="line"><span class="string">      probs: The output probabilities (e.g. post-softmax) for each</span></span><br><span class="line"><span class="string">        time step. Should be an array of shape (time x output dim).</span></span><br><span class="line"><span class="string">      beam_size (int): Size of the beam to use during inference.</span></span><br><span class="line"><span class="string">      blank (int): Index of the CTC blank label.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Returns the output label sequence and the corresponding negative</span></span><br><span class="line"><span class="string">    log-likelihood estimated by the decoder.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    T, S = probs.shape</span><br><span class="line">    probs = np.log(probs)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Elements in the beam are (prefix, (p_blank, p_no_blank))</span></span><br><span class="line">    <span class="comment"># Initialize the beam with the empty sequence, a probability of</span></span><br><span class="line">    <span class="comment"># 1 for ending in blank and zero for ending in non-blank</span></span><br><span class="line">    <span class="comment"># (in log space).</span></span><br><span class="line">    beam = [(<span class="built_in">tuple</span>(), (<span class="number">0.0</span>, NEG_INF))]  <span class="comment"># 一开始走blank, p_b = 1</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> t <span class="keyword">in</span> <span class="built_in">range</span>(T): <span class="comment"># Loop over time</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment"># A default dictionary to store the next step candidates.</span></span><br><span class="line">        next_beam = make_new_beam() <span class="comment"># 新建一个dict，dict里的每个元素初始都是(-INF，-INF)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> s <span class="keyword">in</span> <span class="built_in">range</span>(S): <span class="comment"># Loop over vocab</span></span><br><span class="line">            p = probs[t, s]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment"># The variables p_b and p_nb are respectively the</span></span><br><span class="line">            <span class="comment"># probabilities for the prefix given that it ends in a</span></span><br><span class="line">            <span class="comment"># blank and does not end in a blank at this time step.</span></span><br><span class="line">            <span class="keyword">for</span> prefix, (p_b, p_nb) <span class="keyword">in</span> beam: <span class="comment"># Loop over beam</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                <span class="comment"># If we propose a blank the prefix doesn&#x27;t change.</span></span><br><span class="line">                <span class="comment"># Only the probability of ending in blank gets updated.</span></span><br><span class="line">                <span class="comment"># n_p_b、n_p_nb：路径总概率，累加.  n_p_b: new_p_b, new一条新创建的路径</span></span><br><span class="line">                <span class="keyword">if</span> s == blank:</span><br><span class="line">                  <span class="comment"># 只更新n_p_b的概率，论文里remove blank，指的是没有连续的blank blank，也就是说不考虑n_prefix = prefix + (s,)当s为blank的情况</span></span><br><span class="line">                  n_p_b, n_p_nb = next_beam[prefix]</span><br><span class="line">                  n_p_b = logsumexp(n_p_b, p_b + p, p_nb + p) <span class="comment"># 合并前缀/规整前缀</span></span><br><span class="line">                  next_beam[prefix] = (n_p_b, n_p_nb)</span><br><span class="line">                  <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                <span class="comment"># Extend the prefix by the new character s and add it to</span></span><br><span class="line">                <span class="comment"># the beam. Only the probability of not ending in blank</span></span><br><span class="line">                <span class="comment"># gets updated.</span></span><br><span class="line">                <span class="comment"># 是否是aa还是ac，和前一个符号是否相等</span></span><br><span class="line">                end_t = prefix[-<span class="number">1</span>] <span class="keyword">if</span> prefix <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line">                n_prefix = prefix + (s,)</span><br><span class="line">                n_p_b, n_p_nb = next_beam[n_prefix] <span class="comment"># 先提出来，更新后，再赋回去</span></span><br><span class="line">                <span class="keyword">if</span> s != end_t:</span><br><span class="line">                  <span class="comment"># ac的情况</span></span><br><span class="line">                  n_p_nb = logsumexp(n_p_nb, p_b + p, p_nb + p)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                  <span class="comment"># aa的情况 a_a 输出 aa</span></span><br><span class="line">                  <span class="comment"># We don&#x27;t include the previous probability of not ending</span></span><br><span class="line">                  <span class="comment"># in blank (p_nb) if s is repeated at the end. The CTC</span></span><br><span class="line">                  <span class="comment"># algorithm merges characters not separated by a blank.</span></span><br><span class="line">                  n_p_nb = logsumexp(n_p_nb, p_b + p)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                <span class="comment"># *NB* this would be a good place to include an LM score.</span></span><br><span class="line">                next_beam[n_prefix] = (n_p_b, n_p_nb)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                <span class="comment"># If s is repeated at the end we also update the unchanged</span></span><br><span class="line">                <span class="comment"># prefix. This is the merging case.</span></span><br><span class="line">                <span class="keyword">if</span> s == end_t:</span><br><span class="line">                  <span class="comment"># aa的情况 aaa 输出a，这里把aaa情况合并到a情况（prefix=a）</span></span><br><span class="line">                  n_p_b, n_p_nb = next_beam[prefix]</span><br><span class="line">                  n_p_nb = logsumexp(n_p_nb, p_nb + p)</span><br><span class="line">                  next_beam[prefix] = (n_p_b, n_p_nb) <span class="comment"># next_beam[prefix]要更新</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment"># Sort and trim the beam before moving on to the</span></span><br><span class="line">        <span class="comment"># next time-step.</span></span><br><span class="line">        beam = <span class="built_in">sorted</span>(next_beam.items(),</span><br><span class="line">                key=<span class="keyword">lambda</span> x : logsumexp(*x[<span class="number">1</span>]),</span><br><span class="line">                reverse=<span class="literal">True</span>)</span><br><span class="line">        beam = beam[:beam_size]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    best = beam[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">return</span> best[<span class="number">0</span>], -logsumexp(*best[<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># np.random.seed(3)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># time = 50</span></span><br><span class="line">    <span class="comment"># output_dim = 20</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># probs = np.random.rand(time, output_dim)</span></span><br><span class="line">    <span class="comment"># probs = probs / np.sum(probs, axis=1, keepdims=True)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 0 3 3 0 3 4 =&gt; 3 3 4</span></span><br><span class="line">    probs=[[<span class="number">0.8</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>],[<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.8</span>,<span class="number">0.05</span>],[<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.8</span>,<span class="number">0.05</span>],[<span class="number">0.8</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>],[<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.8</span>,<span class="number">0.05</span>],[<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.05</span>,<span class="number">0.8</span>]]</span><br><span class="line">    probs = np.array(probs)</span><br><span class="line">    probs = probs / np.<span class="built_in">sum</span>(probs, axis=<span class="number">1</span>, keepdims=<span class="literal">True</span>)</span><br><span class="line">    </span><br><span class="line">    labels, score = decode(probs)</span><br><span class="line">    <span class="built_in">print</span>(labels)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Score &#123;:.3f&#125;&quot;</span>.<span class="built_in">format</span>(score))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/chain%20model/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2210,185 +2372,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/" itemprop="url">kaldi nnet3</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
-                2022-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
-                    <span itemprop="name">语音识别</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/04/识别/nnet3/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="kaldi-nnet3"><a href="#kaldi-nnet3" class="headerlink" title="kaldi nnet3"></a>kaldi nnet3</h1><h2 id="nnet3-component"><a href="#nnet3-component" class="headerlink" title="nnet3 component"></a>nnet3 component</h2><blockquote>
-<p>参考 ：《Kaldi语音识别实战》P209</p>
-</blockquote>
-<p>基于计算图构建网络结构</p>
-<p>以component为标识的行定义了每个节点的类型和输入输出维度，以Component-node为标识的行定义了每个节点的输入。定义节点输入的方法被称为描述符（Descriptors），用于表示节点之间如何连接，默认情况下，直接取输入节点的输出作为输入。常用的描述符包括：</p>
-<ul>
-<li>节点名，这是最基本的描述符，即不做任何操作；</li>
-<li>拼接（Append），将给定描述符拼接在一起，维度相当于各描述符维度之和；</li>
-<li>求和（Sum），对给定描述符求和，要求各个描述符维度一致；</li>
-<li>常量（Const），不要求指定描述符，而是根据参数生成一个描述符，如Const(1.0,512)生成一个512维的单位矢量；</li>
-<li>缩放（Scale），对给定描述符的每一维进行缩放；</li>
-<li>偏移（Offset），对给定描述符在t轴或x轴上进行偏移；</li>
-<li>替换（Replace），用于将给定描述符的某个轴设为指定常量，例如，当有拼接时变（声学特征）和时不变（说话人特征）两组特征时，可以指定时不变特征的t轴为0（也就是不管什么时刻，说话人特征都是那100维固定向量）</li>
-<li>判断（IfDefined和Failover），用于根据不同的情况改变描述符的行为。</li>
-</ul>
-<p>src&#x2F;nnet3&#x2F;nnet-descriptor.h ：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&lt;descriptor&gt;  ::=   &lt;node-name&gt;      ;; node name of kInput or kComponent node.</span><br><span class="line">&lt;descriptor&gt;  ::=   Append(&lt;descriptor&gt;, &lt;descriptor&gt; [, &lt;descriptor&gt; ... ] )</span><br><span class="line">&lt;descriptor&gt;  ::=   Sum(&lt;descriptor&gt;, &lt;descriptor&gt;)</span><br><span class="line">&lt;descriptor&gt;  ::=   Const(&lt;value&gt;, &lt;dimension&gt;)    ;; e.g. Const(1.0, 512)</span><br><span class="line">&lt;descriptor&gt;  ::=   Scale(&lt;scale&gt;, &lt;descriptor&gt;)   ;; e.g. Scale(-1.0, tdnn2)</span><br><span class="line">;; Failover or IfDefined might be useful for time t=-1 in a RNN, for instance.</span><br><span class="line">&lt;descriptor&gt;  ::=   Failover(&lt;descriptor&gt;, &lt;descriptor&gt;)   ;; 1st arg if computable, else 2nd</span><br><span class="line">&lt;descriptor&gt;  ::=   IfDefined(&lt;descriptor&gt;)     ;; the arg if defined, else zero.</span><br><span class="line">&lt;descriptor&gt;  ::=   Offset(&lt;descriptor&gt;, &lt;t-offset&gt; [, &lt;x-offset&gt; ] ) ;; offsets are integers</span><br><span class="line">;; Switch(...) is intended to be used in clockwork RNNs or similar schemes.  It chooses</span><br><span class="line">;; one argument based on the value of t (in the requested Index) modulo the number of</span><br><span class="line">;; arguments</span><br><span class="line">&lt;descriptor&gt;  ::=   Switch(&lt;descriptor&gt;, &lt;descriptor&gt; [, &lt;descriptor&gt; ...])</span><br><span class="line">;; For use in clockwork RNNs or similar, Round() rounds the time-index t of the</span><br><span class="line">;; requested Index to the next-lowest multiple of the integer &lt;t-modulus&gt;,</span><br><span class="line">;; and evaluates the input argument for the resulting Index.</span><br><span class="line">&lt;descriptor&gt;  ::=   Round(&lt;descriptor&gt;, &lt;t-modulus&gt;)  ;; &lt;t-modulus&gt; is an integer</span><br><span class="line">;; ReplaceIndex replaces some &lt;variable-name&gt; (t or x) in the requested Index</span><br><span class="line">;; with a fixed integer &lt;value&gt;.  E.g. might be useful when incorporating</span><br><span class="line">;; iVectors; iVector would always have time-index t=0.</span><br><span class="line">&lt;descriptor&gt;  ::=   ReplaceIndex(&lt;descriptor&gt;, &lt;variable-name&gt;, &lt;value&gt;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="component和component-node："><a href="#component和component-node：" class="headerlink" title="component和component-node："></a>component和component-node：</h2><p>component 是类；</p>
-<p>component-node 是类的实例</p>
-<h2 id="kaldi-nnet3-写一个cnn："><a href="#kaldi-nnet3-写一个cnn：" class="headerlink" title="kaldi nnet3 写一个cnn："></a>kaldi nnet3 写一个cnn：</h2><p>kernel是用time-offsets和height-offsets设置得到的卷积核大小；</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/image-20221009190513492.png" alt="image-20221009190513492"></p>
-<h2 id="kaldi-nnet3写一个lstm"><a href="#kaldi-nnet3写一个lstm" class="headerlink" title="kaldi nnet3写一个lstm"></a>kaldi nnet3写一个lstm</h2><p>delay指的是进行几次循环</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/image-20221009190903142.png" alt="image-20221009190903142"> </p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/image-20221009191218981.png" alt="image-20221009191218981"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2439,7 +2422,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">137</span>
+                  <span class="site-state-item-count">138</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

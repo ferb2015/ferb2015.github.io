@@ -288,6 +288,185 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/" itemprop="url">kaldi nnet3</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/nnet3/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="kaldi-nnet3"><a href="#kaldi-nnet3" class="headerlink" title="kaldi nnet3"></a>kaldi nnet3</h1><h2 id="nnet3-component"><a href="#nnet3-component" class="headerlink" title="nnet3 component"></a>nnet3 component</h2><blockquote>
+<p>参考 ：《Kaldi语音识别实战》P209</p>
+</blockquote>
+<p>基于计算图构建网络结构</p>
+<p>以component为标识的行定义了每个节点的类型和输入输出维度，以Component-node为标识的行定义了每个节点的输入。定义节点输入的方法被称为描述符（Descriptors），用于表示节点之间如何连接，默认情况下，直接取输入节点的输出作为输入。常用的描述符包括：</p>
+<ul>
+<li>节点名，这是最基本的描述符，即不做任何操作；</li>
+<li>拼接（Append），将给定描述符拼接在一起，维度相当于各描述符维度之和；</li>
+<li>求和（Sum），对给定描述符求和，要求各个描述符维度一致；</li>
+<li>常量（Const），不要求指定描述符，而是根据参数生成一个描述符，如Const(1.0,512)生成一个512维的单位矢量；</li>
+<li>缩放（Scale），对给定描述符的每一维进行缩放；</li>
+<li>偏移（Offset），对给定描述符在t轴或x轴上进行偏移；</li>
+<li>替换（Replace），用于将给定描述符的某个轴设为指定常量，例如，当有拼接时变（声学特征）和时不变（说话人特征）两组特征时，可以指定时不变特征的t轴为0（也就是不管什么时刻，说话人特征都是那100维固定向量）</li>
+<li>判断（IfDefined和Failover），用于根据不同的情况改变描述符的行为。</li>
+</ul>
+<p>src&#x2F;nnet3&#x2F;nnet-descriptor.h ：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&lt;descriptor&gt;  ::=   &lt;node-name&gt;      ;; node name of kInput or kComponent node.</span><br><span class="line">&lt;descriptor&gt;  ::=   Append(&lt;descriptor&gt;, &lt;descriptor&gt; [, &lt;descriptor&gt; ... ] )</span><br><span class="line">&lt;descriptor&gt;  ::=   Sum(&lt;descriptor&gt;, &lt;descriptor&gt;)</span><br><span class="line">&lt;descriptor&gt;  ::=   Const(&lt;value&gt;, &lt;dimension&gt;)    ;; e.g. Const(1.0, 512)</span><br><span class="line">&lt;descriptor&gt;  ::=   Scale(&lt;scale&gt;, &lt;descriptor&gt;)   ;; e.g. Scale(-1.0, tdnn2)</span><br><span class="line">;; Failover or IfDefined might be useful for time t=-1 in a RNN, for instance.</span><br><span class="line">&lt;descriptor&gt;  ::=   Failover(&lt;descriptor&gt;, &lt;descriptor&gt;)   ;; 1st arg if computable, else 2nd</span><br><span class="line">&lt;descriptor&gt;  ::=   IfDefined(&lt;descriptor&gt;)     ;; the arg if defined, else zero.</span><br><span class="line">&lt;descriptor&gt;  ::=   Offset(&lt;descriptor&gt;, &lt;t-offset&gt; [, &lt;x-offset&gt; ] ) ;; offsets are integers</span><br><span class="line">;; Switch(...) is intended to be used in clockwork RNNs or similar schemes.  It chooses</span><br><span class="line">;; one argument based on the value of t (in the requested Index) modulo the number of</span><br><span class="line">;; arguments</span><br><span class="line">&lt;descriptor&gt;  ::=   Switch(&lt;descriptor&gt;, &lt;descriptor&gt; [, &lt;descriptor&gt; ...])</span><br><span class="line">;; For use in clockwork RNNs or similar, Round() rounds the time-index t of the</span><br><span class="line">;; requested Index to the next-lowest multiple of the integer &lt;t-modulus&gt;,</span><br><span class="line">;; and evaluates the input argument for the resulting Index.</span><br><span class="line">&lt;descriptor&gt;  ::=   Round(&lt;descriptor&gt;, &lt;t-modulus&gt;)  ;; &lt;t-modulus&gt; is an integer</span><br><span class="line">;; ReplaceIndex replaces some &lt;variable-name&gt; (t or x) in the requested Index</span><br><span class="line">;; with a fixed integer &lt;value&gt;.  E.g. might be useful when incorporating</span><br><span class="line">;; iVectors; iVector would always have time-index t=0.</span><br><span class="line">&lt;descriptor&gt;  ::=   ReplaceIndex(&lt;descriptor&gt;, &lt;variable-name&gt;, &lt;value&gt;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="component和component-node："><a href="#component和component-node：" class="headerlink" title="component和component-node："></a>component和component-node：</h2><p>component 是类；</p>
+<p>component-node 是类的实例</p>
+<h2 id="kaldi-nnet3-写一个cnn："><a href="#kaldi-nnet3-写一个cnn：" class="headerlink" title="kaldi nnet3 写一个cnn："></a>kaldi nnet3 写一个cnn：</h2><p>kernel是用time-offsets和height-offsets设置得到的卷积核大小；</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/image-20221009190513492.png" alt="image-20221009190513492"></p>
+<h2 id="kaldi-nnet3写一个lstm"><a href="#kaldi-nnet3写一个lstm" class="headerlink" title="kaldi nnet3写一个lstm"></a>kaldi nnet3写一个lstm</h2><p>delay指的是进行几次循环</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/image-20221009190903142.png" alt="image-20221009190903142"> </p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/image-20221009191218981.png" alt="image-20221009191218981"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2731,224 +2910,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/" itemprop="url">基于分类的命令词识别</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-03T00:00:00+08:00">
-                2022-01-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
-                    <span itemprop="name">命令词</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/01/03/命令词/基于分类的命令词识别/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="基于分类的命令词识别"><a href="#基于分类的命令词识别" class="headerlink" title="基于分类的命令词识别"></a>基于分类的命令词识别</h1><h3 id="三种情况："><a href="#三种情况：" class="headerlink" title="三种情况："></a>三种情况：</h3><ol>
-<li>输入T帧，输出1个类别向量（每个类是一个关键词）</li>
-<li>输入T帧，输出T帧类别向量（每个类是一个关键词）；测试时，每输入N帧，计算关键词类别的平滑后验概率，超过阈值则唤醒</li>
-<li>输入T帧，输出T帧类别向量（每个类是一个关键词），只要有其中一帧keyword类别超过阈值，则唤醒；</li>
-</ol>
-<p>另外一种情况：输入T帧，输出N个字符类别向量（比如transformer模型），输出字符串有beam search过程</p>
-<p>查阅的文献里只针对一两个关键词的情况（google speech commands没考虑）</p>
-<h4 id="情况1："><a href="#情况1：" class="headerlink" title="情况1："></a>情况1：</h4><blockquote>
-<p>开源代码：<a target="_blank" rel="noopener" href="https://github.com/wenet-e2e/wekws">https://github.com/wenet-e2e/wekws</a></p>
-</blockquote>
-<ul>
-<li>数据集mobvoi，包含两个关键词：</li>
-</ul>
-<img src="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/image-20211230171745163.png" alt="image-20211230171745163" style="zoom:80%;">
-
-<ul>
-<li><p>最佳情况（对应模型MDTC_Small）：每小时虚警1次情况下，关键词“hi_xiaowen”的误拒率为0.53%，关键词“nihao_wenwen”的误拒率为0.59%；</p>
-</li>
-<li><p>数据集snips，包含一个关键词：</p>
-</li>
-</ul>
-<img src="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/image-20211230172057409.png" alt="image-20211230172057409" style="zoom:80%;">
-
-<ul>
-<li>最佳情况（对应模型MDTC_Small）：每小时虚警1次情况下，关键词“hey_snips”的误拒率为0.87%；</li>
-</ul>
-<h4 id="情况2："><a href="#情况2：" class="headerlink" title="情况2："></a>情况2：</h4><blockquote>
-<p>Sun, Ming et al. “Max-pooling loss training of long short-term memory networks for small-footprint keyword spotting.” <em>2016 IEEE Spoken Language Technology Workshop (SLT)</em> (2016): 474-480.</p>
-</blockquote>
-<ul>
-<li><p>数据集（非开源）alexa，包含一个关键词</p>
-</li>
-<li><p>提出max-pooling loss，是在keyword区域内模型输出的最大后验概率，加入loss function（目标之一是最大化keyword输出的某帧后验概率）</p>
-</li>
-<li><p>后处理：每30帧计算一次是否触发，30帧的滑动窗口，平滑窗口内的后验概率，若大于阈值，视为触发，触发后的40帧不再计算（lock out period），以免重复触发；有触发的音频发送完后，会多送入20帧（latency windows），以防没送完。</p>
-</li>
-</ul>
-<p>[TODO] 情况2 开源数据集的结果</p>
-<h4 id="参考情况："><a href="#参考情况：" class="headerlink" title="参考情况："></a>参考情况：</h4><blockquote>
-<p>Alignment-Free LF-MMI</p>
-</blockquote>
-<ul>
-<li>数据集mobvoi，包含两个关键词；数据集snips，包含一个关键词：：</li>
-</ul>
-<img src="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/image-20211230174135668.png" alt="image-20211230174135668" style="zoom:80%;">
-
-<img src="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/image-20211230174313004.png" alt="image-20211230174313004" style="zoom:80%;">
-
-<ul>
-<li>每小时虚警1次情况下，关键词“hey_snips”的误拒率为0%；关键词“hi_xiaowen”的误拒率为0.25%，关键词“nihao_wenwen”的误拒率为0.4%；</li>
-<li>效果优于<strong>情况1</strong></li>
-</ul>
-<blockquote>
-<p>Yiming Wang et al. “Wake Word Detection with Streaming Transformers” International Conference on Acoustics, Speech, and Signal Processing (2021)</p>
-</blockquote>
-<ul>
-<li>数据集mobvoi，包含两个关键词；数据集snips，包含一个关键词：：</li>
-</ul>
-<img src="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/image-20211230174650152.png" alt="image-20211230174650152" style="zoom:80%;">
-
-<img src="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/image-20211230174700498.png" alt="image-20211230174700498" style="zoom:80%;">
-
-<ul>
-<li>每小时虚警1次情况下，关键词“hi_xiaowen”的误拒率为0.45%，关键词“nihao_wenwen”的误拒率&lt;0.5%；</li>
-<li>效果优于<strong>情况1</strong></li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2999,7 +2960,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">137</span>
+                  <span class="site-state-item-count">138</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

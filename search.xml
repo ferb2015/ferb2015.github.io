@@ -12831,4 +12831,51 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>工程实践</tag>
       </tags>
   </entry>
+  <entry>
+    <title>python中的@classmethod、@staticmethod</title>
+    <url>/2023/02/09/python/python%20@classmethod%E5%92%8C@staticmethod/</url>
+    <content><![CDATA[<h1 id="python中的-classmethod、-staticmethod"><a href="#python中的-classmethod、-staticmethod" class="headerlink" title="python中的@classmethod、@staticmethod"></a>python中的@classmethod、@staticmethod</h1><blockquote>
+<p><a href="https://www.bilibili.com/video/BV1jv4y1K7Yu/?spm_id_from=333.337.search-card.all.click&vd_source=5e9891722f2b62adca440a5e92121b5b">【python】staticmethod与classmethod深度机制解析——要知其所以然</a></p>
+</blockquote>
+<h2 id="classmethod、-staticmethod-的使用与实现"><a href="#classmethod、-staticmethod-的使用与实现" class="headerlink" title="@classmethod、@staticmethod 的使用与实现"></a>@classmethod、@staticmethod 的使用与实现</h2><h3 id="普通类函数"><a href="#普通类函数" class="headerlink" title="普通类函数"></a>普通类函数</h3><p>写一个类的方法，一般是这样写的：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 举例</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">A</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">f</span>(<span class="params">self,x</span>):</span><br><span class="line">        <span class="built_in">print</span>(x)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调用时</span></span><br><span class="line">A().f(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>方法（函数）的第一个参数是self，<strong>self表示把调用这个函数的对象传进去的机制</strong>。</p>
+<h3 id="staticmethod-的使用"><a href="#staticmethod-的使用" class="headerlink" title="staticmethod 的使用"></a>staticmethod 的使用</h3><p>而用 staticmethod 的写法是：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">A</span>:</span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">f</span>(<span class="params">x</span>):</span><br><span class="line">        <span class="built_in">print</span>(x)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调用时</span></span><br><span class="line">A.f(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line"><span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#也可以写A().f(1)，也是可以使用的</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看出，和一般的写法很不一样，这种写法更像是通常写函数的样子，只不过把函数放在了class里面而已。</p>
+<p>一个定义在class里面的staticmethod，就是一个很普通的函数，使用它的时候，就像使用其它定义在外面的函数一样。</p>
+<p>staticmethod decorator，把函数放到了class的命名空间下，让这个函数从属于这个类class了。</p>
+<p>调用时，<code>A.f(1)</code>，这里的A是class，而不是class的对象object（如果是类的对象，应该写成 <code>A()</code>）。这种调用的用法很像在全局定义一个<code>f(x)</code>，然后再去调用<code>f(1)</code>。</p>
+<p>如果想用类的对象来调用函数，依然也是可以用的（不会报错）。就是@staticmethod修饰过的函数，用 <code>A()f(1)</code>，也就是用类的对象来调用函数，依然也是可以用的。</p>
+<h4 id="staticmethod的意义："><a href="#staticmethod的意义：" class="headerlink" title="staticmethod的意义："></a>staticmethod的意义：</h4><ol>
+<li>提供了一个更好的封装，这个函数从属于一个类了；</li>
+<li>不用建立这个类的对象，直接用类就可以调用这个函数；适用于想把功能绑定在类、而不是类的对象上的场景。</li>
+</ol>
+<h3 id="classmethod的使用"><a href="#classmethod的使用" class="headerlink" title="classmethod的使用"></a>classmethod的使用</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">A</span>:</span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">f</span>(<span class="params">cls, x</span>):</span><br><span class="line">        <span class="built_in">print</span>(cls, x)</span><br><span class="line"></span><br><span class="line">A.f(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">&lt;<span class="keyword">class</span> <span class="string">&#x27;__main__.A&#x27;</span>&gt; <span class="number">1</span></span><br><span class="line"></span><br><span class="line">A().f(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">&lt;<span class="keyword">class</span> <span class="string">&#x27;__main__.A&#x27;</span>&gt; <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>和staticmethod很像，也可以直接在class上调用，或者在class的对象上调用。</p>
+<p>classmethod装饰的函数传入的第一个参数是一个类class，但是调用时，不需要传入这个参数（class），和self参数很像。</p>
+<p>无论是class或class的object，调用函数时，第一个参数都是class类型。（对于object，会把object的type传进去（对象的类型是class））</p>
+<h3 id="staticmethod-的实现"><a href="#staticmethod-的实现" class="headerlink" title="staticmethod 的实现"></a>staticmethod 的实现</h3><p>这段没有看懂。</p>
+<h2 id="chatgpt解释"><a href="#chatgpt解释" class="headerlink" title="chatgpt解释"></a>chatgpt解释</h2><blockquote>
+<p>chatgpt的回答</p>
+</blockquote>
+<p><code>classmethod</code>是一种特殊类型的方法，它是针对类对象而不是实例对象进行操作的方法。它的第一个参数永远是类本身，而不是实例，因此可以通过类本身来访问类的属性和方法。下面是一个简单的例子：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Rectangle</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, width, height</span>):</span><br><span class="line">        self.width = width</span><br><span class="line">        self.height = height</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">area</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self.width * self.height</span><br><span class="line"></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">square</span>(<span class="params">cls, side_length</span>):</span><br><span class="line">        <span class="keyword">return</span> cls(side_length, side_length)</span><br><span class="line"></span><br><span class="line">square = Rectangle.square(<span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span>(square.area())  <span class="comment"># 25</span></span><br></pre></td></tr></table></figure>
+
+<p>在上面的例子中，我们通过使用<code>@classmethod</code>装饰器声明了一个类方法<code>square</code>，它接受一个参数<code>side_length</code>，并返回一个具有相同长和宽的矩形。在这个例子中，我们可以通过调用<code>Rectangle.square(5)</code>来获得一个5x5的正方形。</p>
+<p><code>staticmethod</code>是另一种特殊类型的方法，它不需要任何类或实例对象作为参数，它与类和实例对象没有任何关系。它是类内部的独立函数，可以通过类名直接访问。下面是一个简单的例子：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Rectangle</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, width, height</span>):</span><br><span class="line">        self.width = width</span><br><span class="line">        self.height = height</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">area</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self.width * self.height</span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">is_valid_dimension</span>(<span class="params">dimension</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(dimension, <span class="built_in">int</span>) <span class="keyword">and</span> dimension &gt; <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(Rectangle.is_valid_dimension(<span class="number">5</span>))  <span class="comment"># True</span></span><br><span class="line"><span class="built_in">print</span>(Rectangle.is_valid_dimension(-<span class="number">5</span>))  <span class="comment"># False</span></span><br></pre></td></tr></table></figure>
+
+<p>在上面的例子中，我们通过使用<code>@staticmethod</code>装饰器声明了一个静态方法<code>is_valid_dimension</code>，它接受一个参数<code>dimension</code>，并判断它是否是一个有效的整数。我们可以通过调用<code>Rectangle.is_valid_dimension(5)</code>来获得该方法的结果。</p>
+]]></content>
+      <categories>
+        <category>python</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
 </search>
