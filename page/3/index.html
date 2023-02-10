@@ -288,6 +288,212 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/" itemprop="url">《语音识别原理与应用》洪青阳 第9章 WFST解码器————最优路径解码</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
+                2023-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WFST%E8%A7%A3%E7%A0%81/" itemprop="url" rel="index">
+                    <span itemprop="name">WFST解码</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/10/WFST解码/语音识别之WFST解码器/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="WFST解码器"><a href="#WFST解码器" class="headerlink" title="WFST解码器"></a>WFST解码器</h1><blockquote>
+<p>厦门大学洪青阳教授的公开课：<a target="_blank" rel="noopener" href="https://appqtulvsie4217.pc.xiaoe-tech.com/live_pc/l_5f504e67e4b0158ded4dffed">《语音识别值WFST解码器——基于WFST的维特比解码过程》</a></p>
+</blockquote>
+<ul>
+<li>token：保存解码的中间结果</li>
+<li>WFST解码本质上也是Viterbi解码，根据输入的特征序列，进行帧同步对齐，寻求最佳状态序列。  </li>
+<li>注意这里的状态不是HMM状态，而是HCLG的状态节点，所遍历状态节点之间的衔接，可能是&#x3D;&#x3D;产生观察值&#x3D;&#x3D;的转移弧（如状态𝑆1和𝑆2、 𝑆2和𝑆3之间的实线），也可能&#x3D;&#x3D;不产生观察值&#x3D;&#x3D;的转移弧（如状态𝑆4和𝑆5之间的虚线）。</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144630412.png" alt="image-20210707144630412"></p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144643772.png" alt="image-20210707144643772"></p>
+<ul>
+<li>Emitting arc：发射转移弧，会<strong>产生观察值</strong>，观察值产生声学分数（acoustic_cost），非0的输入标签（ilabel！&#x3D;0）.</li>
+<li>Nonemitting arc：非发射转移弧，<strong>不会产生观察值</strong>，没有声学分数，但是状态间能够跳转。简单理解可以想成  o—语:语文—o—文: $\epsilon$ —o 。0的输入标签（ilabel&#x3D;0）</li>
+<li>graph_cost：图代价，每条转移弧对应的权重。</li>
+<li>weight_cutoff：要剪枝的阈值</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144711483.png" alt="image-20210707144711483"></p>
+<ul>
+<li>cost越小越好</li>
+<li>arc.weight：包含hmm 转移概率、词典概率、语言模型概率（不包含am发射概率）（负对数）</li>
+<li>acoustic_cost：am发射概率（负对数）</li>
+<li>若cost更小，存在该token，有就替换，没有就添加</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144701827.png" alt="image-20210707144701827"></p>
+<ul>
+<li>若cost更小，存在该token，有就替换，没有就创建一个</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144724575.png" alt="image-20210707144724575"></p>
+<h2 id="基于token的viterbi解码"><a href="#基于token的viterbi解码" class="headerlink" title="基于token的viterbi解码"></a>基于token的viterbi解码</h2><ul>
+<li><p>类似HMM的解码过程， WFST的Viterbi解码也是逐帧推进，分别计算每帧的声学得分，然后结合转移弧的权重，得到每个时刻扩展路径的累计代价，这些代价用Token的cost保存。  </p>
+</li>
+<li><p>WFST的Viterbi解码通过对比指向同一个状态的不同路径的由Token（&#x3D;&#x3D;该Token与状态节点关联&#x3D;&#x3D;，如果状态节点还没有Token，则创建一个新的Token）保存的累计代价（cost） ，选择值更小的并更新Token信息。  </p>
+</li>
+<li><p>Viterbi算法的每个状态最多只有一个Token，如果有多条路径到某个状态，则Token可能存在冲突，根据值更小原则保持或进行替代 。</p>
+</li>
+<li><p>token：当走到某状态，会有一个token（没走到不会创建），token中的cost会更新</p>
+</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144919914.png" alt="image-20210707144919914"></p>
+<ul>
+<li>prev_toks：历史token</li>
+<li>cur_toks：当前token</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144944825.png" alt="image-20210707144944825"></p>
+<ul>
+<li>当前帧的token：状态0，会遍历，cur_token会依次放进8，1，9，第一次，是创建token。9还会走processnonemitting，走到2，创建状态2的token</li>
+</ul>
+<p>第二帧：</p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707145013053.png" alt="image-20210707145013053"></p>
+<ul>
+<li>10-&gt;2：看看状态2的token的cost有没有更小，要不要更新2的token cost</li>
+</ul>
+<h4 id="回溯："><a href="#回溯：" class="headerlink" title="回溯："></a>回溯：</h4><p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707145028147.png" alt="image-20210707145028147"></p>
+<p>beam：指的是一个窗口范围，对于一个token，到下一个状态弧在不在这个范围里，不在就舍弃，而不是取前beam个，是beam对应的窗口范围</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/RNN%20LM/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2319,276 +2525,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/" itemprop="url">Denoising Diffusion Probabilistic Models论文</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-15T00:00:00+08:00">
-                2022-12-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
-                    <span itemprop="name">深度学习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2022/12/15/深度学习/Denoising Diffusion Probabilistic Models论文/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Denoising-Diffusion-Probabilistic-Models"><a href="#Denoising-Diffusion-Probabilistic-Models" class="headerlink" title="Denoising Diffusion Probabilistic Models"></a>Denoising Diffusion Probabilistic Models</h1><blockquote>
-<p>Ho, Jonathan, Ajay Jain, and Pieter Abbeel. “Denoising diffusion probabilistic models.” <em>Advances in Neural Information Processing Systems</em> 33 (2020): 6840-6851.citations 871 UC Berkeley  </p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/hojonathanho/diffusion">https://github.com/hojonathanho/diffusion</a>  </p>
-</blockquote>
-<h2 id="一些名词"><a href="#一些名词" class="headerlink" title="一些名词"></a>一些名词</h2><p>denoising score matching and annealed Langevin dynamics  </p>
-<p>progressive lossy compression  </p>
-<p>生成图片的方式有energy-based modeling 和 score matching 。</p>
-<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>本文提出一种生成模型，叫扩散概率模型 diffusion probabilistic models  ，以生成图片为例，可以通过生成图片的方法来 “denoising”，去噪，能从纯噪声中生成清晰的图片（去噪了）。</p>
-<p>扩散模型概述：扩散模型对输入构建了一个马尔科夫链（有隐变量、隐状态的状态转移过程，一步步地，有时间步，一开始不理解为什么有时间步，过程可以用类似自回归的那种时间步来帮助理解，其实不是时间步（也算时间步，迭代了多少次），而是状态转移了多少次），不断加入随机噪声直至其成为无法辨识的纯噪声为止的前向过程，基于变分推断来生成样本，模型学习的是如何从噪声分布里出发，逐渐去除噪声将图片还原至原始的数据分布中。</p>
-<p>训练时做的事情是一直加噪让模型学，推理时是反过来reverse 从噪声恢复出图片。</p>
-<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p>扩散过程和逆扩散过程如下图所示，从左到右是逆扩散过程，从右到左是扩散过程。</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221212170957805.png" alt="image-20221212170957805" style="zoom:67%;">
-
-
-
-<p>一个逐渐加噪声的过程，一共加了T次噪声。输入样本数据 $\mathbf{x}_0 \sim q\left(\mathbf{x}_0\right)$ ，逐渐加入的噪声（隐变量）记为 $\mathbf{x}_1, \ldots, \mathbf{x}<em>T$ ，和输入样本维度相同。扩散模型是隐变量模型，数据分布写为  $p_\theta\left(\mathbf{x}<em>0\right):&#x3D;\int p_\theta\left(\mathbf{x}</em>{0: T}\right) d \mathbf{x}</em>{1: T}$ 。</p>
-<p>&#x3D;&#x3D;逆扩散过程&#x3D;&#x3D;：联合分布  $p_\theta\left(\mathbf{x}_{0: T}\right)$ 称为 reverse process，逆扩散过程  ，定义为马尔科夫链，里面有可学习的高斯转移，一开始的位置在 $T$ 时刻（终点，全变成纯噪声了）$p\left(\mathbf{x}_T\right)&#x3D;\mathcal{N}\left(\mathbf{x}_T ; \mathbf{0}, \mathbf{I}\right)$ ，$T$ 时刻的分布是服从标准正态分布的噪声。联合分布 reverse process 写为：</p>
-<p>（ “:&#x3D;” 表示 “定义为” ）<br>$$<br>p_\theta\left(\mathbf{x}<em>{0: T}\right):&#x3D;p\left(\mathbf{x}<em>T\right) \prod</em>{t&#x3D;1}^T p_\theta\left(\mathbf{x}</em>{t-1} \mid \mathbf{x}<em>t\right), \quad p_\theta\left(\mathbf{x}</em>{t-1} \mid \mathbf{x}<em>t\right):&#x3D;\mathcal{N}\left(\mathbf{x}</em>{t-1} ; \boldsymbol{\mu}_\theta\left(\mathbf{x}_t, t\right), \boldsymbol{\Sigma}_\theta\left(\mathbf{x}_t, t\right)\right)<br>$$</p>
-<p>前一时间步的条件下当前时间步的概率 $p_\theta\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t\right)$ <strong>之所以可以写成高斯分布的形式</strong>，是因为终点 $x_T$ 是一个高斯分布的噪声，而变化量 $\beta$ 在(0,1)之间，因此每次的变化量很小，可以认为变化后还是高斯分布。</p>
-<p>逆扩散过程是我们在“推理”阶段用的，输入高斯噪声，根据分布，采样出样本来。</p>
-<p>&#x3D;&#x3D;扩散过程&#x3D;&#x3D;：扩散模型的近似后验概率分布 $q\left(\mathbf{x}<em>{1: T} \mid \mathbf{x}<em>0\right)$ ， 称为 forward process 或者 diffusion process，扩散过程，这是一个固定的马尔科夫链，逐渐添加进高斯噪声到原始数据里，每一时刻添加噪声后，方差变化量为  $\beta_1, \ldots, \beta_T$ 。近似估计 forward process 写为：<br>$$<br>q\left(\mathbf{x}</em>{1: T} \mid \mathbf{x}<em>0\right):&#x3D;\prod</em>{t&#x3D;1}^T q\left(\mathbf{x}<em>t \mid \mathbf{x}</em>{t-1}\right), \quad q\left(\mathbf{x}<em>t \mid \mathbf{x}</em>{t-1}\right):&#x3D;\mathcal{N}\left(\mathbf{x}<em>t ; \sqrt{1-\beta_t} \mathbf{x}</em>{t-1}, \beta_t \mathbf{I}\right)<br>$$<br>每个时间步 $t$ 的样本 $x_t$ 来自于 前一个时间步 $t-1$ 的样本服从的高斯分布 $\mathcal{N}\left(\sqrt{1-\beta_t} \mathbf{x}</em>{t-1}, \beta_t  \mathbf{I}\right)$ 中采样而来。这里和vae一样高斯采样用了是重参数技巧，先从标准正态分布中采样，然后乘以方差加上均值得到采样样本。</p>
-<p>可以看到，正向<strong>扩散过程不含参数</strong>，只和数据有关。</p>
-<p>最优化似然的变分下界来训练：<br>$$<br>\mathbb{E}\left[-\log p_\theta\left(\mathbf{x}<em>0\right)\right] \leq \mathbb{E}<em>q\left[-\log \frac{p_\theta\left(\mathbf{x}</em>{0: T}\right)}{q\left(\mathbf{x}</em>{1: T} \mid \mathbf{x}_0\right)}\right]&#x3D;\mathbb{E}<em>q\left[-\log p\left(\mathbf{x}<em>T\right)-\sum</em>{t \geq 1} \log \frac{p_\theta\left(\mathbf{x}</em>{t-1} \mid \mathbf{x}_t\right)}{q\left(\mathbf{x}<em>t \mid \mathbf{x}</em>{t-1}\right)}\right]&#x3D;: L<br>$$<br>$\beta_t$ 可以通过reparameterization 来得到，或者作为固定超参，是不通过网络更新的已知量，是一个逐渐增长的值（有点像学习率反过来）。（因为 $\beta$ 是越来越大的，所以逆扩散过程是一开始几步都像噪声，看不出什么，直到很多步（快走到 $x_0$），才逐渐变化明显）</p>
-<p>这里高斯分布采样也用了重参数技巧，为了方便先用一个变量 $\alpha$ 替换 $\beta$ （变量代换） ，$\alpha_t:&#x3D;1-\beta_t$，$\bar{\alpha}<em>t:&#x3D;\prod</em>{s&#x3D;1}^t \alpha_s$ ，因此均值 $\sqrt{\bar{\alpha}_t} \mathbf{x}_0$ 变为 $\sqrt{\bar{\alpha}_t} \mathbf{x}_0$ ， 方差 $\beta_t \mathbf{I}$ 变为 $\left(1-\bar{\alpha}_t\right) \mathbf{I}$ ，从数据点 $x_0$ 扩散过程到 某个时间步 $x_t$ 的条件概率为：<br>$$<br>q\left(\mathbf{x}_t \mid \mathbf{x}_0\right)&#x3D;\mathcal{N}\left(\mathbf{x}_t ; \sqrt{\bar{\alpha}_t} \mathbf{x}_0,\left(1-\bar{\alpha}_t\right) \mathbf{I}\right)<br>$$</p>
-<h2 id="公式推导"><a href="#公式推导" class="headerlink" title="公式推导"></a>公式推导</h2><blockquote>
-<p>b站 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1b541197HX/?spm_id_from=333.788&vd_source=5e9891722f2b62adca440a5e92121b5b">54、Probabilistic Diffusion Model概率扩散模型理论与完整PyTorch代码详细解读</a></p>
-</blockquote>
-<p>马尔科夫链 简化了概率公式，让当前变量的概率和前一时刻有关， 更前面就无关了。</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221213142752987.png" alt="image-20221213142752987" style="zoom:67%;">
-
-
-
-
-
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221213144704383.png" alt="image-20221213144704383" style="zoom: 67%;">
-
-<p>根据 JS琴生不等式 $\log \mathbb E \ge \mathbb E \log$ （ $\varphi(E(X))\le E(\varphi(X))$ ，$\varphi$ 是凸函数（-log才是凸函数））</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221213145018270.png" alt="image-20221213145018270" style="zoom:67%;">
-
-<p>多层VAE（和diffusion还挺像的）</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221213154721745.png" alt="image-20221213154721745" style="zoom:67%;">
-
-
-
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221213155822450.png" alt="image-20221213155822450" style="zoom:67%;">
-
-<p><strong>扩散过程</strong></p>
-<p>（isotropic 各向同性，就是朝各方向分布都是一样的）</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221213161640754.png" alt="image-20221213161640754" style="zoom: 80%;">
-
-
-
-<p>服从高斯分布的变量 $\mathcal{N}\left(x_t;\sqrt \alpha_t x_{t-1}, (1-\alpha_t)\mathbf{I}\right)$ 可以写成 <strong>标准正态分布的变量乘以标准差加均值的形式</strong>，也就是 $\mathbf{x}<em>t  &#x3D;\sqrt{1-\alpha_t} \mathbf{z}</em>{t-1} + \sqrt{\alpha_t} \mathbf{x}<em>{t-1}$，其中$z</em>{t-1}$ 是一个标准正态分布，第二项是均值。</p>
-<h4 id="两个分布求和"><a href="#两个分布求和" class="headerlink" title="两个分布求和"></a>两个分布求和</h4><p>事先需要知道两个正态分布求和后，均值和方差变成什么样。：两个正态分布 $X \sim N\left(\mu_1, \sigma_1\right)$ 和 $Y \sim N\left(\mu_2, \sigma_2\right)$ 的叠加后的分布 $a X+b Y$ 的均值为 $a \mu_1+b \mu_2$, 方差为 $a^2 \sigma_1^2+b^2 \sigma_2^2$ 。 </p>
-<p>下图公式等号第二行，继续展开，将第一行的 $x_{t-1}$ 展开成关于 $x_{t-2}$ 的表达式，和第一行类似。最后全部展开后可以写成只用 $x_0$ 和正态分布$z$来表达的式子。</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221213171901197.png" alt="image-20221213171901197" style="zoom:80%;">
-
-<p>什么时候的t会是接近于 $x_t$ 是各向同性高斯分布（就是终点T），什么时候才会到达呢，通过计算 $\sqrt{\bar{\alpha}_t}$ 什么时候接近于0了、 $\left(1-\bar{\alpha}_t\right) $接近于1了，（$\alpha$是常数，逐渐减小，可以类比成学习率那样的，（$\beta$ 越来越大，逐渐增大））就达到正态分布了（ $\mathcal{N}\left(0,\mathbf{I}\right)$ ）	。</p>
-<h4 id="五-逆扩散过程："><a href="#五-逆扩散过程：" class="headerlink" title="五 逆扩散过程："></a>五 逆扩散过程：</h4><p>这里 $p_\theta(x_{t-1}|x_t)$ 怎么拟合到高斯分布呢，如果按照之间GMM的做法，GMM的做法是要找一批 $x_t$ 数据，通过最大似然拟合 $x_{t-1}$ 的高斯分布，然后还要找一批 $x_{t-1}$ 数据，拟合 $x_{t-2}$ 的高斯分布，这样就非常麻烦。因此不按GMM的做法，而是从条件概率的表达式出发。</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221214102706826.png" alt="image-20221214102706826" style="zoom:80%;">
-
-
-
-<h4 id="六-后验的扩散条件概率，算均值和方差"><a href="#六-后验的扩散条件概率，算均值和方差" class="headerlink" title="六 后验的扩散条件概率，算均值和方差"></a>六 后验的扩散条件概率，算均值和方差</h4><p>注意这里后验扩散条件概率 $q(x_{t-1}|x_t,x_0)$ 条件有一项是 $x_0$ 。</p>
-<p>这里第一行 $q\left(\mathbf{x}_{t-1} \mid \mathbf{x}_t, \mathbf{x}_0\right) &#x3D;q\left(\mathbf{x}<em>t \mid \mathbf{x}</em>{t-1}, \mathbf{x}<em>0\right) \frac{q\left(\mathbf{x}</em>{t-1} \mid \mathbf{x}_0\right)}{q\left(\mathbf{x}_t \mathbf{x}<em>0\right)}$ 的表达式，可以理解为贝叶斯公式 $q\left(\mathbf{x}</em>{t-1} \mid \mathbf{x}<em>t\right) &#x3D;q\left(\mathbf{x}<em>t \mid \mathbf{x}</em>{t-1}\right) \frac{q\left(\mathbf{x}</em>{t-1}\right)}{q\left(\mathbf{x}_t \right)}$ 然后两边都加上条件 $x_0$ 。</p>
-<p>然后最后表达式，由于$a x^2+b x&#x3D;a\left(x+\frac{b}{2 a}\right)^2+C$ ，该分布均值为 $-\frac{b}{2a}$ ， 方差为 $\frac{1}{a}$ 。</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221214172925086.png" alt="image-20221214172925086" style="zoom:80%;">
-
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221214172903748.png" alt="image-20221214172903748" style="zoom:80%;">
-
-
-
-<p>$q(x_{t-1}|x_t,x_0)$ 均值 $ \tilde \mu_t(x_t,x_0)$ ，方差 $\tilde \beta_t$ 。</p>
-<p>$q(x_{t-1}|x_t,x_0)$ 的均值为 $\tilde \mu_t &#x3D; \frac{1}{\sqrt{\alpha_t}}(x_t-\frac{\beta_t}{\sqrt{1-\overline \alpha_t}}z_t)$ ，方差为 $\tilde \beta_t &#x3D;\frac{1-\overline \alpha_{t-1}}{1-\overline\alpha_t}\beta_t$ 。均值和 $x_t$ 、$z_t$ 有关，方差只和 $\beta$ 有关。</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221214114907047.png" alt="image-20221214114907047" style="zoom:80%;">
-
-  
-
-<h4 id="七-目标数据的似然函数"><a href="#七-目标数据的似然函数" class="headerlink" title="七 目标数据的似然函数"></a>七 目标数据的似然函数</h4><p>第三行 $\log p_\theta(x_0)$ 和 $q$ 无关，提到期望外面。</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221214151839564.png" alt="image-20221214151839564" style="zoom:80%;">
-
-<p>其中 $\mathbb E_{q(x_0)}\log p_\theta(x_0)$ 就是交叉熵。</p>
-<p>下图第三行到第四行用了一个马尔可夫过程，也就是 $q(x_t|x_{t-1},x_0)&#x3D;q(x_t|x_{t-1})$ 近似认为只能前一时刻有关。用贝叶斯公式的时候也是可以把 $x_0$ 当作条件，因此 $q(x_{t-1},x_t|x_0)&#x3D;q(x_t|x_{t-1},x_0)q(x_{t-1}|x_0)&#x3D;q(x_{t-1}|x_t,x_0)q(x_t|x_0)$ 。</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221214152742669.png" alt="image-20221214152742669" style="zoom:80%;">
-
-
-
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221214173050972.png" alt="image-20221214173050972" style="zoom:80%;">
-
-<p>最后一行第一项是不含参的（不含参指的是和优化目标无关）（q不含参，$x_T$ 是噪声，已知的高斯分布）。写成kl散度形式，外面还有一个期望，可以理解成这个期望不影响，因为里面的KL散度是一个值，一个值的期望还是这个值。第一项直接已知了。第三项可以放到第二项中（ $q(x_0|x_1,x_0)&#x3D;1$ ）。就剩下中间第二项。</p>
-<p>把上面的中间项 $L_{t-1}$ 单独写一下，根据高斯分布的kl散度表达式，把之间计算过的 $q(x_{t-1}|x_t,x_0)$ 的均值为 $ \tilde \mu_t(x_t,x_0) &#x3D; \frac{1}{\sqrt{\alpha_t}}(x_t-\frac{\beta_t}{\sqrt{1-\overline \alpha_t}}z_t)$  ，以及 $p_\theta(x_{t-1}|x_t)$ 的均值为 $\mu_\theta(x_t,t)$ 带入。</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221214173143628.png" alt="image-20221214173143628" style="zoom:80%;">
-
-<p>q和p的方差都是常数（q均值方差都和 $\beta$ 有关，常数；p方差是计算出来发现 只与 $\beta$ 有关，也是常数），kl散度表达式变成只和均值有关。</p>
-<p>公式 $L_{t-1}-C$ 的第一行，把 $x_0$ 写成均值加上一个标准分布乘以方差（ $x_0$ 的高斯公式然后均值只和 $x_t$有关）上面已经算过，$x_0$ 和 $x_t$ 的关系是是 $\mathbf{x}_0&#x3D;\frac{1}{\sqrt{\bar{\alpha}_t}}\left(\mathbf{x}_t-\sqrt{1-\bar{\alpha}_t} \mathbf{z}_t\right)$ 。把 $z_t$ 替换成 $\epsilon $ ， 式子里的 $\epsilon$ 就是服从标准正态分布的变量。第二行其实就是把上面的 $\tilde{\boldsymbol{\mu}}_t\left(\mathbf{x}_t, \mathbf{x}_0\right)&#x3D;\frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}_t-\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \mathbf{z}_t\right)$ 抄下来。</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221215111217406.png" alt="image-20221215111217406" style="zoom:80%;">
-
-
-
-
-
-<p>想让两个均值尽可能接近，当相等时，$\mu_\theta(x_t,t)&#x3D;\frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}_t-\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)\right)$ ，带入到上式，可以得到只剩下 $\epsilon$ 和 $\epsilon_\theta $ （前面有一些系数提到外面），根据上面可知 $x_t$ 和 $x_0$ 的关系是 $x_t&#x3D;\sqrt {\overline \alpha _t}x_0+\sqrt{1-\overline\alpha_t}z_t$ ， 把 $x_0 $ 替换 $x_t$ 带入到 $\epsilon_\theta(x_t,t)$ 公式中。</p>
-<p>因此得到 $\epsilon_\theta(x_0,t)$  是和 $x_0$ 和 $t$ 有关的变量。</p>
-<p>由于 $\mu_\theta(x_t,t)$ 是 $p_\theta(x_{t-1}|x_t)$ 的均值，因此知道了 $\mu_\theta(x_t,t)$ 表达式（下式），和方差，通过生成随机噪声 $\epsilon$， 也就可以采样出  $x_{t-1}$ 来，逐步采样，直到采样出 $x_0$ ， 也就是原始数据。</p>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221215114958747.png" alt="image-20221215114958747" style="zoom:80%;">
-
-
-
-<ul>
-<li>training训练过程，从输入数据中挑一个数据 $x_0$ ，再从一个范围里选一个数 $t$ ， 再从标准正态分布中采样一个变量 $\epsilon$ ， 然后目标函数为  $\left|\epsilon-\boldsymbol{\epsilon}_\theta\left(\sqrt{\bar{\alpha}_t} \mathbf{x}_0+\sqrt{1-\bar{\alpha}_t} \boldsymbol{\epsilon}, t\right)\right|^2$ ，更新多轮直到收敛。（这里 $T$ 是一个大概通过 $\beta$ 能估算出来的值，大概可以直到多少轮可以变成标准正态分布。）</li>
-<li>sampling过程（推理阶段），要做T次（这个值可以给一个想要的数），迭代不同次数，出来的结果 $x_0$ 不同。每次从标准正态分布采样作为 $x_T$ ，迭代T步，每步做的操作是：从标准正态分布中采样 $z$ ， 然后计算前一个时刻的 $x_{t-1}$ （来自 $p_\theta\left(\mathbf{x}_{t-1} \mid \mathbf{x}<em>t\right)&#x3D;\mathcal{N}\left(\mathbf{x}</em>{t-1} ; \boldsymbol{\mu}_\theta\left(\mathbf{x}_t, t\right), \boldsymbol{\Sigma}_\theta\left(\mathbf{x}_t, t\right)\right)$ ）。迭代了很多步后，最后一个输出作为生成的东西 $x_0$ 。（这里 方差怎么算的？）</li>
-</ul>
-<img src="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/image-20221214174748619.png" alt="image-20221214174748619">
-
-
-
-
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2639,7 +2575,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">138</span>
+                  <span class="site-state-item-count">139</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -2650,7 +2586,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -2661,7 +2597,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
