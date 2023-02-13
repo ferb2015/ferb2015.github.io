@@ -288,6 +288,249 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/02/02/python/python%20%E7%94%9F%E6%88%90%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/02/02/python/python%20%E7%94%9F%E6%88%90%E5%99%A8/" itemprop="url">python 生成器 generators</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-02-02T00:00:00+08:00">
+                2023-02-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/02/02/python/python%20%E7%94%9F%E6%88%90%E5%99%A8/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/02/02/python/python 生成器/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="python-生成器-Generators"><a href="#python-生成器-Generators" class="headerlink" title="python 生成器 Generators"></a>python 生成器 Generators</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://realpython.com/introduction-to-python-generators/">How to Use Generators and yield in Python</a></p>
+</blockquote>
+<p>生成器适合在以下场景中使用：</p>
+<ol>
+<li>处理过大到超出机器内存的数据集</li>
+<li>有一个复杂的函数，每次调用它时都需要维护一个内部状态，但该函数太小而无法证明创建自己的类是合理的</li>
+</ol>
+<p>生成器的特点是不将其内容存储在内存中。生成一个 generator 看起来像函数调用，但不会执行任何函数代码，直到对其调用 next()（在 for 循环中会自动调用 next()）才开始执行。</p>
+<h3 id="读取大文件"><a href="#读取大文件" class="headerlink" title="读取大文件"></a>读取大文件</h3><p>统计文件的行数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 第一种方法，一次读入</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">csv_reader_1</span>(<span class="params">file_name</span>):</span><br><span class="line">    file = <span class="built_in">open</span>(file_name)</span><br><span class="line">    result = file.read().split(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第二种方法</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">csv_reader_2</span>(<span class="params">file_name</span>):</span><br><span class="line">    <span class="keyword">for</span> row <span class="keyword">in</span> <span class="built_in">open</span>(file_name, <span class="string">&quot;r&quot;</span>):</span><br><span class="line">        <span class="keyword">yield</span> row</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">csv_gen = csv_reader_1(<span class="string">&quot;some_csv.txt&quot;</span>)</span><br><span class="line"><span class="comment"># csv_gen = csv_reader_2(&quot;some_csv.txt&quot;)</span></span><br><span class="line">row_count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> row <span class="keyword">in</span> csv_gen:</span><br><span class="line">    row_count += <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Row count is <span class="subst">&#123;row_count&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>第一种方法中，<code>file.read().split()</code>一次将所有内容加载到内存中，导致<code>MemoryError</code>.</p>
+<p>第二种方法，用了yield。执行顺序是，<code>csv_gen = csv_reader_2(&quot;some_csv.txt&quot;)</code>时，并未跳入<code>csv_reader_2</code>函数！！注意这里还没跳入函数，因为这个函数里面有yield，只是把这个函数赋给一个对象，然后直到<code>for row in csv_gen</code>（等价于<code>next()</code>），才跳入<code>csv_reader_2</code>函数内部，然后执行到yield这条，就返回，然后再遇到<code>for row in csv_gen:</code>，再跳入yield位置的下一条开始执行。</p>
+<h3 id="生成无限序列"><a href="#生成无限序列" class="headerlink" title="生成无限序列"></a>生成无限序列</h3><p>获得有限序列：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="built_in">range</span>(<span class="number">5</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">list</span>(a)</span><br><span class="line">[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br></pre></td></tr></table></figure>
+
+
+
+<p>然而，生成<strong>无限序列</strong>需要使用生成器，因为您的计算机内存是有限的</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">infinite_sequence</span>():</span><br><span class="line">    num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">yield</span> num</span><br><span class="line">        num += <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>除了使用<code>for</code>循环，您还可以<code>next()</code>直接调用生成器对象。这对于在控制台中测试生成器特别有用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen = infinite_sequence()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="number">0</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<p>在这里，您有一个名为 的生成器<code>gen</code>，您可以通过重复调用 来手动迭代它<code>next()</code>。</p>
+<p><strong>注意：</strong>当您使用 时<code>next()</code>，Python 会调用<code>.__next__()</code>您作为参数传入的函数。此参数化允许产生一些特殊效果，但这超出了本文的范围。尝试更改传递给的参数<code>next()</code>，看看会发生什么！</p>
+<h3 id="示例-3：检测回文"><a href="#示例-3：检测回文" class="headerlink" title="示例 3：检测回文"></a>示例 3：检测回文</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">is_palindrome</span>(<span class="params">num</span>):</span><br><span class="line">    <span class="comment"># Skip single-digit inputs</span></span><br><span class="line">    <span class="keyword">if</span> num // <span class="number">10</span> == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    temp = num</span><br><span class="line">    reversed_num = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> temp != <span class="number">0</span>:</span><br><span class="line">        reversed_num = (reversed_num * <span class="number">10</span>) + (temp % <span class="number">10</span>)</span><br><span class="line">        temp = temp // <span class="number">10</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> num == reversed_num:</span><br><span class="line">        <span class="keyword">return</span> num</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+
+<p>该函数接受一个输入数字，将其反转，并检查反转后的数字是否与原始数字相同。现在您可以使用无限序列生成器来获取所有数字回文的运行列表：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i <span class="keyword">in</span> infinite_sequence():</span><br><span class="line"><span class="meta">... </span>    pal = is_palindrome(i)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">if</span> pal:</span><br><span class="line"><span class="meta">... </span>        <span class="built_in">print</span>(i)</span><br><span class="line">...</span><br><span class="line"><span class="number">11</span></span><br><span class="line"><span class="number">22</span></span><br><span class="line"><span class="number">33</span></span><br><span class="line">[...]</span><br><span class="line"><span class="number">99799</span></span><br><span class="line"><span class="number">99899</span></span><br><span class="line"><span class="number">99999</span></span><br><span class="line"><span class="number">100001</span></span><br><span class="line"><span class="number">101101</span></span><br><span class="line"><span class="number">102201</span></span><br><span class="line">KeyboardInterrupt</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">2</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">5</span>, <span class="keyword">in</span> is_palindrome</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="了解生成器"><a href="#了解生成器" class="headerlink" title="了解生成器"></a>了解生成器</h2><p>生成器函数的外观和行为就像常规函数一样，但具有一个定义特征。生成器函数使用 Python<a target="_blank" rel="noopener" href="https://realpython.com/python-keywords/#returning-keywords-return-yield"><code>yield</code>关键字</a>而不是<code>return</code>. 回想一下您之前编写的生成器函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">infinite_sequence</span>():</span><br><span class="line">    num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">yield</span> num</span><br><span class="line">        num += <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>这看起来像一个典型的<a target="_blank" rel="noopener" href="https://realpython.com/defining-your-own-python-function/">函数定义</a>，除了 Python yield 语句和它后面的代码。<code>yield</code>指示将值发送回调用方的位置，但与 不同的是<code>return</code>，之后您不会退出该函数。</p>
+<p>相反，函数的<strong>状态</strong>会被记住。这样，当在生成器对象上调用（在循环<code>next()</code>中显式或隐式）时，先前生成的变量会递增，然后再次生成。由于生成器函数看起来像其他函数并且与它们的行为非常相似，因此您可以假设生成器表达式与 Python 中可用的其他理解非常相似。</p>
+<h3 id="使用生成器表达式构建生成器"><a href="#使用生成器表达式构建生成器" class="headerlink" title="使用生成器表达式构建生成器"></a>使用生成器表达式构建生成器</h3><p>与列表推导式一样，生成器表达式允许您仅用几行代码即可快速创建生成器对象。它们在使用列表理解的相同情况下也很有用，还有一个额外的好处：您可以创建它们而无需在迭代之前构建并将整个对象保存在内存中。换句话说，当你使用生成器表达式时，你不会有内存损失。以对一些数字进行平方为例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_lc = [num**<span class="number">2</span> <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>)]	<span class="comment"># list 列表</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_gc = (num**<span class="number">2</span> <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>))	<span class="comment"># 生成器</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>执行时：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_lc</span><br><span class="line">[<span class="number">0</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">9</span>, <span class="number">16</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_gc</span><br><span class="line">&lt;generator <span class="built_in">object</span> &lt;genexpr&gt; at <span class="number">0x107fbbc78</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<p>第一个对象使用括号构建列表，而第二个对象使用括号创建生成器表达式。输出确认您已经创建了一个生成器对象并且它不同于列表。</p>
+<p>比较列表和生成器各自生成对象的大小：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> sys</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_lc = [i ** <span class="number">2</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10000</span>)]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>sys.getsizeof(nums_squared_lc)</span><br><span class="line"><span class="number">87624</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_gc = (i ** <span class="number">2</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10000</span>))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(sys.getsizeof(nums_squared_gc))</span><br><span class="line"><span class="number">120</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看出，<strong>生成器对象比列表对象小</strong>。</p>
+<p>比较列表和生成器各自求值的速度快慢：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> cProfile</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>cProfile.run(<span class="string">&#x27;sum([i * 2 for i in range(10000)])&#x27;</span>)</span><br><span class="line">         <span class="number">5</span> function calls <span class="keyword">in</span> <span class="number">0.001</span> seconds</span><br><span class="line"></span><br><span class="line">   Ordered by: standard name</span><br><span class="line"></span><br><span class="line">   ncalls  tottime  percall  cumtime  percall filename:lineno(function)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.001</span>    <span class="number">0.001</span>    <span class="number">0.001</span>    <span class="number">0.001</span> &lt;string&gt;:<span class="number">1</span>(&lt;listcomp&gt;)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.001</span> &lt;string&gt;:<span class="number">1</span>(&lt;module&gt;)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.001</span> &#123;built-<span class="keyword">in</span> method builtins.<span class="built_in">exec</span>&#125;</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span> &#123;built-<span class="keyword">in</span> method builtins.<span class="built_in">sum</span>&#125;</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span> &#123;method <span class="string">&#x27;disable&#x27;</span> of <span class="string">&#x27;_lsprof.Profiler&#x27;</span> objects&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>cProfile.run(<span class="string">&#x27;sum((i * 2 for i in range(10000)))&#x27;</span>)</span><br><span class="line">         <span class="number">10005</span> function calls <span class="keyword">in</span> <span class="number">0.003</span> seconds</span><br><span class="line"></span><br><span class="line">   Ordered by: standard name</span><br><span class="line"></span><br><span class="line">   ncalls  tottime  percall  cumtime  percall filename:lineno(function)</span><br><span class="line">    <span class="number">10001</span>    <span class="number">0.002</span>    <span class="number">0.000</span>    <span class="number">0.002</span>    <span class="number">0.000</span> &lt;string&gt;:<span class="number">1</span>(&lt;genexpr&gt;)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.003</span>    <span class="number">0.003</span> &lt;string&gt;:<span class="number">1</span>(&lt;module&gt;)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.003</span>    <span class="number">0.003</span> &#123;built-<span class="keyword">in</span> method builtins.<span class="built_in">exec</span>&#125;</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.001</span>    <span class="number">0.001</span>    <span class="number">0.003</span>    <span class="number">0.003</span> &#123;built-<span class="keyword">in</span> method builtins.<span class="built_in">sum</span>&#125;</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span> &#123;method <span class="string">&#x27;disable&#x27;</span> of <span class="string">&#x27;_lsprof.Profiler&#x27;</span> objects&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看出，<strong>列表求值比生成器求值快</strong>。</p>
+<h1 id="yield"><a href="#yield" class="headerlink" title="yield"></a>yield</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://realpython.com/introduction-to-python-generators/">How to Use Generators and yield in Python</a></p>
+<p>runoob <a target="_blank" rel="noopener" href="https://www.runoob.com/w3cnote/python-yield-used-analysis.html">Python yield 使用浅析</a></p>
+</blockquote>
+<p>调用生成器函数或使用生成器表达式时，会返回一个称为生成器的特殊迭代器。可以将此生成器分配给一个变量以便使用它。当在生成器上调用特殊方法时，例如<code>next()</code>，函数内的代码将执行到<code>yield</code>。</p>
+<p>当命中 Python yield 语句时，程序暂停函数执行并将产生的值返回给调用者。（相反，<code>return</code>完全停止函数执行。）当一个函数被挂起时，该函数的状态被保存。这包括生成器本地的任何变量绑定、指令指针、内部堆栈和任何异常处理。</p>
+<p>这允许在调用生成器的方法之一时恢复函数执行。这样，所有函数评估都会在 之后立即恢复<code>yield</code>。可以通过使用多个 Python yield 语句来查看实际效果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">def</span> <span class="title function_">multi_yield</span>():</span><br><span class="line"><span class="meta">... </span>    yield_str = <span class="string">&quot;This will print the first string&quot;</span></span><br><span class="line"><span class="meta">... </span>    <span class="keyword">yield</span> yield_str</span><br><span class="line"><span class="meta">... </span>    yield_str = <span class="string">&quot;This will print the second string&quot;</span></span><br><span class="line"><span class="meta">... </span>    <span class="keyword">yield</span> yield_str</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>multi_obj = multi_yield()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(<span class="built_in">next</span>(multi_obj))</span><br><span class="line">This will <span class="built_in">print</span> the first string</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(<span class="built_in">next</span>(multi_obj))</span><br><span class="line">This will <span class="built_in">print</span> the second string</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(<span class="built_in">next</span>(multi_obj))</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">StopIteration</span><br></pre></td></tr></table></figure>
+
+<p>仔细看看最后一次调用<code>next()</code>. 您可以看到执行已因<a target="_blank" rel="noopener" href="https://realpython.com/python-traceback/">回溯</a>而爆炸。这是因为生成器和所有迭代器一样，可能会被耗尽。除非你的生成器是无限的，否则你只能迭代一次。一旦所有值都被评估，迭代将停止并且<code>for</code>循环将退出。如果您使用<code>next()</code>，那么您将得到一个显式<code>StopIteration</code>异常。</p>
+<p><strong>注意：</strong> <code>StopIteration</code>是一个自然异常，它被引发以表示迭代器结束。<code>for</code>例如，循环是围绕<code>StopIteration</code>. <code>for</code>您甚至可以使用循环来实现自己的<a target="_blank" rel="noopener" href="https://realpython.com/python-while-loop/"><code>while</code>循环</a>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>letters = [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>, <span class="string">&quot;y&quot;</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>it = <span class="built_in">iter</span>(letters)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">try</span>:</span><br><span class="line"><span class="meta">... </span>        letter = <span class="built_in">next</span>(it)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">except</span> StopIteration:</span><br><span class="line"><span class="meta">... </span>        <span class="keyword">break</span></span><br><span class="line"><span class="meta">... </span>    <span class="built_in">print</span>(letter)</span><br><span class="line">...</span><br><span class="line">a</span><br><span class="line">b</span><br><span class="line">c</span><br><span class="line">y</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>一个带有 yield 的函数就是一个 generator，它和普通函数不同，生成一个 generator 看起来像函数调用，但不会执行任何函数代码，直到对其调用 next()（在 for 循环中会自动调用 next()）才开始执行。虽然执行流程仍按函数的流程执行，<strong>但每执行到一个 yield 语句就会中断，并返回一个迭代值，下次执行时从 yield 的下一个语句继续执行</strong>。看起来就好像一个函数在正常执行的过程中被 yield 中断了数次，每次中断都会通过 yield 返回当前的迭代值。</p>
+<p>举例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fab</span>(<span class="params"><span class="built_in">max</span></span>): </span><br><span class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span> </span><br><span class="line">    <span class="keyword">while</span> n &lt; <span class="built_in">max</span>: </span><br><span class="line">        <span class="keyword">yield</span> b      <span class="comment"># 使用 yield</span></span><br><span class="line">        <span class="comment"># print b </span></span><br><span class="line">        a, b = b, a + b </span><br><span class="line">        n = n + <span class="number">1</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> fab(<span class="number">5</span>): </span><br><span class="line">    <span class="built_in">print</span> (n)</span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line">&gt;&gt;&gt;f = fab(<span class="number">5</span>) </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>f.<span class="built_in">next</span>() </span><br><span class="line"><span class="number">1</span> </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>f.<span class="built_in">next</span>() </span><br><span class="line"><span class="number">1</span> </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>f.<span class="built_in">next</span>() </span><br><span class="line"><span class="number">2</span> </span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h2 id="使用高级生成器方法"><a href="#使用高级生成器方法" class="headerlink" title="使用高级生成器方法"></a>使用高级生成器方法</h2><p>除了<code>yield</code>，生成器对象还可以使用以下方法：</p>
+<ul>
+<li><code>.send()</code></li>
+<li><code>.throw()</code></li>
+<li><code>.close()</code></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/02/02/python/python%20%E8%BF%AD%E4%BB%A3%E5%99%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2364,232 +2607,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yelong的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url">《语音识别原理与应用》洪青阳 第9章 WFST解码器————Lattice解码</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
-                2023-01-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/WFST%E8%A7%A3%E7%A0%81/" itemprop="url" rel="index">
-                    <span itemprop="name">WFST解码</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2023/01/10/WFST解码/Lattice解码数据结构/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Lattice解码用到的数据结构"><a href="#Lattice解码用到的数据结构" class="headerlink" title="Lattice解码用到的数据结构"></a>Lattice解码用到的数据结构</h1><blockquote>
-<p>《语音识别原理与应用》 洪青阳 P185</p>
-<p>LatticeSimpleDecoder </p>
-<p>lattice-faster-decoder</p>
-</blockquote>
-<p>哈希表 HashList&lt;StateId, Token*&gt; 建立状态节点stateid和token之间的映射关系。</p>
-<p>链表：token之间用链表连接，以便解码结束时跟踪到更多的匹配路径。前向链接ForwardLink，令牌列表TokenList</p>
-<p>在语音识别中，经常用 Lattice 来保存多种候选的识别结果（单个回溯是不够的），以便后续进行其地处理（如二次解码)。针对有Latice的解码，需要保存多条搜索路径，包括中同遍历的多条路径信息，因此 Token 之间还需要有链表息，以便解码结束时跟踪到更多的匹配路径。</p>
-<p>参照 Kaldi 的lattice-faster-decoder 写法，我们给出用于 Lattice 解码的 Token和相关的数据结构定义，包括前向链接 ForwardLink 和令牌列表 TokenList。</p>
-<p>ForwardLink 与在快速解码部分定义的转移弧 Arc 不同，它用来链接前后两帧之间的发射转移弧之间的Token，或同一时刻非发射转移弧之间的 Token,ForvardLink 保存的图代价和声学代价更方便后续的 Lattice 剪枝处理。</p>
-<p>TokenList 用来和帧索引建立关联，<strong>每帧对应一个 TokenList</strong>，这样能保证随时访自已解码过的任一时刻创建的 Token 列表，而在快速解码部分（之前的那种解码）定义的 Token 和Arc信息则无法关联时间戳信息，只能利用它们做简单的回溯处理。</p>
-<h2 id="ForwardLink"><a href="#ForwardLink" class="headerlink" title="ForwardLink"></a>ForwardLink</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ForwardLink</span> &#123;</span><br><span class="line">	Token *next_tok;<span class="comment">//链接传到的 roken</span></span><br><span class="line">	<span class="type">int</span> ilabei; <span class="comment">//转移弧的输人标签</span></span><br><span class="line">    <span class="type">int</span> olabel; <span class="comment">//转移弧的输出标签</span></span><br><span class="line">	<span class="type">float</span> graph_ cost; <span class="comment">//遍历图代价（包含语言模型得分）</span></span><br><span class="line">	<span class="type">float</span> acoustic cost; <span class="comment">//声学代价</span></span><br><span class="line">	ForwardLink *next;	<span class="comment">//指向同一时刻的下一个链接</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="Token"><a href="#Token" class="headerlink" title="Token"></a>Token</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Token</span> &#123;</span><br><span class="line">	<span class="type">float</span> tot_cost; <span class="comment">//累计的最优代价（包括语言模型和声学代价）</span></span><br><span class="line">	<span class="type">float</span> extra_cost; <span class="comment">//所有Forwardlink 中与最优路径代价的最小差值</span></span><br><span class="line">	Forwardtink *links; <span class="comment">// 前向链接，指向新创建的 Token，用于 Lattice 生成</span></span><br><span class="line">	Token *next;		<span class="comment">//指向同一时刻的下一个 Token</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h2 id="TokenList"><a href="#TokenList" class="headerlink" title="TokenList"></a>TokenList</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">TokenList</span> &#123;</span><br><span class="line">	Token *toks; <span class="comment">//指向同一时刻的第一个 Token</span></span><br><span class="line">	<span class="type">bool</span> must_ prune forward_ links; <span class="comment">//用于剪枝，默认为true</span></span><br><span class="line">	<span class="type">bool</span> must_prune_ tokens：<span class="comment">//用于剪枝，默认为 tzue</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-
-<h1 id="令牌传播过程"><a href="#令牌传播过程" class="headerlink" title="令牌传播过程"></a>令牌传播过程</h1><p>在进行 Lattice 解码时，从输人语音提取声学特征（T 帧），然后通过令牌(Token）传播，逐帧处理。首先在 WFST 的起始节点，产生一个 Token；然后针对每个活跃节点，把 Token 传播到与该节点相连的转移弧；如果转移弧的输人标签不是 0，则把激活的 Token 对应的帧数加 1，相当于移动到下一帧，实现帧与转移弧（即 HMM 状态的 transition-id）的对齐。</p>
-<p>每个 Token 都记录了累计总代价，即之前最优代价加上转移弧对应的图代价<strong>graph_cost（包含语言模型、转移概率、发音词典三部分的代价）</strong>和声学代价acoustic_cost，其中<strong>acoustic_cost 是根据声学特征和声学模型实时计算得出后验概率，然后取反得出的</strong>，因此原始后验概率越高，acoustic_cost 代价越小。</p>
-<p>由于解码图庞大，因此 Token 的传播可能会有多条路径，对应t时刻的帧会有多个Token。这些 Token 通过 WFST 解码图的节点标号 StateID区分，即通过t和 StateID可以找到唯一的 Token。</p>
-<p>如下图所示，同一时刻的 Token 被汇总到一个 TokenList 保存，T帧则有T个TokenList 来保存，因此 <strong>TokenList构成一个数组</strong>，其中 <strong>数组元素索引与帧索引一一对应</strong>。单个TokenList 元素里面可能包含多个Token，即同一帧对应多个 Token,如第1帧特征 $o_t$,对应 Token 集合 TokenList[1]，由初始状态0转移产生，其包含 4个Token，标为 Token8、Token1、Token9 和 Token2，分别与状态节点8、1、9、2关联，每个Token 都有累计代价cost。其中，<strong>Token2 是状态节点9经非发射转移弧到达状态节点2产生的，注意，其仍然属于第1帧，因此在 Token9 和 Token2之间产生的 ForwardLink 属于同一帧不同 Token 之间的链接</strong>。第2帧、第3帧及后续帧的解码过程依此类推。</p>
-<p>WFST 的 Lattice 解码图：</p>
-<p>第一帧：</p>
-<img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112174327147.png" alt="image-20230112174327147">
-
-
-
-<p>第二帧：</p>
-<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112174345697.png" alt="image-20230112174345697"></p>
-<p>第三帧：</p>
-<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112174403847.png" alt="image-20230112174403847"></p>
-<p>Lattice 解码会保存不同时刻的 TokenList。 如下图所示，每个 TokenList包含同一时刻的多个Token，TokenList 指向第一个 Token，如 TokenList[1]先指向Token8，然后通过 Token8 的next 指针再链接到同一时刻产生的 Token1，依此类推。其中 Token2 由 Token9 通过非发射较移孤产生，因此同时有 ForwardLink 关联。</p>
-<p>带Lattice解码的令牌传递过程：</p>
-<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112174420361.png" alt="image-20230112174420361"></p>
-<p>在下一时刻即第2帧，TokenList[1]]包含的 Token1被传播到 TokenList[2J的Token6 和 Token10，并通过 ForwardLink 保存链接信息，如 Token1 和 Token6之间有一条 Forwardlink，该链接保存了两个 Token 对应状态节点（即 1和6）之间的转移弧输入标签和输出标签，同时还有该转移弧对应的图代价和针对第2帧的声学得分。Token2 由于是Token10 在同一帧通过 PrOcessNonemitting 产生的，因此它们之间有 ForwardLink 链接。</p>
-<p>在第3帧，TokenList[2]的 Token6 被进一步传播到 TokenList[3]的 Token3、Token7 和 Token9， Token10 传播到 Token2， Token2 传播到 Token3 和 Token1,Token3传播到 Token11 和 Token4。注意，TokenList[3]中的 Token3 同时来自TokenList[2]的 Token6 和Token2，此时只会保存 cost 最小的那个Token。</p>
-<p>整个 HCLG 编译的 WFST 是庞大的网络，随着帧数的推进，其他 Token 也可扩张到更多的 Token，同时通过 ForwardLink 建立链接关系。一直到最后一帧结束，才停止 Token 的扩张，此时再从 TokenList 寻求最佳路径对应的最后一个Token。如果指定最优结尾 Token, 一定要从 HCLG 的结尾状态（双圆圈）中选择，对比所有结尾状态对应 Token 的cost，选择值最低的，然后从该 Token 倒推得到最优路径对应的转移弧序列。</p>
-<h1 id="剪枝策略"><a href="#剪枝策略" class="headerlink" title="剪枝策略"></a>剪枝策略</h1><p>随着 Token 的扩张，每一帧可能对应很多个 Token，这样会导致解码变慢。为加快解码速度，需要采用剪枝策略，即事先设定一个剪枝阈值 （ beam），然后针对每一帧动态调整剪枝上限。剪枝的具体步骤如下：</p>
-<ol>
-<li><p>在解码过程中，针对<strong>当前帧找出最低代价（best_cost）的 Token</strong>，即最优的 Token，根据该 Token 设定剪枝上限（cur_cost），其值为 best_cost+beam。同时对该Token 进行后续一帧的扩张，计算每个转移弧新的 cost，结合 beam 阈值得到后续扩张的剪枝上限(next_cost)。</p>
-</li>
-<li><p>第一轮。对同一帧所有Token 做一次剪枝，抑制一批代价超过 cur_cost 的Token，即这批Token 不再扩张，如下图所示的 Token9。</p>
-<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112181949416.png" alt="image-20230112181949416"></p>
-</li>
-<li><p>第二轮。对当前帧除了最优 Token 之外的其他 Token，也对后续的转移弧计算更新的cost，如果超过扩张剪枝上限next_cost，则该转移弧不再扩张。如下图所示，Token7到Token3的转移弧被剪枝，实际上是不生成Token3。</p>
-</li>
-</ol>
-<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112181957182.png" alt="image-20230112181957182"></p>
-<p>除了默认剪枝阈值 beam，还可设定最大活跃节点数 max_active。对 Token按cost 排序后只保留max active 个有效节点，对应的剪枝國值为 adaptive_beam。</p>
-<p>WFST 中的每个状态节点和一个Token 对应，后面不同时刻的特征帧也可能对齐到该状态，即对应到相同的 Token。此时需要比较 cost 值，如果新 Token 的cost 值更低，则替换原有 Token。</p>
-<p>以上是通用的剪枝策略，其也适用于上一节的快速解码。对于 Lattice 解码，还可间隔多帧（如25 帧）再做一次基于 ForwardLink 的 Lattice 剪枝。根据每帧TokenList 访问并算出每一条 ForwardLink 和最优路径的cost 差异，如果差值超过Lattice 剪枝阈值就剪掉该 ForwardLink。</p>
-<h1 id="Lattice"><a href="#Lattice" class="headerlink" title="Lattice"></a>Lattice</h1><p>语音识别中，Lattice用来保存多种候选结果，每个节点可对应到具体的时间（帧索引），节点之间的弧包含了候选词信息。HTK用Standard Lattice Format（SLF）保存Lattice，而Kaldi则用FST形式保存，但也可转化成SLF形式。</p>
-<p>Kaldi Lattice是在解码后，通过每个时刻的TokenList包含的Token和与之关联的ForwardLink遍历生成，并用转移弧Arc保存路径信息。具体实现可查看decoder的GetRawLattice函数。</p>
-<p>Lattice的基础结构可以表示为{input, output, weight}，即Lattice包括输入、输出和权重。Lattice每条弧上的状态输入为transition-id，状态输出为words，其中权重weight包含两个值，即图代价（graph_cost）和声学代价（acoustic_cost）。可从ForwardLink参数获取这两个值。</p>
-<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112182717450.png" alt="image-20230112182717450"></p>
-<p>Lattice有多条路径，按最后的cost排序，最小的排在前面，即可从Lattice得到最优路径。注意最优路径也可在解码结束时直接获取，无需经过Lattice。</p>
-<p>最优路径只包含一个结果，如图所示，即识别结果为“实现数字化整合营销”。</p>
-<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112182813944.png" alt="image-20230112182813944"></p>
-<p>如果要保留多个识别结果，则可采用 lattice-nbest 进行转换，将N条弧从起始状态传播到结尾状态，得到N个最好的不同单词序列。</p>
-<p>利用得到的 Latice 还可进行二次解码，引人更复杂的语言模型，如递归神经网络语言模型，更新 Lattice 中路径上的得分（注意不能简单替换图代价，因为还有词典和转移概率），得到更优的识别结果。</p>
-<p>如果想查看不同输出级别的 Lattice 信息，也可以将词级别的 Lattice 转换成音素级别的 Lattice，但这一步操作会耗费比较多的时间，尤其是在人声嘈杂环境下的识别。</p>
-<p>也可将 Lattice 保存成紧凑形式的CompactLattice（本质上是一种 WFSA)，每条弧的输人和输出都是words，它把可能的输人标签序列 transition-ids 全部放在了权重里面，即权重信息包括 {graph_ cost, acoustic_cost, transition-ids sequence}。 Latice 和 CompactLattice 两者结构稍有不同，如下表所示，但这两者包含了相同的内容，因此可以互相转换。<br><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112183229403.png" alt="image-20230112183229403"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2640,7 +2657,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">139</span>
+                  <span class="site-state-item-count">140</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
