@@ -95,7 +95,7 @@
     root: '',
     scheme: 'Muse',
     version: '5.1.4',
-    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    sidebar: {"position":"left","display":"remove","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
     motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
@@ -392,99 +392,21 @@
       
         
           
-            <h1 id="python-生成器-Generators"><a href="#python-生成器-Generators" class="headerlink" title="python 生成器 Generators"></a>python 生成器 Generators</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://realpython.com/introduction-to-python-generators/">How to Use Generators and yield in Python</a></p>
-</blockquote>
-<p>生成器适合在以下场景中使用：</p>
-<ol>
-<li>处理过大到超出机器内存的数据集</li>
-<li>有一个复杂的函数，每次调用它时都需要维护一个内部状态，但该函数太小而无法证明创建自己的类是合理的</li>
-</ol>
-<p>生成器的特点是不将其内容存储在内存中。生成一个 generator 看起来像函数调用，但不会执行任何函数代码，直到对其调用 next()（在 for 循环中会自动调用 next()）才开始执行。</p>
-<h3 id="读取大文件"><a href="#读取大文件" class="headerlink" title="读取大文件"></a>读取大文件</h3><p>统计文件的行数：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 第一种方法，一次读入</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">csv_reader_1</span>(<span class="params">file_name</span>):</span><br><span class="line">    file = <span class="built_in">open</span>(file_name)</span><br><span class="line">    result = file.read().split(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第二种方法</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">csv_reader_2</span>(<span class="params">file_name</span>):</span><br><span class="line">    <span class="keyword">for</span> row <span class="keyword">in</span> <span class="built_in">open</span>(file_name, <span class="string">&quot;r&quot;</span>):</span><br><span class="line">        <span class="keyword">yield</span> row</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">csv_gen = csv_reader_1(<span class="string">&quot;some_csv.txt&quot;</span>)</span><br><span class="line"><span class="comment"># csv_gen = csv_reader_2(&quot;some_csv.txt&quot;)</span></span><br><span class="line">row_count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> row <span class="keyword">in</span> csv_gen:</span><br><span class="line">    row_count += <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Row count is <span class="subst">&#123;row_count&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+          python 生成器 Generators
+How to Use Generators and yield in Python
 
-<p>第一种方法中，<code>file.read().split()</code>一次将所有内容加载到内存中，导致<code>MemoryError</code>.</p>
-<p>第二种方法，用了yield。执行顺序是，<code>csv_gen = csv_reader_2(&quot;some_csv.txt&quot;)</code>时，并未跳入<code>csv_reader_2</code>函数！！注意这里还没跳入函数，因为这个函数里面有yield，只是把这个函数赋给一个对象，然后直到<code>for row in csv_gen</code>（等价于<code>next()</code>），才跳入<code>csv_reader_2</code>函数内部，然后执行到yield这条，就返回，然后再遇到<code>for row in csv_gen:</code>，再跳入yield位置的下一条开始执行。</p>
-<h3 id="生成无限序列"><a href="#生成无限序列" class="headerlink" title="生成无限序列"></a>生成无限序列</h3><p>获得有限序列：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="built_in">range</span>(<span class="number">5</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">list</span>(a)</span><br><span class="line">[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br></pre></td></tr></table></figure>
+生成器适合在以下场景中使用：
 
-
-
-<p>然而，生成<strong>无限序列</strong>需要使用生成器，因为您的计算机内存是有限的</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">infinite_sequence</span>():</span><br><span class="line">    num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">yield</span> num</span><br><span class="line">        num += <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p>除了使用<code>for</code>循环，您还可以<code>next()</code>直接调用生成器对象。这对于在控制台中测试生成器特别有用：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen = infinite_sequence()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="number">0</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure>
-
-<p>在这里，您有一个名为 的生成器<code>gen</code>，您可以通过重复调用 来手动迭代它<code>next()</code>。</p>
-<p><strong>注意：</strong>当您使用 时<code>next()</code>，Python 会调用<code>.__next__()</code>您作为参数传入的函数。此参数化允许产生一些特殊效果，但这超出了本文的范围。尝试更改传递给的参数<code>next()</code>，看看会发生什么！</p>
-<h3 id="示例-3：检测回文"><a href="#示例-3：检测回文" class="headerlink" title="示例 3：检测回文"></a>示例 3：检测回文</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">is_palindrome</span>(<span class="params">num</span>):</span><br><span class="line">    <span class="comment"># Skip single-digit inputs</span></span><br><span class="line">    <span class="keyword">if</span> num // <span class="number">10</span> == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    temp = num</span><br><span class="line">    reversed_num = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> temp != <span class="number">0</span>:</span><br><span class="line">        reversed_num = (reversed_num * <span class="number">10</span>) + (temp % <span class="number">10</span>)</span><br><span class="line">        temp = temp // <span class="number">10</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> num == reversed_num:</span><br><span class="line">        <span class="keyword">return</span> num</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
-
-<p>该函数接受一个输入数字，将其反转，并检查反转后的数字是否与原始数字相同。现在您可以使用无限序列生成器来获取所有数字回文的运行列表：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i <span class="keyword">in</span> infinite_sequence():</span><br><span class="line"><span class="meta">... </span>    pal = is_palindrome(i)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">if</span> pal:</span><br><span class="line"><span class="meta">... </span>        <span class="built_in">print</span>(i)</span><br><span class="line">...</span><br><span class="line"><span class="number">11</span></span><br><span class="line"><span class="number">22</span></span><br><span class="line"><span class="number">33</span></span><br><span class="line">[...]</span><br><span class="line"><span class="number">99799</span></span><br><span class="line"><span class="number">99899</span></span><br><span class="line"><span class="number">99999</span></span><br><span class="line"><span class="number">100001</span></span><br><span class="line"><span class="number">101101</span></span><br><span class="line"><span class="number">102201</span></span><br><span class="line">KeyboardInterrupt</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">2</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">5</span>, <span class="keyword">in</span> is_palindrome</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="了解生成器"><a href="#了解生成器" class="headerlink" title="了解生成器"></a>了解生成器</h2><p>生成器函数的外观和行为就像常规函数一样，但具有一个定义特征。生成器函数使用 Python<a target="_blank" rel="noopener" href="https://realpython.com/python-keywords/#returning-keywords-return-yield"><code>yield</code>关键字</a>而不是<code>return</code>. 回想一下您之前编写的生成器函数：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">infinite_sequence</span>():</span><br><span class="line">    num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">yield</span> num</span><br><span class="line">        num += <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<p>这看起来像一个典型的<a target="_blank" rel="noopener" href="https://realpython.com/defining-your-own-python-function/">函数定义</a>，除了 Python yield 语句和它后面的代码。<code>yield</code>指示将值发送回调用方的位置，但与 不同的是<code>return</code>，之后您不会退出该函数。</p>
-<p>相反，函数的<strong>状态</strong>会被记住。这样，当在生成器对象上调用（在循环<code>next()</code>中显式或隐式）时，先前生成的变量会递增，然后再次生成。由于生成器函数看起来像其他函数并且与它们的行为非常相似，因此您可以假设生成器表达式与 Python 中可用的其他理解非常相似。</p>
-<h3 id="使用生成器表达式构建生成器"><a href="#使用生成器表达式构建生成器" class="headerlink" title="使用生成器表达式构建生成器"></a>使用生成器表达式构建生成器</h3><p>与列表推导式一样，生成器表达式允许您仅用几行代码即可快速创建生成器对象。它们在使用列表理解的相同情况下也很有用，还有一个额外的好处：您可以创建它们而无需在迭代之前构建并将整个对象保存在内存中。换句话说，当你使用生成器表达式时，你不会有内存损失。以对一些数字进行平方为例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_lc = [num**<span class="number">2</span> <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>)]	<span class="comment"># list 列表</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_gc = (num**<span class="number">2</span> <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>))	<span class="comment"># 生成器</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p>执行时：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_lc</span><br><span class="line">[<span class="number">0</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">9</span>, <span class="number">16</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_gc</span><br><span class="line">&lt;generator <span class="built_in">object</span> &lt;genexpr&gt; at <span class="number">0x107fbbc78</span>&gt;</span><br></pre></td></tr></table></figure>
-
-<p>第一个对象使用括号构建列表，而第二个对象使用括号创建生成器表达式。输出确认您已经创建了一个生成器对象并且它不同于列表。</p>
-<p>比较列表和生成器各自生成对象的大小：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> sys</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_lc = [i ** <span class="number">2</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10000</span>)]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>sys.getsizeof(nums_squared_lc)</span><br><span class="line"><span class="number">87624</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_gc = (i ** <span class="number">2</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10000</span>))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(sys.getsizeof(nums_squared_gc))</span><br><span class="line"><span class="number">120</span></span><br></pre></td></tr></table></figure>
-
-<p>可以看出，<strong>生成器对象比列表对象小</strong>。</p>
-<p>比较列表和生成器各自求值的速度快慢：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> cProfile</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>cProfile.run(<span class="string">&#x27;sum([i * 2 for i in range(10000)])&#x27;</span>)</span><br><span class="line">         <span class="number">5</span> function calls <span class="keyword">in</span> <span class="number">0.001</span> seconds</span><br><span class="line"></span><br><span class="line">   Ordered by: standard name</span><br><span class="line"></span><br><span class="line">   ncalls  tottime  percall  cumtime  percall filename:lineno(function)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.001</span>    <span class="number">0.001</span>    <span class="number">0.001</span>    <span class="number">0.001</span> &lt;string&gt;:<span class="number">1</span>(&lt;listcomp&gt;)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.001</span> &lt;string&gt;:<span class="number">1</span>(&lt;module&gt;)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.001</span> &#123;built-<span class="keyword">in</span> method builtins.<span class="built_in">exec</span>&#125;</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span> &#123;built-<span class="keyword">in</span> method builtins.<span class="built_in">sum</span>&#125;</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span> &#123;method <span class="string">&#x27;disable&#x27;</span> of <span class="string">&#x27;_lsprof.Profiler&#x27;</span> objects&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>cProfile.run(<span class="string">&#x27;sum((i * 2 for i in range(10000)))&#x27;</span>)</span><br><span class="line">         <span class="number">10005</span> function calls <span class="keyword">in</span> <span class="number">0.003</span> seconds</span><br><span class="line"></span><br><span class="line">   Ordered by: standard name</span><br><span class="line"></span><br><span class="line">   ncalls  tottime  percall  cumtime  percall filename:lineno(function)</span><br><span class="line">    <span class="number">10001</span>    <span class="number">0.002</span>    <span class="number">0.000</span>    <span class="number">0.002</span>    <span class="number">0.000</span> &lt;string&gt;:<span class="number">1</span>(&lt;genexpr&gt;)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.003</span>    <span class="number">0.003</span> &lt;string&gt;:<span class="number">1</span>(&lt;module&gt;)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.003</span>    <span class="number">0.003</span> &#123;built-<span class="keyword">in</span> method builtins.<span class="built_in">exec</span>&#125;</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.001</span>    <span class="number">0.001</span>    <span class="number">0.003</span>    <span class="number">0.003</span> &#123;built-<span class="keyword">in</span> method builtins.<span class="built_in">sum</span>&#125;</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span> &#123;method <span class="string">&#x27;disable&#x27;</span> of <span class="string">&#x27;_lsprof.Profiler&#x27;</span> objects&#125;</span><br></pre></td></tr></table></figure>
-
-<p>可以看出，<strong>列表求值比生成器求值快</strong>。</p>
-<h1 id="yield"><a href="#yield" class="headerlink" title="yield"></a>yield</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://realpython.com/introduction-to-python-generators/">How to Use Generators and yield in Python</a></p>
-<p>runoob <a target="_blank" rel="noopener" href="https://www.runoob.com/w3cnote/python-yield-used-analysis.html">Python yield 使用浅析</a></p>
-</blockquote>
-<p>调用生成器函数或使用生成器表达式时，会返回一个称为生成器的特殊迭代器。可以将此生成器分配给一个变量以便使用它。当在生成器上调用特殊方法时，例如<code>next()</code>，函数内的代码将执行到<code>yield</code>。</p>
-<p>当命中 Python yield 语句时，程序暂停函数执行并将产生的值返回给调用者。（相反，<code>return</code>完全停止函数执行。）当一个函数被挂起时，该函数的状态被保存。这包括生成器本地的任何变量绑定、指令指针、内部堆栈和任何异常处理。</p>
-<p>这允许在调用生成器的方法之一时恢复函数执行。这样，所有函数评估都会在 之后立即恢复<code>yield</code>。可以通过使用多个 Python yield 语句来查看实际效果：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">def</span> <span class="title function_">multi_yield</span>():</span><br><span class="line"><span class="meta">... </span>    yield_str = <span class="string">&quot;This will print the first string&quot;</span></span><br><span class="line"><span class="meta">... </span>    <span class="keyword">yield</span> yield_str</span><br><span class="line"><span class="meta">... </span>    yield_str = <span class="string">&quot;This will print the second string&quot;</span></span><br><span class="line"><span class="meta">... </span>    <span class="keyword">yield</span> yield_str</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>multi_obj = multi_yield()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(<span class="built_in">next</span>(multi_obj))</span><br><span class="line">This will <span class="built_in">print</span> the first string</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(<span class="built_in">next</span>(multi_obj))</span><br><span class="line">This will <span class="built_in">print</span> the second string</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(<span class="built_in">next</span>(multi_obj))</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">StopIteration</span><br></pre></td></tr></table></figure>
-
-<p>仔细看看最后一次调用<code>next()</code>. 您可以看到执行已因<a target="_blank" rel="noopener" href="https://realpython.com/python-traceback/">回溯</a>而爆炸。这是因为生成器和所有迭代器一样，可能会被耗尽。除非你的生成器是无限的，否则你只能迭代一次。一旦所有值都被评估，迭代将停止并且<code>for</code>循环将退出。如果您使用<code>next()</code>，那么您将得到一个显式<code>StopIteration</code>异常。</p>
-<p><strong>注意：</strong> <code>StopIteration</code>是一个自然异常，它被引发以表示迭代器结束。<code>for</code>例如，循环是围绕<code>StopIteration</code>. <code>for</code>您甚至可以使用循环来实现自己的<a target="_blank" rel="noopener" href="https://realpython.com/python-while-loop/"><code>while</code>循环</a>：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>letters = [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>, <span class="string">&quot;y&quot;</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>it = <span class="built_in">iter</span>(letters)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">try</span>:</span><br><span class="line"><span class="meta">... </span>        letter = <span class="built_in">next</span>(it)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">except</span> StopIteration:</span><br><span class="line"><span class="meta">... </span>        <span class="keyword">break</span></span><br><span class="line"><span class="meta">... </span>    <span class="built_in">print</span>(letter)</span><br><span class="line">...</span><br><span class="line">a</span><br><span class="line">b</span><br><span class="line">c</span><br><span class="line">y</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<p>一个带有 yield 的函数就是一个 generator，它和普通函数不同，生成一个 generator 看起来像函数调用，但不会执行任何函数代码，直到对其调用 next()（在 for 循环中会自动调用 next()）才开始执行。虽然执行流程仍按函数的流程执行，<strong>但每执行到一个 yield 语句就会中断，并返回一个迭代值，下次执行时从 yield 的下一个语句继续执行</strong>。看起来就好像一个函数在正常执行的过程中被 yield 中断了数次，每次中断都会通过 yield 返回当前的迭代值。</p>
-<p>举例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fab</span>(<span class="params"><span class="built_in">max</span></span>): </span><br><span class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span> </span><br><span class="line">    <span class="keyword">while</span> n &lt; <span class="built_in">max</span>: </span><br><span class="line">        <span class="keyword">yield</span> b      <span class="comment"># 使用 yield</span></span><br><span class="line">        <span class="comment"># print b </span></span><br><span class="line">        a, b = b, a + b </span><br><span class="line">        n = n + <span class="number">1</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> fab(<span class="number">5</span>): </span><br><span class="line">    <span class="built_in">print</span> (n)</span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line">&gt;&gt;&gt;f = fab(<span class="number">5</span>) </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>f.<span class="built_in">next</span>() </span><br><span class="line"><span class="number">1</span> </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>f.<span class="built_in">next</span>() </span><br><span class="line"><span class="number">1</span> </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>f.<span class="built_in">next</span>() </span><br><span class="line"><span class="number">2</span> </span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-
-<h2 id="使用高级生成器方法"><a href="#使用高级生成器方法" class="headerlink" title="使用高级生成器方法"></a>使用高级生成器方法</h2><p>除了<code>yield</code>，生成器对象还可以使用以下方法：</p>
-<ul>
-<li><code>.send()</code></li>
-<li><code>.throw()</code></li>
-<li><code>.close()</code></li>
-</ul>
-
-          
+处理过大到超出机器内存的数据集
+有一个
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/02/02/python/python%20%E7%94%9F%E6%88%90%E5%99%A8/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -635,132 +557,17 @@
       
         
           
-            <h1 id="python-迭代器-iterators"><a href="#python-迭代器-iterators" class="headerlink" title="python 迭代器  iterators"></a>python 迭代器  iterators</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://pymotw.com/3/itertools/index.html">https://pymotw.com/3/itertools/index.html</a></p>
-<p><a target="_blank" rel="noopener" href="https://docs.python.org/3/library/itertools.html">https://docs.python.org/3/library/itertools.html</a></p>
-<p><a target="_blank" rel="noopener" href="http://realpython.cn/tutorials/topics/python-iterators/">http://realpython.cn/tutorials/topics/python-iterators/</a></p>
-<p>解释：<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/glossary.html#term-iterator">https://docs.python.org/zh-cn/3/glossary.html#term-iterator</a></p>
-</blockquote>
-<h2 id="python迭代器解释"><a href="#python迭代器解释" class="headerlink" title="python迭代器解释"></a>python迭代器解释</h2><blockquote>
-<p>python术语对照表：<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/glossary.html#term-iterator">https://docs.python.org/zh-cn/3/glossary.html#term-iterator</a></p>
-</blockquote>
-<h4 id="iterator-–-迭代器"><a href="#iterator-–-迭代器" class="headerlink" title="iterator – 迭代器"></a>iterator – 迭代器</h4><p><strong>用来表示一连串数据流的对象</strong>。重复调用迭代器的 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/stdtypes.html#iterator.__next__"><code>__next__()</code></a> 方法（或将其传给内置函数 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/functions.html#next"><code>next()</code></a>）将逐个返回流中的项。当没有数据可用时则将引发 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/exceptions.html#StopIteration"><code>StopIteration</code></a> 异常。到这时迭代器对象中的数据项已耗尽，继续调用其 <code>__next__()</code> 方法只会再次引发 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/exceptions.html#StopIteration"><code>StopIteration</code></a> 异常。迭代器必须具有 <code>__iter__()</code> 方法用来返回该迭代器对象自身，因此迭代器必定也是可迭代对象，可被用于其他可迭代对象适用的大部分场合。一个显著的例外是那些会多次重复访问迭代项的代码。容器对象（例如 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/stdtypes.html#list"><code>list</code></a>）在你每次向其传入 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/functions.html#iter"><code>iter()</code></a> 函数或是在 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/reference/compound_stmts.html#for"><code>for</code></a> 循环中使用它时都会产生一个新的迭代器。如果在此情况下你尝试用迭代器则会返回在之前迭代过程中被耗尽的同一迭代器对象，使其看起来就像是一个空容器。</p>
-<h4 id="iterable-–-可迭代对象"><a href="#iterable-–-可迭代对象" class="headerlink" title="iterable – 可迭代对象"></a>iterable – 可迭代对象</h4><p>可以一个一个返回成员的对象。<strong>An object capable of returning its members one at a time.</strong> Examples of iterables include all sequence types (such as <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/stdtypes.html#list"><code>list</code></a>, <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/stdtypes.html#str"><code>str</code></a>, and <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/stdtypes.html#tuple"><code>tuple</code></a>) and some non-sequence types like <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/stdtypes.html#dict"><code>dict</code></a>, <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/glossary.html#term-file-object">file objects</a>, and objects of any classes you define with an <code>__iter__()</code> method or with a <code>__getitem__()</code> method that implements <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/glossary.html#term-sequence">sequence</a> semantics.</p>
-<p>可迭代对象被可用于 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/reference/compound_stmts.html#for"><code>for</code></a> 循环（for loop）以及许多其他需要一个序列的地方（<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/functions.html#zip"><code>zip()</code></a>、<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/functions.html#map"><code>map()</code></a> …）。当一个可迭代对象作为参数传给内置函数 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/functions.html#iter"><code>iter()</code></a> 时，它会返回该对象的迭代器。这种迭代器适用于对值集合的一次性遍历。在使用可迭代对象时，你通常不需要调用 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/functions.html#iter"><code>iter()</code></a> 或者自己处理迭代器对象。<code>for</code> 语句会为你自动处理那些操作，创建一个临时的未命名变量用来在循环期间保存迭代器。参见 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/glossary.html#term-iterator">iterator</a>、<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/glossary.html#term-sequence">sequence</a> 以及 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/glossary.html#term-generator">generator</a>。</p>
-<h2 id="python迭代器概念"><a href="#python迭代器概念" class="headerlink" title="python迭代器概念"></a>python迭代器概念</h2><blockquote>
-<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ca411t7A9/?spm_id_from=333.788&vd_source=5e9891722f2b62adca440a5e92121b5b">【python】对迭代器一知半解？看完这个视频就会了。涉及的每个概念，都给你讲清楚！</a></p>
-</blockquote>
-<h4 id="iterable和iterator区别："><a href="#iterable和iterator区别：" class="headerlink" title="iterable和iterator区别："></a>iterable和iterator区别：</h4><p>iterable更像是数据的保存者，一个container，可以不知道迭代器数到哪里了，没有状态，需要有能力产生一个iterator。</p>
-<p>iterator是有状态的，但它并不需要实现一个container，内部知道它代表的iterable里面是什么数据，不用实现一个interface接口来修改这个iterable里面的数据。（？？）</p>
-<p>从实现上看，iterable要么有 <strong><code>__iter__()</code>方法</strong>，要么它就是一个sequence，然后有**<code>__getitem__()</code>方法**，这两者都是为了保证可迭代对象可以在iter()这个函数的作用下返回一个迭代器。</p>
-<p>iterator必须要有**<code>__next__</code>方法**，这个method保证它在被next()作用下可以返回下一个iterable里面的值。</p>
-<p>具体python内部实现过程：for循环里，是从栈顶的iterable里，拿出这个iterable所对应的iterator。</p>
-<p>例子，用iterable实现一个链表：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">NodeIter</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, Node</span>):   <span class="comment"># 这里self是自己的nodeiter对象，node是传进来的node对象</span></span><br><span class="line">        self.curNode = Node</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__next__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> self.curNode:</span><br><span class="line">            <span class="keyword">raise</span> StopIteration</span><br><span class="line">        node, self.curNode = self.curNode, self.curNode.<span class="built_in">next</span></span><br><span class="line">        <span class="keyword">return</span> node</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__iter__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Node</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, name</span>):</span><br><span class="line">        self.name = name</span><br><span class="line">        self.<span class="built_in">next</span> = <span class="literal">None</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__iter__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> NodeIter(self)   <span class="comment"># 把自己这个Node对象传进去</span></span><br><span class="line"></span><br><span class="line">node1 = Node(<span class="string">&quot;a&quot;</span>)</span><br><span class="line">node2 = Node(<span class="string">&quot;b&quot;</span>)</span><br><span class="line">node3 = Node(<span class="string">&quot;c&quot;</span>)</span><br><span class="line"></span><br><span class="line">node1.<span class="built_in">next</span> = node2</span><br><span class="line">node2.<span class="built_in">next</span> = node3</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> node <span class="keyword">in</span> node1:</span><br><span class="line">    <span class="built_in">print</span>(node.name)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果想从第二个开始打印：</span></span><br><span class="line">it = <span class="built_in">iter</span>(node1)</span><br><span class="line">first = <span class="built_in">next</span>(it)    <span class="comment"># 或者写 it.__next__()</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> node <span class="keyword">in</span> it:</span><br><span class="line">    <span class="built_in">print</span>(node.name)</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h2 id="python迭代器语法"><a href="#python迭代器语法" class="headerlink" title="python迭代器语法"></a>python迭代器语法</h2><blockquote>
-<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV18R4y1t7Hg/?spm_id_from=333.337.search-card.all.click&vd_source=5e9891722f2b62adca440a5e92121b5b">『教程』几分钟听懂迭代器</a></p>
-</blockquote>
-<p>放在for里的对象必须要是可迭代（iterable）的，不然会报错。</p>
-<p>有 iter() 方法就是可迭代的。</p>
-<img src="/2023/02/02/python/python%20%E8%BF%AD%E4%BB%A3%E5%99%A8/image-20230202180415065.png" alt="image-20230202180415065" style="zoom: 33%;">
-
-<p>&#x3D;&#x3D;对于可迭代对象，for语句会先调用<code>__iter__()</code>方法，然后把<code>__iter__()</code>方法的返回值当成一个对象（obj），并且调用这个对象的<code>__next__()</code>方法（<code>obj.__next__()</code>）。&#x3D;&#x3D;</p>
-<p>迭代器（iterator）：可迭代对象具有<code>__next__()</code>方法，称为迭代器。或者说，一个对象，有<code>__iter__()</code>方法，也有<code>__next__()</code>方法，则是迭代器。</p>
-<p>python中的内置函数<code>iter()</code>，可以得到<strong>可迭代对象</strong>的迭代器（如果有的话）。</p>
-<p>对于迭代器，可直接调用next()方法，来查看每一次的返回值。</p>
-<p>举例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>a=<span class="number">2233</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> e <span class="keyword">in</span> a:</span><br><span class="line"><span class="meta">... </span>    <span class="built_in">print</span>(e)</span><br><span class="line">...</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">TypeError: <span class="string">&#x27;int&#x27;</span> <span class="built_in">object</span> <span class="keyword">is</span> <span class="keyword">not</span> iterable</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> collections.abc <span class="keyword">import</span> Iterable</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">isinstance</span>(a, Iterable)</span><br><span class="line"><span class="literal">False</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>lstTest = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">isinstance</span>(lstTest, Iterable)</span><br><span class="line"><span class="literal">True</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> collections.abc <span class="keyword">import</span> Iterator</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">isinstance</span>(lstTest, Iterator)</span><br><span class="line"><span class="literal">False</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>xd = <span class="built_in">iter</span>(lstTest)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">isinstance</span>(xd, Iterator)</span><br><span class="line"><span class="literal">True</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">isinstance</span>(xd, Iterable)</span><br><span class="line"><span class="literal">True</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>xd</span><br><span class="line">&lt;list_iterator <span class="built_in">object</span> at <span class="number">0x7f1c07b0c3a0</span>&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>xd.__next__()</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>xd.__next__()</span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(xd)</span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(xd)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">StopIteration</span><br></pre></td></tr></table></figure>
-
-
-
-<p>为什么for循环里不会出现StopIteration异常报错呢？因为for循环里写了自动捕捉这个异常，并把它当作遍历结束的标志：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 所以一个for循环：</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> seq:</span><br><span class="line">    do_something_to(i)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 实际上是这样工作的：</span></span><br><span class="line">fetch = <span class="built_in">iter</span>(seq)</span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        i = fetch.<span class="built_in">next</span>()</span><br><span class="line">    <span class="keyword">except</span> StopIteration:</span><br><span class="line">        <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="让自己的类支持迭代："><a href="#让自己的类支持迭代：" class="headerlink" title="让自己的类支持迭代："></a>让自己的类支持迭代：</h3><p>只需要：</p>
-<ol>
-<li>给类加入<code>__iter__()</code>方法</li>
-<li>上述方法返回的对象具有<code>__next__()</code>方法</li>
-</ol>
-<p>举例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Reverse</span>:</span><br><span class="line">    <span class="comment"># 例子：可把字符串反序输出的迭代器</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, data</span>):</span><br><span class="line">        self.data = data</span><br><span class="line">        self.index = <span class="built_in">len</span>(data)</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__iter__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__next__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 把字符串挨个儿反序输出</span></span><br><span class="line">        <span class="keyword">if</span> self.index == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">raise</span> StopIteration</span><br><span class="line">        self.index = self.index - <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> self.data[self.index]</span><br><span class="line"></span><br><span class="line">r = Reverse(abc)</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">next</span>(r))</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">next</span>(r))</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">next</span>(r))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者用遍历：</span></span><br><span class="line"><span class="keyword">for</span> e <span class="keyword">in</span> r:</span><br><span class="line">    <span class="built_in">print</span>(e)</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line"><span class="comment"># c</span></span><br><span class="line"><span class="comment"># b</span></span><br><span class="line"><span class="comment"># a</span></span><br></pre></td></tr></table></figure>
-
-<p>不知道iter里写什么，就填返回自己（self）。</p>
-<p>&#x3D;&#x3D;<strong>迭代器特点：用多少取多少</strong>&#x3D;&#x3D;。这里Reverse(abc)对象只包含abc这三个字符，但每次迭代时只返回【<strong>一个</strong>】字符，假如这里是三千万个字符，要实现反转的功能，每次迭代时仍然可以只返回一个字符。只要用很少的内存就可以存放和处理！也不需要开辟一个很大的内存空间，来一次性接收这三千万个字符！</p>
-<p>又称为“惰性加载”。</p>
-<hr>
-<blockquote>
-<p>realpython教程 <a target="_blank" rel="noopener" href="https://realpython.com/python-itertools/">Itertools in Python 3, By Example</a></p>
-</blockquote>
-<p><code>[1, 2, 3]</code>and 和<code>[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]</code>所有列表一样，是可迭代的，这意味着它们可以一次返回一个元素。</p>
-<p>从技术上讲，任何实现<code>.__iter__()</code>或<code>.__getitem__()</code>方法的 Python 对象都是可迭代的。</p>
-<hr>
-<blockquote>
-<p>runoob <a target="_blank" rel="noopener" href="https://www.runoob.com/python3/python3-iterator-generator.html">Python3 迭代器与生成器</a></p>
-</blockquote>
-<p>迭代是访问集合元素的一种方式。</p>
-<p>迭代器是一个可以记住遍历的位置的对象。</p>
-<p>迭代器对象从集合的第一个元素开始访问，直到所有的元素被访问完结束。迭代器只能往前不会后退。</p>
-<p>迭代器有两个基本的方法：<strong>iter()</strong> 和 **next()**。</p>
-<p>字符串，列表或元组对象都可用于创建迭代器：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">list</span>=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>it = <span class="built_in">iter</span>(<span class="built_in">list</span>)    <span class="comment"># 创建迭代器对象</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span> (<span class="built_in">next</span>(it))   <span class="comment"># 输出迭代器的下一个元素</span></span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span> (<span class="built_in">next</span>(it))</span><br><span class="line"><span class="number">2</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p>迭代器对象可以使用常规for语句进行遍历：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">list</span>=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>]</span><br><span class="line">it = <span class="built_in">iter</span>(<span class="built_in">list</span>)    <span class="comment"># 创建迭代器对象</span></span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> it:</span><br><span class="line">    <span class="built_in">print</span> (x, end=<span class="string">&quot; &quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p>执行以上程序，输出结果如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1 2 3 4</span><br></pre></td></tr></table></figure>
-
-
-
-<p>也可以使用 next() 函数：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys         <span class="comment"># 引入 sys 模块</span></span><br><span class="line"> </span><br><span class="line"><span class="built_in">list</span>=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>]</span><br><span class="line">it = <span class="built_in">iter</span>(<span class="built_in">list</span>)    <span class="comment"># 创建迭代器对象</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="built_in">print</span> (<span class="built_in">next</span>(it))</span><br><span class="line">    <span class="keyword">except</span> StopIteration:</span><br><span class="line">        sys.exit()</span><br></pre></td></tr></table></figure>
-
-<p>执行以上程序，输出结果如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td></tr></table></figure>
-
-
-
-<hr>
-<blockquote>
-<p>简书 <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/efaa19594cf4">python 黑科技之迭代器、生成器、装饰器</a></p>
-</blockquote>
-<h2 id="可迭代对象"><a href="#可迭代对象" class="headerlink" title="可迭代对象"></a>可迭代对象</h2><p>先说下上面三者的基础：可迭代对象（Iterable Object），简单的来理解就是可以使用 <code>for</code> 来循环遍历的对象。比如常见的 list、set和dict。可以用以下方法来测试对象是否是可迭代</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> collections <span class="keyword">import</span> Iterable</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">isinstance</span>(<span class="string">&#x27;abc&#x27;</span>, Iterable)     <span class="comment"># 判断str是否可迭代</span></span><br><span class="line"><span class="literal">True</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">isinstance</span>([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>], Iterable)   <span class="comment"># list是否可迭代</span></span><br><span class="line"><span class="literal">True</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">isinstance</span>(<span class="number">123</span>, Iterable)       <span class="comment"># 整数是否可迭代</span></span><br><span class="line"><span class="literal">False</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="迭代器"><a href="#迭代器" class="headerlink" title="迭代器"></a>迭代器</h2><p>对所有的可迭代对象调用 <code>dir()</code> 方法时，会发现他们都实现了 <code>__iter__</code> 方法。这样就可以通过 <code>iter(object)</code> 来返回一个迭代器。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>y = <span class="built_in">iter</span>(x)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">type</span>(x)</span><br><span class="line">&lt;<span class="keyword">class</span> <span class="string">&#x27;list&#x27;</span>&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">type</span>(y)</span><br><span class="line">&lt;<span class="keyword">class</span> <span class="string">&#x27;list_iterator&#x27;</span>&gt;</span><br></pre></td></tr></table></figure>
-
-<p>可以看到调用 <code>iter()</code> 之后，变成了一个 <code>list_iterator</code> 的对象。会发现增加了 <code>__next__</code> 方法。所有实现了 <code>__iter__</code> 和 <code>__next__</code> 两个方法的对象，都是迭代器。</p>
-<p>迭代器是带状态的对象，它会记录当前迭代所在的位置，以方便下次迭代的时候获取正确的元素。<code>__iter__</code>返回迭代器自身，<code>__next__</code>返回容器中的下一个值，如果容器中没有更多元素了，则抛出StopIteration异常。</p>
-<hr>
-<blockquote>
-<p>我问chatgpt：python中的迭代器</p>
-</blockquote>
-<p>在 Python 中，迭代器是一种对象，它可以遍历一个集合中的元素，每次返回一个元素，直到元素全部返回或遍历完毕。一个对象是一个迭代器当且仅当它实现了 <strong>iter</strong> 方法，该方法返回一个实现了 <strong>next</strong> 方法的对象。 <strong>next</strong> 方法返回下一个元素，如果没有更多的元素，则抛出 StopIteration 异常。</p>
-<p>通过内置函数 iter() 可以将一个对象转换成一个迭代器，通过内置函数 next() 可以从迭代器中返回下一个元素。常见的内置类型如列表、元组、字符串都可以被视为一个迭代器。</p>
-<p>以下是一个简单的例子，演示如何创建一个自定义的迭代器：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyIterator</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, start, end</span>):</span><br><span class="line">        self.current = start</span><br><span class="line">        self.end = end</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__iter__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__next__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> self.current &gt;= self.end:</span><br><span class="line">            <span class="keyword">raise</span> StopIteration</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.current += <span class="number">1</span></span><br><span class="line">            <span class="keyword">return</span> self.current - <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> MyIterator(<span class="number">0</span>, <span class="number">5</span>):</span><br><span class="line">    <span class="built_in">print</span>(i)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<hr>
-<p>待看：</p>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1BT4y1P7nn/?spm_id_from=333.337.search-card.all.click&amp;vd_source=5e9891722f2b62adca440a5e92121b5b">https://www.bilibili.com/video/BV1BT4y1P7nn/?spm_id_from=333.337.search-card.all.click&amp;vd_source=5e9891722f2b62adca440a5e92121b5b</a></p>
-</blockquote>
-
-          
+          python 迭代器  iterators
+https://pymotw.com/3/itertools/index.html
+https://docs.python.org/3/library/it
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/02/02/python/python%20%E8%BF%AD%E4%BB%A3%E5%99%A8/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -911,78 +718,18 @@
       
         
           
-            <h1 id="python-socket"><a href="#python-socket" class="headerlink" title="python socket"></a>python socket</h1><blockquote>
-<p>b站 奇乐编程学院  <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1eg411G7pW/?spm_id_from=333.337.search-card.all.click&vd_source=5e9891722f2b62adca440a5e92121b5b">TCP&#x2F;IP网络通信之Socket编程入门</a></p>
-</blockquote>
-<h2 id="单线程socket，socket入门代码"><a href="#单线程socket，socket入门代码" class="headerlink" title="单线程socket，socket入门代码"></a>单线程socket，socket入门代码</h2><p>下面是一个socket例子，实现的是服务器接收到来自客户端的数据，又原封不动发送给客户端的功能。</p>
-<p>服务器端：</p>
-<p>服务器端绑定bind的ip地址可以是任意的，表示服务器端监听任意ip地址，也就是可以接收任意客户端的信息。</p>
-<p>只有在客户端连接的端口号是bind里设置的端口号时，才会和服务器端连接上。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下面是一个socket例子，实现的是服务器接收到来自客户端的数据，又原封不动发送给客户端的功能。 </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="comment"># AF_INET 表示我们使用的是IPv4的地址家族（address family）</span></span><br><span class="line"><span class="comment"># SOCK_STREAM 表示我们使用的是TCP协议（TCP是“流式”协议）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 这里是服务器端的操作：</span></span><br><span class="line"><span class="keyword">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="keyword">as</span> s:</span><br><span class="line">    s.bind((<span class="string">&quot;0.0.0.0&quot;</span>, <span class="number">1234</span>))   </span><br><span class="line">    <span class="comment"># bind()将我们创建的socket关联到我们主机的某一个网卡（也叫网络接口 network interface）和端口上。</span></span><br><span class="line">    <span class="comment"># 网卡可以用ip地址指定</span></span><br><span class="line">    <span class="comment"># 这里用 0.0.0.0 地址，表示主机上的任意网卡都可以使用这个socket进行通信。</span></span><br><span class="line">    <span class="comment"># 表示服务器端监听任意ip地址，也就是任意客户端的信息</span></span><br><span class="line">    <span class="comment"># 只有在客户端连接的端口号是1234时，才会和服务器端连接上。</span></span><br><span class="line"></span><br><span class="line">    s.listen()  <span class="comment"># 将socket置为监听状态，并等待客户端的连接</span></span><br><span class="line"></span><br><span class="line">    c, addr = s.accept() <span class="comment"># 接受来自任意客户端的连接，并返回一个新的socket c，以及客户端的ip地址。</span></span><br><span class="line">    <span class="comment"># 这个c是一个与之前s不同的socket</span></span><br><span class="line">    <span class="comment"># socket s主要用于监听，server socket</span></span><br><span class="line">    <span class="comment"># socket c用于与连接的客户端进行通信，client socket</span></span><br><span class="line">    <span class="keyword">with</span> c:</span><br><span class="line">        <span class="built_in">print</span>(addr, <span class="string">&quot;connected.&quot;</span>) <span class="comment"># 打印客户端的IP地址</span></span><br><span class="line">		<span class="comment"># 这里这个写法，暗示服务器端只能同时处理一个客户端的请求，先作为入门这样看，下面可以看到改进的并发版本。</span></span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            data = c.recv(<span class="number">1024</span>) <span class="comment"># 一直调用recv()接收客户端来的信息</span></span><br><span class="line">            <span class="comment"># 1024代表一次性接受数据的最大长度，1024个字节</span></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> data:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            c.sendall(data) <span class="comment"># 原封不动将数据传回给客户端</span></span><br></pre></td></tr></table></figure>
+          python socket
+b站 奇乐编程学院  TCP&#x2F;IP网络通信之Socket编程入门
 
-
-
-<p>保存的该python文件，比如为server.py，然后在终端执行 <code>python server.py</code>，就启动了服务器端socket。</p>
-<p>在新打开一个终端，输入 <code>nc 127.0.0.1 1234</code>  （127.0.0.1 是一个回送地址（lookback address），代表本地计算机，1234是端口号）。</p>
-<p>按下回车，就可以看见服务器端收到了一个新连接，显示<code>(&#39;127.0.0.1&#39;, 53046) connected</code> ，表示接收到ip为127.0.0.1的客户端，客户端端口为53046.</p>
-<p>然后在客户端窗口中随便输入字符串，服务器也会原封不动的发送回来。</p>
-<img src="/2023/02/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/python%20socket/image-20230201162825199.png" alt="image-20230201162825199" style="zoom:67%;">
-
-
-
-
-
-<p>客户端：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> socket.socket(socket.AF_INET,socket.SOCK_STREAM) <span class="keyword">as</span> s:</span><br><span class="line">    s.connect((<span class="string">&quot;127.0.0.1&quot;</span>,<span class="number">1234</span>))   <span class="comment"># 传入服务器端的ip和端口号</span></span><br><span class="line">    s.sendall(<span class="string">b&quot;hello&quot;</span>)             <span class="comment"># 发送一条信息给服务器端，这里参数是字节序列，要加b（不是字符串）</span></span><br><span class="line">    data = s.recv(<span class="number">1024</span>)             <span class="comment"># 接收服务器返回的消息</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;received:&quot;</span>, <span class="built_in">repr</span>(data))</span><br></pre></td></tr></table></figure>
-
-
-
-<p>结果为：</p>
-<p><img src="/2023/02/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/python%20socket/image-20230201164000502.png" alt="image-20230201164000502"></p>
-<h2 id="多线程的socket服务器"><a href="#多线程的socket服务器" class="headerlink" title="多线程的socket服务器"></a>多线程的socket服务器</h2><p>服务器并发的与多个客户端进行通信</p>
-<h3 id="1-通过创建线程来响应不同客户端的请求"><a href="#1-通过创建线程来响应不同客户端的请求" class="headerlink" title="1. 通过创建线程来响应不同客户端的请求"></a>1. 通过创建线程来响应不同客户端的请求</h3><p>服务器端：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># 下面是一个多线程的socket例子，实现的是服务器接收到来自客户端的数据，又原封不动发送给客户端的功能。 </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">handle_client</span>(<span class="params">c, addr</span>):</span><br><span class="line">    <span class="built_in">print</span>(addr, <span class="string">&quot;connected.&quot;</span>) <span class="comment"># 打印客户端的IP地址</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        data = c.recv(<span class="number">1024</span>) <span class="comment"># 一直调用recv()接收客户端来的信息</span></span><br><span class="line">        <span class="comment"># 1024代表一次性接受数据的最大长度，1024个字节</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> data:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        c.sendall(data) <span class="comment"># 原封不动将数据传回给客户端</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># AF_INET 表示我们使用的是IPv4的地址家族（address family）</span></span><br><span class="line"><span class="comment"># SOCK_STREAM 表示我们使用的是TCP协议（TCP是“流式”协议）</span></span><br><span class="line"><span class="comment"># 这里是服务器端的操作：</span></span><br><span class="line"><span class="keyword">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="keyword">as</span> s:</span><br><span class="line">    s.bind((<span class="string">&quot;0.0.0.0&quot;</span>, <span class="number">1234</span>))   </span><br><span class="line">    <span class="comment"># bind()将我们创建的socket关联到我们主机的某一个网卡（也叫网络接口 network interface）和端口上。</span></span><br><span class="line">    <span class="comment"># 网卡可以用ip地址指定</span></span><br><span class="line">    <span class="comment"># 这里用 0.0.0.0 地址，表示主机上的任意网卡都可以使用这个socket进行通信。</span></span><br><span class="line"></span><br><span class="line">    s.listen()  <span class="comment"># 将socket置为监听状态，并等待客户端的连接</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        c, addr = s.accept() <span class="comment"># 在循环中不停调用accept接受来自客户端的连接</span></span><br><span class="line">        <span class="comment"># 接受来自任意客户端的连接，并返回一个新的socket c，以及客户端的ip地址。</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 为了避免程序的阻塞（block），创建一个新线程</span></span><br><span class="line">        t = threading.Thread(target=handle_client, args=(c,addr))   <span class="comment"># 新线程是 handle_client() </span></span><br><span class="line">        <span class="comment"># 将客户端的socket c和地址传递给这个线程</span></span><br><span class="line"></span><br><span class="line">        t.start()</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 然后线程中的代码和单线程中的一样。</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p>结果：</p>
-<img src="/2023/02/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/python%20socket/image-20230201172243140.png" alt="image-20230201172243140" style="zoom:67%;">
-
-
-
-<p>多线程局限性：由于python的 GIL（<a target="_blank" rel="noopener" href="https://python.land/python-concurrency/the-python-gil%EF%BC%89">https://python.land/python-concurrency/the-python-gil）</a> 的存在，python中的线程其实做不到真正的并发，并且线程自身也会占用额外的系统资源（线程内存开销、线程切换开销）</p>
-<p>除了线程之外，还可以使用基于事件驱动的selectors来实现多个连接的并发，或者通过更高层的asyncio来实现异步的socket代码。</p>
-<h2 id="简易HTTP服务器"><a href="#简易HTTP服务器" class="headerlink" title="简易HTTP服务器"></a>简易HTTP服务器</h2><p>HTTP是TCP协议的一个典型应用，也是浏览器与服务器交互的主要方式。通常服务器会监听80端口，然后等待客户端的连接（也就是浏览器比如搜索一个网址，是向服务器发起一次请求）。</p>
-<p>客户端在连上服务器以后，首先需要指定要访问的资源，然后客户端会提供一系列额外的信息，这些信息每一条都是以冒号分隔的键&#x2F;值对，信息是比如浏览器版本等，这些额外信息称作消息的头部（header）。随后是一个空行，再之后是消息的主体（body）（如果有的话）。</p>
-<p>服务器在收到消息后，会以同样格式来响应客户端的请求，首先第一行是一个状态行（status line），里面包含一个状态码，比如200代表请求成功，404代表请求的资源不存在。接着同样是一系列键&#x2F;值对，里面包含了请求资源的类型，服务器信息等。再后面是一个空行，再之后是消息的主体（body）（如果有的话）。</p>
-<img src="/2023/02/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/python%20socket/image-20230201175329315.png" alt="image-20230201175329315" style="zoom: 67%;">
-
-<p>http socket的例子</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"></span><br><span class="line">WEBROOT = <span class="string">&quot;webroot&quot;</span>	<span class="comment"># 这里webroot指的是这个例子的python文件当前路径下里面的子文件夹，也可以是其它文件夹名称</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">handle_client</span>(<span class="params">c, addr</span>):</span><br><span class="line">    <span class="built_in">print</span>(addr, <span class="string">&quot;connected.&quot;</span>) <span class="comment"># 打印客户端的IP地址</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> c:</span><br><span class="line">        request = c.recv(<span class="number">1024</span>) <span class="comment"># 一直调用recv()接收客户端来的信息   # request是信息</span></span><br><span class="line">        <span class="comment"># 1024代表一次性接受数据的最大长度，1024个字节</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># Parse HTTP headers</span></span><br><span class="line">        headers = request.split(<span class="string">b&quot;\r\n&quot;</span>)   <span class="comment"># 将消息拆分成一行一行的字符串，存放在header这个列表中</span></span><br><span class="line">        <span class="comment"># HTTP标准中定义的换行符是“回车+换行” </span></span><br><span class="line">        file = headers[<span class="number">0</span>].split()[<span class="number">1</span>].decode()   <span class="comment"># 提取出请求的文件名</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># Load file content</span></span><br><span class="line">        <span class="comment"># 如果用户请求的是根路径，直接返回index.html文件</span></span><br><span class="line">        <span class="keyword">if</span> file == <span class="string">&quot;/&quot;</span>:</span><br><span class="line">            file = <span class="string">&quot;/index.html&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 读取文件内容，并返回一个状态号为200的消息</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(WEBROOT + file, <span class="string">&quot;rb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                content = f.read()</span><br><span class="line">            response = <span class="string">b&quot;HTTP/1.0 200 OK\r\n\r\n&quot;</span> + content</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 如果请求的文件不存在</span></span><br><span class="line">        <span class="keyword">except</span> FileNotFoundError:</span><br><span class="line">            response = <span class="string">b&quot;HTTP/1.0 404 NOT FOUND\r\n\r\nFile not found&quot;</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># Send HTTP response</span></span><br><span class="line">        c.sendall(response)</span><br><span class="line"></span><br><span class="line"><span class="comment"># AF_INET 表示我们使用的是IPv4的地址家族（address family）</span></span><br><span class="line"><span class="comment"># SOCK_STREAM 表示我们使用的是TCP协议（TCP是“流式”协议）</span></span><br><span class="line"><span class="comment"># 这里是服务器端的操作：</span></span><br><span class="line"><span class="keyword">with</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM) <span class="keyword">as</span> s:</span><br><span class="line">    s.bind((<span class="string">&quot;0.0.0.0&quot;</span>, <span class="number">80</span>))   <span class="comment"># 这里好像只能是80端口，表示浏览器监听的？</span></span><br><span class="line">    <span class="comment"># bind()将我们创建的socket关联到我们主机的某一个网卡（也叫网络接口 network interface）和端口上。</span></span><br><span class="line">    <span class="comment"># 网卡可以用ip地址指定</span></span><br><span class="line">    <span class="comment"># 这里用 0.0.0.0 地址，表示主机上的任意网卡都可以使用这个socket进行通信。</span></span><br><span class="line"></span><br><span class="line">    s.listen()  <span class="comment"># 将socket置为监听状态，并等待客户端的连接</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        c, addr = s.accept() <span class="comment"># 在循环中不停调用accept接受来自客户端的连接</span></span><br><span class="line">        <span class="comment"># 接受来自任意客户端的连接，并返回一个新的socket c，以及客户端的ip地址。</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 为了避免程序的阻塞（block），创建一个新线程</span></span><br><span class="line">        t = threading.Thread(target=handle_client, args=(c,addr))   <span class="comment"># 新线程是 handle_client() </span></span><br><span class="line">        <span class="comment"># 将客户端的socket c和地址传递给这个线程</span></span><br><span class="line"></span><br><span class="line">        t.start()</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 然后线程中的代码和单线程中的一样。</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p>在该python文件（比如socket_http.py）当前路径下，有一个子文件夹，取名叫webroot，里面有一些网页，代表客户端搜索不同的网址，会连接到服务器的哪些个网页里（这里服务器的路径指的就是该python文件）。</p>
-<img src="/2023/02/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/python%20socket/image-20230202101951030.png" alt="image-20230202101951030" style="zoom:67%;">
-
-<p>然后启动 <code>sudo  python3 socket_http.py</code>，在浏览器页面中输入 <code>http://127.0.0.1/</code> 根路径，代码里要返回index.html这个文件，这个在网页中一般表示主页的意思，里面的内容也是自己定义的，这里”&#x2F;“就是指的根目录。如果在浏览器中输入 <code>http://127.0.0.1/123.HTML</code>，服务器端会返回给浏览器（客户端）123.html这个文件。</p>
-<p>在浏览器（客户端）和服务器建立请求时，不用特定指定端口了，80就是服务器默认端口了，浏览器要建立就直接是80端口了。（每次发送连接请求，客户端的端口各不相同）</p>
-<p>index.html内容：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>这是一个主页<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>浏览器呈现：</p>
-<p><img src="/2023/02/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/python%20socket/image-20230202102752447.png" alt="image-20230202102752447"></p>
-<p>123.html内容：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>随便说点什么吧<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>浏览器呈现：</p>
-<p><img src="/2023/02/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/python%20socket/image-20230202102906931.png" alt="image-20230202102906931"></p>
-<p>如果输入一个没有的链接：</p>
-<p><img src="/2023/02/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/python%20socket/image-20230202103036882.png" alt="image-20230202103036882"></p>
-<p>这样就实现了一个浏览器http和服务器的socket通信。</p>
-<p>python的标准库里已经实现了一个简易的HTTP服务器，它主要被用在开发和测试中，调用起来很方便，命令是：<code>python -m http.server 8000</code> </p>
-
-          
+单线程socket，socket入门代码下面是一个socket例子，实现的是服务器接收到来自客
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/02/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/python%20socket/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1133,200 +880,18 @@
       
         
           
-            <h1 id="Socket通信"><a href="#Socket通信" class="headerlink" title="Socket通信"></a>Socket通信</h1><blockquote>
-<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV12A411X7gY/?spm_id_from=333.337.search-card.all.click&vd_source=5e9891722f2b62adca440a5e92121b5b">socket到底是什么？ </a>   对应公众号：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/VazobOgY9QVaADpEur81ng">socket到底是什么？</a></p>
-</blockquote>
-<h2 id="百度百科粗略的一个解释"><a href="#百度百科粗略的一个解释" class="headerlink" title="百度百科粗略的一个解释"></a>百度百科粗略的一个解释</h2><p>（百度百科粗略的一个解释，有浅显的一个理解，大概就是不同主机通信，收发数据的一个桥梁。）</p>
-<p>socket（套接字）：对网络中不同主机上的应用进程之间进行双向通信的端点的抽象。一个套接字就是网络上进程通信的一端，提供了应用层进程利用网络协议交换数据的机制。 Socket是由IP地址和端口结合的，提供向应用层进程传送数据包的机制。</p>
-<p>socket表示方法：套接字Socket&#x3D;（IP地址：端口号），套接字的表示方法是点分十进制的lP地址后面写上端口号，中间用冒号或逗号隔开。每一个传输层连接唯一地被通信两端的两个端点（即两个套接字）所确定。例如：如果IP地址是210.37.145.1，而端口号是23，那么得到套接字就是(210.37.145.1:23)   。</p>
-<p>socket主要类型：</p>
-<p><strong>1.流套接字(SOCK_STREAM)</strong></p>
-<p>流套接字用于提供面向连接、可靠的数据传输服务。该服务将保证数据能够实现无差错、无重复送，并按顺序接收。流套接字之所以能够实现可靠的数据服务，原因在于其使用了传输控制协议，即TCP(The Transmission Control Protocol)协议。</p>
-<p><strong>2.数据报套接字(SOCK_DGRAM)</strong></p>
-<p>数据报套接字提供一种无连接的服务。该服务并不能保证数据传输的可靠性,数据有可能在传输过程中丢失或出现数据重复，且无法保证顺序地接收到数据。数据报套接字使用UDP( User DatagramProtocol)协议进行数据的传输。由于数据报套接字不能保证数据传输的可靠性，对于有可能出现的数据丢失情况，需要在程序中做相应的处理。</p>
-<p><strong>3.原始套接字(SOCK_RAW)</strong></p>
-<p>原始套接字与标准套接字(标准套接字指的是前面介绍的流套接字和数据报套接字)的区别在于：原始套接字可以读写内核没有处理的IP数据包，而流套接字只能读取TCP协议的数据，数据报套接字只能读取UDP协议的数据。因此，如果要访问其他协议发送的数据必须使用原始套接。</p>
-<p>套接字之间的连接过程可以分为三个步骤：</p>
-<ol>
-<li>服务器监听：服务器端套接字并不定位具体的客户端套接字，而是处于等待连接的状态，实时监控网络状态。</li>
-<li>客户端请求：由客户端的套接字提出连接请求，要连接的目标是服务器端的套接字。为此，客户端的套接字必须首先描述它要连接的服务器的套接字，指出服务器端套接字的地址和端口号，然后就向服务器端接字提出连接请求。</li>
-<li>连接确认：当服务器端套接字监听到或者说接收到客户端套接字的连接请求，就会响应客户端套接字的请求，建立一个新的线程，并把服务器端套接字的描述发送给客户端。一旦客户端确认了此描述，连接就建立好了。而服务器端套接字继续处于监听状态，接收其他客户端套接字的连接请求。</li>
-</ol>
-<h3 id="socket使用场景"><a href="#socket使用场景" class="headerlink" title="socket使用场景"></a>socket使用场景</h3><p>将数据从A电脑的某个进程发到B电脑的某个进程。</p>
-<h3 id="socket白话理解"><a href="#socket白话理解" class="headerlink" title="socket白话理解"></a>socket白话理解</h3><p>为什么操作系统没有暴露tcp udp这些协议的使用给应用，说白了太底层了，用了一层socket封装，通过socket去操作底层协议的具体实现，应用程序只需要用socket暴露的API就好了。</p>
-<p>一个内存里的抽象数据结构，用于管理硬件网卡对数据的收发。</p>
-<h2 id="通信（网络传输）过程："><a href="#通信（网络传输）过程：" class="headerlink" title="通信（网络传输）过程："></a>通信（网络传输）过程：</h2><blockquote>
-<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV12A411X7gY/?spm_id_from=333.337.search-card.all.click&vd_source=5e9891722f2b62adca440a5e92121b5b">socket到底是什么？ </a>   对应公众号：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/VazobOgY9QVaADpEur81ng">socket到底是什么？</a></p>
-</blockquote>
-<p>客户端、服务端各自执行socket方法，得到fd句柄之后，服务端依次执行bind、listen、accept方法，然后坐等客户端的连接请求 执行connect方法，向服务端发起建立连接的请求。连接建立完成后，客户端可以执行send方法发送消息，服务端可以执行recv()方法接收消息。反过来，服务器也可以执行send发送消息，客户端可以执行recv接收消息。</p>
-<p>具体的：</p>
-<p>第一步就是创建个关于TCP的<code>socket</code>。就像下面这样。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sock_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);</span><br></pre></td></tr></table></figure>
+          Socket通信
+b站：socket到底是什么？    对应公众号：socket到底是什么？
 
-<p>这个方法会返回<code>socket_fd</code>，它是socket文件的句柄，是个数字，相当于socket的身份证号。</p>
-<p>得到了<code>socket_fd</code>之后，对于服务端，就可以依次执行<code>bind()</code>, <code>listen()</code>, <code>accept()</code>方法，然后坐等客户端的连接请求。</p>
-<p>对于客户端，得到<code>socket_fd</code>之后，你就可以执行<code>connect()</code>方法向服务端发起建立连接的请求，此时就会发生TCP三次握手。</p>
-<p>连接建立完成后，<strong>客户端</strong>可以执行<code>send()</code> 方法发送消息，<strong>服务端</strong>可以执行<code>recv()</code>方法接收消息，反过来，<strong>服务器</strong>也可以执行<code>send()</code>，<strong>客户端</strong>执行<code>recv()</code>方法。</p>
-<p><img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/640.gif" alt="640"></p>
-<h2 id="socket的设计"><a href="#socket的设计" class="headerlink" title="socket的设计"></a>socket的设计</h2><p>网络传输，从操作上来看，就是两端之间<strong>互相</strong>收发数据，也就是对应<strong>读数据和写数据</strong>，也就是对文件的读、写（&#x3D;&#x3D;对远端服务器进程收发数据可以抽象为读和写&#x3D;&#x3D;）。</p>
-<p>用一个数据结构（类），取名叫sock，表示互相收发读写功能。下面开始完善这个类，这个类定义过程中，需要解决两个问题：</p>
-<ol>
-<li>由于接收端和发送端不止一个，因此加入IP和端口做下区分，<strong>IP用来定位是哪台电脑，端口用来定位是这台电脑上的哪个进程。</strong></li>
-<li>发送端和接收端的传输方式有很多区别，可以是可靠的<code>TCP协议</code>，也可以是不可靠的<code>UDP协议</code>，甚至还需要支持基于<code>icmp协议</code>的<code>ping命令</code>。</li>
-</ol>
-<p>解决第1个问题：可以在<code>sock</code>里加入<strong>IP和端口</strong>字段。</p>
-<p>解决第2个问题：会发现这些协议虽然各不相同，但还是有一些功能相似的地方，比如收发数据时的一些逻辑完全可以复用。按面向对象编程的思想，我们可以将不同的协议当成是不同的<strong>对象类（或结构体）</strong>，将公共的部分提取出来，通过”<strong>继承</strong>“的方式，复用功能。（也就是说，不同协议是不同的类，用一个sock作为基类，不同协议类作为派生类，继承这个公共部分（基类））</p>
-<h3 id="基于各种sock实现网络传输功能"><a href="#基于各种sock实现网络传输功能" class="headerlink" title="基于各种sock实现网络传输功能"></a>基于各种sock实现网络传输功能</h3><p>于是，我们将功能<strong>重新划分</strong>下，定义了一些数据结构。</p>
-<p>继承sock的各类sock：</p>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/642.png" alt="642" style="zoom:67%;">
-
-<p><code>sock</code>是<strong>最基础</strong>的结构，维护一些任何协议都有可能会用到的收发数据缓冲区。</p>
-<p><code>inet_sock</code>特指用了<strong>网络传输</strong>功能的<code>sock</code>，在<code>sock</code>的基础上还加入了<code>TTL</code>，<strong>端口，IP地址</strong>这些跟网络传输相关的字段信息。说到这里大家就懵了，难道还有不是用网络传输的？有，比如<code>Unix domain socket</code>，用于本机进程之间的通信，直接读写文件，不需要经过网络协议栈。</p>
-<p><code>inet_connection_sock</code> 是指<strong>面向连接</strong>的<code>sock</code>，在<code>inet_sock</code>的基础上加入面向连接的协议里相关字段，比如<code>accept队列</code>，数据包分片大小，握手失败重试次数等。虽然我们现在提到面向连接的协议就是指TCP，但设计上linux需要支持扩展<strong>其他</strong>面向连接的<strong>新协议</strong>，比如SCTP协议。</p>
-<p><code>tcp_sock</code> 就是正儿八经的<strong>tcp协议</strong>专用的<code>sock</code>结构了，在<code>inet_connection_sock</code>基础上还加入了tcp特有的<strong>滑动窗口</strong>、<strong>拥塞避免</strong>等功能。同样udp协议也会有一个专用的数据结构，叫<code>udp_sock</code>。</p>
-<p>好了，现在有了这套数据结构，我们将它们跟<strong>硬件</strong>网卡对接一下，就实现了网络传输的功能。</p>
-<h3 id="提供socket层"><a href="#提供socket层" class="headerlink" title="提供socket层"></a>提供socket层</h3><p>可以想象得到，这里面的代码肯定非常复杂，同时还操作了网卡硬件，需要比较高的<strong>操作系统权限</strong>，再考虑到性能和安全，于是决定将它放在<strong>操作系统内核</strong>里。</p>
-<p>既然网络传输功能做在内核里，那用户空间的应用程序想要用这部分功能的话，该怎么办呢？</p>
-<p>这个好办，本着不重复造轮子的原则，我们将这部分功能抽象成一个个<strong>简单的接口</strong>。以后别人只需要调用这些接口，就可以驱动我们写好的这一大堆复杂的数据结构去发送数据。</p>
-<p>那么问题来了，<strong>怎么样将这部分功能暴露出去呢？让其他程序员更方便的使用呢？</strong></p>
-<p>既然跟远端服务端进程收发数据可以抽象为“<strong>读和写</strong>”，操作文件也可以抽象为”<strong>读和写</strong>“，正好有句话叫，”<strong>linux里一切皆是文件</strong>“，那我们索性，&#x3D;&#x3D;<strong>将内核的sock封装成文件</strong>就好了。创建<code>sock</code>的同时也创建一个<strong>文件</strong>&#x3D;&#x3D;，<strong>文件有个句柄fd</strong>，说白了就是个<strong>文件系统</strong>里的<strong>身份证号码</strong>，通过它可以<strong>唯一确定</strong>是哪个<code>sock</code>。</p>
-<blockquote>
-<p>这个文件句柄fd其实就是 <code>sock_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)</code> 里的<code>sock_fd</code>。</p>
-</blockquote>
-<p>将句柄暴露给用户，之后用户就可以像操作<strong>文件句柄</strong>那样去操作这个<strong>sock句柄</strong>。在用户空间里操作这个句柄，<strong>文件系统</strong>就会将操作<strong>指向</strong>内核<code>sock</code>结构。</p>
-<p>是的，操作这个特殊的<strong>文件</strong>就相当于操作内核里对应的<code>sock</code>。</p>
-<p>通过文件找到sock：</p>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/641-16751508946574.png" alt="641" style="zoom:67%;">
-
-<p>有了<code>sock_fd句柄</code>之后，我们就需要提供一些接口方法（API），让用户更方便的实现特定的网络编程功能。这些接口，我们列了一下，发现需要有<code>send()</code>，<code>recv()</code>，<code>bind()</code>, <code>listen()</code>，<code>connect()</code>这些。到这里，我们的内核网络传输功能就算设计完成了。</p>
-<p>现在是不是眼熟了，<strong>上面这些接口方法其实就是&#x3D;&#x3D;socket&#x3D;&#x3D;提供出来的接口</strong>。</p>
-<p>所以说，socket其实就是个<strong>代码库 or 接口层</strong>，它介于<strong>内核和应用程序之间</strong>，提供了一些<strong>高度封装过</strong>的接口，让我们去使用<strong>内核网络传输功能</strong>。</p>
-<p>基于sock实现网络传输功能：</p>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/643.png" alt="643" style="zoom:67%;">
-
-
-
-<p>到这里，我们应该明白了。我们平时写的应用程序里代码里虽然用了socket实现了收发数据包的功能，但其实真正执行网络通信功能的，不是应用程序，而是<strong>linux内核</strong>。相当于&#x3D;&#x3D;应用程序通过socket提供的接口，将网络传输的这部分工作<strong>外包</strong>给了<strong>linux内核</strong>&#x3D;&#x3D;。</p>
-<p>这听起来像不像我们最熟悉的<strong>前后端分离</strong>的服务架构，<strong>虽然这么说不太严谨</strong>，但看上去linux就像是被分成了<strong>应用程序和内核两个服务</strong>。内核就像是<strong>后端</strong>，暴露了好多个<strong>api接口</strong>，其中一类就是socket的<code>send()</code>和<code>recv()</code>这些方法。应用程序就像是<strong>前端</strong>，负责调用内核提供的接口来实现想要的功能。</p>
-<p>进程通过socket调用内核功能：</p>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/644.png" alt="644" style="zoom:67%;">
-
-
-
-<p>看到这里，我担心大家会有点混乱，来做个小的<strong>总结</strong>。</p>
-<p>&#x3D;&#x3D;<strong>在操作系统内核空间里，实现网络传输功能的结构是sock，基于不同的协议和应用场景，会被泛化为各种类型的xx_sock，它们结合硬件，共同实现了网络传输功能。为了将这部分功能暴露给用户空间的应用程序使用，于是引入了socket层，同时将sock嵌入到文件系统的框架里，sock就变成了一个特殊的文件，用户就可以在用户空间使用文件句柄，也就是socket_fd来操作内核sock的网络传输能力。</strong>&#x3D;&#x3D;</p>
-<p>这个<code>socket_fd</code>是一个<strong>int类型的数字</strong>。现在回去看<code>socket</code>的中文翻译，<strong>套接字</strong>，<strong>我</strong>将它理解为一<strong>套</strong>用于连<strong>接</strong>的数<strong>字</strong>，是不是就觉得特别合理了。</p>
-<p>网络分层与基于sock实现网络传输功能：</p>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/645.png" alt="645" style="zoom:67%;">
-
-
-
-<h2 id="socket如何实现网络通信"><a href="#socket如何实现网络通信" class="headerlink" title="socket如何实现网络通信"></a>socket如何实现网络通信</h2><p>以最常用的TCP协议为例，简单了解下它是怎么实现网络传输功能的。</p>
-<p>将它分为两阶段，分别是<strong>建立连接</strong>和<strong>数据传输</strong>。</p>
-<h3 id="建立连接"><a href="#建立连接" class="headerlink" title="建立连接"></a>建立连接</h3><p>对于TCP，要传数据，就得先在客户端和服务端中间<strong>建立连接</strong>。</p>
-<p><strong>在客户端</strong>，代码执行socket提供的<code>connect(sockfd, &quot;ip:port&quot;)</code>方法时，会通过<strong>sockfd句柄</strong>找到对应的<strong>文件</strong>，再根据文件里的信息<strong>指向</strong>内核的<code>sock</code>结构。通过这个sock结构主动发起三次握手。</p>
-<p>TCP三次握手：</p>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/646.png" alt="646" style="zoom:67%;">
-
-
-
-<p>在服务端握手次数还没达到”三次”的连接，叫<strong>半连接</strong>，完成好三次握手的连接，叫<strong>全连接</strong>。它们分别会用<strong>半连接队列</strong>和<strong>全连接队列</strong>来存放，这两个队列会在你执行<code>listen()</code>方法的时候创建好。当服务端执行<code>accept()</code>方法时，就会从全连接队列里拿出一条全连接。</p>
-<p>半连接队列和全连接队列：</p>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/647.png" alt="647" style="zoom:67%;">
-
-
-
-<p>至此，连接就算准备好了，之后，就可以<strong>开始传输数据</strong>。</p>
-<blockquote>
-<p>虽然都叫队列，但半连接队列其实是个hash表，而全连接队列其实是个链表。</p>
-<p>那么问题来了，为什么半连接队列要设计成哈希表而全连接队列是个链表？这个在我在我之前写的<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg5NDY2MDk4Mw==&mid=2247487062&idx=1&sn=fa75a39e60f13e2275ff9ef7c96866de&scene=21#wechat_redirect">《没有accept，能建立TCP连接吗？》</a> 已经提到过，不再重复。</p>
-</blockquote>
-<h3 id="数据传输"><a href="#数据传输" class="headerlink" title="数据传输"></a>数据传输</h3><p>为了实现发送和接收数据的功能，sock结构体里带了<strong>一个发送缓冲区和一个接收缓冲区</strong>，&#x3D;&#x3D;说是<strong>缓冲区</strong>，但其实就是个<strong>链表</strong>&#x3D;&#x3D;，上面挂着一个个准备要发送或接收的数据。</p>
-<p>当应用执行<code>send()</code>方法<strong>发送数据</strong>时，同样也会通过<code>sock_fd</code>句柄找到对应的文件，根据文件指向的<code>sock</code>结构，找到这个<code>sock</code>结构里带的<strong>发送缓冲区</strong>，将数据会放到发送缓冲区，然后结束流程，内核看心情决定什么时候将这份数据发送出去。</p>
-<p><strong>接收数据</strong>流程也类似，当数据送到linux内核后，数据不是立马给到应用程序的，而是先放在接收缓冲区中，数据静静躺着，卑微的等待<strong>应用程序</strong>什么时候执行<code>recv()</code>方法来拿一下。</p>
-<p>sock的发送和接收缓冲区：</p>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/648.png" alt="648" style="zoom:67%;">
-
-<p>IP和端口其实不在sock下，而在inet_sock下，上面这么画只是为了简化。</p>
-<p>那么问题来了，发送数据是应用程序主动发起，这个大家都没问题。</p>
-<p><strong>那接收数据呢？数据从远端发过来了，怎么通知并给到应用程序呢？</strong></p>
-<p>这就需要用到<strong>等待队列</strong>。</p>
-<p>sock内的等待队列：</p>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/649.png" alt="649" style="zoom:67%;">
-
-<p>当你的应用进程执行<code>recv()</code>方法尝试获取（阻塞场景下）接收缓冲区的数据时。</p>
-<ul>
-<li><p>如果有数据，那正好，取走就好了。这点没啥疑问。</p>
-</li>
-<li><p>但如果没数据，就会将自己的<strong>进程</strong>信息注册到这个sock用的<strong>等待队列</strong>里，然后进程<strong>休眠</strong>。如果这时候有数据从远端发过来了，数据进入到接收缓冲区时，内核就会取出sock的等待队列里的进程，<strong>唤醒</strong>进程来取数据。</p>
-</li>
-</ul>
-<p>recv时无数据进程进入等待队列：</p>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/650.png" alt="650" style="zoom: 50%;">
-
-
-
-<p>有时候，你会看到<strong>多个进程</strong>通过<code>fork</code>的方式，<code>listen</code>了同一个<code>socket_fd</code>。在内核，它们都是<strong>同一个sock</strong>，多个进程执行listen()之后，都嗷嗷等待连接进来，所以都会将自身的进程信息注册到这个socket_fd对应的内核sock的<strong>等待队列</strong>中。如果这时真来了一个连接，是该唤醒等待队列里的哪个进程来接收连接呢？这个问题的答案比较有趣。</p>
-<ul>
-<li>在linux 2.6以前，会唤醒等待队列里的所有进程。但最后其实只有一个进程会处理这个连接请求，其他进程又重新进入休眠，这些被唤醒了又无事可做最后只能重新回去休眠的进程会消耗一定的资源。就好像你在广东的街头，想问路，叫一声靓仔，几十个人同时回头，但你其实只需要其中一个靓仔告诉你路该怎么走。你这种一不小心<strong>惊</strong>动这<strong>群</strong>靓仔的场景，在计算机领域中，就叫<strong>惊群效应</strong>。</li>
-<li>在linux 2.6之后，只会唤醒等待队列里的其中一个进程。是的，socket监听的惊群效应问题被修复了。</li>
-</ul>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/651.png" alt="651" style="zoom: 50%;">
-
-<center><p>惊群效应</p></center>
-
-<p>看到这里，问题又来了。</p>
-<p><strong>服务端 listen 的时候，那么多数据到一个 socket 怎么区分多个客户端的？</strong></p>
-<p>以TCP为例，服务端执行listen方法后，会等待客户端发送数据来。客户端发来的数据包上会有<strong>源IP地址和端口</strong>，以及<strong>目的IP地址和端口</strong>，这四个元素构成一个<strong>四元组</strong>，可以用于唯一标记一个客户端。</p>
-<blockquote>
-<p>其实说四元组并不严谨，因为过程中还有很多其他信息，也可以说是五元组。。。但大概理解就好，就这样吧。。。</p>
-</blockquote>
-<p>四元组：</p>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/652.png" alt="652" style="zoom: 50%;">
-
-
-
-<p>服务端会创建一个新的内核sock，并用四元组生成一个<code>hash key</code>，将它放入到一个<code>hash表</code>中。</p>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/653.png" alt="653" style="zoom:50%;">
-
-<center><p>四元组映射成hash键</p></center>
-
-
-
-<p>下次再有消息进来的时候，通过消息自带的四元组生成<code>hash key</code>再到这个<code>hash表</code>里重新取出<strong>对应的sock</strong>就好了。所以说<strong>服务端是通过四元组来区分多个客户端的</strong>。</p>
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/654.png" alt="654" style="zoom:50%;">
-
-<center><p>多个hash_key对应多个客户端</p></center>
-
-
-
-<h2 id="sock怎么实现”继承”"><a href="#sock怎么实现”继承”" class="headerlink" title="sock怎么实现”继承”"></a>sock怎么实现”继承”</h2><p>最后遗留一个问题。</p>
-<p>大家都知道linux内核是C语言实现的，而<strong>C语言没有类也没有继承的特性，是怎么做到”继承”的效果的呢？</strong></p>
-<p>在C语言里，结构体里的内存是<strong>连续</strong>的，将要继承的”父类”，放到结构体的<strong>第一位</strong>，就像下面这样。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">tcp_sock</span> &#123;</span></span><br><span class="line">    <span class="comment">/* inet_connection_sock has to be the first member of tcp_sock */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inet_connection_sock</span> <span class="title">inet_conn</span>;</span></span><br><span class="line">        <span class="comment">// 其他字段</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">inet_connection_sock</span> &#123;</span></span><br><span class="line">    <span class="comment">/* inet_sock has to be the first member! */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inet_sock</span>   <span class="title">icsk_inet</span>;</span></span><br><span class="line">        <span class="comment">// 其他字段</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>然后我们就可以通过结构体名的长度来强行截取内存，这样就能转换结构体，从而实现类似”继承”的效果。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sock 转为 tcp_sock</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="keyword">struct</span> tcp_sock *<span class="title function_">tcp_sk</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> sock *sk)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">struct</span> tcp_sock *)sk;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/655.png" alt="655" style="zoom:50%;">
-
-<center>内存布局</center>
-
-
-
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
-<li>socket中文套接字，我理解为一<strong>套</strong>用于连<strong>接</strong>的数<strong>字</strong>。</li>
-<li>sock在内核，socket_fd在用户空间，socket层介于内核和用户空间之间。</li>
-<li>在操作系统内核空间里，实现网络传输功能的结构是sock，基于不同的协议和应用场景，会被泛化为各种类型的xx_sock，它们结合硬件，共同实现了网络传输功能。为了将这部分功能暴露给用户空间的应用程序使用，于是引入了socket层，同时将sock嵌入到文件系统的框架里，sock就变成了一个特殊的文件，用户就可以在用户空间使用文件句柄，也就是socket_fd来操作内核sock的网络传输能力。</li>
-<li>服务端可以通过四元组来区分多个客户端。</li>
-<li>内核通过c语言”结构体里的内存是连续的”这一特点实现了类似继承的效果。</li>
-</ul>
-
-          
+百度百科粗略的一个解释（百度百科粗略的一个解释，有浅显的一个理解，大概就是不同主机通信，收发数据的一个桥
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1477,92 +1042,23 @@
       
         
           
-            <h1 id="动态库封装"><a href="#动态库封装" class="headerlink" title="动态库封装"></a>动态库封装</h1><blockquote>
-<p>《语音识别原理与技术》洪青阳 工业应用实践 书、PPT 15.1</p>
-</blockquote>
-<ul>
-<li>函数接口</li>
-<li>动态库编译</li>
-<li>动态库调用</li>
-</ul>
-<h2 id="函数接口"><a href="#函数接口" class="headerlink" title="函数接口"></a>函数接口</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">			基于语音缓冲区的语音识别（非特定人）</span></span><br><span class="line"><span class="comment">		@ handle	      : 线路资源标识（必须是已打开） 用来区分不同线程，防止共享资源同时修改某个地址的内容造成混乱 每个线程对应一个句柄号</span></span><br><span class="line"><span class="comment">		@ buffer           : 待识别语音缓冲区	short型 因为采样点一般用两个字节的short来保存</span></span><br><span class="line"><span class="comment">		@ length          : 待识别语音缓冲区长度	无符号的长整型 unsigned int 是buffer的长度 比如16000个采样点数 表示长度</span></span><br><span class="line"><span class="comment">		@ text              : 识别的文本内容 	字符串	是一个指针，因此结果即使已经有一部分输出了，也是可以随时修改前面的，输出变换后的内容</span></span><br><span class="line"><span class="comment">		@ scoreASR      : 语音识别得分		一般用置信度</span></span><br><span class="line"><span class="comment">		@ return	      : 成功识别返回SUCCESS</span></span><br><span class="line"><span class="comment">                                                                                                                                                                                   */</span></span><br><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="function">return_ASR_Code <span class="title">ASR_recSpeechBuf</span><span class="params">(Handle handle, <span class="type">short</span>* buffer, <span class="type">unsigned</span> <span class="type">long</span> length, <span class="type">char</span>* text, <span class="type">float</span> &amp;scoreASR)</span></span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+          动态库封装
+《语音识别原理与技术》洪青阳 工业应用实践 书、PPT 15.1
 
 
+函数接口
+动态库编译
+动态库调用
 
-<p>根据ASR_recSpeechBuf函数的输入和输出参数，我们&#x3D;&#x3D;改写&#x3D;&#x3D;了Kaldi的在线解码程序，包括以下函数：</p>
-<ul>
-<li><strong>ASR_recSpeechBuf</strong>函数：与外面调用程序交互，首先判断分配到的句柄handle是否空闲，如果忙则返回ASR_STATE_ERROR，表示已被占用；如果检查通过，则调用KaldiDecode函数进行解码，并把词序列索引转化为文本内容，保存到输出参数text，即为识别后的句子。</li>
-<li><strong>KaldiDecode</strong>函数：实现从语音缓冲buffer到识别结果的具体解码过程，首先完成输入buffer到SubVector<BaseFloat> wave_part的转化过程，然后调用feature_pipeline.AcceptWaveform(samp_freq, wave_part)进行声学特征提取，注意声学特征一般有做倒谱均值减（CMN），因此在函数内部还要加上这步操作，接着调用decoder.AdvanceDecoding()进行分片段识别，得到中间解码结果，保存在Lattice里，随后采用decoder.FinalizeDecoding()进行Lattice解码，修正中间部分结果。最后调用GetDiagnosticsAndPrintOutput函数得到解码后的词序列索引。</BaseFloat></li>
-<li><strong>GetDiagnosticsAndPrintOutput</strong>函数：根据输入的CompactLattice进行Lattice最优路径搜索并返回得到词序列和基于最小贝叶斯风险算出来的置信度，分别存放在输出参数words和words_conf（confidence置信度）。</li>
-</ul>
-<p>改写后：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 根据输入的CompactLattice进行Lattice最优路径搜索</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">GetDiagnosticsAndPrintOutput</span><span class="params">(<span class="type">const</span> fst::SymbolTable *word_syms,</span></span></span><br><span class="line"><span class="params"><span class="function">                                  <span class="type">const</span> CompactLattice &amp;clat,</span></span></span><br><span class="line"><span class="params"><span class="function">                                  int64 *tot_num_frames,</span></span></span><br><span class="line"><span class="params"><span class="function">                                  <span class="type">double</span> *tot_like,</span></span></span><br><span class="line"><span class="params"><span class="function">                                 std::vector&lt;int32&gt; &amp;words,</span></span></span><br><span class="line"><span class="params"><span class="function">                                 BaseFloat &amp;words_conf)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (clat.<span class="built_in">NumStates</span>() == <span class="number">0</span>) &#123;</span><br><span class="line">    KALDI_WARN &lt;&lt; <span class="string">&quot;Empty lattice.&quot;</span>;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  CompactLattice best_path_clat;</span><br><span class="line">  <span class="built_in">CompactLatticeShortestPath</span>(clat, &amp;best_path_clat);</span><br><span class="line"></span><br><span class="line">  Lattice best_path_lat;</span><br><span class="line">  <span class="built_in">ConvertLattice</span>(best_path_clat, &amp;best_path_lat);</span><br><span class="line"></span><br><span class="line">  <span class="type">double</span> likelihood;</span><br><span class="line">  LatticeWeight weight;</span><br><span class="line">  int32 num_frames;</span><br><span class="line">  std::vector&lt;int32&gt; alignment;</span><br><span class="line">  <span class="built_in">GetLinearSymbolSequence</span>(best_path_lat, &amp;alignment, &amp;words, &amp;weight);</span><br><span class="line">  num_frames = alignment.<span class="built_in">size</span>();</span><br><span class="line">  likelihood = -(weight.<span class="built_in">Value1</span>() + weight.<span class="built_in">Value2</span>());</span><br><span class="line">  *tot_num_frames += num_frames;</span><br><span class="line">  *tot_like += likelihood;</span><br><span class="line">  <span class="built_in">KALDI_VLOG</span>(<span class="number">2</span>) &lt;&lt; <span class="string">&quot;Likelihood per frame for utterance &quot;</span> &lt;&lt; utt &lt;&lt; <span class="string">&quot; is &quot;</span></span><br><span class="line">                &lt;&lt; (likelihood / num_frames) &lt;&lt; <span class="string">&quot; over &quot;</span> &lt;&lt; num_frames</span><br><span class="line">                &lt;&lt; <span class="string">&quot; frames.&quot;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="type">bool</span> decode_mbr = <span class="literal">true</span>;</span><br><span class="line">  MinimumBayesRisk *mbr = <span class="literal">NULL</span>;</span><br><span class="line">  mbr = <span class="keyword">new</span> <span class="built_in">MinimumBayesRisk</span>(clat, words);</span><br><span class="line"></span><br><span class="line">  <span class="type">const</span> std::vector&lt;BaseFloat&gt; &amp;conf = mbr-&gt;<span class="built_in">GetOneBestConfidences</span>();    </span><br><span class="line">  </span><br><span class="line">  words_conf = <span class="number">0.0</span>;</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">if</span> (word_syms != <span class="literal">NULL</span>) </span><br><span class="line">    std::cerr &lt;&lt; utt &lt;&lt; <span class="string">&#x27; &#x27;</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; words.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">      std::string s = word_syms-&gt;<span class="built_in">Find</span>(words[i]);</span><br><span class="line">      <span class="keyword">if</span> (s == <span class="string">&quot;&quot;</span>)&#123;</span><br><span class="line">        KALDI_ERR &lt;&lt; <span class="string">&quot;Word-id &quot;</span> &lt;&lt; words[i] &lt;&lt; <span class="string">&quot; not in symbol table.&quot;</span>;</span><br><span class="line">        words_conf += conf[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (words.size &gt; <span class="number">0</span>) words_conf /= words.<span class="built_in">size</span>();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (mbr != <span class="literal">NULL</span>) <span class="keyword">delete</span> mbr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现从语音缓冲 buffer 到识别结果的具体解码过程</span></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">int</span> <span class="title">KaldiDecode</span><span class="params">(<span class="type">short</span>* buffer, <span class="type">unsigned</span> <span class="type">long</span> length, std::vector&lt;int32&gt; &amp;words, <span class="type">float</span> &amp;scoreASR)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">try</span>&#123;</span><br><span class="line">        <span class="type">double</span> tot_like = <span class="number">0.0</span>;</span><br><span class="line">        int64 num_frames = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="function">OnlineNnet2FeaturePipelineInfo <span class="title">feature_info</span><span class="params">(feature_opots)</span></span>;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">stricmp</span> (asr_feature_type.<span class="built_in">c_str</span>(), <span class="string">&quot;mfcc&quot;</span>) == <span class="number">0</span>) </span><br><span class="line">            samp_freq = feature_info.mfcc_opts.frame_opts.samp_freq; </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">stricmp</span> (asx_feature_type.<span class="built_in">c_str</span>(), <span class="string">&quot;plp&quot;</span>) == <span class="number">0</span> ) </span><br><span class="line">            samp_freq = feature_info.plp_opts.frame_opts.samp_freq; </span><br><span class="line">        <span class="keyword">else</span> <span class="comment">//default: fbank</span></span><br><span class="line">            </span><br><span class="line">        samp_freq = feature_info.fbank_opts.frame_opts.samp_freq;</span><br><span class="line">            </span><br><span class="line">            <span class="function">OnlineNnet2FeaturePipeline <span class="title">feature_pipeline</span> <span class="params">(feature_info)</span></span>;</span><br><span class="line">            </span><br><span class="line">            <span class="function">Online IvectorExtractorAdaptationstate <span class="title">adaptation_state</span> <span class="params">(feature_info.ivector_extractor_info)</span></span>;</span><br><span class="line">            feature_pipeline. <span class="built_in">SetAdaptationstate</span> (adaptation_state) ;</span><br><span class="line"></span><br><span class="line">            <span class="function">OnlineSilenceWeighting <span class="title">silence_weighting</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">                trans_model, feature_info.silence weighting_config,</span></span></span><br><span class="line"><span class="params"><span class="function">                decodable_opts .frame_subsampling_factor)</span></span>;</span><br><span class="line">            </span><br><span class="line">            <span class="function">SingleUtteranceNnet3Decoder <span class="title">decoder</span><span class="params">(decoder_opts, trans_model, *decode_fst, &amp;feature_pipeline)</span></span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// read data from buffer</span></span><br><span class="line">            <span class="function">Matrix&lt;BaseFloat&gt; <span class="title">data_</span><span class="params">(<span class="number">1</span>, length)</span></span>;</span><br><span class="line">            BaseFloat *data_ptr = data_.<span class="built_in">Data</span>();</span><br><span class="line">            <span class="keyword">for</span> (int32 i=<span class="number">0</span> ; i &lt; length; i++ )&#123;</span><br><span class="line">                data_ptr[i] = buffer[i];</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="function">Subvector&lt;Baserloat&gt; <span class="title">data</span><span class="params">(data_, <span class="number">0</span>)</span></span>;</span><br><span class="line">            </span><br><span class="line">            int32 chunk_length;</span><br><span class="line">            <span class="keyword">if</span> (chunk_length_secs &gt;<span class="number">0</span> )</span><br><span class="line">            &#123;</span><br><span class="line">                chunk_length = <span class="built_in">int32</span> (samp_freq * chunk_length_secs);</span><br><span class="line">                <span class="keyword">if</span> (chunk_length ==<span class="number">0</span> ) chunk_length = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                chunk_length = std::numeric_limits&lt;int32&gt;::<span class="built_in">max</span>();    </span><br><span class="line">            &#125;</span><br><span class="line">            int32 samp_offset = <span class="number">0</span>;</span><br><span class="line">            std::vector&lt;std::pair&lt;int32, BaseFloat&gt; &gt; delta_weights;</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">while</span> (samp_offset &lt; data.<span class="built_in">Dim</span>())</span><br><span class="line">            &#123;</span><br><span class="line">                int32 samp_remaining = data.<span class="built_in">Dim</span>() - samp_offset;</span><br><span class="line">                int32 num_samp = chunk_length &lt; samp_remaining ? chunk_length : samp_remaining;</span><br><span class="line"></span><br><span class="line">                <span class="function">Subvector&lt;BaseFloat&gt; <span class="title">wave_part</span> <span class="params">(data, samp_offset, num_samp)</span></span>;</span><br><span class="line">                feature_pipeline.<span class="built_in">AcceptWaveform</span>(samp_freq, wave_part);</span><br><span class="line">                </span><br><span class="line">                samp_offset += num_samp;</span><br><span class="line">                <span class="keyword">if</span> (samp_offset == data.<span class="built_in">Dim</span>())&#123; </span><br><span class="line">                    <span class="comment">// no more input. flush out last frames</span></span><br><span class="line">                    feature_pipeline.<span class="built_in">InputFinished</span>();</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">                <span class="keyword">if</span> (silence_weighting.<span class="built_in">Active</span>() &amp;&amp; feature_pipeline.<span class="built_in">IvectorFeature</span> () != <span class="literal">NULL</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    silence_weighting.<span class="built_in">ComputeCurrentTraceback</span> (decoder.<span class="built_in">Decoder</span>());</span><br><span class="line">        silence_weighting.<span class="built_in">GetDeltaWeights</span> (feature_pipeline.<span class="built_in">NumFramesReady</span> (), &amp;delta_weights);</span><br><span class="line">        feature_pipeline.<span class="built_in">IvectorFeature</span> () -&gt; <span class="built_in">UpdateFrameWeights</span> (delta_weights);</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">                decoder.<span class="built_in">AdvanceDecoding</span> ();</span><br><span class="line">                </span><br><span class="line">                <span class="keyword">if</span> (do_endpointing &amp;&amp; decoder.<span class="built_in">EndpointDetected</span>(endpoint_opts))</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            decoder.<span class="built_in">FinalizeDecoding</span> ();</span><br><span class="line">            </span><br><span class="line">            Compactlattice clat;</span><br><span class="line">            <span class="type">bool</span> end_of_utterance = <span class="literal">true</span>;</span><br><span class="line">            decoder. <span class="built_in">GetLattice</span>(end_of_utterance, &amp;clat);</span><br><span class="line">            </span><br><span class="line">            BaseFloat words_conf = <span class="number">0.0</span>;</span><br><span class="line">            <span class="built_in">GetDiagnosticsAndPrintoutput</span>(word_syms, clat, &amp;num_frames, &amp;tot_like, words, words_conf);</span><br><span class="line"></span><br><span class="line">            scoreASR = words_conf;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">            <span class="built_in">catch</span>(<span class="type">const</span> std::exception&amp; e)</span><br><span class="line">            &#123;</span><br><span class="line">                std: : cerr &lt; e. <span class="built_in">what</span> ();</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用来和外面调用程序交互</span></span><br><span class="line"><span class="function">return_ASR_Code <span class="title">ASR_recSpeechBuf</span> <span class="params">(Handle handle, <span class="type">short</span>* buffer, <span class="type">unsigned</span> <span class="type">long</span> length, <span class="type">char</span>* text, <span class="type">float</span> &amp;scoreASR)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!asr_bInited) <span class="keyword">return</span> ASR_STATE_ERROR; </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (handle &lt;=<span class="number">0</span> || handle&gt;asr_engine_thread_nb) <span class="keyword">return</span> ASR_HANDLE_ERROR;</span><br><span class="line">    <span class="built_in">ASR_P</span>() ;</span><br><span class="line">    <span class="keyword">if</span> (asr_state [handle] != TSASR_IDLE)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">ASR_V</span>();</span><br><span class="line">        <span class="keyword">return</span> ASR_STATE_ERROR;</span><br><span class="line">    &#125;</span><br><span class="line">    asr_state[handle] = TSASR_BUSY;</span><br><span class="line">    <span class="built_in">ASR_V</span>();</span><br><span class="line">    </span><br><span class="line">    std::vector&lt;int32&gt; words;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">Kaldidecode</span> (buffer, length, words, scoreASR);</span><br><span class="line">    </span><br><span class="line">    string recText = <span class="string">&quot;&quot;</span> ;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span>(int32 i=<span class="number">0</span> ; i&lt; words.<span class="built_in">size</span>(); i++)&#123;</span><br><span class="line">        recText += word_syms-&gt;<span class="built_in">Find</span> (words[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    recText +=<span class="string">&quot;\0&quot;</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">ASR_P</span>();</span><br><span class="line">    <span class="keyword">if</span>(asr_state[handle] == TSASR_BUSY) asr_state [handle] = TSASR_IDLE;</span><br><span class="line">    <span class="built_in">ASR_V</span>();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> ASR_SUCCEEDED_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h3 id="函数接口——返回值"><a href="#函数接口——返回值" class="headerlink" title="函数接口——返回值"></a>函数接口——返回值</h3><p>函数返回结果是return_ASR_code类型，它包含运行中可能出现的各种情况，用枚举类型定义。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">return_ASR_Code</span></span><br><span class="line">&#123;</span><br><span class="line">	ASR_SUCCEEDED_OK=<span class="number">0</span>,	 <span class="comment">//	0:操作成功</span></span><br><span class="line">	ASR_WORKINGDIR_NOT_FIND,	 <span class="comment">//	1:工作目录不存在</span></span><br><span class="line">	ASR_CONFIG_FILE_NOT_FOUND,     <span class="comment">//	2:配置文件未找到</span></span><br><span class="line">	ASR_MODEL_FILE_NOT_FOUND,      <span class="comment">//               3:模型文件未找到</span></span><br><span class="line">	ASR_LICENSE_ERROR,     	 <span class="comment">//	4:授权有误</span></span><br><span class="line">	ASR_HANDLE_ERROR,   	 <span class="comment">//	5:句柄标识有误</span></span><br><span class="line">	ASR_STATE_ERROR,		 <span class="comment">//	6:句柄状态有误</span></span><br><span class="line">	ASR_TOO_SHORT_BUFFER,	 <span class="comment">//	7:语音太短</span></span><br><span class="line">	ASR_EXTRACT_FEAT_ERROR,	 <span class="comment">//	8:特征提取出错</span></span><br><span class="line">	ASR_MODEL_LOAD_ERROR,	 <span class="comment">//	9:模型加载出错</span></span><br><span class="line">	ASR_MODEL_SAVE_ERROR,	 <span class="comment">//	10:模型保存出错</span></span><br><span class="line">	TSASR_BUSY,		<span class="comment">//	11:线路正忙</span></span><br><span class="line">	TSASR_IDLE,		 <span class="comment">//	12:线路空闲</span></span><br><span class="line">	TSASR_CLOSE,		 <span class="comment">//	13:线路关闭</span></span><br><span class="line">	ASR_OTHER_ERROR		 <span class="comment">//	14:其他错误</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>用返回值来诊断引擎出现的问题。</p>
-<p>为了提高可读性, 还需对识别后的句子进行加标点等后处理。加标点的操作可采用语言模型，该模型通过对规范的文本语料训练得到。</p>
-<p>由于声学模型和 WFST 解码用的 HCLG 文件很大, 通用版本大小一般有 5GB 以上, 故只能在系统初始化阶段加载, 并且只需要加载一次。其相关代码如下:</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 加载声学模型</span></span><br><span class="line"><span class="type">bool</span> binary;</span><br><span class="line"><span class="function">Input <span class="title">ki</span> <span class="params">(nnet3_rxfilename, &amp;binary)</span></span>;</span><br><span class="line">trans_model.<span class="built_in">Read</span> (ki.<span class="built_in">stream</span> (), binary);</span><br><span class="line">am_nnet.<span class="built_in">Read</span> (ki.<span class="built_in">Stream</span> (), binary);</span><br><span class="line"><span class="built_in">SetBatchnormTestMode</span> (<span class="literal">true</span>, &amp;(am_nnet.<span class="built_in">GetNnet</span> () ));</span><br><span class="line"><span class="built_in">SetDropoutTestMode</span> (<span class="literal">true</span>, &amp;(am_nnet.<span class="built_in">GetNnet</span> ()));</span><br><span class="line">nnet3::<span class="built_in">CollapseModel</span> (nnet3::<span class="built_in">CollapseModelConfig</span>(), &amp;(am_nnet.<span class="built_in">GetNnet</span>()));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载 HCLG</span></span><br><span class="line">decode_fst = <span class="built_in">ReadFstKaldiGeneric</span>(fst_rxfilename);</span><br><span class="line"></span><br><span class="line"><span class="comment">//加载词典</span></span><br><span class="line"><span class="keyword">if</span> (word_syms_rxfilename != <span class="string">&quot;&#x27;&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> (! (word_syms = fst::SymbolTable::<span class="built_in">ReadText</span> (word_syms_rxfilename))</span><br><span class="line">        KALDI_ERR &lt;&lt; <span class="string">&quot;Could not read symbol table from file &quot;</span></span><br><span class="line">                    &lt;&lt; word_syms_rxfilename;</span><br><span class="line"></span><br><span class="line"><span class="comment">//解码参数初始化</span></span><br><span class="line">decodable_info = <span class="keyword">new</span> nnet3::<span class="built_in">DecodableNnetSimpleLoopedinfo</span>(decodable_opts, &amp;am_nnet);</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h3 id="函数接口—引擎初始化和关闭"><a href="#函数接口—引擎初始化和关闭" class="headerlink" title="函数接口—引擎初始化和关闭"></a>函数接口—引擎初始化和关闭</h3><p>对于引擎初始化，我们专门定义一个函数ASR_Init。</p>
-<p>ASR_Init 函数除了进行引擎文件的加载外, 同时也检查线路授权, 分配能同时并发的路数, 以支持多路调用。调用 ASR_Init 函数后, 如果返回函数值为 ASR_SUCCEEDED_OK, 则表示初始化成功。如果要关闭语音识别服务, 则需要调用 ASR_Release 函数释放相关资源。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">	      		初始化引擎</span></span><br><span class="line"><span class="comment">		@ working_dir	: 工作目录下有引擎工作所必需的文件</span></span><br><span class="line"><span class="comment">		@ max_lines	: 引擎支持最大线数</span></span><br><span class="line"><span class="comment">		@ return		: 成功初始化返回SUCCESS</span></span><br><span class="line"><span class="comment">                                                                                                                                                                                   */</span></span><br><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="function">return_ASR_Code <span class="title">ASR_Init</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* config_file,<span class="type">int</span> max_lines)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">			关闭引擎：改变各线路状态为CLOSE</span></span><br><span class="line"><span class="comment">                                                                                                                                                                                   */</span></span><br><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="function">return_ASR_Code <span class="title">ASR_Release</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="函数接口—句柄打开和关闭"><a href="#函数接口—句柄打开和关闭" class="headerlink" title="函数接口—句柄打开和关闭"></a>函数接口—句柄打开和关闭</h3><p>由于涉及多线程调用, 所以需要为每个线程分配专门的句柄, 因此还需要 ASR_Open 和 ASR_Close 两个函数。调用 ASR_Open 函数分配到句柄后，执行完相关操作也要及时调用 ASR_Close 函数释放句柄。这两个函数属于标准化的操作, 这里不再细述。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">				打开线路：h是线路资源标识</span></span><br><span class="line"><span class="comment">                                                                                                                                                                                   */</span></span><br><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="function">return_ASR_Code <span class="title">ASR_Open</span><span class="params">(Handle &amp;outh)</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">*************************************************************************************************************************/</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">				关闭线路：h是线路资源标识</span></span><br><span class="line"><span class="comment">                                                                                                                                                                                   */</span></span><br><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="function">return_ASR_Code <span class="title">ASR_Close</span><span class="params">(Handle &amp;h)</span></span>;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h2 id="动态库编译"><a href="#动态库编译" class="headerlink" title="动态库编译"></a>动态库编译</h2><p>完成函数接口定义后，需要把引擎代码编译成动态库。接下来介绍Linux环境下so的编译过程。</p>
-<h3 id="动态库编译—Linux环境"><a href="#动态库编译—Linux环境" class="headerlink" title="动态库编译—Linux环境"></a>动态库编译—Linux环境</h3><p>Linux环境不方便修改及调试代码，为便于操作，我们建议采用跨平台工具，开发环境可采用 &#x3D;&#x3D;CodeBlocks&#x3D;&#x3D;，读者可下载最新版本并安装到Windows系统。以CodeBlocks16.01版本为例，一旦安装完成后，在文件菜单里选择新建-&gt;工程-&gt;动态库（New -&gt; Project -&gt; DLL），打开codeblock动态库创建窗口，如图所示。</p>
-<p><img src="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/%E5%9B%BE%E7%89%872-16750654093591.png" alt="图片2"></p>
-<p>然后根据提示一步步创建，选择存放的目录，输入工程名，直到工程环境创建成功，如图所示。这时在工程目录会生成一个.cbp的工程文件，如asr.cbp。根据Kaldi函数调用关系，我们需要把在线解码需要的源程序全部加载到工程，并加入必要的外部支撑文件，用来读取配置文件，输出日志信息等。</p>
-<p><img src="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/%E5%9B%BE%E7%89%871.png" alt="图片1"></p>
-<p>工程配置保存完，把整个工程目录传到Linux环境，Linux的编译需要Makefile配置文件。为提高效率，可采用cbp2make工具（可网上下载）把asr.cbp工程文件转化为Makefile文件。有了Makefile文件，即可&#x3D;&#x3D;在Linux环境进行make编译&#x3D;&#x3D;。</p>
-<p>我理解的流程是：先在windows新建工程（codeblock），把所以依赖文件放进来，然后把windows上的这个工程，转成makefile，再放到linux平台上编译，再根据报错情况，再在win平台上的codeblock工程进行修改，然后再转成makefile放到linux里进行编译，直到编译通过，生成.so文件（动态库）。</p>
-<p>用了哪些库，比如数学的库，就要把这些库的头文件的路径在makefile里包含、引用进来。</p>
-<p>由于kaldi需要调用第三方提供的数学加速库，如Atlas或MKL，因此需要在Makefile中进行如下配置：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[采用Atlas库]</span><br><span class="line">INC = -Isrc -Iopenfst/<span class="keyword">include</span> -I/home/kaldi/tools/ATLAS/<span class="keyword">include</span> -I/usr/local/cuda/<span class="keyword">include</span>/ -I/home/kaldi/tools/portaudio/<span class="keyword">include</span> -I/home/kaldi/tools/portaudio/install/<span class="keyword">include</span> -I/usr/<span class="keyword">include</span>/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/<span class="keyword">include</span> -I/usr/<span class="keyword">include</span>/libxml2/</span><br><span class="line">CFLAGS = -std=c++11 -DHAVE_ATLAS -DHAVE_POSIX_MEMALIGN</span><br><span class="line">RESINC = </span><br><span class="line">LIBDIR = </span><br><span class="line">LIB = lib/libatlas.so lib/liblapack.so</span><br><span class="line">LDFLAGS = -ldl</span><br><span class="line"></span><br><span class="line">[采用 MKL 库]</span><br><span class="line">INC = -Isrc -Iopenfst/<span class="keyword">include</span></span><br><span class="line">-I/opt/intel/compilers_and_libraries_2019.2.187/linux/mkl/<span class="keyword">include</span>/</span><br><span class="line">-I/usr/local/cuda/<span class="keyword">include</span>/-I/usr/lib/x86_64-1inux-gnu/glib-2.0/<span class="keyword">include</span></span><br><span class="line">-I/usr/<span class="keyword">include</span>/libxml2/</span><br><span class="line">CFLAGS = -std=c++11 -DHAVE_MKL_-DHAVE_POSIX_MEMALIGN</span><br><span class="line">RESINC =</span><br><span class="line">LIBDIR =</span><br><span class="line">LIB = lib_mkl/libiomp5.so lib_mkl/libmkl_core.so 11b_mkl/libmkl_intel_lp64.so</span><br><span class="line">LDFLAGS = -ldl -lpthread</span><br></pre></td></tr></table></figure>
-
-<p>Linux环境差异大，包括centos，ubuntu等不同版本，安装库的位置也可能不同，需要根据实际环境，修改makefile里面关于这些库的访问路径配置。服务器一般采用centos。</p>
-<p>由于Kaldi代码众多，包含很多子模块，函数互相之间关联度较强，加载的文件可能存在冗余或冲突，导致各种编译错误，读者需要根据报错信息一一修正，直至编译成功，最后生成so动态库文件。</p>
-<p>这个so动态库需配套相应的头文件，包含可调用的函数接口及参数说明，供外部调用参照。</p>
-<p>.so有release版本和debug版本，我们要用release版本，速度快。</p>
-<h3 id="动态库编译—Windows环境"><a href="#动态库编译—Windows环境" class="headerlink" title="动态库编译—Windows环境"></a>动态库编译—Windows环境</h3><p>Windows环境编译的是dll动态库，主要采用Visual Studio开发工具。由于Kaldi代码采用C++ 11标准，需要安装Visual Studio 2015或更新的版本。另外，Windows环境的加速库只能采用Intel MKL或OpenBLAS。MKL集成相对容易，但需要安装Intel的配套工具，安装完MKL与Visual Studio 2015集成环境如图所示。</p>
-<p><img src="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/%E5%9B%BE%E7%89%873.png" alt="图片3"></p>
-<p>由于 Kaldi 默认在 Linux 环境下编译, 对 Windows 的支持不是很到位, 因此 部分变量和代码在编译时会出现问题, 需要修改, 例如在 kaldi-math.h 文件中需要补充针对_MSC_VER (Visual Studio 开发环境) 的定义。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifdef</span> MSC_VER</span></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">int</span> <span class="title">isnan</span><span class="params">(<span class="type">double</span> x)</span> </span>&#123; <span class="keyword">return</span> x != x;&#125;</span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">int</span> <span class="title">isinf</span><span class="params">(<span class="type">double</span> x )</span> </span>&#123; <span class="keyword">return</span> !<span class="built_in">isnan</span>(x) &amp;&amp; <span class="built_in">isnan</span>(x-x); &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">define</span> isfinite finite</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ISNAN isnan</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ISINF isinf</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ISFINITE(x) isfinite(x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">elif</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ISNAN std:: isnan</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ISINF std:: isinf</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ISFINITE(x) std::isfinite(x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-
-<h2 id="动态库调用"><a href="#动态库调用" class="headerlink" title="动态库调用"></a>动态库调用</h2><p>外部程序调用编译好的动态库，要先集成到工程里，如Linux在Makefile里配置如下：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">CC = gcc</span><br><span class="line">CXX = g++</span><br><span class="line">AR = ar</span><br><span class="line">LD = g++</span><br><span class="line">WINDRES = windres</span><br><span class="line"></span><br><span class="line">INC = </span><br><span class="line">CFLAGS = -Wall -fexceptions</span><br><span class="line">RESINC = </span><br><span class="line">LIBDIR = </span><br><span class="line">LIB = lib/libatlas.so lib/libtsASR.so lib/liblapack.so</span><br><span class="line">LDFLAGS = </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<p>程序要调用时，先初始化引擎，然后分配句柄，再调用相关的识别函数，识别完关闭句柄。程序到最后还要关闭引擎，释放资源。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//初始化引擎</span></span><br><span class="line"><span class="keyword">if</span>(ASR_SUCCEEDED_OK == <span class="built_in">ASR_Init</span>(config_asr_file.<span class="built_in">c_str</span>(),<span class="number">3</span>))</span><br><span class="line">&#123;</span><br><span class="line">      cout&lt;&lt;<span class="string">&quot;ASR init success!&quot;</span>&lt;&lt;endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">      cout&lt;&lt;<span class="string">&quot;ASR init fails!&quot;</span>&lt;&lt;endl;</span><br><span class="line">      <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//打开句柄</span></span><br><span class="line">Handle tsASR;</span><br><span class="line"><span class="built_in">ASR_Open</span>(tsASR);</span><br><span class="line"></span><br><span class="line"><span class="type">float</span> scoreASR;</span><br><span class="line"><span class="type">char</span> rec_text[<span class="number">10240</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">//语音识别</span></span><br><span class="line"><span class="keyword">if</span>(ASR_SUCCEEDED_OK == <span class="built_in">ASR_recSpeechBuf</span>(tsASR,pWavBuffer,length,rec_text,scoreASR))</span><br><span class="line">&#123;</span><br><span class="line">       cout&lt;&lt;<span class="string">&quot;Recognized text: &quot;</span>&lt;&lt;rec_text&lt;&lt;endl;</span><br><span class="line">       cout&lt;&lt;<span class="string">&quot;scoreASR: &quot;</span>&lt;&lt;scoreASR&lt;&lt;endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">       cout&lt;&lt;<span class="string">&quot;Recognize &quot;</span>&lt;&lt;wave_full_file.<span class="built_in">c_str</span>()&lt;&lt;<span class="string">&quot;error!&quot;</span>&lt;&lt;endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//关闭句柄</span></span><br><span class="line"><span class="built_in">ASR_Close</span>(tsASR);</span><br><span class="line"></span><br><span class="line"><span class="comment">//关闭引擎</span></span><br><span class="line"><span class="built_in">ASR_Release</span>();</span><br></pre></td></tr></table></figure>
-
-
-          
+函数接口12345678910111213/*******************
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1713,21 +1209,18 @@
       
         
           
-            <h1 id="嵌入式移植"><a href="#嵌入式移植" class="headerlink" title="嵌入式移植"></a>嵌入式移植</h1><blockquote>
-<p>《语音识别原理与技术》洪青阳 工业应用实践 书、PPT 15.4</p>
-</blockquote>
-<p>随着物联网的发展和用户对录音隐私的担忧，现在越来越多的需求，如对智声能家居的语音控制，需要采用嵌入式平台，在本地端运行语音识别。下面我们针对ARMLinux 环境介绍嵌人式移植过程。</p>
-<p>大部分的ARM平台都带有Linux系统，但用的是裁剪过的版本，里面的很多库跟CentOS或Ubuntu不兼容或缺少，因此移植起来较为繁琐。</p>
-<p>以Kaldi的移植为例，其依赖的Atlas加速库包含libatlas.so和liblapack.so两个动态库，需要在ARM Linux环境重新编译。但单独编译这两个库有很多繁琐的配置，一种简便办法是通过Kaldi集成编译后得到，因为其工具包tools自带的安装脚本extras&#x2F;install_atlas.sh会生成这两个so动态库。基于这两个so，重新编译引擎动态库。（下面基于这两个so动态库，按《动态库封装》这一节介绍的过程，重新编译引擎动态库）。</p>
-<p>由于内存空间受限，很多裁剪过的ARM Linux系统，不带编译环境，即只能运行不能编译程序。为编译引擎动态库，我们需要通过交叉编译方式，在服务器另外搭一套编译的环境，所采用的gcc&#x2F;g++编译器要跟ARM Linux一致，编译成功后再移植到ARM Linux环境。</p>
-<p>有的 Linux 环境的 Atlas 加速库无法编译，只能采用 OpenBLAS 加速库，其编译出来的libopenblas.so 库还依赖其他静态库，要另外编译。这些库都准备到位后，再把它们集成到引擎动态库 Makefile 编译文件中，如以下例子：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">CC = arm-buildroot-linux-gnueabihf-gcc</span><br><span class="line">CXX = arm-buildroot-linux-gnueabihf-g++</span><br><span class="line">AR = arm-buildroot-linux-gnueabihf-ar</span><br><span class="line">LD = arm-buildroot-linux-gnueabihf-g++</span><br><span class="line"></span><br><span class="line">WINDRES = windres</span><br><span class="line"></span><br><span class="line">INC = -Isrc -Iopenfst/<span class="keyword">include</span> -IOpenBLAS/<span class="keyword">include</span></span><br><span class="line">CFLAGS = -std=c++11 -DHAVE_OPENBLAS -DHAVE_POSIX_MEMALIGN</span><br><span class="line">RESINC = </span><br><span class="line">LIBDIR = </span><br><span class="line">LIB = lib/libopenblas.so</span><br><span class="line">LDFLAGS = -ldl lib/libclapack.a lib/libblas.a lib/libf2c.a</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+          嵌入式移植
+《语音识别原理与技术》洪青阳 工业应用实践 书、PPT 15.4
 
-<p>其中，CC 和 CXX 指明编译器的名称，对应 gcc 和 g++的嵌入式版本，AR 和 LD配套更新。LDFLAGS用来链接以.a为扩展名的静态库。</p>
-<p>嵌入式语音识别一般只支持命令词识别或小范围的“随便说”，如机器人的动作命令和简单的对话。对话内容可能只有几百句，语言模型就可以做得很小，而声学模型本身不会太大，因此编译出来的HCLG也就很小，文件只有几百KByte甚至更小。这样更容易部署到嵌入式平台，识别速度也更快。</p>
-<p>针对更低端的DSP平台，嵌入式移植可能还涉及定点化问题，需要把解码器特别是特征提取和DNN的前向传播重新改写，即把浮点运算改为定点运算，而且不再包含加速库，这部分工作量比较大。</p>
-
-          
+随着物联网的发展和用户对录音隐私的担忧，现在越来越多的需求，如对智声能家居的语音控制，需要采用嵌入式平台，在本地端运行语
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%A7%BB%E6%A4%8D/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1878,32 +1371,19 @@
       
         
           
-            <h1 id="语音云平台"><a href="#语音云平台" class="headerlink" title="语音云平台"></a>语音云平台</h1><blockquote>
-<p>《语音识别原理与技术》洪青阳 工业应用实践 书、PPT 15.2</p>
-</blockquote>
-<p>语音云平台可通过RESTful的方式给开发者提供一个通用的HTTP接口。</p>
-<p>如图所示，系统通过HTTP的协议来进行调用。客户端采用HTTP Post，发Post请求到服务器，然后获取服务器的响应，根据响应的代码，判断操作是否成功。客户端负责语音的采集，并将采集后的语音上传到服务端，由服务端进行语音识别，并将结果返回到客户端。</p>
-<p>部署不是一个识别引擎，so就够了，底层还要有一个服务程序，服务程序来调用识别引擎，服务程序再和外围客户端去交互。</p>
-<p><img src="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%AD%E9%9F%B3%E4%BA%91%E5%B9%B3%E5%8F%B0/image-20230130180710118.png" alt="image-20230130180710118"></p>
-<p>HTTP协议服务一般通过高级语言，如go、Python或Java等语言实现，接收HTTP多路并发请求，使用多线程技术调用引擎进行识别，并用JSON格式返回识别结果。</p>
-<p>HTTP接口协议包括如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">传送字节流</span><br><span class="line">必选字段:</span><br><span class="line">userid: 用户名称，可使用用户手机号码</span><br><span class="line">token: 系统分配</span><br><span class="line"></span><br><span class="line">file: 文件标识</span><br><span class="line">语音缓冲（可以合并传，也可分段传，但不能有间隔符）：</span><br><span class="line">buffer1(录音缓冲区）+</span><br><span class="line">buffer2(录音缓冲区）+</span><br><span class="line">buffer3(录音缓冲区）+</span><br><span class="line">...</span><br><span class="line">bufferN(录音缓冲区）</span><br><span class="line">识别成功服务器返回:</span><br><span class="line">&#123;&quot;result&quot;:&quot;语音识别识别内容文本&quot;,&quot;errCode&quot;:&quot;0&quot;,&quot;wavurl&quot;:&quot;xxx.wav&quot;&#125;</span><br><span class="line">wavurl是识别结果文本对应的语音文件url地址.默认是空&quot;&quot;</span><br><span class="line">识别结果是utf-8 编码。</span><br><span class="line"></span><br><span class="line">识别失败服务器返回：</span><br><span class="line">类似下面这个:&#123;&quot;result&quot;:&quot;&quot;,&quot;errCode&quot;:&quot;-1&quot;,&quot;AsrRetCode&quot;:&quot;5&quot;&#125;</span><br><span class="line">识别失败,会返回errCode!=0 </span><br><span class="line">说明:file内容字节流长度不能小于4000Byte</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+          语音云平台
+《语音识别原理与技术》洪青阳 工业应用实践 书、PPT 15.2
 
-
-
-<p>以下是客户端采用C代码实现CURL调用的例子。上传一句话的buffer，然后返回识别结果。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;time.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fentl.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/timeb.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;process.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;curl/curl.h&quot;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&quot;curl/easy.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">size_t</span> <span class="title function_">asrwritefunc</span><span class="params">(<span class="type">void</span> *ptr, <span class="type">size_t</span> size, <span class="type">size_t</span> nmemb, <span class="type">int</span> *index)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> count=<span class="number">0</span>;</span><br><span class="line">    <span class="type">char</span> result[<span class="number">2048</span>];</span><br><span class="line">    <span class="type">size_t</span> result len = size * nmemb;</span><br><span class="line">    result[<span class="number">0</span>]=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span>(result_len&gt;=<span class="number">2000</span>) result_len=<span class="number">2000</span>; </span><br><span class="line">    <span class="keyword">if</span>(result_len&gt;<span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">memcpy</span>(result, ptr, result_len); </span><br><span class="line">        result[result_len]=<span class="string">&#x27;\0&#x27;</span>; </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;result=%s&quot;</span>,result);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;result_len=%d&quot;</span>, result_len); </span><br><span class="line">    <span class="keyword">return</span> result_len;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">test_asr</span><span class="params">(<span class="type">int</span> index,<span class="type">char</span> *audiodata,<span class="type">int</span> content_len)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">static</span> <span class="type">int</span> boot;</span><br><span class="line">    <span class="type">static</span> <span class="type">char</span> userid[<span class="number">64</span>], token[<span class="number">28</span>]; </span><br><span class="line">    <span class="type">static</span> <span class="type">char</span> ycasr_ur1[<span class="number">128</span>]; </span><br><span class="line">    <span class="type">char</span> tmp[<span class="number">1024</span>];</span><br><span class="line">    <span class="keyword">if</span>((use_asr&amp;<span class="number">16</span>) == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">-1</span>; </span><br><span class="line">    <span class="keyword">if</span>(boot==<span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        boot=<span class="number">1</span>;</span><br><span class="line">        GetPrivateProfileString(<span class="string">&quot;SET&quot;</span>,<span class="string">&quot;URL&quot;</span>,<span class="string">&quot;http://127.0.0.1:3998/dotcasr&quot;</span>,ycasr_url,<span class="number">28</span>,config);</span><br><span class="line">        GetPrivateProfileString(<span class="string">&quot;SET&quot;</span>,<span class="string">&quot;USERID&quot;</span>,<span class="string">&quot;13600000001&quot;</span>,userid,<span class="number">32</span>,config);</span><br><span class="line">        GetPrivateProfileString(<span class="string">&quot;SET&quot;</span>,<span class="string">&quot;TOKEN&quot;</span>,<span class="string">&quot;xxxx13600000001&quot;</span>,token,<span class="number">64</span>, config);</span><br><span class="line">    &#125; </span><br><span class="line">    </span><br><span class="line">    <span class="type">time_t</span> now=time(<span class="literal">NULL</span>);</span><br><span class="line">    <span class="type">char</span> host[MAX_BUFFER_SIZE];</span><br><span class="line">    <span class="built_in">memset</span>(host, <span class="number">0</span>, <span class="keyword">sizeof</span>(host));</span><br><span class="line">    _snprintf(host, <span class="keyword">sizeof</span>(host), <span class="string">&quot;%s&quot;</span>, ycasr_url); </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;host:%s&quot;</span>,host); </span><br><span class="line">    CURL *curl; </span><br><span class="line">    CURLcode res;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">curl_httppost</span> *<span class="title">post</span>=</span><span class="literal">NULL</span>; </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">curl_httppost</span> *<span class="title">last</span>=</span><span class="literal">NULL</span>;</span><br><span class="line">    curl_formadd(&amp;post, &amp;last, CURLFORM_COPYNAME, <span class="string">&quot;userid&quot;</span>, CURLFORM_COPYCONTENTS, userid, CURLFORM_END);</span><br><span class="line">    curl <span class="title function_">formadd</span><span class="params">(&amp;post, &amp;last, CURLFORM_COPYNAME, <span class="string">&quot;token&quot;</span>, CURLFORM_COPYCONTENTS, token, CURLFORM_END)</span>;</span><br><span class="line"></span><br><span class="line">    curl_formadd(&amp;post, &amp;last, CURLFORM_COPYNAME, <span class="string">&quot;file&quot;</span>, </span><br><span class="line">        CURLFORM BUFFER,<span class="string">&quot;upload.wav&quot;</span>, </span><br><span class="line">        CURLFORM BUFFERPTR, audiodata,</span><br><span class="line">        CURLFORM BUFFERLENGTH, content_len, </span><br><span class="line">        CURLFORM_END);</span><br><span class="line">    </span><br><span class="line">    curl = curl_easy_init();</span><br><span class="line">    cur1_easy_setopt(curl, CURLOPT_URL, host); </span><br><span class="line">    curl_easy_setopt(curl, CURLOPT_TIMEOUT, <span class="number">30</span>); </span><br><span class="line">    curl easy <span class="title function_">setopt</span><span class="params">(curl, CURLOPT_HTTPPOST, post)</span>;</span><br><span class="line">    curl <span class="title function_">easy_setopt</span><span class="params">(curl, CURLOPT_WRITEFUNCTION, asrwritefunc)</span>;</span><br><span class="line">    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &amp;index); </span><br><span class="line">    res = curl_easy_perform(curl); </span><br><span class="line">    <span class="keyword">if</span>(res != CURLE OK)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;perform curl error:8d.\n&quot;</span>, res);</span><br><span class="line">        <span class="comment">//return -l;</span></span><br><span class="line">    &#125;</span><br><span class="line">    curl_easy_cleanup(curl); </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> buffer[<span class="number">256000</span>];</span><br><span class="line">    <span class="type">int</span> c=<span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> res=<span class="number">-1</span>,size=<span class="number">0</span>,index=<span class="number">1</span>:</span><br><span class="line"></span><br><span class="line">    FILE* fp1=fopen(<span class="string">&quot;test.wav&quot;</span>,<span class="string">&quot;r+b&quot;</span>); </span><br><span class="line">    <span class="keyword">if</span>(fp1=<span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;open test.wav fail!&quot;</span>); </span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        fseek(fp1,<span class="number">100</span>,SEEK_SET);<span class="comment">//跳过wav 头 </span></span><br><span class="line">        <span class="keyword">while</span>(!feof(fp1))</span><br><span class="line">        &#123;</span><br><span class="line">            sizemfread(buffer+c,<span class="number">1</span>,<span class="number">8000</span>,fp1);</span><br><span class="line">            <span class="keyword">if</span>(size&lt;<span class="number">0</span>) <span class="keyword">break</span>; </span><br><span class="line">            c=c+size:</span><br><span class="line">            <span class="keyword">if</span>(c&gt;=<span class="number">240000</span>) <span class="keyword">break</span>;    <span class="comment">//最大 240K</span></span><br><span class="line">        &#125;</span><br><span class="line">        fclose(fp1);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(c&gt;<span class="number">8000</span>) res=test_asr(index,buffer,c); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>语音云平台在服务器上运行，一般有强大的计算能力，因此可在其上使用复杂的声学模型和较大的语言模型，以支持各种场景的“任意说”识别，并通过 HTTP接口支持各种客户端调用。除了公有云,语音云平台也应支持私有云部署，以避免数据泄密。</p>
-<h3 id="语音云平台—流识别"><a href="#语音云平台—流识别" class="headerlink" title="语音云平台—流识别"></a>语音云平台—流识别</h3><p>语音云平台还可通过流的方式进行语音识别，</p>
-<p>如语音云平台的客户端一次可送200ms左右的片段，服务端接收后进行拼接，累计到1s 时长时即可开始识别。这个识别过程也是部分解码，只是令牌传播过程可以显示中间结果。等句子传送结束后，再进行 Lattice 回溯解码，得到最后识别结果。</p>
-<p><img src="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%AD%E9%9F%B3%E4%BA%91%E5%B9%B3%E5%8F%B0/image-20230130182109183.png" alt="image-20230130182109183"></p>
-<p>流识别结果跟整句识别略微有差别，但影响不大，能够保证实用性能。流识别方式可以边说边识别，大大缩短时延，有效提升响应速度。</p>
-<p>现在工业界部署的云平台，普遍采用流识别方式。</p>
-
-          
+语音云平台可通过RESTful的方式给开发者提供一个通用的HTTP接口。
+如图所示，系统通过HTTP的协议来进行调用。客
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%AD%E9%9F%B3%E4%BA%91%E5%B9%B3%E5%8F%B0/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2054,84 +1534,24 @@
       
         
           
-            <h1 id="识别引擎优化"><a href="#识别引擎优化" class="headerlink" title="识别引擎优化"></a>识别引擎优化</h1><blockquote>
-<p>《语音识别原理与技术》洪青阳 工业应用实践 书、PPT 15.3</p>
-</blockquote>
-<ul>
-<li>加快响应速度</li>
-<li>定制语言模型</li>
-<li>定制声学模型</li>
-</ul>
-<h2 id="加快响应速度"><a href="#加快响应速度" class="headerlink" title="加快响应速度"></a>加快响应速度</h2><ul>
-<li><p>语音识别的响应速度可用<strong>实时率（RTF）</strong>来衡量，即识别时间与语音时长的比值，越低越好。响应速度也可采用倍实时指标，倍实时跟RTF正好相反，是语音时长与识别时间的比值，越高越好。</p>
-</li>
-<li><p>为加快响应速度，可从算法优化和工程优化两方面入手。算法优化主要针对WFST解码器优化。WFST的令牌传播机制和Lattice解码都有剪枝过程，默认的最大活跃节点数和剪枝阈值为：</p>
-<p>max-active&#x3D;7000</p>
-<p>beam&#x3D;15.0</p>
-<p>lattice-beam&#x3D;8.0</p>
-</li>
-<li><p>对响应速度影响较大的是前两个参数，实验表明，识别率略微变差情况下，max-active和beam值可以减小如下：</p>
-<p>max-active&#x3D;3000</p>
-<p>beam&#x3D;10.0</p>
-<p>lattice-beam&#x3D;8.0</p>
-</li>
-<li><p>修改后响应速度可大幅提升，比如3秒语音只要0.5秒即可识别出结果，即RTF&lt;0.2。</p>
-</li>
-<li><p>&#x3D;&#x3D;矩阵运算用到了线性代数运算加速库，可用库版本包括 ATLAS、OpenBLAS 和 MKL。离线测试结果显示 MKL 的加速性能最优。&#x3D;&#x3D;</p>
-</li>
-<li><p>另外，采用 GPU 解码加速声学模型计算过程，也可大幅提升响应速度。</p>
-</li>
-</ul>
-<h2 id="定制语言模型"><a href="#定制语言模型" class="headerlink" title="定制语言模型"></a>定制语言模型</h2><ul>
-<li>通用语言模型一般使用日常生活、工作、新闻等范畴的文本语料训练而成，对书面语或日常用语识别较好，但针对口语化表达或特定行业，如司法、证券、电力、医疗等，因为有其专业的术语，往往识别不好。</li>
-<li>专用语言模型可以只用特定行业的句子表达来训练，但语料规模一般偏少，需要人为地设计一些类似的句子，尽可能覆盖到实际可能用的表达，使训练出来的统计模型覆盖更全面。</li>
-</ul>
-<p>直接用语料混合的话，由于专有语料数量少，可能起不到什么作用。因此用各自训练一个语言模型，然后进行模型融合（线性加权）</p>
-<p><img src="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%86%E5%88%AB%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96/image-20230130190834641.png" alt="image-20230130190834641"></p>
-<p>重新训练完语言模型后，要将其与声学模型合并，生成HCLG。</p>
-<h2 id="定制声学模型"><a href="#定制声学模型" class="headerlink" title="定制声学模型"></a>定制声学模型</h2><p>如果采集设备比较特殊，跟常用的PC或手机麦克风差异较大，而声学模型的训练数据没有覆盖到这种录音，则识别性能会急剧下降，这也是一种<strong>跨信道问题</strong>。</p>
-<p>一种解决方案是扩大声学模型的训练数据覆盖范围，尽量使其包含跟实际场景相配的录音。但这种方案代价较大,需要重新训练 GMM-HMM或DNN-HMM，以及 Chain 模型，周期长，难以匹配项目进度。</p>
-<p>还有一种方案是采用迁移学习，基于源领域已有的通用模型，用目标领域的小批量训练数据(建议 50h 以上)重新训练，得到更匹配的声学模型。迁移学习原理很简单，保持DNN 的隐藏层参数不变，只改变输出层(从 Ys改为Y)，然后用目标数据X-重新微调训练。</p>
-<h3 id="定制声学模型——迁移学习"><a href="#定制声学模型——迁移学习" class="headerlink" title="定制声学模型——迁移学习"></a>定制声学模型——迁移学习</h3><p>DNN迁移学习：适配不同场景（包括不同终端，不同格式等），迁移完的识别模型就是专有领域的了，也不适用于通用领域。</p>
-<p>迁移学习方法：</p>
-<ol>
-<li>用基础模型作为base，专有数据在上面继续训练；</li>
-<li>冻结基础模型的几层神经层，参数更新；</li>
-<li>用教师学生模型，软标签，蒸馏。</li>
-</ol>
-<p><img src="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%86%E5%88%AB%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96/image-20230130190918970.png" alt="image-20230130190918970"></p>
-<h3 id="8K电话语音识别"><a href="#8K电话语音识别" class="headerlink" title="8K电话语音识别"></a>8K电话语音识别</h3><p>工业界：识别准确率普遍在80~90%，与手机APP识别（16k）差距较大。</p>
-<p>信道差异最明显的是 16kHz 采样的麦克风录音与8kHz 采样的电话录音，它们互相之间兼容性不强，<strong>即使把 16 kHz 录音降采样到 8kHz 录音，再去训练声学模型，识别效果也不一定会改善</strong>。由于现在很多APP 应用用手机麦克风采集录音，即采样格式为 16kHz,16bits 宽带录音，所以针对近场手机的场景，识别效果可以很好，准确率大多可达到95%以上。但电话8kHz信道的录音普遍很少，难以训练出一个鲁棒性很强的声学模型，再加上电话通话一般是聊天式的口语化表达，语言模型较难覆盖，因此电话语音识别效果仍不太理想，准确率一般在80%~90%之间，难以超越 90%，和16kHz的录音识别效果差距还较大。</p>
-<p>在8kHz的一些受限场景下，语言表达相对固定，采集信道固定，此时仍然的 可以用 16 kHz 声学模型作为基准模型，再用实际场景带标注的录音语料做迁移学习，这在一定程度上可提升识别效果。从 在实际应用中，还存在口音重、语速快、双语混杂等问题，导致识别率急剧下降，对此问题建议采用匹配训练数据的方法来解决。</p>
-<p>如何平衡专用语料和通用语料的比重，包括平衡声学模型和语言模型的比重，避免过度偏向某种口音或场景，也是一个难题，需要在实践中不断总结。</p>
-<p>声学模型存在问题：</p>
-<ul>
-<li>采样率8kHz：采集信道与麦克风差异很大，不能直接用16k模型识别；</li>
-<li>特种设备：量化编码存在失真；</li>
-<li>快语速：识别变差；</li>
-</ul>
-<p>语言模型存在问题：</p>
-<ul>
-<li>口语化表达难以覆盖；</li>
-<li>通用领域与专业领域较难平衡；</li>
-</ul>
-<p>可归结为两大原因：</p>
-<ol>
-<li>信道差异</li>
-<li>口语化识别</li>
-</ol>
-<h3 id="模型优化方案"><a href="#模型优化方案" class="headerlink" title="模型优化方案"></a>模型优化方案</h3><p>改进方案：</p>
-<ol>
-<li><p>采用数据扩增，进行多类型、多条件训练。</p>
-</li>
-<li><p>采用更先进的声学模型。</p>
-</li>
-<li><p>DNN迁移学习。</p>
-</li>
-</ol>
-<p><img src="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%86%E5%88%AB%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96/image-20230130191552500.png" alt="image-20230130191552500"></p>
+          识别引擎优化
+《语音识别原理与技术》洪青阳 工业应用实践 书、PPT 15.3
 
-          
+
+加快响应速度
+定制语言模型
+定制声学模型
+
+加快响应速度
+语音识别的响应速度可用实时率（RTF）来衡量，即识别时间与
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%86%E5%88%AB%E5%BC%95%E6%93%8E%E4%BC%98%E5%8C%96/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2282,9 +1702,15 @@
       
         
           
-            <p>图书馆借的书要到期了，花了一周回顾了一下语音识别基础原理知识，查缺补漏，看了洪青阳老师的《语音识别原理与应用》，写的清楚明了，系统全面，在博文视点网站 <a target="_blank" rel="noopener" href="http://www.broadview.com.cn/book/6084">http://www.broadview.com.cn/book/6084</a> 里下载的PPT中，还有洪老师上课的录音，非常友好了。</p>
-
-          
+          图书馆借的书要到期了，花了一周回顾了一下语音识别基础原理知识，查缺补漏，看了洪青阳老师的《语音识别原理与应用》，写的清楚明了，系统全面，在博文视点网站 http://www.broadview.com
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/01/19/%E5%85%B6%E4%BB%96/%E6%8E%A8%E8%8D%90%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%85%A5%E9%97%A8%E4%B9%A6%E7%B1%8D/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2435,145 +1861,19 @@
       
         
           
-            <h1 id="SVM视频-李宏毅"><a href="#SVM视频-李宏毅" class="headerlink" title="SVM视频 李宏毅"></a>SVM视频 李宏毅</h1><blockquote>
-<p>李宏毅机器学习(2017) <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV13x411v7US?p=31">P31 20- Support Vector Machine (SVM)</a></p>
-<p>2023.1.12</p>
-</blockquote>
-<p>SVM 由 hinge loss 和 kernel 构成</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106161238543.png" alt="image-20230106161238543" style="zoom: 33%;">
+          SVM视频 李宏毅
+李宏毅机器学习(2017) P31 20- Support Vector Machine (SVM)
+2023.1.12
 
-<h2 id="hinge-loss"><a href="#hinge-loss" class="headerlink" title="hinge loss"></a>hinge loss</h2><p>二分类 </p>
-<p>step 1. 输入到输出的关系是 当f(x)&gt;0 , y&#x3D;1; 当f(x)&lt;0，y&#x3D;-1；数据集标签只有1或-1；</p>
-<p>step 2. 设置loss function，如果直接用$\delta$ 函数，不可微，于是用一个可微函数 l， 统计输出和真实标签是否一致的次数。</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106161340195.png" alt="image-20230106161340195" style="zoom:50%;">
-
-<p>如果把真实输出标签 $\hat y^n$ 、模型输出 $f(x)$ 和 loss值做成一张图。我们希望 $\hat y^n \cdot f(x)$ 越同向时，loss越小，也就是 当 $y^n$ 为正数时，希望 $f(x)$ 也是正数，并且 $f(x)$ 越大（ $\hat y^n \cdot f(x)$值越大 ）loss值越小；当 $y^n$ 为负数时，希望 $f(x)$ 也是负数，并且 $f(x)$ 越负（ $\hat y^n \cdot f(x)$ 值越大 ） loss值越小；</p>
-<p>在图上表示为，横轴值越大，纵轴值越小。</p>
-<p>直接用 $\delta$ 函数作为loss 小于0时loss为1，大于0时loss为0，不可微分。因此用其他不同的函数作为loss function。</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106161718947.png" alt="image-20230106161718947" style="zoom:50%;">
-
-
-
-<p>当loss function设置为 平方loss （square loss）$l(f(x),y)&#x3D;(yf(x)-1)^2$ 是<strong>不合理</strong>的，因为虽然满足y&#x3D;1 f(x)越接近1 loss越小，y&#x3D;-1 f(x)越接近-1 loss越小的条件，但是当 yf(x) 很大时，loss也会很大，这不是我们希望的。</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106163449648.png" alt="image-20230106163449648" style="zoom:50%;">
-
-
-
-<p>把 yf(x)乘积用sigmoid封装一下，再进行square loss，于是loss function 写作 $l(f(x),y)&#x3D;(\sigma(yf(x))-1)^2$ 。（下图的蓝线）</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106164613584.png" alt="image-20230106164613584" style="zoom:50%;">
-
-
-
-<p>loss function 也可以用 sigmoid+ce：先做sigmoid再做CE。（比sigmoid+square更好）</p>
-<p>其中 CE的函数是 $\log(1&#x2F;p)&#x3D;-\log(p)$ ，这里p是做完sigmoid的函数，也就是 $\sigma(f(x))$ ，所以loss function 是 $-\log(\sigma(f(x)))&#x3D;-\log(1&#x2F;1+e^{-f(x)})&#x3D;\log(1+e^{-yf(x)})$ 。这里y&#x3D;-1时 $1-\sigma(f(x))&#x3D;\sigma(-f(x))$ 。</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106165418155.png" alt="image-20230106165418155" style="zoom:50%;">
-
-
-
-<p>hinge loss：</p>
-<p>只要 y&#x3D;1 时 f(x)&gt;1 或 y&#x3D;-1时 f(x)&lt;-1，loss就等于0，此时f(x)变化不会对loss有改进、有帮助了。</p>
-<p>penalty区域表示虽然 y(f(x))同向，但是还不够好，还要更好（loss还可以下降）。这个”更好”的位置叫做”margin“（这里是1）。</p>
-<p>注意下面的好还要更好，指的是右下角图里sigmoid+ce和hinge loss的对比（黑点），对于sigmoid+ce来说，已经在good enough区域了，但是loss还是可以下降的（还可以更好），对于hinge来说，在good enough区域，loss下降不了了。</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106171214437.png" alt="image-20230106171214437" style="zoom:50%;">
-
-
-
-
-
-<p>Linear SVM</p>
-<p>linear指的是function是linear的。</p>
-<p>二分类，f(x)&gt;0是一个类，f(x)&lt;0是一个类。</p>
-<p>loss function是凸函数。</p>
-<p><strong>loss function用hinge loss就是 SVM，如果loss function用cross entropy就是LR逻辑回归。</strong></p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106172350809.png" alt="image-20230106172350809" style="zoom:50%;">
-
-
-
-<p>linear svm的梯度下降推导：</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106175953527.png" alt="image-20230106175953527" style="zoom:50%;">
-
-
-
-<p>linear SVM另一种常见的写法：</p>
-<p>把 l(f) 公式里用 $\varepsilon $表示，因为  $\varepsilon$ 的公式是 $\max(0,1-yf(x))$ ，所以认为$ \varepsilon$ 既$\ge$第一项，又 $\ge$第二项，这本身和原公式是不等价的，因为 $ \varepsilon$  可以取很大的数来满足 $\ge$ 的条件，但是max公式里无法得到一个$ \varepsilon$使得这个 $ \varepsilon$可以是一个很大的数。但是！由于这里的目标是<strong>最小化</strong> loss function，因此这里的 “max” 和 “$\ge$” 的条件是可以等价的。（最小化，限制了$ \varepsilon$不能取很大的数，最大就是max中的最大值）。</p>
-<p>$ \varepsilon \ge 0$ ，$ \varepsilon \ge 1-\hat yf(x)$ 条件。可以写成 $\hat yf(x) \ge 1- \varepsilon^n $ ，这个是常见的SVM公式，物理意义是 yf(x)大于等于一个margin，这个margin是soft的，本来是“1”，但有时候没办法都满足大于等于1，因此margin稍微做一个放宽，减一个 $\varepsilon$，margin变成 $1- \varepsilon$ 。</p>
-<p>因为 $\varepsilon$ 会放宽 margin ，这里 $ \varepsilon$ 叫 slack variable，物理意义是放宽、松弛margin。这个松弛变量是正的，因为如果是负的变成更严格的条件了。</p>
-<p>由于是有约束的，用quadradic programming 方法来解。也可以和上文一样用梯度下降来解。</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106180009368.png" alt="image-20230106180009368" style="zoom:50%;">
-
-
-
-<h2 id="kernel-method"><a href="#kernel-method" class="headerlink" title="kernel method"></a>kernel method</h2><p><strong>这里认为（能最小化loss的）权重w是不同数据点的加权求和</strong> 写作 $w^*&#x3D;\sum_n\alpha_n^*x^n$</p>
-<p>解释理由是w初始化0，更新过程是w是一个有关数据点x加权求和的结果。</p>
-<p>因为hige loss的很多点出来会是0，因此有很多数据点x对应的权重为0，对结果不起作用，如果权重$\alpha$不等于0，它对结果起作用，称为support vector。</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230106180325878.png" alt="image-20230106180325878" style="zoom:50%;">
-
-<p>这里n是训练集，$\alpha$是不同weight，k是不同维度。把k维合成一个向量w。这里 $c^n(w)$ 是loss的偏微分。</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206100841565.png" alt="image-20230206100841565" style="zoom: 50%;">
-
-
-
-<p>这里把列向量 $X^T$ 乘以x（内积），得到的列向量记为 $K(x^n, x)$，称为kernel function。</p>
-<p>计算 $f(x)$ 时，是将此数据点 $x$ ，与数据集的所有 $X$ 计算内积。</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206101142084.png" alt="image-20230206101142084" style="zoom:50%;">
-
-
-
-
-
-
-
-<p>直接先做x和z的kernel funciton，会比各自做feature transform，再做inner product更快。</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206112108738.png" alt="image-20230206112108738" style="zoom:50%;">
-
-
-
-<p>举例：</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206112537325.png" alt="image-20230206112537325" style="zoom:50%;">
-
-
-
-<p>举例：</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206113700910.png" alt="image-20230206113700910" style="zoom:50%;">
-
-
-
-
-
-
-
-<p>可以理解成是做了一次神经网络，神经网络的参数个数等于数据集的大小n，输入向量 $x$ （多维特征）乘以神经元参数值$x^n$（这个$x^n$是$x_1$、$x_2$、$x_3$、…），得到 $x^n \cdot x$ 向量（下图画的x到x1有好多线，如果只有一条线，是x只有一维，如果多条线，是x是多维特征），然后经过kernel function（比如tanh），然后和$\alpha$进行加权求和，得到某一个数据x下的f(x)。</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206120110190.png" alt="image-20230206120110190" style="zoom:50%;">
-
-
-
-
-
-<p>kernel function：投影到高维后的内积，物理含义像“相似性”。我们不用把输入特征x映射（变换）到某一个向量，因为这可能不好表示（这个向量不一定能表示这个输入特征），但是如果可以直接在高维空间中得到二者的相似性，这是我们更想要知道的。</p>
-<p>判断哪些kernel function是可以的：通过mercer theory进行检查。</p>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206122348191.png" alt="image-20230206122348191" style="zoom:50%;">
-
-
-
-<p>SVM related methods</p>
-<ul>
-<li>Support Vector Regression (SVR)<ul>
-<li>[Bishop chapter 7.1.4]</li>
-</ul>
-</li>
-<li>Ranking SVM<ul>
-<li>[Alpaydin, Chapter 13.11]</li>
-</ul>
-</li>
-<li>One-class SVM<ul>
-<li>[Alpaydin, Chapter 13.11]</li>
-</ul>
-</li>
-</ul>
-<img src="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230206123519579.png" alt="image-20230206123519579" style="zoom:50%;">
-
-
-          
+SVM 由 hinge loss 和 kernel 构成
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2623,92 +1923,6 @@
           
 
         </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
-        <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-            
-              <p class="site-author-name" itemprop="name"></p>
-              <p class="site-description motion-element" itemprop="description"></p>
-          </div>
-
-          <nav class="site-state motion-element">
-
-            
-              <div class="site-state-item site-state-posts">
-              
-                <a href="/archives/%7C%7C%20archive">
-              
-                  <span class="site-state-item-count">140</span>
-                  <span class="site-state-item-name">posts</span>
-                </a>
-              </div>
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-categories">
-                <a href="/categories/index.html">
-                  <span class="site-state-item-count">14</span>
-                  <span class="site-state-item-name">categories</span>
-                </a>
-              </div>
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-tags">
-                <a href="/tags/index.html">
-                  <span class="site-state-item-count">14</span>
-                  <span class="site-state-item-name">tags</span>
-                </a>
-              </div>
-            
-
-          </nav>
-
-          
-
-          
-
-          
-          
-
-          
-          
-
-          
-
-        </div>
-      </section>
-
-      
-      
-    </div>
-<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
-  </aside>
-
-
         
       </div>
     </main>

@@ -95,7 +95,7 @@
     root: '',
     scheme: 'Muse',
     version: '5.1.4',
-    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    sidebar: {"position":"left","display":"remove","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
     motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
@@ -392,24 +392,15 @@
       
         
           
-            <h1 id="lattice"><a href="#lattice" class="headerlink" title="lattice"></a>lattice</h1><h2 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h2><p>词格，用topN中的路径重新生成一个图，这个图就叫lattice，就是在hclg进行解码，然后根据topN的解码结果，取出在hclg具体走的路径，构成的图，可以理解成从hclg只保留所需要的值，大部分无用的信息舍弃，最后是topN的word序列构成的fst；</p>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/yutianzuijin/article/details/77621511">语音识别中的lattice与confusion network</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36782366/article/details/102847110">kaldi理解WFST，HCLG，lattice</a></p>
-</blockquote>
-<h3 id="生成lattice"><a href="#生成lattice" class="headerlink" title="生成lattice"></a>生成lattice</h3><p>在生成one best结果时，只需要从最优结果处回溯，但是为了生成lattice，我们需要保留更多信息。具体就是在生成每一个hist的时候保留多个候选alt，这样在回溯best hist的时候也访问alt来生成lattice。</p>
-<p>在lattice上从左向右的任何一条路径，就构成一个识别结果，路径上每条边的声学得分相加，再加上路径对应的语言得分，就是整条路径的得分，通常取得分最大的前 N 条路径对应的词串作为识别的 N-Best 结果输出。上面lattice的生成用的语言模型往往不够精确，通常还需要在lattice上用更大的语言模型进rescore。</p>
-<h3 id="lattice含义"><a href="#lattice含义" class="headerlink" title="lattice含义"></a>lattice含义</h3><p>在实际的语音识别系统中，最优路径不一定与实际字序列匹配，我们一般希望能够得到得分最靠前的多条候选路径，即N-best。为了紧凑地保存候选路径，防止占用过多内存空间，我们一般采用lattice（又叫词图）来保存识别的候选序列。lattice本质上是一个有向无环（directed acyclic graph）图。图上的每个节点代表一个词的结束时间点，每条边代表一个可能的词，以及该词发生的声学得分和语言模型得分。<br><img src="/2022/01/04/%E8%AF%86%E5%88%AB/lattice/SouthEast.png" alt="img"></p>
-<h3 id="Lattice结构"><a href="#Lattice结构" class="headerlink" title="Lattice结构"></a>Lattice结构</h3><p>FST的形式，weight包括两部分（graph cost和acoustic cost），输入是transition-ids，输出是words。<br>其中weight的graph cost包含LM+transition+pronunciation三部分。</p>
-<h3 id="CompactLattice结构"><a href="#CompactLattice结构" class="headerlink" title="CompactLattice结构"></a>CompactLattice结构</h3><p>和lattice相似，区别在于它是接收机FSA，输入和输出一样（都是words），weight包含两部分（权重和transition-ids），相比于Lattice，CompactLattice把输入的transition-ids转移到weight上面。</p>
-<p>lattice保证每一个word-sequence只对应lattice中的一条路径。</p>
-<h3 id="lattice剪枝"><a href="#lattice剪枝" class="headerlink" title="lattice剪枝"></a>lattice剪枝</h3><p>原始lattice可能会非常庞大，这时我们可以对lattice进行剪枝但是不影响最终的准确率。一种剪枝方法是对lattice进行前后向打分，计算每条边的后验概率，然后删除后验概率很低的边。</p>
-<h2 id="confusion-network"><a href="#confusion-network" class="headerlink" title="confusion network"></a>confusion network</h2><p>混淆网络是一种特殊的lattice，由原始lattice经过变换生成。它要求lattice中的每条路径都必须经过所有的节点。如下图所示：</p>
-<p><img src="https://img-blog.csdn.net/20170827170427344?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXV0aWFuenVpamlu/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="img"></p>
-<p>简单描述一个近似于srilm中采用的混淆网络生成算法：首先进行前后向概率打分计算每条边的后验概率；其次根据后验概率对lattice进行剪枝；再次从原始lattice中选择一条得分最高的路径当作初始混淆网络（路径中的节点即为混淆网络中的节点）；最后就开始逐步将其他的边对齐添加到上述初始混淆网络中。特别地，如果在添加某条边到某节点中时发现已经有边指向该边并且也添加到该节点之后，则创建一个新的节点，让之前的边都指向新节点，要添加的边则从新节点指向之前的老节点。<br>相比于lattice，我们可以很容易从混淆网络中获取one best结果，只需要从每一段中选择后验概率最大的边即可。混淆网络作为lattice的简化版，会引入原始lattice中不存在的路径。但是通常情况下，用混淆网络获取的one best结果要好于原始的one best。混淆网络还有一个好处，我们可以很容易获取每个时刻相互竞争的词有哪些，怀疑苹果自带的输入法即采用了混淆网络来修改候选词。</p>
-<h2 id="kaldi"><a href="#kaldi" class="headerlink" title="kaldi"></a>kaldi</h2><p>生成 lattice 的唯一解码器是定义在 decoder&#x2F;lattice-simple-decoder.h 中的类 LatticeSimpleDecoder，它被 gmm-latgen-simple.cc中调用。</p>
-
-          
+          lattice解释词格，用topN中的路径重新生成一个图，这个图就叫lattice，就是在hclg进行解码，然后根据topN的解码结果，取出在hclg具体走的路径，构成的图，可以理解成从hclg只保留
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/01/04/%E8%AF%86%E5%88%AB/lattice/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -560,206 +551,17 @@
       
         
           
-            <h1 id="mmi"><a href="#mmi" class="headerlink" title="mmi"></a>mmi</h1><p>Maximum  mutual information </p>
-<blockquote>
-<p>Bahl L, Brown P, De Souza P, et al. Maximum mutual information estimation of hidden Markov model parameters for speech recognition[C]&#x2F;&#x2F;ICASSP’86. IEEE International Conference on Acoustics, Speech, and Signal Processing. IEEE, 1986, 11: 49-52. citation:1212</p>
-<p>csdn blog <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_35742630/article/details/89004890">区分性训练和mmi（一）</a></p>
-<p>blog <a target="_blank" rel="noopener" href="https://liuyanfeier.github.io/2018/12/16/%E5%8C%BA%E5%88%86%E6%80%A7%E8%AE%AD%E7%BB%83%EF%BC%88Discriminative-Training%EF%BC%89%E5%8F%8A%E5%85%B6%E5%9C%A8%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%EF%BC%88ASR%EF%BC%89%E4%B8%8A%E7%9A%84%E8%BF%90%E7%94%A8/">区分性训练（Discriminative Training）及其在语音识别（ASR）上的运用</a></p>
-<p>Chen, Zhehuai, Yanmin Qian, and Kai Yu. “Sequence discriminative training for deep learning based acoustic keyword spotting.” <em>Speech Communication</em> 102 (2018): 100-111.</p>
-</blockquote>
-<h3 id="GMM与DT"><a href="#GMM与DT" class="headerlink" title="GMM与DT"></a>GMM与DT</h3><ul>
-<li><p>GMM-HMM，回顾最大似然准则（Maximum likelihood estimation ）：$F_{ML}&#x3D;\sum_{u&#x3D;1}^UlogP(X_u|W_u;\theta)$</p>
-</li>
-<li><p>其中，$W_u$是标注序列，$X_u$是语音信号，$\theta$是声学模型参数。</p>
-<p>$p(x)&#x3D;\sum_yp(x,y)$</p>
-<p>$p(x)&#x3D;\sum_yp(x)p(y)$</p>
-</li>
-</ul>
-<h4 id="最大互信息准则"><a href="#最大互信息准则" class="headerlink" title="最大互信息准则"></a>最大互信息准则</h4><ul>
-<li><p>熵：$H(X)\triangleq-\sum_xPr(X&#x3D;x)logPr(X&#x3D;x)$  （ps.$\triangleq$是定义为def的意思）（$P(X&#x3D;x)$也可以直接写成$P(x)$）</p>
-</li>
-<li><p>互信息 ：$I(X,Y)&#x3D;H(Y)-H(Y|X)$，熵-条件熵，互信息是描述两个随机变量的关联程度，于是在这里就是描述<strong>观测序列和文本的关联程度</strong></p>
-</li>
-<li><p>条件熵 $H(Y|X)&#x3D;\sum_{x\in{X}}p(x)H(Y|X&#x3D;x)&#x3D;-\sum_{x\in{X}}p(x)\sum_{y\in{Y}}p(y|x)logp(y|x)]&#x3D;-\sum_{x\in{X}}\sum_{y\in{Y}}p(x,y)logp(y|x)$</p>
-</li>
-<li><p>X,Y是变量，x,y是变量的取值，条件熵是指在给定某个数（某个变量为某个值）的情况下，另一个变量的熵是多少，变量的不确定性是多少？条件熵中X也是一个变量，意思是在一个变量X的条件下（变量X的每个值都会取），另一个变量Y熵对X的期望</p>
-</li>
-<li><p>我的理解是条件熵越小，相关性越大；或者说互信息越大，相关性越大。</p>
-<p>H(Y|X)相当于告诉Y一些已知信息X后Y的熵，对Y加了一些限制条件。所以$H(Y)\geq{H(Y|X)}$，H(Y)就是Y的熵，描述Y的混乱程度，他们的互信息实际上也就是去求X和Y到底什么关系，X对Y到底产生了多大的影响。</p>
-</li>
-<li><p>互信息$I(X;Y)\triangleq{H(X)-H(X|Y)}$，或者写成$I(X;Y)\triangleq{H(Y)-H(Y|X)}$，</p>
-</li>
-<li><p>互信息$\large{I(X;Y)&#x3D;\sum_{x,y}Pr(X&#x3D;x,Y&#x3D;y)log\frac{Pr(X&#x3D;x,Y&#x3D;y)}{Pr(X&#x3D;x)Pr(Y&#x3D;y)}}$</p>
-<p>（∵$I(X;Y)&#x3D;-\sum_xp(x)log(x)+\sum_{xy}p(x,y)logp(x|y)&#x3D;-\sum_{xy}p(x,y)log(x)+\sum_{xy}p(xy)log\frac{p(x,y)}{p(y)}$）</p>
-<p>可以看出，互信息会更关注因为引入的某个“文本”，对于观测序列的影响、变化。</p>
-</li>
-<li><p>MMI准则公式：$\large{F_{MMIE}(\lambda)&#x3D;\sum_{u&#x3D;1}^{U}logP(W_u|x_u;\theta)&#x3D;\sum_{u&#x3D;1}^Ulog\frac{P(X_u|W_u;\theta)P(W_u)}{\sum_{w’}P(X_u|w’;\theta)P(w’)}}$</p>
-</li>
-<li><p>其中$P(W_u)$是固定的语言模型</p>
-<p>分子上的$P(X_u|Wu;θ)$，正是ML的目标函数；而分母则是所有文本（包括训练文本和它的所有竞争者）产生训练语音的概率（按语言模型加权）和。</p>
-<p>分子Numerator表示的是正确单词序列的可能性，分母Denominator是所有可能单词序列的可能性之和。</p>
-<p>两者之间的区别在于条件概率不同。ML中只要训练文本产生训练语音的概率大就行，而MMI要求的是训练语音对应训练文本的概率大，就是要训练文本产生语音信号的概率与其它文本产生语音信号的概率之差大。</p>
-</li>
-</ul>
-<h3 id="DNN与DT"><a href="#DNN与DT" class="headerlink" title="DNN与DT"></a>DNN与DT</h3><h4 id="MMI损失函数"><a href="#MMI损失函数" class="headerlink" title="MMI损失函数"></a>MMI损失函数</h4><p>在DNN神经网络中，DT准则可以替换CE准则作为损失函数。</p>
-<ul>
-<li><p>MMI准则过程为：</p>
-<ul>
-<li>$\large{P(\textbf{W}_u|\textbf{O}_u)&#x3D;\frac{p(\textbf{O}_u|\textbf{W}_u)P(\textbf{W}_u)}{p(\textbf{O}_u)}}$</li>
-</ul>
-<p>其中，$P(\textbf{W}_u)$是语言模型概率（一整句话有一个语言模型概率），在kws中，是keyword序列和非keyword的先验概率。</p>
-<ul>
-<li>分子  $p(\textbf{O}_u|\textbf{W}<em>u)&#x3D;\sum</em>{L\in{\mathcal{L}(W)}}p(\textbf{O}|\textbf{L})P(\textbf{L}|\textbf{W})$</li>
-</ul>
-<p>其中，$p(\textbf{O}|\textbf{L})$由HMM给出，$L$是状态（或者说标签）序列；$\mathcal{L}$是词序列W到它的标签序列$L$的映射函数，也就是词典lexicon；$P(\textbf{L}|\textbf{W})$是发音概率，由词典和语言模型决定；</p>
-<p>所以，是在分子lattice上可能的L序列路径求和的过程（用前后向）</p>
-<ul>
-<li>分母 $p(\textbf{O}<em>u)&#x3D;\sum</em>{W}p(\textbf{O}_u,W)&#x3D;\sum_WP(\textbf{W})p(\textbf{O}_u|\textbf{W})$</li>
-</ul>
-<p>其中，$\textbf{W}$denotes one of the competing hypotheses, which are usually represented as a path in the decoding lattice  </p>
-<ul>
-<li>MMI准则公式为：$\large{\mathcal{F}_{MMI}&#x3D;\sum_ulog\frac{P(\textbf{O}_u|\textbf{W}_u)^kP(\textbf{W}<em>u)}{\sum</em>{\textbf{W}}P(\textbf{O}<em>u|\textbf{W})^kP(\textbf{W})}&#x3D;\sum_ulog\frac{\sum</em>{L\in{\mathcal{L}(W)}}p(\textbf{O}|\textbf{L})^kP(\textbf{L}|\textbf{W})^kP(\textbf{W}_u)}{\sum_Wp(\textbf{O}_u|\textbf{W})^kP(\textbf{W})}}$</li>
-</ul>
-<p>（$logp(w|o)&#x3D;logp(o,w)-log(o)&#x3D;log\sum_sp(o,s,w)-log(o)&#x3D;log\sum_sp(o|s,w)p(s|w)p(w)-logp(o)$）</p>
-</li>
-<li><p>u是某一条样本，就是w的状态序列s的引入，对音频观测序列o产生多大的影响，loss越大，条件熵越小，互信息越大，越相关。因此要最大化互信息。</p>
-</li>
-<li><p>MMI准则最大化单词序列分布和观察序列分布之间的互信息,，减小句子错误率。最大化分子， 最小化分母。 </p>
-</li>
-<li><p>DT训练之前需要使用CE准则生成alignments和lattices，DT的初始化模型为使用CE准则训练出的最好模型。</p>
-</li>
-<li><p>理论上说,，DT训练分母应该取遍所有可能的单词序列。不过在实际中，这个求和运算是限制在解码得到的lattice上做的，这样可以减少运算量。</p>
-</li>
-<li><p>DNN训练算法一般是用来最小化一个目标方程, 所以我们可以对MMI准则取反进行最小化，而不是最大化互信息。</p>
-</li>
-<li><p>最大互信息量估计准则（Maximum Mutual Information Estimation，MMIE）、最小分类错误准则（Minimum Classification Error，MCE），以及最小词&#x2F;音素错误准则(Minimum Word&#x2F;Phone Error)。而常用的参数优化准则算法则包括广义概率下降(Generalized Pmbability Descent，GPD)，以及扩展Baum-Welch(Extened Baum—Welch，EB)算法。</p>
-</li>
-</ul>
-<h4 id="MMI求导"><a href="#MMI求导" class="headerlink" title="MMI求导"></a>MMI求导</h4><p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211006170322880.png" alt="image-20211006170322880"></p>
-<h2 id="MMI详细求导过程"><a href="#MMI详细求导过程" class="headerlink" title="MMI详细求导过程"></a>MMI详细求导过程</h2><blockquote>
-<p>Veselý K, Ghoshal A, Burget L, et al. Sequence-discriminative training of deep neural networks[C]&#x2F;&#x2F;Interspeech. 2013, 2013: 2345-2349. citation：802 Daniel Povey</p>
-<p>[mmi推导]Note_on_MMI （Sequence-discriminative training of deep neural networks）.pdf</p>
-</blockquote>
-<ul>
-<li>得到反向传播的可导性（求偏导）</li>
-</ul>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211012153400589.png" alt="image-20211012153400589"></p>
-<ul>
-<li>分母用前后向求得</li>
-</ul>
-<h2 id="lattice"><a href="#lattice" class="headerlink" title="lattice"></a>lattice</h2><p>前向后向算法都是在lattice上进行的，下图是一个word级别的lattice：</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/1.png" alt="img"></p>
-<h4 id="kaldi中的DT实现"><a href="#kaldi中的DT实现" class="headerlink" title="kaldi中的DT实现"></a>kaldi中的DT实现</h4><p>kaldi nnet3中的DT计算过程</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/2.png" alt="img"></p>
-<ul>
-<li>lattice rescore是DNN前向计算出$P(s|o)$，除以先验概率$P(s)$，得到似然概率$P(o|s)$，替换lattice边上对应的$P(o|s)$</li>
-<li>其中<code>vector&lt;BaseFloat&gt; answers</code>是前面计算出来的DNN的输出对应参考pdf的概率。</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// nnet3/discriminative-training.cc</span></span><br><span class="line"><span class="comment">// 对lattice进行声学校正, 将负（缩放）声学对数似然置于lattice的弧中</span></span><br><span class="line"><span class="function"><span class="type">size_t</span> <span class="title">DiscriminativeComputation::LatticeAcousticRescore</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">const</span> std::vector&lt;BaseFloat&gt; &amp;answers,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">size_t</span> index, Lattice *lat)</span> </span>&#123;</span><br><span class="line">  int32 num_states = lat-&gt;<span class="built_in">NumStates</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (StateId s = <span class="number">0</span>; s &lt; num_states; s++) &#123;</span><br><span class="line">    <span class="keyword">for</span> (fst::MutableArcIterator&lt;Lattice&gt; <span class="built_in">aiter</span>(lat, s);</span><br><span class="line">         !aiter.<span class="built_in">Done</span>(); aiter.<span class="built_in">Next</span>()) &#123;</span><br><span class="line">      Arc arc = aiter.<span class="built_in">Value</span>();</span><br><span class="line">      <span class="keyword">if</span> (arc.ilabel != <span class="number">0</span>) &#123; <span class="comment">// input-side has transition-ids, output-side empty</span></span><br><span class="line">        arc.weight.<span class="built_in">SetValue2</span>(-answers[index]);</span><br><span class="line">        <span class="comment">// graph cost: lm + transition + pronunciation</span></span><br><span class="line">        <span class="comment">// acoustic cost: -P(o|s)</span></span><br><span class="line">        index++;</span><br><span class="line">        aiter.<span class="built_in">SetValue</span>(arc);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    LatticeWeight <span class="keyword">final</span> = lat-&gt;<span class="built_in">Final</span>(s);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">final</span> != LatticeWeight::<span class="built_in">Zero</span>()) &#123;</span><br><span class="line">      <span class="keyword">final</span>.<span class="built_in">SetValue2</span>(<span class="number">0.0</span>); <span class="comment">// 确保在最终概率中没有声学项</span></span><br><span class="line">      lat-&gt;<span class="built_in">SetFinal</span>(s, <span class="keyword">final</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 用于rescore lattice的对数似然的索引个数</span></span><br><span class="line">  <span class="keyword">return</span> index;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          mmiMaximum  mutual information 
 
-<ul>
-<li>在分母lattice上进行前向后向的计算函数为LatticeForwardBackward；在分子lattice的前向后向计算函数为AlignmentToPosterior。</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lat/lattice-functions.cc</span></span><br><span class="line"><span class="comment">// 在lattice上执行前向后向算法并计算弧的后验概率</span></span><br><span class="line"><span class="function">BaseFloat <span class="title">LatticeForwardBackward</span><span class="params">(<span class="type">const</span> Lattice &amp;lat, Posterior *post,</span></span></span><br><span class="line"><span class="params"><span class="function">                                 <span class="type">double</span> *acoustic_like_sum)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 注意Posterior定义如下:  </span></span><br><span class="line">  <span class="comment">// Indexed [frame], then a list of (transition-id, posterior-probability) pairs.</span></span><br><span class="line">  <span class="comment">// typedef std::vector&lt;std::vector&lt;std::pair&lt;int32, BaseFloat&gt; &gt; &gt; Posterior;</span></span><br><span class="line">  <span class="keyword">using</span> <span class="keyword">namespace</span> fst;</span><br><span class="line">  <span class="keyword">typedef</span> Lattice::Arc Arc;</span><br><span class="line">  <span class="keyword">typedef</span> Arc::Weight Weight;</span><br><span class="line">  <span class="keyword">typedef</span> Arc::StateId StateId;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (acoustic_like_sum) *acoustic_like_sum = <span class="number">0.0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 确保lattices在拓扑上排序</span></span><br><span class="line">  <span class="keyword">if</span> (lat.<span class="built_in">Properties</span>(fst::kTopSorted, <span class="literal">true</span>) == <span class="number">0</span>)</span><br><span class="line">    KALDI_ERR &lt;&lt; <span class="string">&quot;Input lattice must be topologically sorted.&quot;</span>;</span><br><span class="line">  <span class="built_in">KALDI_ASSERT</span>(lat.<span class="built_in">Start</span>() == <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  int32 num_states = lat.<span class="built_in">NumStates</span>();</span><br><span class="line">  vector&lt;int32&gt; state_times;</span><br><span class="line">  <span class="comment">// 拓扑迭代den_lats中的每个state，并按顺序对每个state进行计数，结果</span></span><br><span class="line">  <span class="comment">// 保存在vector state_times中，最后一个state对应的计数时间应该为帧的数量值</span></span><br><span class="line">  int32 max_time = <span class="built_in">LatticeStateTimes</span>(lat, &amp;state_times);</span><br><span class="line">  <span class="function">std::vector&lt;<span class="type">double</span>&gt; <span class="title">alpha</span><span class="params">(num_states, kLogZeroDouble)</span></span>;</span><br><span class="line">  <span class="function">std::vector&lt;<span class="type">double</span>&gt; &amp;<span class="title">beta</span><span class="params">(alpha)</span></span>; </span><br><span class="line">  <span class="comment">// 重用相同的内存，beta是alpha的引用</span></span><br><span class="line">  <span class="type">double</span> tot_forward_prob = kLogZeroDouble;</span><br><span class="line"></span><br><span class="line">  post-&gt;<span class="built_in">clear</span>();</span><br><span class="line">  post-&gt;<span class="built_in">resize</span>(max_time);</span><br><span class="line"></span><br><span class="line">  alpha[<span class="number">0</span>] = <span class="number">0.0</span>;</span><br><span class="line">  <span class="comment">// Propagate alphas forward.</span></span><br><span class="line">  <span class="keyword">for</span> (StateId s = <span class="number">0</span>; s &lt; num_states; s++) &#123;</span><br><span class="line">    <span class="type">double</span> this_alpha = alpha[s];</span><br><span class="line">    <span class="comment">// alpha[]里面存储着从init state走到该state的所有路径中cost value加和最大值</span></span><br><span class="line">    <span class="keyword">for</span> (ArcIterator&lt;Lattice&gt; <span class="built_in">aiter</span>(lat, s); !aiter.<span class="built_in">Done</span>(); aiter.<span class="built_in">Next</span>()) &#123;</span><br><span class="line">      <span class="type">const</span> Arc &amp;arc = aiter.<span class="built_in">Value</span>();</span><br><span class="line">      <span class="comment">// arc_like = arc.weight.value1 + arc.weight.value2</span></span><br><span class="line">      <span class="type">double</span> arc_like = -<span class="built_in">ConvertToCost</span>(arc.weight);    </span><br><span class="line">      <span class="comment">// LogAdd返回两者之间较大的一个... + something else</span></span><br><span class="line">      alpha[arc.nextstate] = <span class="built_in">LogAdd</span>(alpha[arc.nextstate], this_alpha + arc_like);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// get状态s的final weight; if == Weight::Zero() =&gt; non-final</span></span><br><span class="line">    <span class="comment">// final state上面有单独的语言和声学分 </span></span><br><span class="line">    Weight f = lat.<span class="built_in">Final</span>(s);</span><br><span class="line">    <span class="keyword">if</span> (f != Weight::<span class="built_in">Zero</span>()) &#123;     </span><br><span class="line">      <span class="type">double</span> final_like = this_alpha - (f.<span class="built_in">Value1</span>() + f.<span class="built_in">Value2</span>());</span><br><span class="line">      tot_forward_prob = <span class="built_in">LogAdd</span>(tot_forward_prob, final_like);</span><br><span class="line">      <span class="built_in">KALDI_ASSERT</span>(state_times[s] == max_time &amp;&amp;</span><br><span class="line">                   <span class="string">&quot;Lattice is inconsistent (final-prob not at max_time)&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (StateId s = num_states<span class="number">-1</span>; s &gt;= <span class="number">0</span>; s--) &#123;</span><br><span class="line">    Weight f = lat.<span class="built_in">Final</span>(s);</span><br><span class="line">    <span class="comment">// 如果s不是final state, this_beta = 0</span></span><br><span class="line">    <span class="type">double</span> this_beta = -(f.<span class="built_in">Value1</span>() + f.<span class="built_in">Value2</span>());</span><br><span class="line">    <span class="comment">// beta[]里面存储的是从该state走到final state的所有路径中cost value加和最大值（加上final state的权值）</span></span><br><span class="line">    <span class="keyword">for</span> (ArcIterator&lt;Lattice&gt; <span class="built_in">aiter</span>(lat, s); !aiter.<span class="built_in">Done</span>(); aiter.<span class="built_in">Next</span>()) &#123;</span><br><span class="line">      <span class="type">const</span> Arc &amp;arc = aiter.<span class="built_in">Value</span>();</span><br><span class="line">      <span class="type">double</span> arc_like = -<span class="built_in">ConvertToCost</span>(arc.weight),</span><br><span class="line">          arc_beta = beta[arc.nextstate] + arc_like;</span><br><span class="line">      this_beta = <span class="built_in">LogAdd</span>(this_beta, arc_beta);</span><br><span class="line">      int32 transition_id = arc.ilabel;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 该if判断是一个优化，以避免不需要的exp()函数</span></span><br><span class="line">      <span class="keyword">if</span> (transition_id != <span class="number">0</span> || acoustic_like_sum != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="type">double</span> posterior = <span class="built_in">Exp</span>(alpha[s] + arc_beta - tot_forward_prob);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (transition_id != <span class="number">0</span>) <span class="comment">// 该弧上有tid，不是epsilon</span></span><br><span class="line">          <span class="comment">// (*post)[state_times[s]]是以时间帧为编号的vector</span></span><br><span class="line">          (*post)[state_times[s]].<span class="built_in">push_back</span>(std::<span class="built_in">make_pair</span>(transition_id,</span><br><span class="line">                                                           <span class="built_in">static_cast</span>&lt;kaldi::BaseFloat&gt;(posterior)));</span><br><span class="line">        <span class="keyword">if</span> (acoustic_like_sum != <span class="literal">NULL</span>)</span><br><span class="line">          *acoustic_like_sum -= posterior * arc.weight.<span class="built_in">Value2</span>();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (acoustic_like_sum != <span class="literal">NULL</span> &amp;&amp; f != Weight::<span class="built_in">Zero</span>()) &#123;</span><br><span class="line">      <span class="type">double</span> final_logprob = - <span class="built_in">ConvertToCost</span>(f),</span><br><span class="line">          posterior = <span class="built_in">Exp</span>(alpha[s] + final_logprob - tot_forward_prob);</span><br><span class="line">      *acoustic_like_sum -= posterior * f.<span class="built_in">Value2</span>();     <span class="comment">// value2声学分数 </span></span><br><span class="line">    &#125;</span><br><span class="line">    beta[s] = this_beta;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="type">double</span> tot_backward_prob = beta[<span class="number">0</span>];</span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">ApproxEqual</span>(tot_forward_prob, tot_backward_prob, <span class="number">1e-8</span>)) &#123;</span><br><span class="line">    KALDI_WARN &lt;&lt; <span class="string">&quot;Total forward probability over lattice = &quot;</span> &lt;&lt; tot_forward_prob</span><br><span class="line">              &lt;&lt; <span class="string">&quot;, while total backward probability = &quot;</span> &lt;&lt; tot_backward_prob;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 按照第一个元素排序，把tid(pdfid)相同的后验combine起来(posterior值加起来)</span></span><br><span class="line">  <span class="keyword">for</span> (int32 t = <span class="number">0</span>; t &lt; max_time; t++)</span><br><span class="line">    <span class="built_in">MergePairVectorSumming</span>(&amp;((*post)[t]));</span><br><span class="line">  <span class="keyword">return</span> tot_backward_prob;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="trick"><a href="#trick" class="headerlink" title="trick"></a>trick</h4><ul>
-<li>frame rejection<br>当分子alignment的状态没有在分母lattice中出现的时候，会导致梯度过大，舍弃该帧的梯度。这种情况对于silence帧尤其常见，因为silence经常出现在分子的lattice，但是很容易被分母的lattice忽略。<br>如果新的对齐和lattice在每轮训练后被重新生成，那么运算结果将得到进一步改进。</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 如果两个post[i]的第一个元素(tid)没有交集，返回true</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">PosteriorEntriesAreDisjoint</span>(post1[i], post2[i])) &#123;</span><br><span class="line">      num_disjoint++;</span><br><span class="line">      <span class="keyword">if</span> (drop_frames)</span><br><span class="line">        (*post)[i].<span class="built_in">clear</span>();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>帧平滑  $J_{FS-SEQ}(\theta;S)&#x3D;(1-H)J_{CE}(\theta;S)+HJ_{SEQ}(\theta;S)$</p>
-<p>当训练dt准则函数持续改进时，只用DNN计算出的帧准确率却显著变差。帧&#x2F;序列的比从 1:4 (H &#x3D; 4&#x2F;s )到 1:10 (H &#x3D; 10&#x2F;11 )常常是有效的。</p>
-</li>
-<li><p>更小的lr，大数据集上smbr效果最好</p>
-</li>
-</ul>
-<hr>
-<blockquote>
-<p>七月在线的视频 07.第四课 序列判别式训练（视频），PPT:《asr_lecture4.pdf》</p>
-</blockquote>
-<ul>
-<li>之前是nbest求和，现在是用lattice，lattice上路径会有重合，也是求和</li>
-</ul>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211008150208238.png" alt="image-20211008150208238"></p>
-<ul>
-<li>用lattice估计全量量的W </li>
-<li>用最初的模型⽣生成lattice</li>
-<li>使用弱的语言模型，通常用1-gram的语言模型</li>
-<li>但是控制lattice⼤小，通过beam控制，以减小计算的复杂度</li>
-<li>继承解码后的边对应的phone</li>
-</ul>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211008160228044.png" alt="image-20211008160228044"></p>
-<p>生成分母FST代码： kaldi&#x2F;src&#x2F;chainbin&#x2F;chainmake-den-fst.cc  </p>
-<p>2016 paper仍需要用gmm进行预训练，进行对齐，对phone出现的帧进行限制，同分母的fst进行连接，那样就是带上语言模型概念</p>
-<hr>
-<p>区分性训练，其实应该说鉴别性训练，相对于生成式模型？<del>意思就是不是把所有样本一视同仁地训练，而是赋予不同权重训练</del></p>
-<ul>
-<li><p>LFMMI之前的MMI分母用的解码得到的lattice作为词空间</p>
-</li>
-<li><p>LFMMI分子用的对齐lattice，分母用的是phoneWFST构成的lattice，所有句子的分母lattice都相同，就一个，之前没用这个HCLG是因为用word得到的HCLG特别大</p>
-</li>
-</ul>
-<hr>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU4MTA0NDE5NQ==&mid=2247485166&idx=1&sn=8b16bf29ed1a40e5b6cb2ba7104a1f1d&chksm=fd4cd462ca3b5d7446b4893cee3a03015d2b91dd0013f61ed0586be79bc514ebdb85a14ee31c&mpshare=1&scene=1&srcid=&sharer_sharetime=1584408100044&sharer_shareid=2c567b07b642647cb9daac1b143684f9#rd">语音识别系列之区分性训练和LF-MMI</a></p>
-</blockquote>
-<ul>
-<li><p>普通MMI：MMI的训练依赖Lattice，Lattice又依赖已经训练好的声学模型，所以在DNN的声学模型中，我们要先基于ML准则先训练好DNN模型，然后做MMI的训练。并且，<strong>Lattice是一个解码过程，其生成代价很高</strong>，并且只能在CPU上进行解码生成。一般我们只生成一次Lattice，区分性训练的过程中我们并不根据当前更新后的声学模型实时生成Lattice，也就是不使用实时的Lattice做MMI训练。所以在这种方式中，<strong>Lattice是滞后的，和当前的声学模型并不同步</strong>。</p>
-<p>每句话生成一个lattice，这个lattice之后都不更新，并且这个lattice也许不能代表这句话的全部词空间</p>
-</li>
-<li><p>LFMMI的分母改进：提到W一定要是有限的，可枚举的，当MMI分母和语音识别解码图是一样时，即以词Word作为语言模型的单元，一般的语音识别系统词级别在数十万到百万之间，即使做个简单的bi-gram，其复杂度也非常非常高（HCLG的大小），训练代价非常高。为了降低复杂度，考虑以：</p>
-<ul>
-<li>Phone作为语言模型单元。识别系统中Phone的一般在几十个到一百多个，考虑到数据稀疏性，即使做tri-gram或者4-gram复杂度也在合理区间内。以Phone作为建模单元时，MMI的分母图为HCG(没有词典L了，并且G的单元是Phone）。</li>
-<li>State作为语言模型建模单元。识别系统中的State一般在几千个左右，考虑到数据稀疏性，做tri-gram复杂度也在合理区间内。以State作为建模单元时，MMI的分母图为G（G以State作为建模单元，这里State是指上下文相关的CD-State&#x2F;senone）。</li>
-</ul>
-</li>
-</ul>
-<p>其中，Phone和State的训练语料都可以由语音识别的训练数据通过对齐生成。<strong>合理的控制Phone和State的MMI分母的大小，可以将其前向后向计算塞进GPU进行计算，也就是将MMI训练迁移到GPU，从而大大提高了MMI的训练速度</strong>。在业界中，Phone和State的两者都有实际应用。Kaldi的chain model中，使用Phone作为MMI分母建模单元。在一些其他工作或文章中，如”Achieving Human Parity in Conversational Speech Recognition”这篇文章中，以State作为MMI分母的建模单元，该论文中的结果如下表所示，可以看到，LF-MMI也拿到了合理的收益，其收益和Lattice based的MMI收益相近。</p>
-<p>当使用语言模型的思想表示MMI的分母时，我们无需再对训练语料进行解码，无需生成Lattice，所以称之为Lattice Free MMI(LF-MMI)。对于所有训练语料来讲，MMI的分母图是以一样的，并且，因为我们限制了MMI分母图的空间，该前向后向算法是on-the-fly的，在训练过程中直接计算，其与声学模型是同步更新（声学模型更新后，lattice也更新（lattice更新里面的声学分数）（hclg不变，因为hclg里的信息就涉及声学模型只有转移））。</p>
-<h2 id="chain-model"><a href="#chain-model" class="headerlink" title="chain model"></a>chain model</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU4MTA0NDE5NQ==&mid=2247485166&idx=1&sn=8b16bf29ed1a40e5b6cb2ba7104a1f1d&chksm=fd4cd462ca3b5d7446b4893cee3a03015d2b91dd0013f61ed0586be79bc514ebdb85a14ee31c&mpshare=1&scene=1&srcid=&sharer_sharetime=1584408100044&sharer_shareid=2c567b07b642647cb9daac1b143684f9#rd">语音识别系列之区分性训练和LF-MMI</a></p>
-<p>2016 - Povey et al. - Purely sequence-trained neural networks for ASR based on lattice-free MMI </p>
-</blockquote>
-<p>chain model本质是LFMMI，用了一些trick</p>
-<p>chain model中比较重要的tirck有：</p>
-<ol>
-<li>HMM拓扑结构改变，从标准的三状态改为单状态的HMM。</li>
-<li>帧率从10ms降低到30ms。</li>
-<li>MMI分母使用Phone作为语言模型建模单元，最终表示为HCG，且为简化，C为bi-phone。</li>
-<li>训练数据均做等长(1.5s)切分，分子使用该句话的Lattice表示。且在分子Lattice上引入一定时间扰动。</li>
-<li>CE正则化。训练时同时引入CE作为第二个任务进行multi task learning。所以，最终chain model的网络结构如下图所示：</li>
-<li>L2正则化&#x2F;Leaky HMM等</li>
-</ol>
-<h2 id="区分性训练trick"><a href="#区分性训练trick" class="headerlink" title="区分性训练trick"></a>区分性训练trick</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xmdxcsj/article/details/52760111">声学模型学习笔记（五） SDT(MMI&#x2F;BMMI&#x2F;MPE&#x2F;sMBR)</a> xmdxcsj csdn blog</p>
-</blockquote>
-<h3 id="lattice-generation"><a href="#lattice-generation" class="headerlink" title="lattice generation"></a>lattice generation</h3><p>区分性训练时生成高质量的lattice很重要，需要使用最好的模型来生成对应的lattice，并且作为seed model。</p>
-<h3 id="lattice-compensation"><a href="#lattice-compensation" class="headerlink" title="lattice compensation"></a>lattice compensation</h3><p> 如果lattice产生的不合理的话，会导致计算出来的梯度异常，比如分子的标注路径没有在分母中的lattice出现，这种情况对于silience帧尤其常见，因为silience经常出现在分子的lattice，但是很容易被分母的lattice忽略。有一些方法可以解决这种问题：</p>
-<ul>
-<li>fame rejection，直接删除这些帧</li>
-<li>根据reference hypothesis修正lattice，比如在lattice中人为地添加一下silience边</li>
-</ul>
-<h3 id="frame-smoothing"><a href="#frame-smoothing" class="headerlink" title="frame smoothing"></a>frame smoothing</h3><p>SDT很容易出现overfitting，两方面原因</p>
-<ul>
-<li><p>sparse lattice</p>
-</li>
-<li><p>sdt的squence相比于frame增加了建模的维度，导致训练集的后验概率分布更容易跟测试集出现差异</p>
-</li>
-</ul>
-<p>可以修改训练准则来减弱overfitting，通过结合squence criteria和frame criteria来实现：<br>$$<br>J_{FS-SEQ}(\theta;S)&#x3D;(1-H)J_{CE}(\theta;S)+HJ_{SEQ}(\theta;S)<br>$$<br>其中，$H$成为smoothing factor，经验值设为4&#x2F;5或10&#x2F;11</p>
-<h3 id="learning-rate"><a href="#learning-rate" class="headerlink" title="learning rate"></a>learning rate</h3><p>SDT的学习率相比于CE要小，因为</p>
-<ul>
-<li>SDT的起点一般基于CE训练出来的model</li>
-<li>SDT训练容易出现overfitting</li>
-</ul>
-<h3 id="criterion-selection"><a href="#criterion-selection" class="headerlink" title="criterion selection"></a>criterion selection</h3><p>sMBR效果相比其他会好一点，MMI比较容易理解和实现。</p>
-<h3 id="noise-contrastIve-estimation"><a href="#noise-contrastIve-estimation" class="headerlink" title="noise contrastIve estimation"></a>noise contrastIve estimation</h3><p>NCE可以用于加速训练</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>[1]《automatic speech recognition a deep learning approach》 chapter8<br>[2]Sequence-discriminative training of deep neural networks<br>[3]Boosted MMI for model and feature-space discriminative training<br>[4]discriminative training for large vocabulary speech recognition {daniel povey的博士论文chapter6}</p>
-
-          
+Bahl L, Brown P, De Souza P, et al. Maximum mutual information esti
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -910,35 +712,19 @@
       
         
           
-            <h1 id="kaldi-nnet3"><a href="#kaldi-nnet3" class="headerlink" title="kaldi nnet3"></a>kaldi nnet3</h1><h2 id="nnet3-component"><a href="#nnet3-component" class="headerlink" title="nnet3 component"></a>nnet3 component</h2><blockquote>
-<p>参考 ：《Kaldi语音识别实战》P209</p>
-</blockquote>
-<p>基于计算图构建网络结构</p>
-<p>以component为标识的行定义了每个节点的类型和输入输出维度，以Component-node为标识的行定义了每个节点的输入。定义节点输入的方法被称为描述符（Descriptors），用于表示节点之间如何连接，默认情况下，直接取输入节点的输出作为输入。常用的描述符包括：</p>
-<ul>
-<li>节点名，这是最基本的描述符，即不做任何操作；</li>
-<li>拼接（Append），将给定描述符拼接在一起，维度相当于各描述符维度之和；</li>
-<li>求和（Sum），对给定描述符求和，要求各个描述符维度一致；</li>
-<li>常量（Const），不要求指定描述符，而是根据参数生成一个描述符，如Const(1.0,512)生成一个512维的单位矢量；</li>
-<li>缩放（Scale），对给定描述符的每一维进行缩放；</li>
-<li>偏移（Offset），对给定描述符在t轴或x轴上进行偏移；</li>
-<li>替换（Replace），用于将给定描述符的某个轴设为指定常量，例如，当有拼接时变（声学特征）和时不变（说话人特征）两组特征时，可以指定时不变特征的t轴为0（也就是不管什么时刻，说话人特征都是那100维固定向量）</li>
-<li>判断（IfDefined和Failover），用于根据不同的情况改变描述符的行为。</li>
-</ul>
-<p>src&#x2F;nnet3&#x2F;nnet-descriptor.h ：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&lt;descriptor&gt;  ::=   &lt;node-name&gt;      ;; node name of kInput or kComponent node.</span><br><span class="line">&lt;descriptor&gt;  ::=   Append(&lt;descriptor&gt;, &lt;descriptor&gt; [, &lt;descriptor&gt; ... ] )</span><br><span class="line">&lt;descriptor&gt;  ::=   Sum(&lt;descriptor&gt;, &lt;descriptor&gt;)</span><br><span class="line">&lt;descriptor&gt;  ::=   Const(&lt;value&gt;, &lt;dimension&gt;)    ;; e.g. Const(1.0, 512)</span><br><span class="line">&lt;descriptor&gt;  ::=   Scale(&lt;scale&gt;, &lt;descriptor&gt;)   ;; e.g. Scale(-1.0, tdnn2)</span><br><span class="line">;; Failover or IfDefined might be useful for time t=-1 in a RNN, for instance.</span><br><span class="line">&lt;descriptor&gt;  ::=   Failover(&lt;descriptor&gt;, &lt;descriptor&gt;)   ;; 1st arg if computable, else 2nd</span><br><span class="line">&lt;descriptor&gt;  ::=   IfDefined(&lt;descriptor&gt;)     ;; the arg if defined, else zero.</span><br><span class="line">&lt;descriptor&gt;  ::=   Offset(&lt;descriptor&gt;, &lt;t-offset&gt; [, &lt;x-offset&gt; ] ) ;; offsets are integers</span><br><span class="line">;; Switch(...) is intended to be used in clockwork RNNs or similar schemes.  It chooses</span><br><span class="line">;; one argument based on the value of t (in the requested Index) modulo the number of</span><br><span class="line">;; arguments</span><br><span class="line">&lt;descriptor&gt;  ::=   Switch(&lt;descriptor&gt;, &lt;descriptor&gt; [, &lt;descriptor&gt; ...])</span><br><span class="line">;; For use in clockwork RNNs or similar, Round() rounds the time-index t of the</span><br><span class="line">;; requested Index to the next-lowest multiple of the integer &lt;t-modulus&gt;,</span><br><span class="line">;; and evaluates the input argument for the resulting Index.</span><br><span class="line">&lt;descriptor&gt;  ::=   Round(&lt;descriptor&gt;, &lt;t-modulus&gt;)  ;; &lt;t-modulus&gt; is an integer</span><br><span class="line">;; ReplaceIndex replaces some &lt;variable-name&gt; (t or x) in the requested Index</span><br><span class="line">;; with a fixed integer &lt;value&gt;.  E.g. might be useful when incorporating</span><br><span class="line">;; iVectors; iVector would always have time-index t=0.</span><br><span class="line">&lt;descriptor&gt;  ::=   ReplaceIndex(&lt;descriptor&gt;, &lt;variable-name&gt;, &lt;value&gt;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+          kaldi nnet3nnet3 component
+参考 ：《Kaldi语音识别实战》P209
 
-
-
-<h2 id="component和component-node："><a href="#component和component-node：" class="headerlink" title="component和component-node："></a>component和component-node：</h2><p>component 是类；</p>
-<p>component-node 是类的实例</p>
-<h2 id="kaldi-nnet3-写一个cnn："><a href="#kaldi-nnet3-写一个cnn：" class="headerlink" title="kaldi nnet3 写一个cnn："></a>kaldi nnet3 写一个cnn：</h2><p>kernel是用time-offsets和height-offsets设置得到的卷积核大小；</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/image-20221009190513492.png" alt="image-20221009190513492"></p>
-<h2 id="kaldi-nnet3写一个lstm"><a href="#kaldi-nnet3写一个lstm" class="headerlink" title="kaldi nnet3写一个lstm"></a>kaldi nnet3写一个lstm</h2><p>delay指的是进行几次循环</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/image-20221009190903142.png" alt="image-20221009190903142"> </p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/image-20221009191218981.png" alt="image-20221009191218981"></p>
-
-          
+基于计算图构建网络结构
+以component为标识的行定义了每个节点的类型和输入输出维度，以Comp
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1089,33 +875,16 @@
       
         
           
-            <h1 id="声学模型论文笔记"><a href="#声学模型论文笔记" class="headerlink" title="声学模型论文笔记"></a>声学模型论文笔记</h1><blockquote>
-<p>[FSMN] &#x3D;&#x3D;Shiliang Zhang et al. “Feedforward Sequential Memory Networks: A New Structure to Learn Long-term Dependency” arXiv: Neural and Evolutionary Computing (2015): n. pag.&#x3D;&#x3D; citations：62</p>
-</blockquote>
-<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>提出前馈序列记忆网络 FSMN（Feedforward Sequential Memory Networks）</p>
-</li>
-<li><p>将上下文编码成一个向量（与隐层输出结点维度相同），其实就是不同时间帧特征加权求和  $\large{\tilde{h}<em>t^l&#x3D;\sum\limits</em>{i&#x3D;0}^{N_1}a_i^l\cdot{h_{t-i}^l}+\sum\limits_{j&#x3D;1}^{N_2}c_j^l\cdot{h_{t+j}^l}}$</p>
-<p>其中，$a_i$和$c_i$是常数系数或常数向量，在任意t时刻，都是不变的（时不变系数）（可通过梯度更新来更新该值）</p>
-<p>这和只用h，只梯度更新h就够了不一样（一开始想的是这个a都不需要，h能自动更新到那个值，其实不是的），可以认为是一个scale因子</p>
-<p>这个结构叫 tapped-delay  structure（抽头延时）</p>
-<p>在下标索引超出范围时使用零填充向量</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/b93c627a679b04982e51b0c95743e475_2_Figure_1.png" alt="img" style="zoom:80%;">
-</li>
-<li><p>前向传播：$\large{h_t^{l+1}&#x3D;f(W^lh_t^l+\tilde{W}\tilde{h}_t^l+b^l)}$</p>
-</li>
-<li><p>FSMN与RNN比较，RNN：$\large{h_t&#x3D;f(Wx_t+\tilde{W}h_{t-1}+b)}$</p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/b93c627a679b04982e51b0c95743e475_3_Figure_2.png" alt="img" style="zoom:80%;">
-
-<p>​	同一层下，当前时刻h来自前一时刻h和x。这和FSMN不同，FSMN当前时刻h不会来自同一层的不同时刻h。</p>
-<p>​	RNN类似无限脉冲响应IIR；FSMN类似高阶有限脉冲响应；</p>
-<ul>
-<li>时不变系数a可以换成attention系数（时变了）（context-dependent系数）</li>
-</ul>
-
-          
+          声学模型论文笔记
+[FSMN] &#x3D;&#x3D;Shiliang Zhang et al. “Feedforward Sequential Memory Networks: A New Str
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1266,19 +1035,23 @@
       
         
           
-            <p>方向：</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E6%96%B9%E5%90%91/image-20220512174709926.png" alt="image-20220512174709926" style="zoom:80%;">
+          方向：
 
-<p>会议：</p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E6%96%B9%E5%90%91/image-20220512175109288.png" alt="image-20220512175109288"></p>
-<p>数据：<a target="_blank" rel="noopener" href="http://yqli.tech/page/data.html#row-5">http://yqli.tech/page/data.html#row-5</a></p>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E6%96%B9%E5%90%91/image-20220512175309644.png" alt="image-20220512175309644"></p>
-<p>论文列表：<a target="_blank" rel="noopener" href="http://yqli.tech/page/asr_paper.html">http://yqli.tech/page/asr_paper.html</a></p>
-<p>C++：<a target="_blank" rel="noopener" href="http://yqli.tech/page/pro.html">http://yqli.tech/page/pro.html</a></p>
-<p>python：<a target="_blank" rel="noopener" href="http://www.pythondoc.com/">http://www.pythondoc.com/</a></p>
-<p>课程：<a target="_blank" rel="noopener" href="https://nndl.github.io/">https://nndl.github.io/</a> 、 <a target="_blank" rel="noopener" href="https://atcold.github.io/pytorch-Deep-Learning/zh/">https://atcold.github.io/pytorch-Deep-Learning/zh/</a>  、 <a target="_blank" rel="noopener" href="http://jalammar.github.io/illustrated-transformer/">http://jalammar.github.io/illustrated-transformer/</a></p>
 
-          
+会议：
+
+数据：http://yqli.tech/page/data.html#row-5
+
+论文列表：http://yqli.tech/page/asr_paper.html
+C++：h
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E6%96%B9%E5%90%91/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1429,47 +1202,19 @@
       
         
           
-            <h1 id="Vosk-Speech-Recognition-Toolkit"><a href="#Vosk-Speech-Recognition-Toolkit" class="headerlink" title="Vosk Speech Recognition Toolkit"></a>Vosk Speech Recognition Toolkit</h1><blockquote>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/alphacep/vosk-api">https://github.com/alphacep/vosk-api</a></p>
-</blockquote>
-<h1 id="Wenet"><a href="#Wenet" class="headerlink" title="Wenet"></a>Wenet</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://github.com/wenet-e2e/wenet">https://github.com/wenet-e2e/wenet</a></p>
-</blockquote>
-<h1 id="emoASR"><a href="#emoASR" class="headerlink" title="emoASR"></a>emoASR</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://github.com/emonosuke/emoASR">https://github.com/emonosuke/emoASR</a></p>
-</blockquote>
-<p>专注推理过程</p>
-<ul>
-<li>Encoder <ul>
-<li>RNN </li>
-<li>Transformer(Trf.)[Vaswani 2017] </li>
-<li>Conformer(Cf.)[Gulati 2020]</li>
-</ul>
-</li>
-<li>Decoder <ul>
-<li>CTC[Graves 2006] </li>
-<li>RNN-Transducer(RNN-T)[Graves2012] </li>
-<li>LAS [chan 2015] </li>
-<li>Transformer(Trf.)</li>
-</ul>
-</li>
-<li>LM <ul>
-<li>RNNLM </li>
-<li>Transformer LM </li>
-<li>BERT [Devlin 2018]</li>
-<li>ELECTRA[Clark2020] </li>
-<li>Phone-attentive ELECTRA(P-ELECTRA [Futami 2021]</li>
-</ul>
-</li>
-<li>Method <ul>
-<li>Rescoring </li>
-<li>Shallow Fusion </li>
-<li>KnowledgeDistillation</li>
-</ul>
-</li>
-</ul>
+          Vosk Speech Recognition Toolkit
+github：https://github.com/alphacep/vosk-api
 
-          
+Wenet
+https://github.co
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%E5%8C%85/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1620,235 +1365,16 @@
       
         
           
-            <h1 id="端到端识别方案"><a href="#端到端识别方案" class="headerlink" title="端到端识别方案"></a>端到端识别方案</h1><blockquote>
-<p>&#x3D;&#x3D;Yao, Zhuoyuan, et al. “Wenet: Production oriented streaming and non-streaming end-to-end speech recognition toolkit.” <em>arXiv preprint arXiv:2102.01547</em> (2021).&#x3D;&#x3D;</p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/mobvoi/wenet">https://github.com/mobvoi/wenet</a>  </p>
-<p>chao yang ：<a target="_blank" rel="noopener" href="http://placebokkk.github.io/wenet/2021/06/04/asr-wenet-nn-1.html">Wenet网络设计与实现</a></p>
-</blockquote>
-<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>提出识别框架Wenet</p>
-</li>
-<li><p>解决流式非流式问题方法：用dynamic chunk-based attention策略，提出two-pass方法框架（U2，a unified two-pass joint CTC&#x2F;AED model ）解决流式非流式的统一 （unifying streaming and non-streaming modes）</p>
-</li>
-<li><p>U2：</p>
-<ul>
-<li>Shared Encoder ：多个Transformer和Conformer（只看右context），只看部分输入音频特征长度，因此可以流式；</li>
-<li>CTC Decoder：线性层，CTC loss；</li>
-<li>Attention Decoder：多个Transformer decoder层；</li>
-<li>rescore解码过程：CTC Decoder流式进行一遍解码，Attention Decoder进行第二遍解码；attention rescoring ：CTC prefix beam search输出n-best候选路径，n-best和encoder通过AED decoder得到output，这里n-best（没有blank了）是作为decoder的输入序列（类似于训练时的label序列，可以并行，一次到位，不需要输出作用到下一个输入）；</li>
-<li>rescore：<ul>
-<li>aed的输出并没有用什么beam search，而是直接取和ctc n-best对应位置相同的路径分数</li>
-<li>aed输出的第n条序列分数为：&#x3D;&#x3D;对应ctc 第n条路径分数 * ctc_weight + 在ctc第n条作为输入的前提下 aed的输出的路径分数&#x3D;&#x3D;（recore 分数）</li>
-<li>可能aed rescore的作用是用来校正ctc的n-best的，既然前提是在ctc n-best空间范围内重新选一条，所以ctc n-best一定是很有说服力的；</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510111818545.png" alt="image-20220510111818545" style="zoom: 67%;">
-
-<h3 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h3><ul>
-<li><p>Joint CTC&#x2F;AED training：</p>
-<ul>
-<li>Loss function：$\large L_{combined}(x,y) &#x3D; \lambda L_ {CTC}(x,y) + (1-\lambda) L_{AED} (x,y)$</li>
-<li>优势：加快收敛，提高训练稳定性，得到更好识别结果</li>
-</ul>
-</li>
-<li><p>dynamic chunk training  ：</p>
-<ul>
-<li>训练时每个chunk里，只能看见从音频开头到当前chunk尾的长度信息；chunk大小是随机数，让模型学会预测任意长度chunk输出</li>
-<li>chunk是帧数（这里的帧按下采样后的帧），基于chunk的attention，本质上是去限制attention的作用范围，可以通过attention mask来实现。（QK后接mask后得score，再softmax）</li>
-<li>优势：实现了流式</li>
-<li></li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/mask-encoder-attention.png" alt="mask-encoder-attention" style="zoom: 67%;">
-
-<h3 id="系统设计"><a href="#系统设计" class="headerlink" title="系统设计"></a>系统设计</h3><ul>
-<li>训练：<ul>
-<li>TorchScript 用来开发models；</li>
-<li>Torchaudio 用来即时on-the-fly特征抽取； </li>
-<li>Distributed Data Parallel (DDP)用来分布式训练；</li>
-</ul>
-</li>
-<li>部署：<ul>
-<li>torch Just In Time (JIT) 用来导出模型；</li>
-<li>PyTorch quantization 用来量化模型；</li>
-<li>LibTorch 用来上线使用 production runtime；</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510111900464.png" alt="image-20220510111900464" style="zoom: 67%;">
-
-<ul>
-<li>Runtime<ul>
-<li>x86 as server runtime  </li>
-<li>Android as on-device runtime</li>
-</ul>
-</li>
-</ul>
-<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><ul>
-<li>数据集：aishell-1，150h train，10h dev，5h test；</li>
-<li>特征：80维mfcc，25ms帧长，10ms帧移，specaugment（numf&#x3D;2，F&#x3D;10，numt&#x3D;2，F&#x3D;50）用来防止过拟合；</li>
-<li>特征先经过两层3* 3 kernel，stride&#x3D;2的卷积，进行下采样，再送入encoder；</li>
-<li>encoder：12个transformer层；decoder：6个transformer层；</li>
-<li>25000步warm-up，adam优化器；</li>
-<li>average top-K 最低cv_loss作为最终模型；</li>
-<li>可以用简单的2gram phone lm代替ctc n-best给attention用吗？？？？？</li>
-<li>CER结果：</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510123816315.png" alt="image-20220510123816315" style="zoom: 67%;">
-
-<ul>
-<li>量化CER对比：可以看出错误率很差得很小</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510164639096.png" alt="image-20220510164639096" style="zoom: 67%;">
-
-<ul>
-<li>RTF：可以看出实时率很不错<ul>
-<li>更小的chunk反而有更高的RTF，因为一条音频分的chunk数变多了，前向计算的次数变多了（chunk越小的好处是时延小）；</li>
-<li>在安卓端上，量化会带来速度的两倍提升；但在x86服务端上提升不大；</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510164730235.png" alt="image-20220510164730235" style="zoom: 67%;">
-
-<ul>
-<li>Latency<ul>
-<li>通过构造WebSocket server&#x2F;client  来仿真测试真实流式应用，来评估时延；</li>
-<li>model latency：由于等待模型计算而引入的延迟，计算为 $(chunk&#x2F;2 * 4 + 6)*10(ms)$，4是下采样率，6是一开始两层cnn要lookahead一些帧（6帧），10是帧移；</li>
-<li>rescoring cost，二遍解码的延迟；</li>
-<li>final latency，用户感受到的时延，是从用户停止说话 到 得到识别结果 之间的时长</li>
-<li>接收到用户停止发语音后，发送到ctc decoder拿到ctc的n-best，给attention decoder；</li>
-<li>网络延迟未考虑（因为测试时server&#x2F;client在同一台机子）</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510171629404.png" alt="image-20220510171629404" style="zoom: 67%;">
-
-<h3 id="实验2"><a href="#实验2" class="headerlink" title="实验2"></a>实验2</h3><ul>
-<li>数据集15,000-hour  （1.5w小时）普通话数据</li>
-<li>累计4个步长的梯度，才更新，能更稳定地训练</li>
-<li>分析attention rescore对于长音频会有优势（大于5s）</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Zhang, Binbin, et al. “WeNet 2.0: More Productive End-to-End Speech Recognition Toolkit.” <em>arXiv preprint arXiv:2203.15455</em> (2022).&#x3D;&#x3D;</p>
-</blockquote>
-<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>为了提高ASR识别率，提出U2++（通过双向attention decoder来统一two-pass的框架），<ul>
-<li>训练阶段：双向 从后往前的attention decoder使得获得未来一段时间的信息，</li>
-<li>解码阶段：结合从前和从后的预测结果</li>
-<li>改善了shared encoder，并提高rescore的识别率（比单向提高10%）；</li>
-</ul>
-</li>
-<li><strong>U2++框架</strong>：a unified two-pass joint CTC&#x2F;AED framework   <ul>
-<li>Shared Encoder：给声学特征建模，由多个transformer或conformer组成，only takes limited right contexts into account to keep a balanced latency  </li>
-<li>CTC Decoder：建模声学特征和token单元的帧级别对齐，由一个线性层组成，which transforms the Shared Encoder output to the CTC activation  </li>
-<li>Attention Decoder：<ul>
-<li>Left-to-Right Attention Decoder (L2R) ：models the ordered token sequence from left to right to represent the past contextual information.  </li>
-<li>A Right-to-Left Attention Decoder (R2L) ：models the reversed token sequence from right to left to represent the future contextual information.  </li>
-<li>The L2R and R2L Attention Decoders consist of multiple Transformer decoder layers.   </li>
-<li>用一个超参数调节二者的loss比例：$L_{AED}(x,y)&#x3D;(1-\alpha)L_{L2R}(x,y)+\alpha L_{R2L}(x,y)$</li>
-<li>在dynamic chunk训练里，chunk给特征都是从前往后给的，然后L2R对现有的chunk从前往后做，R2L是从后往前做；</li>
-</ul>
-</li>
-<li>two pass：During the decoding stage, the CTC Decoder runs in the streaming mode in the first pass and the L2R and R2L Attention Decoders do rescore in the non-streaming mode to improve the performance in the second pass.</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220511114046236.png" alt="image-20220511114046236" style="zoom:67%;">
-
-<ul>
-<li><strong>N-gram Language Model</strong> ：在Wenet2.0中引入了基于wfst的<strong>n-gram</strong>语言模型；在CTC解码中加入，提高8%<ul>
-<li>（雷博说）对于垂直领域，训练lm用的通用文本 + 一些垂直领域文本</li>
-<li>TLG：compiles the n-gram LM (G), lexicon (L), and end-to-end modeling CTC topology (T) into a WFST-based decoding graph (TLG)  $TLG&#x3D;T\circ min(det(L\circ G))$</li>
-<li>denoted as CTC WFST beam search in the WeNet 2.0  </li>
-<li>To speedup decoding, blank frame skipping technique is adopted  (参考”Phone synchronous decoding with ctc lattice”)</li>
-<li>用n-gram进行语言模型训练，这是因为更符合工业使用</li>
-<li>解码时为了加速解码，blank符号概率大于0.98的，跳过该帧，就是说 不考虑很可能是blank的帧的概率，可以加速解码，因为blank其实没啥用；</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220511121210127.png" alt="image-20220511121210127">
-
-
-
-
-
-<ul>
-<li><p><strong>Contextual Biasing</strong>  ：设计了一种联合<strong>contextual biasing</strong>框架，更适配特定语境，比如通讯录；【TODO 看三篇论文】</p>
-<ul>
-<li><p>（雷博说）contextual bias是为了解决 &#x3D;&#x3D;热词&#x3D;&#x3D; 问题，用来生成一些热词，但是权重需要经验构造，不是一个非常靠谱的方案；</p>
-</li>
-<li><p>在解码中用，有LM和没有LM的解码过程都可以引入，从而适配语境</p>
-</li>
-<li><p>已知biasing phrases短语，实时构建contextual wfst图；首先，biasing phrases通过词典或模型拆分成biasing unit，把biasing unit的arc权重提高</p>
-</li>
-<li><p>a special failure arc with a negative accumulated boosted score is added ，当只匹配部分bias unit而不是整个bias phrase时，失败弧用于move提高的权重</p>
-<p>（也就是加一条空边（有权重）的弧回去，平衡这个提高的权重）</p>
-</li>
-<li><p>$\large y^*&#x3D;arg\max\limits_y logP(y|x) + \lambda logP_C(y)$，其中$P_C(y)$ 是bias score</p>
-</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220511142320509.png" alt="image-20220511142320509" style="zoom: 80%;">
-
-<ul>
-<li>设计了一种联合Unified  IO（UIO）来支持大规模数据训练<ul>
-<li>对于小数据集，UIO随机访问样本；</li>
-<li>对于大数据集，UIO先把样本聚集在一个块里（类似kaldi的egs）（tar压缩，压缩是为了防止OOM），之后训练、随机访问的就是这个块shard（解压来训练）</li>
-<li>inspired by TFReord (Tensorflow)  and AIStore  </li>
-<li><a target="_blank" rel="noopener" href="https://wenet.org.cn/wenet/UIO.html">https://wenet.org.cn/wenet/UIO.html</a></li>
-<li>Chain IO  [TODO]</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220511113104350.png" alt="image-20220511113104350" style="zoom:67%;">
-
-<h3 id="训练-1"><a href="#训练-1" class="headerlink" title="训练"></a>训练</h3><ul>
-<li>dynamic chunk值选取：在均匀分布$C \sim U(1,maxbatchlengthT)$中随机选取，</li>
-</ul>
-<h3 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h3><ul>
-<li>数据集aishell-1、wenetspeech</li>
-</ul>
-<p>$\large x\in f\times T$</p>
-<p>$\large z\in f’\times T$</p>
-<p>$\large y\in e\times L$</p>
-<hr>
-<h1 id="大规模训练"><a href="#大规模训练" class="headerlink" title="大规模训练"></a>大规模训练</h1><blockquote>
-<p>&#x3D;&#x3D;Kim, Chanwoo, et al. “End-to-end training of a large vocabulary end-to-end speech recognition system.” <em>2019 IEEE Automatic Speech Recognition and Understanding Workshop (ASRU)</em>. IEEE, 2019.&#x3D;&#x3D;</p>
-</blockquote>
-<h5 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><p>- </p>
-<h5 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><p>- </p>
-<h5 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h5><p>- </p>
-<h5 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><p>- </p>
-<h3 id="论文思路"><a href="#论文思路" class="headerlink" title="论文思路"></a>论文思路</h3><ul>
-<li>提出了一个端到端语音识别系统的训练框架，数据读取、数据增广、参数更新都能是on-the-fly（即时）的；</li>
-<li>训练用了Horovod allreduce approach   </li>
-<li>训练CPU部分用的Example Servers (ES) and workers</li>
-</ul>
-<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220512162312294.png" alt="image-20220512162312294"></p>
-<ul>
-<li>数据加载，用的tf.data的data queue（没用QueueRunner ）</li>
-<li>训练在Horovod用的allreduce 方法（没用server-worker structure  ）</li>
-<li>模型：</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220512165113089.png" alt="image-20220512165113089" style="zoom: 67%;">
-
-<h3 id="实验-2"><a href="#实验-2" class="headerlink" title="实验"></a>实验</h3><ul>
-<li>数据集：librispeech、10,000-hr anonymized Bixby English dataset （三星的智能助手） </li>
-<li>机器：Each GPU node of the GPU cluster has eight Nvidia™P-40, P-100 or V-100 GPUs and two Intel E5-2690 v4 CPUs, Each of these CPUs has 14 cores.</li>
-</ul>
-<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><ul>
-<li>AM与transformer LM进行shallow fusion，WER：2.44 %  （librispeech test-clean）</li>
-</ul>
-<p>TODO 没看完</p>
-<hr>
-
-          
+          端到端识别方案
+&#x3D;&#x3D;Yao, Zhuoyuan, et al. “Wenet: Production oriented streaming and non-streaming en
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1999,153 +1525,16 @@
       
         
           
-            <h1 id="语言模型融合"><a href="#语言模型融合" class="headerlink" title="语言模型融合"></a>语言模型融合</h1><blockquote>
-<p>&#x3D;&#x3D;Cabrera, Rodrigo, et al. “Language model fusion for streaming end to end speech recognition.” <em>arXiv preprint arXiv:2104.04487</em> (2021).&#x3D;&#x3D;</p>
-</blockquote>
-<h5 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
-<li>通过使用在和训练不匹配的文本数据上训练的语言模型(LM)来解决流式和尾部识别的挑战，以增强端到端模型；</li>
-<li>解决tail phenomena 的问题，比如专有名词，数值，口音 ？</li>
-</ul>
-<h5 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
-<li>扩展了流式RNNT中声学模型和语言模型融合shallow fusion 和 cold fusion方法，提出两种新的competitive fusion方法</li>
-</ul>
-<h5 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
-<li>8%改善识别率</li>
-</ul>
-<h5 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><ul>
-<li><p>tail phenomena  ？</p>
-</li>
-<li><p>加了lm对rtf、内存、延时有影响吗？多大影响？</p>
-</li>
-<li><p>好的多语种识别模型一般是怎么样的？是按论文所说的各自训练一个语种的am&#x2F;lm模型，再多个模型融合吗？</p>
-</li>
-</ul>
-<h3 id="论文思路"><a href="#论文思路" class="headerlink" title="论文思路"></a>论文思路</h3><ul>
-<li><p>通过使用在和训练不匹配的文本数据上训练的语言模型(LM)来解决流式和尾部识别的挑战，以增强端到端模型；</p>
-</li>
-<li><p>扩展了流式RNNT中shallow fusion 和 cold fusion方法，提出两种新的competitive fusion方法</p>
-</li>
-<li><p>端到端模型中，可以用纯文本训练LM，来进行模型融合，常用的有shallow fusion，deep fusion，cold fusion，component fusion，他们大多用神经网络LM，少部分用n-gram fst LM；</p>
-<p>但是这些融合模型是非流式的，流式的融合模型还没怎么有论文</p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/image-20220511171437884.png" alt="image-20220511171437884" style="zoom:80%;">
-
-<ul>
-<li><p>RNN-LM：对于一个wordpiece序列，语言模型概率为 $\large P(w_1^T)&#x3D;\prod\limits_{i&#x3D;1}^TP(w_i|w_1,w_2,…,w_{i-1})$</p>
-<p>训练LM时没有blank，但是RNNT里有，因此推理时要给RNN-LM一个blank概率，文中定义blank概率等于RNNT里blank的输出概率，即 $\large logP_{lm}(<blank>)&#x3D;logP_{rnnt}(<blank>)$</blank></blank></p>
-<p>这意味着当RNNT模型输出blank时，RNN-LM不更新，融合后blank的概率保持不变。。？</p>
-</li>
-<li><p>shallow fusion：把RNNT的概率和RNN-LM的概率log线性相加，再送入softmax层： $\large logP(y_t)&#x3D;logP_{rnnt}(y_t)+\beta logP_{lm}(y_t)$  ，其中$y_t$是t帧时的输出符号</p>
-<ul>
-<li>RNNT和LM分开训练（不同数据）各训各的，</li>
-<li>注意，这里应该就不是联合训练，没有训练过程，而是各自训练好了，融合到一块，得到每帧下每个符号的概率</li>
-<li>因此，$\beta$ 和 blank惩罚这两个超参数就要精细调节，才能有好的识别率</li>
-</ul>
-</li>
-<li><p>Early Shallow Fusion  </p>
-<ul>
-<li>因为RNNT里的预测网络prediction network被比作LM，受此启发，将该LM和预训练LM进行log线性插值融合，再送入RNNT里的joint network；</li>
-<li>$l_t^{Pred}&#x3D;DNN(h_t^{Pred})$  ， $h_t&#x3D;l_t^{Pred}+\beta l_t^{LM}$</li>
-<li>只在推理阶段用</li>
-</ul>
-</li>
-<li><p>Cold Fusion</p>
-<ul>
-<li><p>预训练LM参与rnnt训练，但是rnnt参数更新，lm参数不更新</p>
-</li>
-<li><p>用fine-grained gating方法，这样对于非训练集之外的场景效果会更好[TODO]？</p>
-</li>
-<li><p>$\large h_t^{LM} &#x3D; DNN (l_t^{LM})$</p>
-<p>$\large g_t&#x3D;\sigma(W[s_t^{jn};\dot h_t^{LM}]+b)$</p>
-<p>$\large s_t&#x3D;[s_t^{jn};g_t h_t^{LM}]$</p>
-<p>$\large r_t&#x3D;DNN(s_t)$</p>
-<p>$\large \hat P(y_t|x,y&lt;t)&#x3D;softmax(r_t)$</p>
-<p>？ 公式有写错吗</p>
-</li>
-<li><p>推理时还需要用LM吗？</p>
-</li>
-</ul>
-</li>
-<li><p>Early Cold Fusion</p>
-<ul>
-<li><p>训练推理阶段都用</p>
-</li>
-<li><p>$\large h_t^{LM}&#x3D;DNN(l_t^{LM})$</p>
-<p>$\large g_t&#x3D;\sigma(W[h_t^{Pred};h_t^{LM}]+b)$ </p>
-<p>$\large h_t&#x3D;[h_t^{Pred};g_t \dot h_t^{LM}]$</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><ul>
-<li><p>模型：RNNT：</p>
-<ul>
-<li>encoder network   ：8层单向LSTM，2048结点，640维projection层；</li>
-<li>prediction network   ：2层单向LSTM，2048结点，640维projection层；</li>
-<li>joint network：前馈层，640结点；</li>
-<li>参数量：120M</li>
-<li>建模单元：wordpieces（WPE），vocabulary&#x3D;4096</li>
-<li>A stacking layer is inserted after the second layer, which stacks the outputs of two neighboring frames with a stride of 2 for speed improvement.</li>
-</ul>
-</li>
-<li><p>模型：RNN-LM：</p>
-<ul>
-<li>2层单向LSTM，2048结点，128维embedding层；60M参数量；</li>
-<li>建模单元：wordpieces（WPE），vocabulary&#x3D;4096</li>
-</ul>
-</li>
-<li><p>RNNT数据集：不同数据量的的多语种实验（三种语言），</p>
-<ul>
-<li>Greek  ：6700h</li>
-<li>Norwegian  ：3500h</li>
-<li>Sinhala  ：160h</li>
-<li>数据扩展：room simulator ，加噪，混响，平均信噪比12dB</li>
-</ul>
-</li>
-<li><p>RNN-LM训练数据：60%来自RNNT训练文本，40%来自其他；</p>
-<ul>
-<li>Greek  ：10亿条文本</li>
-<li>Norwegian   ：10亿条文本</li>
-<li>Sinhala  ：2亿条文本</li>
-</ul>
-</li>
-<li><p>RNN-LM训练准则：最小化log困惑度</p>
-</li>
-<li><p>最终用的模型：不同语种模型进行模型融合得到的一个模型；</p>
-</li>
-</ul>
-<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><ul>
-<li>对于attention base 模型，shallow fusion 优于 cold fusion；（文中没做该实验，该结论来自las论文）</li>
-<li>对于RNNT models 模型，cold fusion 优于 shallow fusion；</li>
-</ul>
-<h3 id="收获"><a href="#收获" class="headerlink" title="收获"></a>收获</h3><ul>
-<li>预训练的RNN-LM和声学模型联合训练（只训练声学模型参数）会提高识别率</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Liu, Yufei, et al. “Internal language model estimation through explicit context vector learning for attention-based encoder-decoder ASR.” <em>arXiv preprint arXiv:2201.11627</em> (2022).&#x3D;&#x3D;</p>
-</blockquote>
-<h4 id="解决什么问题-1"><a href="#解决什么问题-1" class="headerlink" title="解决什么问题"></a>解决什么问题</h4><p>E2E模型已经学了一些语言模型信息（称为biased internal language model（ILM）），这时候如果想用外部语言模型的分数，内部lm的分数要先减掉，然后才能加外部lm分数，不然就加太多；因此需要知道怎么评估ILM的分数，才能获取该分数。</p>
-<p>也可以不减掉这个内部lm分数，但是要尽量让内部lm的bias作用不明显，就是可以用外部lm的训练数据去训练这个内部lm，到时候不需要外部lm，直接用内部lm，也是起到了外部lm参与的效果；</p>
-<p>本文的E2E模型是LAS模型；</p>
-<h4 id="用了什么方法-1"><a href="#用了什么方法-1" class="headerlink" title="用了什么方法"></a>用了什么方法</h4><p>两种方法来评估ILM：</p>
-<ol>
-<li>把LAS decoder里的context vector（AttentionContext ）换成参数可学习可更新的vector；</li>
-<li>query vector通过前馈网络映射到context vector，使得context vector不依赖encoder信息（声学信息）；</li>
-</ol>
-<p>只更新上述两种方法里的参数，LAS其他参数固定不更新，用纯文本训练他们，就相当于训练一个外部LM了，目标函数是最小化perplexity；</p>
-<p>[TODO] 方法2. c只来源于文本不需要声学信息，那声学信息在哪里作用？？encoder信息不需要了吗。。。</p>
-<h4 id="效果如何-1"><a href="#效果如何-1" class="headerlink" title="效果如何"></a>效果如何</h4><p>在多个数据集上，优于shallow fusion的方法，优于前人的两种Internal Language Model Estimation (ILME)  方法；</p>
-<p>没有额外LM参与，没有额外的耗时，保证了RTF不会很大；</p>
-<h4 id="应用到我的任务"><a href="#应用到我的任务" class="headerlink" title="应用到我的任务"></a>应用到我的任务</h4><p>用conformer encoder+ctc decoder和attention decoder，这里可以把attention decoder全替换成外部lm训练数据训练的lm，</p>
-<ol>
-<li>用ctc出来n best做rescore（和wenet的attention rescore方法相同，只是attention decoder换了，不需要encoder信息），该方法叫rescore</li>
-<li>shallow fusion，</li>
-<li><del>attention decoder输入的embedding层就用ctc decoder出来的，当blank概率不要很大的帧送进去解码（作为attention decoder的输入embedding层），非自回归（不使用attentiondecoder的输出信息作为下一个符号的输入），然后把ctcdecoder给的全送进去，得到N个V向量，做beam search；</del></li>
-</ol>
-
-          
+          语言模型融合
+&#x3D;&#x3D;Cabrera, Rodrigo, et al. “Language model fusion for streaming end to end speech r
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2296,325 +1685,16 @@
       
         
           
-            <h1 id="声学模型"><a href="#声学模型" class="headerlink" title="声学模型"></a>声学模型</h1><blockquote>
-<p>&#x3D;&#x3D;Vaswani, Ashish, et al. “Attention is all you need.” <em>Advances in neural information processing systems</em> 30 (2017).&#x3D;&#x3D;citations：42175</p>
-<p>官方 github tensorflow：<a target="_blank" rel="noopener" href="https://github.com/tensorflow/tensor2tensor">https://github.com/tensorflow/tensor2tensor</a>  </p>
-<p>gihub Chainer：<a target="_blank" rel="noopener" href="https://github.com/soskek/attention_is_all_you_need">https://github.com/soskek/attention_is_all_you_need</a></p>
-<p>github pytorch：<a target="_blank" rel="noopener" href="https://github.com/jadore801120/attention-is-all-you-need-pytorch">https://github.com/jadore801120/attention-is-all-you-need-pytorch</a></p>
-<p>github tensorflow：<a target="_blank" rel="noopener" href="https://github.com/Kyubyong/transformer">https://github.com/Kyubyong/transformer</a></p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/huggingface/transformers">https://github.com/huggingface/transformers</a></p>
-<p>公众号：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI3ODgwODA2MA==&mid=2247503240&idx=3&sn=6a18f24c9a030b4186488f6c51875135&chksm=eb53d91bdc24500d26f17f40953cfdba3a358d92a783fc5b7201f69c108334504cee2b43aae3&mpshare=1&scene=1&srcid=0611Osv6LaxD6g0XcYPZ6EmF&sharer_sharetime=1652854390830&sharer_shareid=7dfde0689a805163a3af5547f5e7bbff&version=4.0.0.6023&platform=win#rd">位置编码在注意机制中的作用</a></p>
-<p>知乎：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/347678607">如何理解Transformer论文中的positional encoding，和三角函数有什么关系？</a></p>
-<p><a target="_blank" rel="noopener" href="https://kazemnejad.com/blog/transformer_architecture_positional_encoding/#the-intuition">https://kazemnejad.com/blog/transformer_architecture_positional_encoding/#the-intuition</a></p>
-<p><a target="_blank" rel="noopener" href="https://nlp.seas.harvard.edu/2018/04/03/attention.html">https://nlp.seas.harvard.edu/2018/04/03/attention.html</a> [待看，据说很好]</p>
-<p><a target="_blank" rel="noopener" href="http://jalammar.github.io/illustrated-transformer/">http://jalammar.github.io/illustrated-transformer/</a></p>
-</blockquote>
-<h5 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
-<li>提出一种新的序列模型，效果好，简单，没用到RNN&#x2F;CNN；</li>
-<li>之前的序列模型想要建模 序列内不同位置的特征之间关系 是 随着特征之间距离远近而计算量大或小的；</li>
-</ul>
-<h5 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
-<li>改变了以往的序列模型结构，采用了self-attention机制，encoder-decoder，point-wise feedward；</li>
-</ul>
-<h5 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
-<li>机器翻译任务 28.4 BLEU on the WMT 2014 Englishto-German translation task；</li>
-</ul>
-<h5 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><ul>
-<li>由于encoder的attention是注意整个输入，因此非流式</li>
-</ul>
-<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>提出一种新的简单的序列转换模型（sequence transduction models），Transformer，完全基于注意力机制，没使用递归和卷积；使用stacked self-attention，encoder和decoder只使用position-wise（point-wise）的全连接层；</li>
-<li>Self-attention  ：是一种将单个序列的不同位置联系起来的注意力机制；</li>
-<li>Transformer结构图：</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517152824052.png" alt="image-20220517152824052" style="zoom:80%;">
-
-<ul>
-<li><p><strong>Encoder</strong>：input sequence of symbol representations  X 到sequence of continuous representations  Z 的映射；</p>
-<ul>
-<li>stack堆叠了6层相同的层，每层有两个子层，第一层是多头注意力机制multi-head self-attention mechanism  ，第二层是按位置的全连接前馈层 position-wise fully connected feed-forward network ，子层都用了残差结构，残差相加再layernorm层归一化，$LayerNorm(x + Sublayer(x))  $，再embedding，$\large d_{model}&#x3D;512$，因此encoder输出512维embedding；</li>
-</ul>
-</li>
-<li><p><strong>Decoder</strong>：给定整条Z序列，生成输出序列，一次一个输出，auto-regressive 自回归的；在生成下一个符号时，使用先前生成的符号作为额外的输入</p>
-<ul>
-<li>stack堆叠了6层相同的层，每层有三个子层：</li>
-<li>第一层是多头注意力机制multi-head self-attention mechanism ，masking：decoder里的attention只关注前面的position信息；</li>
-<li>第二层对encoder的embedding做多头注意力机制，叫”encoder-decoder attention” layers  ，query序列来自上一层的deocder层，key和value来自encoder输出的embedding序列；</li>
-<li>第三层也是position-wise fully connected feed-forward network，子层都用了残差结构，残差相加再layernorm层归一化；</li>
-</ul>
-</li>
-<li><p><strong>Attention</strong>函数：对于一个输出，是一个query和一组key，value对的映射关系，获得映射关系叫做attention；</p>
-<ul>
-<li>output：value向量的加权和，其中“权重”表示query和key的相关程度；</li>
-</ul>
-</li>
-<li><p><strong>Scaled Dot-Product Attention</strong> ：transformer里使用的attention叫按比例点乘（Scaled Dot-Product）的attention；query向量维度 $d_k$ ，key向量维度 $d_k$ ， value向量维度 $d_v$ ，</p>
-<p>除以$\sqrt{d_k}$ （scaled），对weight用softmax进行标准化；</p>
-<p>$\large Attention(Q,K,V)&#x3D;softmax(\frac{QK^T}{\sqrt{d_k}})V$</p>
-<p>其中，$\large Q \in \mathbb{R}^{L_q \times d_k}$  ,  $\large K \in \mathbb{R}^{L\times d_k}$,   $\large V \in \mathbb{R}^{L \times d_v}$</p>
-<p>这里Q,K,V对应下面multi-head的Q&#x3D;qW，下面虽然写的QW，但其实是Q&#x3D;qW，或者说Q&#x3D;EW，E是输入，维度是L*d_k</p>
-<p>点乘：对应位置相乘，求和 ：$\large q\cdot k&#x3D;\sum_{i&#x3D;1}^{d_k}q_ik_i$</p>
-<p>不加scaled的话，点乘结果会很大，softmax之后，反向传播梯度很小；</p>
-<p>输出序列z，其中元素 $z_i \in \mathbb{R}^d$  , 输入序列x，其中元素 $x_i\in \mathbb{R}^d$</p>
-<p>对每个元素z_i，是由输入通过线性变换的加权求和得到的：$\large z_i&#x3D;\sum\limits_{j&#x3D;1}^n\alpha_{ij}(x_jW^V)$</p>
-<p>对每个权重系数，是通过softmax函数计算得到：$\large \alpha_{ij}&#x3D;\frac{\exp e_{ij}}{\sum_{k&#x3D;1}^n\exp e_{ik}}$</p>
-<p>对每个$e_{ij}$，是通过compatibility function来比较两个输入元素：$\large e_{ij}&#x3D;\frac{(x_iW^Q)(x_jW^K)^T}{\sqrt{d_z}}$     ，这里的compatibility function用的是Scaled dot product   缩放点乘</p>
-<p>$\large W^Q, W^K, W^V \in \mathbb{R}^{d_x\times d_z}$</p>
-<p>self-attention：把input 经过三个不同的transform W，得到Q,K,V矩阵，然后Q和K点乘（matmul），softmax得到A’，A’与V矩阵想乘（乘完加）得到输出编码向量O</p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517154501406.png" alt="image-20220517154501406" style="zoom:80%;">
-
-<ul>
-<li><strong>Multi-Head Attention</strong> ：</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517160647491.png" alt="image-20220517160647491" style="zoom:80%;">
-
-<p>举例，multi分开，和只用一个大矩阵确实是不同的：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="comment"># x=torch.Tensor([[0.1,0.2],[0.3,0.4]])</span></span><br><span class="line">x=torch.randn([<span class="number">2</span>,<span class="number">2</span>])</span><br><span class="line"><span class="comment"># wq=torch.Tensor([[0.1,0.1],[0.2,0.2]])</span></span><br><span class="line">wq=torch.randn([<span class="number">2</span>,<span class="number">2</span>])</span><br><span class="line">wq1=wq[:,<span class="number">0</span>].unsqueeze(<span class="number">1</span>) <span class="comment">#torch.Tensor([[0.1],[0.2]])</span></span><br><span class="line">wq2=wq[:,<span class="number">1</span>].unsqueeze(<span class="number">1</span>) <span class="comment">#torch.Tensor([[0.1],[0.2]])</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># wk=torch.Tensor([[0.2,0.1],[0.3,0.4]])</span></span><br><span class="line">wk=torch.randn([<span class="number">2</span>,<span class="number">2</span>])</span><br><span class="line">wk1=wk[:,<span class="number">0</span>].unsqueeze(<span class="number">1</span>)</span><br><span class="line">wk2=wk[:,<span class="number">1</span>].unsqueeze(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># wk1=torch.Tensor([[0.2],[0.3]])</span></span><br><span class="line"><span class="comment"># wk2=torch.Tensor([[0.1],[0.4]])</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># wv=torch.Tensor([[0.1,0.4],[0.5,0.4]])</span></span><br><span class="line">wv=torch.randn([<span class="number">2</span>,<span class="number">2</span>])</span><br><span class="line">wv1=wv[:,<span class="number">0</span>].unsqueeze(<span class="number">1</span>)</span><br><span class="line">wv2=wv[:,<span class="number">1</span>].unsqueeze(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># wv1=torch.Tensor([[0.1],[0.5]])</span></span><br><span class="line"><span class="comment"># wv2=torch.Tensor([[0.4],[0.4]])</span></span><br><span class="line"></span><br><span class="line">q=torch.matmul(x,wq)</span><br><span class="line">q1=torch.matmul(x,wq1)</span><br><span class="line">q2=torch.matmul(x,wq2)</span><br><span class="line"></span><br><span class="line">k=torch.matmul(x,wk)</span><br><span class="line">k1=torch.matmul(x,wk1)</span><br><span class="line">k2=torch.matmul(x,wk2)</span><br><span class="line"></span><br><span class="line">v=torch.matmul(x,wv)</span><br><span class="line">v1=torch.matmul(x,wv1)</span><br><span class="line">v2=torch.matmul(x,wv2)</span><br><span class="line"></span><br><span class="line">soft=nn.Softmax(dim=-<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(torch.matmul(soft(torch.matmul(q1,k1.T)),v1))</span><br><span class="line"><span class="built_in">print</span>(torch.matmul(soft(torch.matmul(q2,k2.T)),v2))</span><br><span class="line"><span class="built_in">print</span>(torch.matmul(soft(torch.matmul(q,k.T)),v))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;**********&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(torch.matmul((torch.matmul(q1,k1.T)),v1))</span><br><span class="line"><span class="built_in">print</span>(torch.matmul((torch.matmul(q2,k2.T)),v2))</span><br><span class="line"><span class="built_in">print</span>(torch.matmul((torch.matmul(q,k.T)),v))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出：</span></span><br><span class="line">tensor([[<span class="number">2.0207</span>],</span><br><span class="line">        [<span class="number">1.9740</span>]])</span><br><span class="line">tensor([[-<span class="number">5.3267</span>],</span><br><span class="line">        [-<span class="number">5.5147</span>]])</span><br><span class="line">tensor([[ <span class="number">2.1874</span>, -<span class="number">5.1253</span>],</span><br><span class="line">        [ <span class="number">2.2269</span>, -<span class="number">5.2313</span>]])</span><br><span class="line">**********</span><br><span class="line">tensor([[-<span class="number">3.9927</span>],</span><br><span class="line">        [-<span class="number">6.4066</span>]])</span><br><span class="line">tensor([[-<span class="number">20.5387</span>],</span><br><span class="line">        [-<span class="number">31.8073</span>]])</span><br><span class="line">tensor([[  <span class="number">4.7729</span>, -<span class="number">11.1790</span>],</span><br><span class="line">        [  <span class="number">7.1683</span>, -<span class="number">16.7890</span>]])</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<ul>
-<li><p><strong>Position-wise Feed-Forward Networks</strong>  ：由两个线性层组成，中间的激活函数用relu，不同位置的输入作用都是一样的（就是位置无关），逐位置，</p>
-<ul>
-<li>$\large FFN(x) &#x3D; \max(0; xW_1 + b_1)W_2 + b_2 $ </li>
-<li>输入输出维度都是512，神经元结点2048；</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5be05ou_6LWr,size_20,color_FFFFFF,t_70,g_se,x_16.png" alt="img" style="zoom:80%;">
-
-<ul>
-<li>Feed Forward Module作用：<ul>
-<li>非线性变换，强化模型的表达能力</li>
-<li>输入映射到高维再映射到低维，模型学习到更加抽象的特征</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>Embeddings and Softmax</strong>  ：在embedding层，权重乘以$\sqrt {d_{model}}$</p>
-</li>
-<li><p><strong>Positional Encoding</strong>  ：序列模型要有序列性（就是要有个顺序），而attention是当前帧和其他所有帧点乘，因此其它帧的相对位置信息，attention是考虑不到的，因此要加上位置编码来表示位置信息；</p>
-<ul>
-<li><p>Positional Encoding和token embedding<strong>相加</strong>，作为encoder和decoder的底部输入。Positional Encoding和embedding具有同样的维度$d_{model}$，因此这两者可以直接相加。</p>
-</li>
-<li><p>$\large PE_{(pos,2i)}&#x3D;sin(pos&#x2F;10000^{2i&#x2F;d_{model}})$</p>
-<p>$\large PE_{(pos,2i+1)}&#x3D;cos(pos&#x2F;10000^{2i&#x2F;d_{model}})$</p>
-<p>其中，i是第i维 $i\in[0,d_{model}&#x2F;2)$；pos表示token在序列中的位置，比如第一个token就是0；</p>
-<p>每一维做的操作不一样（sin或cos）</p>
-<p>比如：第二个token，即PE(1)，有$d_{model}$维，比如是512维，表示为：$PE(1)&#x3D;[sin(1&#x2F;10000^0),cos(1&#x2F;10000^0),sin(1&#x2F;10000^{2&#x2F;512}),cos(1&#x2F;10000^{2&#x2F;512}),…]$</p>
-</li>
-<li><p>出发点是三角函数 $sin(a+b) &#x3D; sin(a)cos(b) + cos(b)sin(a)$， b 是一个固定的 offset 也就是常数了，所以 pos+k 的编码就可以通过 pos 的编码来线性表示了。不同位置就是同一个频率的不同相位。</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220518151014315.png" alt="image-20220518151014315" style="zoom:80%;">
-</li>
-<li><p>每一组单位向量会随着 pos 的增大而旋转，但是旋转周期不同，按照论文里面的设置，最小的旋转周期是 2pi，最大的旋转周期是 10000 x 2pi。把 position 表示成多组不同旋转周期的单位向量，能有助于泛化到训练时没有见过的长度；</p>
-</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220518150310638.png" alt="image-20220518150310638" style="zoom:80%;">
-
-<ul>
-<li><p>训练的loss：输出符号与真实标签的cross entropy；训练时decoder输入：真实标签groundtruth；输出是词表vocabulary的大小</p>
-</li>
-<li><p>测试时decoder输入：一开始BEIGIN符号，然后一个输出；<br>把第一个输出作为第二个输入，得到第二个输出；<br>把第二个输出作为第三个输入，得到第三个输出……</p>
-</li>
-<li><p>绝对位置编码中，Q、K、V都要加位置编码</p>
-</li>
-<li><p>复杂度比较：</p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517164139955.png" alt="image-20220517164139955" style="zoom:80%;">
-
-<h3 id="抽象"><a href="#抽象" class="headerlink" title="抽象"></a>抽象</h3><blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.jiqizhixin.com/articles/2017-06-28-5">https://www.jiqizhixin.com/articles/2017-06-28-5</a></p>
-</blockquote>
-<p>self attention：相比 recurrent 不存在梯度消失问题，这点显然。对比 CNN 更加适合文本，因为能够看到更远距离的信息，这点展开说明——因为文本语义的抽象不同于图像语义的抽象，后者看下一层的局部就行，前者经常需要看很远的地方。比如现在 “苹果” 这个词我要对它做一个抽象，按 “苹果公司” 抽象还是按 “水果” 抽象呢？这个选择可能依赖于几十个 step 之外的词。诚然，CNN 叠高了之后可以看到很远的地方，但是 CNN 本来需要等到很高层的时候才能完成的抽象，self attention 在很底层的时候就可以做到，这无疑是非常巨大的优势。</p>
-<p>RNN是指不同 step 之间要顺序执行从影响速度的 recurrence。而这个 decoder 每一层对不同位置的计算是并行的。当前位置的计算不依赖前面位置的计算结果。 当然这也是因为他使用的是 ground truth 做输入，砍掉相邻两步之间 hidden state 这条连接了。 为了并行， 模型的灵活性受到了限制。不过，在测试阶段 decode 下一个词依赖于上一个输出，所以仍然是 recurrence 的。</p>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Chorowski, Jan K., et al. “Attention-based models for speech recognition.” <em>Advances in neural information processing systems</em> 28 (2015).&#x3D;&#x3D;citations：2267</p>
-</blockquote>
-<h5 id="解决什么问题-1"><a href="#解决什么问题-1" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
-<li>attention用在语音识别任务里效果不好的问题；机器翻译的注意力机制模型 直接用来做语音识别任务时，会出现只对训练集类似的话才识别得好 的问题、它只适用于track跟踪它所识别的内容在输入序列中的绝对位置absolute localtion；</li>
-</ul>
-<h5 id="用了什么方法-1"><a href="#用了什么方法-1" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
-<li><ol>
-<li>在注意力机制中引入location-awareness；2. 改变注意力机制，防止它过多地注意在单个帧上；</li>
-</ol>
-</li>
-</ul>
-<h5 id="效果如何-1"><a href="#效果如何-1" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
-<li>引入location-awareness，PER从18.7%下降到18%；防止只注意单帧，PER下降到17.6%</li>
-</ul>
-<h5 id="还存在什么问题-1"><a href="#还存在什么问题-1" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><p>- </p>
-<h3 id="论文思路"><a href="#论文思路" class="headerlink" title="论文思路"></a>论文思路</h3><ul>
-<li><p>为什么机器翻译和手写识别的attention不能直接用与语音识别任务：</p>
-<ul>
-<li>机器翻译和语音识别任务的区别：机器翻译的输入长度短（只有几十个词），识别是几千帧，因此很多语音片段是相似的，区分它们是一个挑战；</li>
-<li>手写识别和语音识别任务的区别：笔迹和背景区分明显，“噪声小”，语音识别的背景噪声可能很大，信噪比低，没有清晰的结构；</li>
-<li>因此对识别任务的attention model的要求是：<strong>能够处理长输入和带噪输入</strong>；</li>
-</ul>
-</li>
-<li><p>机器翻译模型直接用于语音识别任务会带来的问题：</p>
-<ul>
-<li>长句子错误率高；</li>
-<li>只适用于跟踪它所识别的内容在输入序列中的绝对位置；因此短句尚可，对于长句不可行；</li>
-</ul>
-</li>
-<li><p>修改注意力机制：</p>
-<ul>
-<li>目的：使之能够注意到：1）前一个step的焦点位置（the location of the focus from the previous step ）、2）输入序列的特征（the features of the input sequence）</li>
-<li>如何实现：在注意力机制的输入中，添加辅助卷积特征；该卷积特征是从对前一个step的attention权重进行卷积而来的；（location awareness）</li>
-</ul>
-</li>
-<li><p>早期的注意力机制公式：</p>
-<ul>
-<li>content-based 注意力机制：$\large \alpha_i&#x3D;Attend(s_{i-1},h)$</li>
-</ul>
-<p>**Attend **操作：对h中的每个元素分别打分并将分数标准化：$\large e_{i,j}&#x3D;Score(s_{i-1},h_j)$、     $\large \alpha_{i,j}&#x3D;exp(e_{i,j})&#x2F;\sum\limits_{j&#x3D;1}^Lexp(e_{i,j})$</p>
-<p>可以看出，在不同位置处的$h_j$如果元素值很相似，score分数会很接近，这就是相似语音片段“similar speech fragments” 问题，该问题可通过encoder用 BiRNN，或编码了h的上下文信息的CNN来缓解；但是h能力有限，因此通过上下文进行消歧的可能性是有限的；</p>
-<p>因此，提出 location-based 注意力机制来缓解没考虑h位置的问题：</p>
-<ul>
-<li>location-based 注意力机制：$\large \alpha_i&#x3D;Attend(s_{i-1},\alpha_{i-1})$</li>
-</ul>
-<p>但是，这样也有问题，没依赖输入h，只依赖s，这样得到的距离信息方差很大；</p>
-<p>因此，提出混合location和content的注意力机制：</p>
-<ul>
-<li>hybrid 注意力机制：$\large \alpha_i&#x3D;Attend(s_{i-1},\alpha_{i-1},h)$</li>
-</ul>
-<p>使用前一个的对齐$\alpha_{i−1}$从h中选择一个短的元素列表（content-based attention ）；</p>
-<p>获得注意力机制权重后，神经网络的走向：</p>
-<p>$\large g_i&#x3D;\sum\limits_{j&#x3D;1}^L\alpha_{i,j}h_j$</p>
-<p>$\large y_i \sim Generate(s_{i-1},g_i)$</p>
-<p>$\large s_i&#x3D;Recurrency(s_{i-1},g_i,y_i)$</p>
-<p>其中，$\alpha_i \in R^L$ 是attention权重，称为alignment；$g_i$ ：glimpse；Recurrency  为GRU或LSTM；</p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516120833285.png" alt="image-20220516120833285" style="zoom: 67%;">
-
-<ul>
-<li><p>attention-based recurrent sequence generator （ARSG）with Convolutional Features  ：</p>
-<p>content-based注意力机制的 <strong>score</strong> 操作：$\large e_{i,j}&#x3D;Score(s_{i-1},h_j)&#x3D;w^Ttanh(Ws_{i-1}+Vh_j)+b$</p>
-<p>将content-based扩展为location-aware：通过考虑前一个step的alignment $\alpha_{i-1}$：对previous alignment $\alpha_{i-1}$的每个位置 $j$ ，通过与矩阵$F$卷积（$F\in R^{k \times r}$），来提取 $k$ 向量（$\large f_{i,j}\in R^k$）:</p>
-<p>$\large f_i&#x3D;F*\alpha_{i-1}$</p>
-<p>因此hybrid的 <strong>score</strong> 操作为：$\large e_{i,j}&#x3D;Score(s_{i-1},\alpha_{i-1},h)&#x3D;w^Ttanh(Ws_{i-1}+Vh_j+Uf_{i,j})+b$</p>
-</li>
-<li><p>Score Normalization: Sharpening and Smoothing</p>
-<p>score操作完，标准化后得到权重α，但是这个标准化 $\large \alpha_{i,j}&#x3D;exp(e_{i,j})&#x2F;\sum\limits_{j&#x3D;1}^Lexp(e_{i,j})$ 有几个问题：</p>
-<ol>
-<li>$h$ 序列很长时，$g_i$会更容易从无关 $h_j$ 获得信息，就是噪声信息了，（因为score $\alpha_{i,j}$总为正数且和为1），这样对于每一帧 $i$ ，都会更不容易关注到与 $i$ 真正相关的帧信息；</li>
-<li>$h$ 序列很长时，计算复杂度会显得很大，注意力机制每帧都要考虑所有帧，$O(LT)$；</li>
-</ol>
-<p>但是用softmax标准化的好处是会只关注于单个特征向量$h_j$，而不是多个不同 j 的h；</p>
-<p>解决noisy glimpse方法：通过 <strong>Sharpening</strong> 化，锐化，具体实现的方法有：</p>
-<ul>
-<li>方法1：让$\alpha$分布更极端，区分更大；通过引入inverse temperature β &gt; 1</li>
-</ul>
-<p>$\large \alpha_{i,j}&#x3D;exp(\beta e_{i,j})&#x2F;\sum\limits_{j&#x3D;1}^Lexp(\beta e_{i,j})$</p>
-<p>或者keep only the top-k frames according to the scores and re-normalize them ，但是复杂度没下降，还可能会更关注更窄的帧；</p>
-<ul>
-<li>方法2：windows attention机制：只看窗口长度的h：$\large \tilde h&#x3D;(h_{p_i-w,…h_{p_i+w-1}})$ ，复杂度$O(L+T)$；训练和推理阶段都能用；</li>
-</ul>
-<p>Sharpening对长句子有效，但是也会降低短句子性能，这个现象，论文作者认为，假设Sharpening的作用是有助于模型从多个得分最高的帧中进行选择。。。。</p>
-<p>把无界的exp函数换成有界的sigmoid函数：称为 <strong>smoothing</strong> 化：</p>
-<ul>
-<li>Smoothing  :   $\large \alpha_{i,j}&#x3D;\sigma(e_{i,j}&#x2F;\sum\limits_{j&#x3D;1}^L\sigma(e_{i,j}))$</li>
-</ul>
-</li>
-</ul>
-<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><ul>
-<li>建模单元phoneme，61个phone，一个eos token，39？</li>
-<li>Timit数据集，这个数据集都是很短的小于5s，测试时会特地把音频拼接构造长句子，输入特征40维，一阶二阶差分120维，3维能量，共123维；</li>
-<li>不同的参数子集被重复使用的次数不同; 编码器的为T次，注意权重为LT, ARSG的所有其他参数为L次。 这使得导数的尺度变化很大，因此用自适应学习率算法<strong>AdaDelta</strong>优化器（两个超参$\epsilon$和$\rho$）</li>
-<li>初始化为标准差0.01的高斯分布，RNN进一步正交初始化；</li>
-<li>batchsize&#x3D;1！由于TIMIT数据集很小，一开始加正则，后面没加正则；100K参数量；</li>
-<li>encoder：3层 Bi GRU，256结点；encoder输出 h：512维；generator ：单层 GRU，256结点，输出64维？；</li>
-</ul>
-<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><p>不同模型结果：</p>
-<p>baseline其实并不差，并且也能学到对齐信息，</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516162335200.png" alt="image-20220516162335200" style="zoom:80%;">
-
-<p>锐化里windows方法对齐效果最好：</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516162155924.png" alt="image-20220516162155924" style="zoom: 80%;">
-
-
-
-<p>对于repeat phone：</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516162653073.png" alt="image-20220516162653073" style="zoom:80%;">
-
-
-
-
-
-
-
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Prabhavalkar, Rohit, et al. “A Comparison of Sequence-to-Sequence Models for Speech Recognition.” <em>Interspeech</em>. 2017.&#x3D;&#x3D; google citations：268</p>
-</blockquote>
-<h5 id="解决什么问题-2"><a href="#解决什么问题-2" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
-<li>比较了识别模型的性能，对比了多个端到端模型在识别任务的性能；</li>
-</ul>
-<h5 id="用了什么方法-2"><a href="#用了什么方法-2" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
-<li>不同模型都以字母建模，CTC、RNN-T、attention based、RNNT with attention的端到端识别模型，不加LM；</li>
-</ul>
-<h5 id="效果如何-2"><a href="#效果如何-2" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
-<li>在口述测试集、数值测试集优于baseline，但在有较多专有名词的问答搜索测试集，会比basline差；</li>
-<li>总的来说只用字母建模，没有用语言模型，这个声学模型的建模能力还是非常牛逼的；</li>
-</ul>
-<h5 id="还存在什么问题-2"><a href="#还存在什么问题-2" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><ul>
-<li>端到端模型与LM的结合实验；</li>
-</ul>
-<h3 id="论文思路-1"><a href="#论文思路-1" class="headerlink" title="论文思路"></a>论文思路</h3><ul>
-<li><p>比较CTC、RNN-T、attention based、RNNT with attention的端到端识别模型，（比较时它们都是用grapheme字母建模，没有词典、lm）</p>
-</li>
-<li><p>attention based依赖LM，否则在不同数据集上表现差异很大</p>
-</li>
-<li><p>发现端到端模型可以隐式学习从口语到书面形式的映射（比如说”one hundred dollars” 能输出 “$100”）（以前这种问题更多是用正则做的）</p>
-</li>
-<li><p>端到端模型结构：</p>
-<ul>
-<li>RNNT：可流式识别，但用双向encoder，就不流式了；</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513112532431.png" alt="image-20220513112532431" style="zoom:80%;">
-
-<ul>
-<li>attention-based：比如las、</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513112556714.png" alt="image-20220513112556714" style="zoom:80%;">
-
-<ul>
-<li><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513112646296.png" alt="image-20220513112646296" style="zoom: 80%;">
-   - RNN Transducer with Attention :把RNN-T里的prediction network换成las里的attention decoder；和las相同，要添加sos和eos label，</li>
-</ul>
-<h3 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h3><ul>
-<li>数据集：12500 h</li>
-<li>数据扩展（即使1w小时了也还要数据扩展）目的是对噪声和混响更robust：生成multicondition training (MTR) data：distorted using a room simulator 、by adding in noise samples extracted from YouTube videos and environmental recordings of daily events 、</li>
-<li>the overall SNR is between 0dB and 30dB, with an average of 12dB  ，信噪比不低于0dB，不高于30dB，平均12dB</li>
-<li>log-mel  特征80维，25ms帧长，10ms帧移，送给模型时下采样3倍，</li>
-<li>标签：26个字母a-z，10个数字0-9，空格，标签符号</li>
-<li>ctc：encoder：5层 blstm，350结点（700结点），用这个训好（收敛了）的encoder权重，作为其他端到端模型的初始权重，这可以加速其他模型的收敛；</li>
-<li>rnnt：encoder和上同，prediction network 单层gru，700结点；joint network 单层前馈网络，700结点，tanh激活函数；解码 beam search 的beam&#x3D;15</li>
-<li>attention-based  ：decoder：一或两层gru，700结点；</li>
-<li>baseline：ctc模型，训好用smbr再训，8192 CD phonemes，解码：pruned, first-pass, 5-gram language model   ，再用更大的5-gramLM进行rescore ；词典 包含百万个词</li>
-<li>RNN-T剪枝是走了t步剪枝（frame-synchronous decoding）；attention剪枝是输出u个符号剪枝（label-synchronous decoding）</li>
-<li>为了防止attention-based模型输出非常短的话语，只有当模型输出一个概率大于阈值的<eos>标签时，才允许终止下一个标签预测过程；</eos></li>
-</ul>
-<h3 id="结果-1"><a href="#结果-1" class="headerlink" title="结果"></a>结果</h3><ul>
-<li>CTC直接解码字母时，不接语言模型会非常差</li>
-<li>这样看来attention-based model效果比RNNT好</li>
-<li>在numeric 测试集（从口语映射到书面领域），attention和rnnt相比于baseline有明显改善，认为 the ability to examine the input acoustics in addition to the previous sequence of predicted tokens is particularly helpful</li>
-<li>在voice-search  测试集，比baseline差，分析是因为没加LM；</li>
-<li>发现端到端模型很难识别专有名词proper nouns  （比如地名、实体名）</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513143125662.png" alt="image-20220513143125662" style="zoom:80%;">
-
-
-          
+          声学模型
+&#x3D;&#x3D;Vaswani, Ashish, et al. “Attention is all you need.” Advances in neural information
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2765,243 +1845,16 @@
       
         
           
-            <h1 id="语言模型"><a href="#语言模型" class="headerlink" title="语言模型"></a>语言模型</h1><blockquote>
-<p>&#x3D;&#x3D;Dauphin Y N, Fan A, Auli M, et al. Language modeling with gated convolutional networks[C]&#x2F;&#x2F;International conference on machine learning. PMLR, 2017: 933-941.&#x3D;&#x3D; citations：1542 1Facebook  </p>
-</blockquote>
-<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>用于语言模型建模中，用stacked conv，gated temporal convolutions  代替rnn，用了gated linear units（GLU），比RNN低延迟，效果好；</li>
-<li>门控线性单元通过为梯度提供线性路径，同时保持非线性能力，减少了深度架构的梯度消失问题；</li>
-<li>提出新的gated convolutional networks，卷积网络可以通过堆叠来表示较大的上下文大小，并在越来越大的上下文中提取具有更抽象特征的层次特征</li>
-<li>$\text{GLU}(a, b) &#x3D; a \otimes \sigma(b)$</li>
-<li>：<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531121501451.png" alt="image-20220531121501451" style="zoom:80%;"></li>
-</ul>
-<p>输出 $\large h\in \mathbb R^{N\times n}$</p>
-<p>通过两个仿射变换，其中一个仿射变化通过激活函数，然后二者再做对应位置相乘</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531121429219.png" alt="image-20220531121429219" style="zoom:80%;">
-
-
-
-<ul>
-<li><p><strong>Gating Mechanisms</strong>  ：RNN中，没有input门和forget门，信息很容易通过每个时间步的转换消失。但是卷积网络不存在同样的消失梯度，我们通过实验发现它们不需要遗忘门。因此只需要考虑output gate输出门</p>
-<ul>
-<li>考虑只拥有输出门的模型，它允许网络控制哪些信息应该通过层的层次传播。</li>
-</ul>
-</li>
-<li><p>gated linear unit  梯度：<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531144046865.png" alt="image-20220531144046865" style="zoom:80%;"></p>
-</li>
-<li><p>之前的那种，lstm式门控的梯度gated tanh unit  （GTU）： <img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531144405468.png" alt="image-20220531144405468" style="zoom:80%;"></p>
-</li>
-</ul>
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Yan H, Deng B, Li X, et al. TENER: adapting transformer encoder for named entity recognition[J]. arXiv preprint arXiv:1911.04474, 2019.&#x3D;&#x3D;</p>
-</blockquote>
-<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>为什么位置编码只加在attention层的输入是不够的，说的是输入位置编码PE经过W后，$PEWqWk^TPE^T$会失去了位置信息（不同位置的关系不明显了），即使网络更新了W参数，位置信息也不明显，所以要给位置信息单独的参数来更新，不和输入E的参数共享</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220602114200130.png" alt="image-20220602114200130" style="zoom:80%;">
-
-
-
-
-
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Shaw, Peter, Jakob Uszkoreit, and Ashish Vaswani. “Self-attention with relative position representations.” <em>arXiv preprint arXiv:1803.02155</em> (2018).&#x3D;&#x3D;citation 988 Google </p>
-<p><a target="_blank" rel="noopener" href="https://medium.com/@_init_/how-self-attention-with-relative-position-representations-works-28173b8c245a">How Self-Attention with Relative Position Representations works</a></p>
-<p>github：tensor2tensor：<a target="_blank" rel="noopener" href="https://github.com/tensorflow/tensor2tensor/blob/9e0a894034d8090892c238df1bd9bd3180c2b9a3/tensor2tensor/layers/common_attention.py#L1556-L1587">https://github.com/tensorflow/tensor2tensor/blob/9e0a894034d8090892c238df1bd9bd3180c2b9a3/tensor2tensor/layers/common_attention.py#L1556-L1587</a></p>
-<p>[好] 知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/105001610">Transformer改进之相对位置编码(RPE)</a></p>
-<p>博客园：[<a target="_blank" rel="noopener" href="https://www.cnblogs.com/shiyublog/p/11185625.html">NLP] 相对位置编码(一) Relative Position Representatitons (RPR) - Transformer </a></p>
-<p>csdn <a target="_blank" rel="noopener" href="https://blog.csdn.net/DBC_121/article/details/107939242">论文阅读笔记：Self-Attention with Relative Position Representations</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/364828960">https://zhuanlan.zhihu.com/p/364828960</a></p>
-</blockquote>
-<h3 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><p>为什么只在输入加位置信息是不够的：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/105001610%EF%BC%8C%E5%9B%A0%E4%B8%BA%E8%BE%93%E5%85%A5%E6%9C%89%E4%BD%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%EF%BC%8C%E7%BB%8F%E8%BF%87%E4%BB%BF%E5%B0%84%E5%8F%98%E6%8D%A2W%E5%90%8E%E4%BD%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%E5%B0%B1%E6%B2%A1%E4%BA%86%EF%BC%8C%E5%B9%B6%E4%B8%94%E8%AE%AD%E7%BB%83%E6%9B%B4%E6%96%B0%E5%8F%82%E6%95%B0%E5%90%8E%EF%BC%8C%E6%89%93%E5%8D%B0%E5%87%BA%E6%9D%A5%E7%9C%8B%E4%BE%9D%E7%84%B6%E6%B2%A1%E6%9C%89%E4%BA%86%E4%BD%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%EF%BC%9B">https://zhuanlan.zhihu.com/p/105001610，因为输入有位置信息，经过仿射变换W后位置信息就没了，并且训练更新参数后，打印出来看依然没有了位置信息；</a></p>
-</li>
-<li><p>提出相对位置编码 Relative Position Representations  (RPR)，之前的transformer的位置编码只在encoder和decoder的输入，现在在模型中加入可训练的位置编码，表示距离；</p>
-</li>
-<li><p>Relation-aware Self-Attention  ：对attention里的k，v引入输入pair之间的edge信息；将输入建模为一个标记的、有向的、完全连通的图</p>
-</li>
-<li><p>具体做法是在计算attention score和weighted value时各加入一个可训练的表示相对位置的参数，并且multi head之间可以共享。具体的：</p>
-<p>输入元素 $x_i$ 和 $x_j$ 之间的edge记为向量 $\large \alpha _{ij}^V, \alpha _{ij}^K \in \mathbb{R}^{d_a} $， 可以在关注头head之间共享</p>
-<p>有2个RPR的表征</p>
-<p>attention机制里的<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519103208774.png" alt="image-20220519103208774" style="zoom: 80%;">变为：<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519103224268.png" alt="image-20220519103224268" style="zoom: 80%;"></p>
-<p>attention机制里的<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519103257357.png" alt="image-20220519103257357" style="zoom: 80%;">变为<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519103321485.png" alt="image-20220519103321485" style="zoom: 80%;"></p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519102007123.png" alt="image-20220519102007123" style="zoom:80%;">
-
-
-
-<ul>
-<li><p>对于线性序列，边缘可以捕获输入元素之间相对位置差的信息。本文的最大相对位置被裁剪到k的最大绝对值。这是基于假设：精确的相对位置信息在一定距离以外是没有用的。剪切最大距离还可以使模型推广到训练中没有看到的序列长度。因此，本文只考虑2k + 1个unique edge labels  唯一边标签</p>
-<p>最大单词数被clipped在一个绝对的值k以内。向左k个, 再左边均为0， 向右k个，再右边均为k, 所表示的index范围</p>
-<p>$a_{ik}^K$   ， $a_{ik}^V$  就表示了xi和xj的相对位置信息，所以他们只和 i 和 j 的差值k有关。具体如下：</p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519102853385.png" alt="image-20220519102853385" style="zoom:80%;">
-
-<ul>
-<li>实现：</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220519104753501.png" alt="image-20220519104753501" style="zoom:80%;">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<hr>
-<blockquote>
-<p>&#x3D;&#x3D;Dai, Zihang, et al. “Transformer-xl: Attentive language models beyond a fixed-length context.” <em>arXiv preprint arXiv:1901.02860</em> (2019).&#x3D;&#x3D; citations：1864 Google Brain  </p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/kimiyoung/transformer-xl">https://github.com/kimiyoung/transformer-xl</a>  </p>
-<p>github：<a target="_blank" rel="noopener" href="https://github.com/huggingface/transformers/blob/0a6b9048d1d5de5b965a8757dd56fef87ed9d7e1/src/transformers/models/transfo_xl/modeling_transfo_xl.py">https://github.com/huggingface/transformers/blob/0a6b9048d1d5de5b965a8757dd56fef87ed9d7e1/src/transformers/models/transfo_xl/modeling_transfo_xl.py</a></p>
-<p><a target="_blank" rel="noopener" href="https://towardsdatascience.com/transformer-xl-explained-combining-transformers-and-rnns-into-a-state-of-the-art-language-model-c0cfe9e5a924">Transformer-XL Explained: Combining Transformers and RNNs into a State-of-the-art Language Model</a></p>
-<p>博客园 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/jiangxinyang/p/11534492.html">NLP中的预训练语言模型（三）—— XL-Net和Transformer-XL</a></p>
-<p><a target="_blank" rel="noopener" href="https://jaketae.github.io/study/relative-positional-encoding/">https://jaketae.github.io/study/relative-positional-encoding/</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_34914551/article/details/119866975">https://blog.csdn.net/qq_34914551/article/details/119866975</a></p>
-<p>科学空间：<a target="_blank" rel="noopener" href="https://kexue.fm/archives/8130">让研究人员绞尽脑汁的Transformer位置编码</a></p>
-<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/334355417">相对位置编码和绝对位置编码原理及源码</a></p>
-<p>[很不错]  博客园：[<a target="_blank" rel="noopener" href="https://www.cnblogs.com/shiyublog/p/11236212.html">NLP] 相对位置编码(二) Relative Positional Encodings - Transformer-XL </a></p>
-<p>&#x3D;&#x3D;知乎 chao yang：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/344604604">Conformer ASR中的Relative Positional Embedding&#x3D;&#x3D;</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/397269153">https://zhuanlan.zhihu.com/p/397269153</a></p>
-<p><a target="_blank" rel="noopener" href="https://gudgud96.github.io/2020/04/01/annotated-music-transformer/">https://gudgud96.github.io/2020/04/01/annotated-music-transformer/</a></p>
-<p>公众号 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI5MDUyMDIxNA==&mid=2247571522&idx=3&sn=5220cd96db90f5e5a180ae04be755c66&chksm=ec1d35bbdb6abcad5af3f387e0a55c76f8a9ff21f27c9c1a6d20ecb1af5b8e316b565d210328&mpshare=1&scene=1&srcid=0518S7ex1MAJiZw3NGDWc5RB&sharer_sharetime=1653906114213&sharer_shareid=7dfde0689a805163a3af5547f5e7bbff&version=4.0.0.6023&platform=win#rd">实践教程 | PyTorch中相对位置编码的理解</a></p>
-</blockquote>
-<h5 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
-<li>让transformer模型有机会学习更长的依赖关系；</li>
-</ul>
-<h5 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
-<li>提出一个叫Tansformer-XL的结构，组成由segment-level recurrence mechanism 和 a novel positional encoding scheme</li>
-</ul>
-<h5 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
-<li>80% longer than RNNs and 450% longer than vanilla Transformers</li>
-</ul>
-<h5 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><p>- </p>
-<h3 id="思路-3"><a href="#思路-3" class="headerlink" title="思路"></a>思路</h3><ul>
-<li>Transformers模型可以学会很长的依赖关系，但是由于训练集的长度不是很长，一般没有机会学会很长的依赖，本文提出一种Transformer-XL架构，不干扰时序相关性的前提下，能够学习超出固定长度的更长的依赖性。Transformer-XL 由segment-level 分段递归结构和novel 位置编码组成；</li>
-<li>之前的transformer训练时是固定长度（固定长度比如512个字符，一篇文章截断成固定长度片段），并且固定长度的片段是通过选择连续的符号块来创建的，而不考虑句子或任何其他语义边界，预测前面几个symbols时能用到的上下文信息就很少，该问题称为context fragmentation 。因此，在self-attention network  中引入 <strong>recurrence</strong> 递归的思想，复用previous segments的隐状态作为当前current segment的记忆（<strong>memory</strong>）模块；并且传递来自上一段的信息也可以解决上下文碎片context fragmentation的问题。</li>
-<li>建模语言模型：Given a corpus of tokens $x&#x3D;(x_1,…,x_T)$, 语言模型的任务是估计联合概率$P(x)$，其中，$\large P(x)&#x3D;\prod_tP(x_t|x_{&lt;t})$</li>
-<li>之前的transormer： vanilla Transformer model   （Al-Rfou et al. (2018)  ）：信息只在segment内部流动（其实这个segment长度也是很长的，但是对于特别特别长，篇章级别的文本，就无法处理，因为训练时把篇章截断成segment了）</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220516170152731.png" alt="image-20220516170152731" style="zoom:80%;">
-
-<ul>
-<li>Transformer-XL：<strong>segment-level recurrence mechanism</strong></li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220516170208952.png" alt="image-20220516170208952" style="zoom:80%;">
-
-
-
-<p>第n层，第$\tau$个segment（d维）$s_{\tau}$，其神经元结点 $h_{\tau}^n \in R^{L\times d}$ ，则 下一个segment $s_{\tau+1}$为：</p>
-<p>(extended context)  ：$\large \tilde h_{\tau+1}^{n-1}&#x3D;[SG(h_{\tau}^{n-1}) \circ h_{\tau+1}^{n-1}]$</p>
-<p>(query, key, value vectors)  ：$\large q_{\tau + 1}^n , k_{\tau+1}^n, v_{\tau+1}^n &#x3D; h_{\tau+1}^{n-1}W_q^T, \tilde h_{\tau+1}^{n-1}W_k^T, \tilde h_{\tau+1}^{n-1}W_v^T$</p>
-<p>(self-attention + feed-forward)  ：$\large h_{\tau+1}^{n}&#x3D;TransformerLayer(q_{\tau+1}^n,k_{\tau+1}^n,v_{\tau+1}^n)$</p>
-<p>其中，SG(·) 表示 stop-gradient，就是里面的参数不更新了 ，[hu ◦ hv] 表示沿着length维度，把两个隐层序列concatenate起来；</p>
-<p>由于扩展上下文$\tilde h_{\tau+1}^{n-1}$是和前一个segment $h_{\tau}^{n-1}$有关的（因为拼接了前一个segment的h），因此计算当前segment的qkv，也是和前一个segment有关的；[recurrence 递归、循环]</p>
-<p>（RNN-LM是接收前一个符号，层都是当前层，这个transformer-xl是接收前一segment符号<strong>序列</strong>，并且是作用到下一层）</p>
-<p>复杂度$O(N\times L)$，L是每个segment长度，N是层数</p>
-<ul>
-<li><p>faster evaluation ： 计算下一个segment时，可以reuse上一个segment信息，上一个segment信息已经有了，当前segment不需要重新计算，因此比 vanilla model在推理时快了1800倍；</p>
-</li>
-<li><p>&#x3D;&#x3D;relative position embedding scheme&#x3D;&#x3D;：之前的位置编码，对于不同segment，同一内部的位置编码结果都是一样的，这区分不开不同segment位置，因此用相对位置编码（其实绝对位置编码，相对位置编码，对于不同segment编码还是一样的，相对位置编码感觉并没有解决不同segment内部的编码位置结果可以做到不一样）；</p>
-<ul>
-<li><p>之前的：$\large h_{\tau+1}&#x3D;f(h_\tau,    E_{s_{\tau+1}}+U_{1:L})$              、        $\large h_{\tau}&#x3D;f(h_{\tau-1}, E_{s_{\tau}}+U_{1:L})$   </p>
-<p>其中，$E_{s_{\tau}}\in \mathbb R^{d\times L}$表示$s_{\tau}$的词向量，$f$表示transformation函数，$\large U\in  R^{L_{max},d}$，   可以看出位置编码是一样的，</p>
-<p><strong>绝对位置编码</strong>，计算attention分数 ：</p>
-<p>$\large A_{i,j}^{abs}&#x3D;E_{x_i}^TW_q^TW_kE_{x_j} + E_{x_i}^TW_q^TW_kU_j + U_i^TW_q^TW_kE_{x_j} + U_i^TW_q^TW_kU_j&#x3D;(E_{x_i}^T+U_i^T)W_q^TW_k(E_{x_i}+U_i)$</p>
-</li>
-</ul>
-<p>​       其中，$ E_{x_i} \in \mathbb{R}^{d\times 1}$，$ W \in \mathbb{R}^{d\times d}$</p>
-<p>​	 绝对位置编码中，Q、K、V都要加位置编码；</p>
-<p>​	（相对位置编码，V没做）</p>
-<ul>
-<li><p>下面提出改进绝对位置编码的“相对位置编码”，感觉并不是为了不同segment，而是就是想用一个相对值，并且$R_{i,j}$也不是本文提出的，但是本文提出了不依赖位置的$u$，$v$ ；</p>
-</li>
-<li><p><strong>相对位置编码</strong>：它是每个注意力模块的一部分（有参数需要更新），而不是仅在第一层之前编码位置，并且基于标记之间的相对距离而不是它们的绝对位置。</p>
-</li>
-<li><p>要知道 $k_{\tau,j}$ 和 $q_{\tau,i}$ 的相对距离，即 $i-j$</p>
-</li>
-<li><p>相对位置编码，计算attention分数：</p>
-<p>$\large A_{i,j}^{rel}&#x3D;E_{x_i}^TW_q^TW_{k,E}E_{x_j} + E_{x_i}^TW_q^TW_{k,R}R_{i-j} + u^TW_{k,E}E_{x_j} + v^TW_{k,R}R_{i-j}$</p>
-<p>$\large &#x3D;(E_{x_i}^TW_q^T+u^T)W_{k,E}E_{x_j} + (E_{x_i}^TW_q^T + v^T )W_{k,R}R_{i-j}  $</p>
-<p>输出维度 $\in \mathbb{R}^{L\times L}$</p>
-<p>其中，$\large R \in \mathbb{R}^{L_{max}\times d}$是正弦函数矩阵sinusoid encoding matrix，这个是直接计算出来的，里面没有要学习&#x2F;更新的参数；</p>
-<p>（感觉公式里是反过来的，E是d * L而不是L *  d）</p>
-<p>$u \in \mathbb{R}^d$ ，是一个向量，代替query   $U_i^TW_q^T$     ，所有query位置的query向量都是相同的，这意味着无论查询位置如何，对不同单词的attentive bias都应该是相同的；</p>
-<p>$v \in \mathbb{R}^d$ 代替   $U_i^TW_q^T$  ；（不需要给query位置编码）</p>
-<p>引入了上一片段的隐层表示只会用在key和value上，对于query还是保持原来的样子，query只是表示查询的词，而key，value表示的是表示这个查询的词的相关信息，我们要改变的是只是信息；</p>
-<p>因为是相对位置，所以query的绝对位置信息U_i就不需要了</p>
-<p>$W_{k,E} \in \mathbb{R}^{d\times d}$：content-based key vectors；$W_{k,R} \in \mathbb{R}^{d\times d}$：location-based key vectors；</p>
-<p>因此要学习&#x2F;更新的参数是：u，v，$W_{k,E}$、$W_{k,R}$</p>
-<p>相对位置编码计算attention分数的公式中</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220517170411148.png" alt="image-20220517170411148" style="zoom:80%;">
-
-<p>　　a）基于内容的“寻址”，即没有添加位置向量，词对词的分数。</p>
-<p>　　b）基于内容的位置偏置，相当于当前内容的位置偏差。</p>
-<p>　　c）全局的内容偏置，用于衡量key的重要性。</p>
-<p>　　d）全局的位置偏置，根据key和query调整位置的重要性。</p>
-<p>a）部分基本不变，只是对于key的位置向量的权重矩阵和词向量的权重矩阵不再共享；b）部分引入了相对位置向量$R_{i−j}$，是一个的预先给定好的正弦编码矩阵，不需要学习；c）对于query的位置向量采用可以学习的初始化向量来表示，$u^T$表示对key中词E的位置向量，d）同上，$v^T$表示对key中位置R的位置向量；</p>
-</li>
-</ul>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220518201007774.png" alt="image-20220518201007774" style="zoom:80%;">
-
-<ul>
-<li><p>一个N层Transformer-XL 的前向过程（以单头注意力机制为例）：</p>
-<p>$\large \tilde h_{\tau}^{n-1}&#x3D;[SG(m_{\tau}^{n-1}) \circ h_{\tau}^{n-1}]$</p>
-<p>$\large q_{\tau }^n , k_{\tau}^n, v_{\tau}^n &#x3D; h_{\tau}^{n-1}W{<em>q^n}^T, \tilde h</em>{\tau}^{n-1}W{<em>{k,E}^n}^T, \tilde h</em>{\tau}^{n-1}W{_v^n}^T$</p>
-<p>$\large A_{\tau,i,j}^n&#x3D;{q_{\tau,i}^n}^Tk$………………….没写完，看下面：</p>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220517170434999.png" alt="image-20220517170434999" style="zoom:80%;">
-</li>
-<li><p>简化相对位置编码计算过程：</p>
-</li>
-</ul>
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531104156028.png" alt="image-20220531104156028" style="zoom:80%;">
-
-
-
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220531104230759.png" alt="image-20220531104230759" style="zoom:80%;">
-
-
-
-
-
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220518210923007.png" alt="image-20220518210923007" style="zoom:80%;">
-
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20220517151401322.png" alt="image-20220517151401322" style="zoom:80%;">
-
-
-
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/1453927-20191008092720538-235885034.png" alt="img" style="zoom:80%;">
-
-<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/1453927-20191008092738028-1669727199.png" alt="img" style="zoom:80%;">
-
-<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><p>数据集：WikiText-103   </p>
-<p>评价指标：困惑度：20.5 to 18.3  </p>
-<p>等等</p>
-
-          
+          语言模型
+&#x3D;&#x3D;Dauphin Y N, Fan A, Auli M, et al. Language modeling with gated convolutional netwo
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -3051,92 +1904,6 @@
           
 
         </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
-        <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-            
-              <p class="site-author-name" itemprop="name"></p>
-              <p class="site-description motion-element" itemprop="description"></p>
-          </div>
-
-          <nav class="site-state motion-element">
-
-            
-              <div class="site-state-item site-state-posts">
-              
-                <a href="/archives/%7C%7C%20archive">
-              
-                  <span class="site-state-item-count">140</span>
-                  <span class="site-state-item-name">posts</span>
-                </a>
-              </div>
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-categories">
-                <a href="/categories/index.html">
-                  <span class="site-state-item-count">14</span>
-                  <span class="site-state-item-name">categories</span>
-                </a>
-              </div>
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-tags">
-                <a href="/tags/index.html">
-                  <span class="site-state-item-count">14</span>
-                  <span class="site-state-item-name">tags</span>
-                </a>
-              </div>
-            
-
-          </nav>
-
-          
-
-          
-
-          
-          
-
-          
-          
-
-          
-
-        </div>
-      </section>
-
-      
-      
-    </div>
-<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
-  </aside>
-
-
         
       </div>
     </main>

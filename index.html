@@ -95,7 +95,7 @@
     root: '',
     scheme: 'Muse',
     version: '5.1.4',
-    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    sidebar: {"position":"left","display":"remove","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
     motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
@@ -392,339 +392,18 @@
       
         
           
-            <h1 id="python调用C-——ctypes"><a href="#python调用C-——ctypes" class="headerlink" title="python调用C++——ctypes"></a>python调用C++——ctypes</h1><h2 id="python3调用cpp的方法——python调用so"><a href="#python3调用cpp的方法——python调用so" class="headerlink" title="python3调用cpp的方法——python调用so"></a>python3调用cpp的方法——python调用so</h2><blockquote>
-<p>csdn：<a target="_blank" rel="noopener" href="https://blog.csdn.net/springlustre/article/details/101177282">python3调用cpp的方法——python调用so</a></p>
-</blockquote>
-<p>python中使用ctypes模块可以在python中直接调用C&#x2F;C++。<br>首先要将C&#x2F;C++编译成动态库（.so)，之后python中调用即可</p>
-<p>特别注意：<strong>在调用C++函数需要在函数声明时，加入前缀<code>extern “C” </code>，这是由于C++支持函数重载功能，在编译时会更改函数名。在函数声明时，前缀extern “C”则确保按C的方式编译。</strong></p>
-<p>一定要有函数输入输出类型的声明，int型不用转换，float和double类型需要进行转换，ctypes中的变量类型与C中对应如下：</p>
-<table>
-<thead>
-<tr>
-<th>ctypes数据类型</th>
-<th>C数据类型</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>c_char</td>
-<td>char</td>
-</tr>
-<tr>
-<td>c_short</td>
-<td>short</td>
-</tr>
-<tr>
-<td>c_int</td>
-<td>int</td>
-</tr>
-<tr>
-<td>c_long</td>
-<td>long</td>
-</tr>
-<tr>
-<td>c_float</td>
-<td>float</td>
-</tr>
-<tr>
-<td>c_double</td>
-<td>double</td>
-</tr>
-<tr>
-<td>c_void_p</td>
-<td>void</td>
-</tr>
-<tr>
-<td>c_uint8</td>
-<td>unsigned char</td>
-</tr>
-</tbody></table>
-<p>使用步骤：</p>
-<h4 id="1、编写c-代码"><a href="#1、编写c-代码" class="headerlink" title="1、编写c++代码"></a>1、编写c++代码</h4><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdlib&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Test</span>&#123;</span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="type">double</span> _calculate(<span class="type">int</span> a, <span class="type">double</span> b);</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="type">double</span> <span class="title">calculate</span><span class="params">(<span class="type">int</span> a, <span class="type">double</span> b, <span class="type">char</span> c[], <span class="type">int</span> * d, <span class="type">double</span> * e, <span class="type">char</span> ** f)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">double</span> Test::_calculate(<span class="type">int</span> a, <span class="type">double</span> b)&#123;</span><br><span class="line">    <span class="type">double</span> res = a+b;</span><br><span class="line">    std::cout&lt;&lt;<span class="string">&quot;res: &quot;</span>&lt;&lt;res&lt;&lt;std::endl;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">double</span> <span class="title">Test::calculate</span><span class="params">(<span class="type">int</span> a, <span class="type">double</span> b, <span class="type">char</span> c[], <span class="type">int</span> * d, <span class="type">double</span> * e, <span class="type">char</span> ** f)</span></span>&#123;</span><br><span class="line">    std::cout&lt;&lt;<span class="string">&quot;a: &quot;</span>&lt;&lt;a&lt;&lt;std::endl;</span><br><span class="line">    std::cout&lt;&lt;<span class="string">&quot;b: &quot;</span>&lt;&lt;b&lt;&lt;std::endl;</span><br><span class="line">    std::cout&lt;&lt;<span class="string">&quot;c: &quot;</span>&lt;&lt;c&lt;&lt;std::endl;</span><br><span class="line">    std::cout&lt;&lt;<span class="string">&quot;d: &quot;</span>&lt;&lt;d[<span class="number">0</span>]&lt;&lt;d[<span class="number">1</span>]&lt;&lt;std::endl;</span><br><span class="line">    std::cout&lt;&lt;<span class="string">&quot;e: &quot;</span>&lt;&lt;e[<span class="number">0</span>]&lt;&lt;e[<span class="number">1</span>]&lt;&lt;std::endl;</span><br><span class="line">    std::cout&lt;&lt;<span class="string">&quot;f: &quot;</span>&lt;&lt;f[<span class="number">0</span>]&lt;&lt;f[<span class="number">1</span>]&lt;&lt;std::endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>-&gt;_calculate(a, b);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 封装C接口</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span>&#123;</span><br><span class="line"><span class="comment">// 创建对象</span></span><br><span class="line">    <span class="function">Test* <span class="title">test_new</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Test;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">double</span> <span class="title">my_calculate</span><span class="params">(Test* t, <span class="type">int</span> a, <span class="type">double</span> b, <span class="type">char</span> c[], <span class="type">int</span> * d, <span class="type">double</span> * e, <span class="type">char</span> ** f)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> t-&gt;<span class="built_in">calculate</span>(a, b,c,d,e,f);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+          python调用C++——ctypespython3调用cpp的方法——python调用so
+csdn：python3调用cpp的方法——python调用so
 
-<h4 id="2、将cpp编译成so"><a href="#2、将cpp编译成so" class="headerlink" title="2、将cpp编译成so"></a>2、将cpp编译成so</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ -shared -Wl,-soname,test -o test.so -fPIC test.cpp</span><br></pre></td></tr></table></figure>
-
-<p>其中test为cpp的名称</p>
-<h4 id="3、使用python调用即可"><a href="#3、使用python调用即可" class="headerlink" title="3、使用python调用即可"></a>3、使用python调用即可</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> ctypes</span><br><span class="line"><span class="comment"># 指定动态链接库</span></span><br><span class="line">lib = ctypes.cdll.LoadLibrary(<span class="string">&#x27;./test.so&#x27;</span>)</span><br><span class="line"><span class="comment">#需要指定返回值的类型，默认是int</span></span><br><span class="line">lib.my_calculate.restype = ctypes.c_double</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Test</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 动态链接对象</span></span><br><span class="line">        self.obj = lib.test_new()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">calculate</span>(<span class="params">self, a, b,c,d,e,f</span>):</span><br><span class="line">        res = lib.my_calculate(self.obj, a, b,c,d,e,f)</span><br><span class="line">        <span class="keyword">return</span> res</span><br><span class="line"></span><br><span class="line"><span class="comment">#将python类型转换成c类型，支持int, float,string的变量和数组的转换</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">convert_type</span>(<span class="params"><span class="built_in">input</span></span>):</span><br><span class="line">    ctypes_map = &#123;<span class="built_in">int</span>:ctypes.c_int,</span><br><span class="line">              <span class="built_in">float</span>:ctypes.c_double,</span><br><span class="line">              <span class="built_in">str</span>:ctypes.c_char_p</span><br><span class="line">              &#125;</span><br><span class="line">    input_type = <span class="built_in">type</span>(<span class="built_in">input</span>)</span><br><span class="line">    <span class="keyword">if</span> input_type <span class="keyword">is</span> <span class="built_in">list</span>:</span><br><span class="line">        length = <span class="built_in">len</span>(<span class="built_in">input</span>)</span><br><span class="line">        <span class="keyword">if</span> length==<span class="number">0</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;convert type failed...input is &quot;</span>+<span class="built_in">input</span>)</span><br><span class="line">            <span class="keyword">return</span> null</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            arr = (ctypes_map[<span class="built_in">type</span>(<span class="built_in">input</span>[<span class="number">0</span>])] * length)()</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(length):</span><br><span class="line">                arr[i] = <span class="built_in">bytes</span>(<span class="built_in">input</span>[i],encoding=<span class="string">&quot;utf-8&quot;</span>) <span class="keyword">if</span> (<span class="built_in">type</span>(<span class="built_in">input</span>[<span class="number">0</span>]) <span class="keyword">is</span> <span class="built_in">str</span>) <span class="keyword">else</span> <span class="built_in">input</span>[i]</span><br><span class="line">            <span class="keyword">return</span> arr</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">if</span> input_type <span class="keyword">in</span> ctypes_map:</span><br><span class="line">            <span class="keyword">return</span> ctypes_map[input_type](<span class="built_in">bytes</span>(<span class="built_in">input</span>,encoding=<span class="string">&quot;utf-8&quot;</span>) <span class="keyword">if</span> <span class="built_in">type</span>(<span class="built_in">input</span>) <span class="keyword">is</span> <span class="built_in">str</span> <span class="keyword">else</span> <span class="built_in">input</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;convert type failed...input is &quot;</span>+<span class="built_in">input</span>)</span><br><span class="line">            <span class="keyword">return</span> null</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    t = Test()</span><br><span class="line">    A1	= <span class="number">123</span>;</span><br><span class="line">    A2	= <span class="number">0.789</span>;</span><br><span class="line">    A3	= <span class="string">&quot;C789&quot;</span>;</span><br><span class="line">    A4	= [<span class="number">456</span>,<span class="number">789</span>];</span><br><span class="line">    A5	= [<span class="number">0.123</span>,<span class="number">0.456</span>];</span><br><span class="line">    A6	= [<span class="string">&quot;A123&quot;</span>, <span class="string">&quot;B456&quot;</span>];</span><br><span class="line">    <span class="built_in">print</span>(t.calculate(convert_type(A1), convert_type(A2), convert_type(A3),convert_type(A4),convert_type(A5),convert_type(A6)))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>注意看这里的convert_type</p>
-<h2 id="Python-C-x2F-C-联合编程实战-Python-CTypes访问C-x2F-C-动态链接库"><a href="#Python-C-x2F-C-联合编程实战-Python-CTypes访问C-x2F-C-动态链接库" class="headerlink" title="Python C&#x2F;C++联合编程实战-Python CTypes访问C&#x2F;C++动态链接库"></a>Python C&#x2F;C++联合编程实战-Python CTypes访问C&#x2F;C++动态链接库</h2><blockquote>
-<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV17y4y1W7BY/?spm_id_from=333.337.search-card.all.click&vd_source=5e9891722f2b62adca440a5e92121b5b">Python C&#x2F;C++联合编程实战-Python CTypes访问C&#x2F;C++动态链接库</a></p>
-</blockquote>
-<h3 id="windows版本："><a href="#windows版本：" class="headerlink" title="windows版本："></a>windows版本：</h3><p>需要：</p>
-<ul>
-<li>dll动态链接库、</li>
-<li><code>__declspec(dllexport)</code> 要导出函数名，才可以生成dll；</li>
-<li><code>extern &quot;C&quot;</code> 在C++代码里加这一行，编译成C的函数。这是因为python支持的是C语言，而C语言不支持重载，因此要把C++代码里写一个extern C，表示变成C语言名称，不要自己多加一些函数名这个意思（C++编译时，函数名会加上参数，因此可以区分出不一样的函数（重载））。</li>
-<li>库在系统目录或当前执行目录下（要把库放在哪边，因为执行脚本时要调用这个库）</li>
-<li>与python库查找路径无关 sys.path</li>
-</ul>
-<p>举例：</p>
-<p>在visual studio里新建项目，选择dll</p>
-<p>然后新建一个cpp文件：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;pch.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> __declspec(dllexport) <span class="function"><span class="type">void</span> <span class="title">TestCtypes</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;In C testctypes\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>然后选菜单的 “生成” —— “生成解决方案”，就会导出一个dll文件</p>
-<p>注意，这里的dll是32位还是64位，要与后面python的32位或64位一致。比如我的python是64位（查看python是几位，通过在powershell里输入python得知）那么导出的dll就要是64位，否则会报 <code>OSError: [WinError 193] %1 不是有效的 Win32 应用程序。</code> 错误。</p>
-<p>dll设置位64位：</p>
-<img src="/2023/02/13/python/python%E8%B0%83%E7%94%A8C++%E2%80%94%E2%80%94ctypes/image-20230213124938001.png" alt="image-20230213124938001" style="zoom:67%;">
-
-<p>选择 x64.</p>
-<p>或者在visual studio的 侧边栏 解决方案 项目名 右键——属性——（右上）配置管理器——活动解决方案平台，选择x64.</p>
-<p>新建一个python文件：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> *</span><br><span class="line">lib = CDLL(<span class="string">&quot;testctypes&quot;</span>)</span><br><span class="line">lib.TestCtypes()</span><br></pre></td></tr></table></figure>
-
-<p>这里的 testctypes，是导出的 dll名称，这里不需要填 testctypes.dll后缀，只要写前面名称就好。</p>
-<p>然后在windows里的powershell执行python文件。</p>
-<p><strong>注意，如果python文件的路径和dll路径不一致。有三种解决方法：</strong></p>
-<ol>
-<li>复制dll到python文件所在目录；</li>
-<li>python文件里写上相对路径，比如：<code>lib = CDLL(&quot;x64/Debug/testctypes&quot;)</code></li>
-<li>dll文件导出时写相对路径：visual studio的侧边栏 解决方案 项目名 右键——属性——链接器——输出文件，比如把<code>$(OutDir)$(TargetName)$(TargetExt)</code> 改成 <code>..\$(TargetName)$(TargetExt)</code> 就是上一级目录（比如python文件在上一级目录下）</li>
-</ol>
-<h3 id="Linux版本："><a href="#Linux版本：" class="headerlink" title="Linux版本："></a>Linux版本：</h3><ul>
-<li>so动态链接库 64位（链接库 也叫 目标程序），目标程序位数要和平台相关</li>
-<li>代码字符集 utf-8（在windows的visual studio是gbk编码），</li>
-<li><code>g++ -fPIC -shared -o $@ $&lt; -finput-charset=&#39;gbk&#39;</code>  编译出一个动态链接库 文件。比如：<code>g++ -fPIC -shared -o a a.cpp </code><ul>
-<li>-fPIC：使得动态链接库位置无关？</li>
-<li>-shared：对应的动态链接库版本</li>
-<li>-finput-charset&#x3D;’gbk’ ：指定的输出格式</li>
-</ul>
-</li>
-<li>so库在 <code>/usr/lib</code> 或者环境变量路径</li>
-<li><strong>如果要在当前路径调用库，<code>export LD_LIBRARY_PATH ./</code> 要把库的路径export进库path里。（windows就不需要，windows找库路径时，会去找当前路径下有没有这个库，而linux只会找<code>LD_LIBRARY_PATH</code> 和 <code>/usr/lib</code>里有没有这个库）</strong></li>
-</ul>
-<p>这里cpp文件是（比如 a.cc）：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> </span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">TestCtypes</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;In C testctypes\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这里就不像windows里的写法那样，需要<code> __declspec(dllexport)</code> ， 这里不需要。</p>
-<p>另一种写法：通过 <strong>宏</strong> 来判断是linux系统或者windows系统。一次到位，就不用对不同系统写不同cpp代码了。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _WIN32	<span class="comment">// win32 win64</span></span></span><br><span class="line">	<span class="meta">#<span class="keyword">define</span> XIB __declspec(dllexport)</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span>	<span class="comment">// MAC linux</span></span></span><br><span class="line">	<span class="meta">#<span class="keyword">define</span> XIB</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function">XIB</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">TestCtypes</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;In C testctypes\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>执行<code>g++ -fPIC -shared -o a a.cc</code> 或者 <code>g++ -fPIC -shared -o a a.cpp</code> 或者 <code>g++ -fPIC -shared -o a.so a.cc</code></p>
-<p><code>ldd a.so</code> 看一看。</p>
-<p>python文件是（比如a.py）：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> ctypes</span><br><span class="line">lib=ctypes.CDLL(<span class="string">&#x27;./a.so&#x27;</span>)</span><br><span class="line"></span><br><span class="line">lib.TestCtypes()</span><br></pre></td></tr></table></figure>
-
-<p>执行 <code>python a.py</code></p>
-<p>关于路径问题，可以把每次编译完了之后的so文件，都复制到 <code>/usr/lib</code>路径下，就没有路径问题了（写一个shell每次自动复制过去，或者写一个makefile），或者export进lib path里 <code>export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/k/c_practice</code> 。</p>
-<p>写一个makefile：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">a.so:a.cc</span></span><br><span class="line">	g++ -fPIC -shared -o <span class="variable">$@</span> <span class="variable">$&lt;</span></span><br><span class="line">	cp <span class="variable">$@</span> /usr/lib</span><br></pre></td></tr></table></figure>
-
-<p>这里 <code>$@</code> 指的 <code>a.so</code>， <code>$&lt;</code> 指的 <code>a.cc</code>。</p>
-<p>然后命令行 <code>make</code> </p>
-<h3 id="mac版本"><a href="#mac版本" class="headerlink" title="mac版本"></a>mac版本</h3><ul>
-<li>与linux基本一致，但不支持代码GBK</li>
-<li>演示用g++</li>
-<li>VS代码格式改为utf-8</li>
-</ul>
-<p>改成utf-8的方法：</p>
-<ol>
-<li>用notepad++打开cpp文件，菜单栏——编码——utf-8</li>
-<li>打开Visual Studio项目，菜单栏——文件——高级保存选项——Unicode(UTF-8 无签名)</li>
-</ol>
-<h3 id="ctypes类型对应"><a href="#ctypes类型对应" class="headerlink" title="ctypes类型对应"></a>ctypes类型对应</h3><p>64位的程序，对指针的存放要特别关注。因为指针用64位（8个字节）地址，如果变成运行在32位系统，则会丢失一部分信息（只读写了32位，剩下没读写完）。</p>
-<h3 id="传递数字参数"><a href="#传递数字参数" class="headerlink" title="传递数字参数"></a>传递数字参数</h3><ul>
-<li>传递float和int</li>
-<li>c_int() c_float()</li>
-<li>v&#x3D;c_int(101)</li>
-<li>print(v.value)</li>
-</ul>
-<p>ctypes整数和浮点数类型参数传递代码示例和异常处理：</p>
-<p>举例：</p>
-<p>c++代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _WIN32	<span class="comment">// win32 win64</span></span></span><br><span class="line">	<span class="meta">#<span class="keyword">define</span> XIB __declspec(dllexport)</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span>	<span class="comment">// MAC linux</span></span></span><br><span class="line">	<span class="meta">#<span class="keyword">define</span> XIB</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function">XIB</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">numbers</span><span class="params">(<span class="type">int</span> x, <span class="type">float</span> y, <span class="type">bool</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;In C testctypes %d %f %d\n&quot;</span>,x, y, b);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>make一下，生成 a.so。</p>
-<p>python代码：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> *</span><br><span class="line">lib = CDLL(<span class="string">&#x27;./a.so&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    lib.numbers(<span class="number">101</span>, c_float(<span class="number">99.1</span>), <span class="literal">True</span>)	<span class="comment"># 99.1是python里的float型，要传给c里的函数，要转成c的格式（通过c_float()函数转）</span></span><br><span class="line"></span><br><span class="line">    p2 = c_int(<span class="number">102</span>)</span><br><span class="line">    <span class="built_in">print</span>(p2)</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">type</span>(p2))</span><br><span class="line">    <span class="built_in">print</span>(p2.value)</span><br><span class="line">    lib.numbers(p2,c_float(<span class="number">99.1</span>),<span class="literal">True</span>)</span><br><span class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> ex:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;error&quot;</span>, ex)</span><br></pre></td></tr></table></figure>
-
-
-
-<p><code>python a.py</code> 输出：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">n C testctypes <span class="number">101</span> <span class="number">99.099998</span> <span class="number">1</span></span><br><span class="line">c_int(<span class="number">102</span>)</span><br><span class="line">&lt;<span class="keyword">class</span> <span class="string">&#x27;ctypes.c_int&#x27;</span>&gt;</span><br><span class="line"><span class="number">102</span></span><br><span class="line">In C testctypes <span class="number">102</span> <span class="number">99.099998</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-
-
-
-
-
-<h2 id="ctypes类型对应-1"><a href="#ctypes类型对应-1" class="headerlink" title="ctypes类型对应"></a>ctypes类型对应</h2><p>传参，要把python类型转成c语言支持的；返回值，要把c语言类型转成python支持的。</p>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html">https://docs.python.org/zh-cn/3/library/ctypes.html</a></p>
-</blockquote>
-<p><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#module-ctypes"><code>ctypes</code></a> 定义了一些和C兼容的基本数据类型：</p>
-<p>这里ctypes类型都看作函数，<strong>转换函数</strong>，把python类型转成c类型的<strong>转换函数</strong>。</p>
-<table>
-<thead>
-<tr>
-<th align="left">ctypes 类型</th>
-<th align="left">C 类型</th>
-<th align="left">Python 类型</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_bool"><code>c_bool</code></a></td>
-<td align="left">_Bool</td>
-<td align="left">bool (1)</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_char"><code>c_char</code></a></td>
-<td align="left">char</td>
-<td align="left">单字符字节串对象（一个字节存放一个字符）</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_wchar"><code>c_wchar</code></a></td>
-<td align="left">wchar_t</td>
-<td align="left">单字符字符串（两个字节存放一个字符，宽字节，unsigned short）</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_byte"><code>c_byte</code></a></td>
-<td align="left">char</td>
-<td align="left">int</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_ubyte"><code>c_ubyte</code></a></td>
-<td align="left">unsigned char</td>
-<td align="left">int</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_short"><code>c_short</code></a></td>
-<td align="left">short</td>
-<td align="left">int</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_ushort"><code>c_ushort</code></a></td>
-<td align="left">unsigned short</td>
-<td align="left">int</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_int"><code>c_int</code></a></td>
-<td align="left">int</td>
-<td align="left">int</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_uint"><code>c_uint</code></a></td>
-<td align="left">unsigned int</td>
-<td align="left">int</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_long"><code>c_long</code></a></td>
-<td align="left">long</td>
-<td align="left">int</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_ulong"><code>c_ulong</code></a></td>
-<td align="left">unsigned long</td>
-<td align="left">int</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_longlong"><code>c_longlong</code></a></td>
-<td align="left">__int64 or long long</td>
-<td align="left">int</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_ulonglong"><code>c_ulonglong</code></a></td>
-<td align="left">unsigned __int64 or unsigned long long</td>
-<td align="left">int</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_size_t"><code>c_size_t</code></a></td>
-<td align="left">size_t</td>
-<td align="left">int</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_ssize_t"><code>c_ssize_t</code></a></td>
-<td align="left">ssize_t or <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/c-api/intro.html#c.Py_ssize_t">Py_ssize_t</a></td>
-<td align="left">int</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_float"><code>c_float</code></a></td>
-<td align="left">float</td>
-<td align="left">float</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_double"><code>c_double</code></a></td>
-<td align="left">double</td>
-<td align="left">float</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_longdouble"><code>c_longdouble</code></a></td>
-<td align="left">long double</td>
-<td align="left">float</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_char_p"><code>c_char_p</code></a></td>
-<td align="left">char* (NUL terminated)</td>
-<td align="left">字节串对象或 <code>None</code></td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_wchar_p"><code>c_wchar_p</code></a></td>
-<td align="left">wchar_t* (NUL terminated)</td>
-<td align="left">字符串或 <code>None</code></td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_void_p"><code>c_void_p</code></a></td>
-<td align="left">void*</td>
-<td align="left">int 或 <code>None</code></td>
-</tr>
-</tbody></table>
-<ol>
-<li>构造函数接受任何具有真值的对象。</li>
-</ol>
-<p>所有这些类型都可以通过使用正确类型和值的可选初始值调用它们来创建:</p>
-<p><code>from ctypes import *</code></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>c_int()</span><br><span class="line">    c_long(<span class="number">0</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>c_wchar_p(<span class="string">&quot;Hello, World&quot;</span>)</span><br><span class="line">c_wchar_p(<span class="number">140018365411392</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>c_ushort(-<span class="number">3</span>)</span><br><span class="line">c_ushort(<span class="number">65533</span>)</span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>由于这些类型是可变的，它们的值也可以在以后更改:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>i = c_int(<span class="number">42</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(i)</span><br><span class="line">c_long(<span class="number">42</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(i.value)</span><br><span class="line"><span class="number">42</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>i.value = -<span class="number">99</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(i.value)</span><br><span class="line">-<span class="number">99</span></span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>当给指针类型的对象 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_char_p"><code>c_char_p</code></a>, <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_wchar_p"><code>c_wchar_p</code></a> 和 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.c_void_p"><code>c_void_p</code></a> 等赋值时，将改变它们所指向的 <em>内存地址</em>，而 <em>不是</em> 它们所指向的内存区域的 <em>内容</em> (这是理所当然的，因为 Python 的 bytes 对象是不可变的):</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>s = <span class="string">&quot;Hello, World&quot;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>c_s = c_wchar_p(s)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(c_s)</span><br><span class="line">c_wchar_p(<span class="number">139966785747344</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(c_s.value)</span><br><span class="line">Hello World</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>c_s.value = <span class="string">&quot;Hi, there&quot;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(c_s)              <span class="comment"># the memory location has changed</span></span><br><span class="line">c_wchar_p(<span class="number">139966783348904</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(c_s.value)</span><br><span class="line">Hi, there</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(s)                <span class="comment"># first object is unchanged</span></span><br><span class="line">Hello, World</span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>但你要注意不能将它们传递给会改变指针所指内存的函数。如果你需要可改变的内存块，ctypes 提供了 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.create_string_buffer"><code>create_string_buffer()</code></a> 函数，它提供多种方式创建这种内存块。当前的内存块内容可以通过 <code>raw</code> 属性存取，如果你希望将它作为NUL结束的字符串，请使用 <code>value</code> 属性:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> ctypes <span class="keyword">import</span> *</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>p = create_string_buffer(<span class="number">3</span>)            <span class="comment"># create a 3 byte buffer, initialized to NUL bytes</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(sizeof(p), <span class="built_in">repr</span>(p.raw))</span><br><span class="line"><span class="number">3</span> <span class="string">b&#x27;\x00\x00\x00&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>p = create_string_buffer(<span class="string">b&quot;Hello&quot;</span>)     <span class="comment"># create a buffer containing a NUL terminated string</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(sizeof(p), <span class="built_in">repr</span>(p.raw))</span><br><span class="line"><span class="number">6</span> <span class="string">b&#x27;Hello\x00&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(<span class="built_in">repr</span>(p.value))</span><br><span class="line"><span class="string">b&#x27;Hello&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>p = create_string_buffer(<span class="string">b&quot;Hello&quot;</span>, <span class="number">10</span>) <span class="comment"># create a 10 byte buffer</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(sizeof(p), <span class="built_in">repr</span>(p.raw))</span><br><span class="line"><span class="number">10</span> <span class="string">b&#x27;Hello\x00\x00\x00\x00\x00&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>p.value = <span class="string">b&quot;Hi&quot;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(sizeof(p), <span class="built_in">repr</span>(p.raw))</span><br><span class="line"><span class="number">10</span> <span class="string">b&#x27;Hi\x00lo\x00\x00\x00\x00\x00&#x27;</span></span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
-
-<p>The <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.create_string_buffer"><code>create_string_buffer()</code></a> function replaces the old <code>c_buffer()</code> function (which is still available as an alias). To create a mutable memory block containing unicode characters of the C type wchar_t, use the <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/ctypes.html#ctypes.create_unicode_buffer"><code>create_unicode_buffer()</code></a> function.</p>
-<h2 id="chatgpt回答"><a href="#chatgpt回答" class="headerlink" title="chatgpt回答"></a>chatgpt回答</h2><blockquote>
-<p>以下回答来自chatgpt：</p>
-</blockquote>
-<p>Python 可以通过 Cython、ctypes、SWIG 等方式与 C++ 进行交互。</p>
-<ul>
-<li>Cython 可以把 Python 代码编译为 C++ 代码，它的语法是 Python 的语法的扩展，可以直接调用 C++ 代码；</li>
-<li>ctypes 可以直接加载并调用动态链接库，并且可以很容易地调用 C 函数；</li>
-<li>SWIG 可以自动生成 Python 接口，方便地从 Python 中调用 C++ 代码。</li>
-</ul>
-<ol>
-<li>使用Cython或SWIG：这些工具可以让你编写接口代码，它们会把这些代码编译成可以在Python环境下运行的代码。</li>
-<li>使用ctypes或cffi：这些库可以动态加载C++代码作为C函数，从而在Python代码中调用。</li>
-</ol>
-<p>下面是一个使用ctypes的例子：</p>
-<p>c++：（a.cc）</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// a.cc</span></span><br><span class="line"><span class="meta"># <span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> &#123;</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a + b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>python：(a.py)</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># a.py</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> ctypes</span><br><span class="line"></span><br><span class="line"><span class="comment"># Load the shared library</span></span><br><span class="line">lib = ctypes.CDLL(<span class="string">&#x27;./libexample.so&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Call the add function in the C++ code</span></span><br><span class="line">result = lib.add(<span class="number">3</span>, <span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span>(result)  <span class="comment"># 8</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>把c++编译成 libexample.so：<code>g++ -shared -fPIC -o libexample.so a.cc</code></p>
-<p>然后执行代码：<code>python a.py</code> 。就能得到结果了。</p>
-<p>这是一个简单的例子，它仅仅是说明了如何调用C++代码。请注意，这只是一种方法，具体应用取决于您的需求和使用场景。</p>
-
-          
+python中使用ctypes模块可以
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/02/13/python/python%E8%B0%83%E7%94%A8C++%E2%80%94%E2%80%94ctypes/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -875,103 +554,19 @@
       
         
           
-            <h1 id="C-创建对象、C-创建一个实例、C-实例化对象"><a href="#C-创建对象、C-创建一个实例、C-实例化对象" class="headerlink" title="C++创建对象、C++创建一个实例、C++实例化对象"></a>C++创建对象、C++创建一个实例、C++实例化对象</h1><blockquote>
-<p>csdn：<a target="_blank" rel="noopener" href="https://blog.csdn.net/azhexg/article/details/14225545">C++创建对象的三种方式</a></p>
-</blockquote>
-<p>C++中有三种创建对象的方法：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">A</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> n;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">A</span>(<span class="type">int</span> m):<span class="built_in">n</span>(m)</span><br><span class="line">    &#123; &#125;</span><br><span class="line">    ~<span class="built_in">A</span>()&#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">add</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> x + y;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function">A <span class="title">a</span><span class="params">(<span class="number">1</span>)</span></span>;  <span class="comment">//栈中分配  ，由操作系统进行内存的分配和管理</span></span><br><span class="line">    A b = <span class="built_in">A</span>(<span class="number">1</span>);  <span class="comment">//栈中分配  ，由操作系统进行内存的分配和管理</span></span><br><span class="line">    A* c = <span class="keyword">new</span> <span class="built_in">A</span>(<span class="number">1</span>);  <span class="comment">//堆中分配  ，由管理者进行内存的分配和管理，用完必须delete()，否则可能造成内存泄漏</span></span><br><span class="line">    </span><br><span class="line">    a.<span class="built_in">add</span>(<span class="number">1</span>,<span class="number">2</span>);</span><br><span class="line">    b.<span class="built_in">add</span>(<span class="number">1</span>,<span class="number">2</span>);		<span class="comment">//&quot;.&quot; 是结构体成员引用</span></span><br><span class="line">    c-&gt;<span class="built_in">add</span>(<span class="number">1</span>,<span class="number">2</span>);	<span class="comment">//&quot;-&gt;&quot;是指针引用</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">delete</span> c;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          C++创建对象、C++创建一个实例、C++实例化对象
+csdn：C++创建对象的三种方式
 
-<p>第一种和第二种没什么区别，一个隐式调用，一个显式调用，两者都是在进程虚拟地址空间中的栈中分配内存，而第三种使用了new，在堆中分配了内存，而栈中内存的分配和释放是由系统管理，而堆中内存的分配和释放必须由程序员手动释放。采用第三种方式时，必须注意一下几点问题：</p>
-<ol>
-<li>new创建类对象需要指针接收，一处初始化，多处使用</li>
-<li>new创建类对象使用完需delete销毁</li>
-<li>new创建对象直接使用堆空间，而局部不用new定义类对象则使用栈空间</li>
-<li>new对象指针用途广泛，比如作为函数返回值、函数参数等</li>
-<li>频繁调用场合并不适合new，就像new申请和释放内存一样</li>
-<li>栈的大小远小于堆的大</li>
-<li>栈是机器系统提供的数据结构，计算机会在底层对栈提供支持：分配专门的寄存器存放栈的地址，压栈出栈都有专门的指令执行，这就决定了栈的效率 比较高。堆则是C&#x2F;C++函数库提供的，它的机制是很复杂的，例如为了分配一块内存，库函数会按照一定的算法（具体的算法可以参考数据结构&#x2F;操作系统）在 堆内存中搜索可用的足够大小的空间，如果没有足够大小的空间（可能是由于内存碎片太多），就有可能调用系统功能去增加程序数据段的内存空间，这样就有机会 分 到足够大小的内存，然后进行返回。显然，堆的效率比栈要低得多。</li>
-</ol>
-<p><strong>注意：栈中内存的分配和管理由操作系统决定，而堆中内存的分配和管理由管理者决定。</strong></p>
-<p><strong>我们需要的内存很少，你又能确定你到底需要多少内存时，用栈。当你需要在运行时才知道你到底需要多少内存时，请用堆。</strong></p>
-<h1 id="C-用new和不用new创建类对象"><a href="#C-用new和不用new创建类对象" class="headerlink" title="C++用new和不用new创建类对象"></a>C++用new和不用new创建类对象</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lz20120808/article/details/40833517">C++创建对象的两种方法（C++用new和不用new创建类对象）</a></p>
-</blockquote>
-<h2 id="方法1-ClassName-object-param"><a href="#方法1-ClassName-object-param" class="headerlink" title="方法1  ClassName object(param);"></a>方法1  <code>ClassName object(param);</code></h2><p>这样就声明了一个ClassName类型的object对象，C++会为它分配足够的存放对象所有成员的存储空间。</p>
-<p>注意：为节省存储空间，C++创建对象时仅分配用于保存数据成员的空间，而类中定义的成员函数则被分配到存储空间中的一个公用区域，由该类的所有对象共享。</p>
-<p>例如，我定义了一个这样的类：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Rec</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="built_in">Rec</span>(<span class="type">int</span> width,<span class="type">int</span> height);</span><br><span class="line">        ~<span class="built_in">Rec</span>();</span><br><span class="line">        <span class="function"><span class="type">int</span> <span class="title">getArea</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="type">int</span> Rwidth;</span><br><span class="line">        <span class="type">int</span> Rheight;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>当你Rec myRec(5,5);这样创建一个myRec对象， 然后打印出sizeof(myRec);的时候，会得到 8。因为myRec中有2个int类型的数据成员，一个int成员占4个字节，所以myRec对象占8个字节。</p>
-<p>这种方法创建的对象，内存分配是分配到栈中的，由C++缺省创建和撤销，自动调用构造函数和析构函数。</p>
-<p>注意：该方法创建的对象调用类方法时，必须用“.”，而不能用“-&gt;”.如myRec.getArea()；</p>
-<h2 id="方法2-ClassName-object-new-ClassName-param"><a href="#方法2-ClassName-object-new-ClassName-param" class="headerlink" title="方法2  ClassName *object = new ClassName(param);"></a>方法2  <code>ClassName *object = new ClassName(param);</code></h2><p><code>ClassName *object = new ClassName(param);</code></p>
-<p><code>delete object;</code></p>
-<p>这种方法跟java有点类似，相同的是，它们都是在堆上分配内存来创建对象的（与上不同）；不同的是，<strong>C++用new创建对象时返回的是一个对象指针，object指向一个ClassName的对象，C++分配给object的仅仅是存放指针值的空间</strong>。而且，用new 动态创建的对象必须用delete来撤销该对象。只有delete对象才会调用其析构函数。</p>
-<p>注意：new创建的对象不是用“*”或“.”来访问该对象的成员函数的，而是用运算符“-&gt;”;</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rec *rec=<span class="keyword">new</span> <span class="built_in">Rec</span>(<span class="number">3</span>,<span class="number">4</span>);</span><br><span class="line">rec-&gt;<span class="built_in">getArea</span>();</span><br><span class="line"></span><br><span class="line"><span class="keyword">delete</span> rec;</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>一般来说，编译器将内存分为三部分：静态存储区域、栈、堆。静态存储区主要保存全局变量和静态变量，栈存储调用函数相关的变量、地址等，堆存储动态生成的变量。</strong> 在c中是指由malloc,free运算产生释放的存储空间，在c++中就是指new和delete运算符作用的存储区域。</p>
-<p>new出来的在堆上，直接定义的在栈上，栈的大小有限制</p>
-<p>new的好处：</p>
-<p>1、需要的时候才new（在复杂权限和业务逻辑系统中很重要）<br>2、对象可靠性检查(没有栈空间的限制问题)<br>3、对象的适度留用控制</p>
-<h1 id="chatgpt回答"><a href="#chatgpt回答" class="headerlink" title="chatgpt回答"></a>chatgpt回答</h1><p>C++创建对象有两种常见的方式：静态分配和动态分配。</p>
-<ol>
-<li>静态分配：在栈上直接实例化一个对象，这种方式创建的对象随着它的作用域的结束自动销毁。</li>
-<li>动态分配：使用 new 运算符在堆上创建对象，这种方式创建的对象必须使用 delete 运算符手动销毁。</li>
-</ol>
-<h1 id="类、对象"><a href="#类、对象" class="headerlink" title="类、对象"></a>类、对象</h1><blockquote>
-<p>runoob：<a target="_blank" rel="noopener" href="https://www.runoob.com/cplusplus/cpp-classes-objects.html">C++ 类 &amp; 对象</a></p>
-</blockquote>
-<p><img src="/2023/02/10/C++/C++%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1/cpp-classes-objects-2020-12-10-11.png" alt="cpp-classes-objects-2020-12-10-11"></p>
-<p>私有的成员和受保护的成员不能使用直接成员访问运算符 (.) 来直接访问。</p>
-<table>
-<thead>
-<tr>
-<th align="left">概念</th>
-<th align="left">描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://www.runoob.com/cplusplus/cpp-class-member-functions.html">类成员函数</a></td>
-<td align="left">类的成员函数是指那些把定义和原型写在类定义内部的函数，就像类定义中的其他变量一样。</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://www.runoob.com/cplusplus/cpp-class-access-modifiers.html">类访问修饰符</a></td>
-<td align="left">类成员可以被定义为 public、private 或 protected。默认情况下是定义为 private。</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://www.runoob.com/cplusplus/cpp-constructor-destructor.html">构造函数 &amp; 析构函数</a></td>
-<td align="left">类的构造函数是一种特殊的函数，在创建一个新的对象时调用。类的析构函数也是一种特殊的函数，在删除所创建的对象时调用。</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://www.runoob.com/cplusplus/cpp-copy-constructor.html">C++ 拷贝构造函数</a></td>
-<td align="left">拷贝构造函数，是一种特殊的构造函数，它在创建对象时，是使用同一类中之前创建的对象来初始化新创建的对象。</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://www.runoob.com/cplusplus/cpp-friend-functions.html">C++ 友元函数</a></td>
-<td align="left"><strong>友元函数</strong>可以访问类的 private 和 protected 成员。</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://www.runoob.com/cplusplus/cpp-inline-functions.html">C++ 内联函数</a></td>
-<td align="left">通过内联函数，编译器试图在调用函数的地方扩展函数体中的代码。</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://www.runoob.com/cplusplus/cpp-this-pointer.html">C++ 中的 this 指针</a></td>
-<td align="left">每个对象都有一个特殊的指针 <strong>this</strong>，它指向对象本身。</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://www.runoob.com/cplusplus/cpp-pointer-to-class.html">C++ 中指向类的指针</a></td>
-<td align="left">指向类的指针方式如同指向结构的指针。实际上，类可以看成是一个带有函数的结构。</td>
-</tr>
-<tr>
-<td align="left"><a target="_blank" rel="noopener" href="https://www.runoob.com/cplusplus/cpp-static-members.html">C++ 类的静态成员</a></td>
-<td align="left">类的数据成员和函数成员都可以被声明为静态的。</td>
-</tr>
-</tbody></table>
-
-          
+C++中有三种创建对象的方法：
+12345678910111213141516171819202122232
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/02/10/C++/C++%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1122,77 +717,17 @@
       
         
           
-            <h1 id="python-property、-setter"><a href="#python-property、-setter" class="headerlink" title="python @property、@.setter"></a>python @property、@.setter</h1><h2 id="函数作为参数"><a href="#函数作为参数" class="headerlink" title="函数作为参数"></a>函数作为参数</h2><blockquote>
-<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1zg41197cy/?spm_id_from=333.788&vd_source=5e9891722f2b62adca440a5e92121b5b">Python中各种@property、@xxx.setter、@classmethod、@staticmethod 都是些啥啊？</a></p>
-</blockquote>
-<p>函数作为参数，可以传入函数，但是没写return的话，就会变成返回NoneType</p>
-<p>举例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">say</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;something&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">func_1</span>(<span class="params">func</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;start&quot;</span>)</span><br><span class="line">    func()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;end&quot;</span>)</span><br><span class="line">    </span><br><span class="line">func_1(say)</span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">start</span><br><span class="line">something</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+          python @property、@.setter函数作为参数
+b站：Python中各种@property、@xxx.setter、@classmethod、@staticmethod 都是些啥啊？
 
-<p>但是由于func_1没有return，当执行的函数赋给一个变量时，比如：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">my_func = func_1(say)</span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">start</span><br><span class="line">something</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"><span class="comment"># my_func 是一个class NoneType的对象</span></span><br><span class="line"><span class="comment"># 所以不能:</span></span><br><span class="line">my_func()</span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">TypeError: <span class="string">&#x27;NoneType&#x27;</span> <span class="built_in">object</span> <span class="keyword">is</span> <span class="keyword">not</span> <span class="built_in">callable</span></span><br></pre></td></tr></table></figure>
-
-<p>由于没有return，这个变量是一个NoneType类的对象。</p>
-<p><code>my_func = func_1(say)</code>这句话，我们希望的是<strong>拿到函数的引用</strong>，然后去用这个变量做其它事情，执行其它代码。	</p>
-<p>如何使得这个变量也是一个函数呢？！通过 <strong>定义内部方法，然后返回这个引用</strong>！</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">func_1</span>(<span class="params">func</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">inner_func</span>():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;start&quot;</span>)</span><br><span class="line">        func()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;end&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> inner_func</span><br><span class="line"></span><br><span class="line">my_func = func_1(say)</span><br><span class="line">my_func()</span><br></pre></td></tr></table></figure>
-
-
-
-<p>因此，这里 func_1 是为了改变、优化传入进来的函数的执行结果。</p>
-<p>内部的inner_func通常名字叫“wrapper”</p>
-<h2 id="Python中的-property、-xxx-setter"><a href="#Python中的-property、-xxx-setter" class="headerlink" title="Python中的@property、@xxx.setter"></a>Python中的@property、@xxx.setter</h2><blockquote>
-<p>廖雪峰：<a target="_blank" rel="noopener" href="https://www.liaoxuefeng.com/wiki/1016959663602400/1017502538658208">使用@property</a></p>
-</blockquote>
-<p>举例，一个检查分数，返回分数的函数：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Student</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_score</span>(<span class="params">self</span>):</span><br><span class="line">         <span class="keyword">return</span> self._score</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_score</span>(<span class="params">self, value</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(value, <span class="built_in">int</span>):</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">&#x27;score must be an integer!&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> value &lt; <span class="number">0</span> <span class="keyword">or</span> value &gt; <span class="number">100</span>:</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">&#x27;score must between 0 ~ 100!&#x27;</span>)</span><br><span class="line">        self._score = value</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s = Student()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.set_score(<span class="number">60</span>) <span class="comment"># ok!</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.get_score()</span><br><span class="line"><span class="number">60</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.set_score(<span class="number">9999</span>)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  ...</span><br><span class="line">ValueError: score must between <span class="number">0</span> ~ <span class="number">100</span>!</span><br></pre></td></tr></table></figure>
-
-
-
-<p>用@后面添加一个要进行额外操作的方法名称。</p>
-<p>能检查参数，又可以用类似属性这样简单的方式来访问类的变量。</p>
-<p>Python内置的<code>@property</code>装饰器就是负责把一个方法变成属性调用的：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Student</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">score</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self._score</span><br><span class="line"></span><br><span class="line"><span class="meta">    @score.setter</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">score</span>(<span class="params">self, value</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(value, <span class="built_in">int</span>):</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">&#x27;score must be an integer!&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> value &lt; <span class="number">0</span> <span class="keyword">or</span> value &gt; <span class="number">100</span>:</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">&#x27;score must between 0 ~ 100!&#x27;</span>)</span><br><span class="line">        self._score = value</span><br></pre></td></tr></table></figure>
-
-<p><code>@property</code>的实现比较复杂，我们先考察如何使用。把一个getter方法变成属性，只需要加上<code>@property</code>就可以了，此时，<code>@property</code>本身又创建了另一个装饰器<code>@score.setter</code>，负责把一个setter方法变成属性赋值，于是，我们就拥有一个可控的属性操作：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>s = Student()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.score = <span class="number">60</span> <span class="comment"># OK，实际转化为s.set_score(60)</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.score <span class="comment"># OK，实际转化为s.get_score()</span></span><br><span class="line"><span class="number">60</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s.score = <span class="number">9999</span></span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  ...</span><br><span class="line">ValueError: score must between <span class="number">0</span> ~ <span class="number">100</span>!</span><br></pre></td></tr></table></figure>
-
-<p>注意到这个神奇的<code>@property</code>，我们在对实例属性操作的时候，就知道该属性很可能不是直接暴露的，而是通过getter和setter方法来实现的。</p>
-<blockquote>
-<p>chatgpt的回答：</p>
-</blockquote>
-<p>Python 中的 <code>property</code> 是一个内置装饰器，它可以把一个类中的方法设置为属性的读取&#x2F;设置&#x2F;删除方法。</p>
-<p>使用方法如下：</p>
-<ol>
-<li><p>定义 getter 方法，返回需要作为属性读取的值。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Example</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, value</span>):</span><br><span class="line">        self._value = value</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_value</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self._value</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>在 getter 方法上使用 @property 装饰器，将其标记为属性。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Example</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, value</span>):</span><br><span class="line">        self._value = value</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">value</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self._value</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>如果需要为属性提供写入操作，可以定义一个 setter 方法，并在该方法上使用 @property 名称的 setter 装饰器。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Example</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, value</span>):</span><br><span class="line">        self._value = value</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">value</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self._value</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @value.setter</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">value</span>(<span class="params">self, value</span>):</span><br><span class="line">        self._value = value</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>如果需要为属性提供删除操作，可以定义一个 deleter 方法，并在该方法上使用 @property 名称的 deleter 装饰器。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Example</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, value</span>):</span><br><span class="line">        self._value = value</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">value</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self._value</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @value.setter</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">value</span>(<span class="params">self, value</span>):</span><br><span class="line">        self._value = value</span><br><span class="line">    </span><br><span class="line"><span class="meta">    @value.deleter</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">value</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">del</span> self._value</span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>然后，你可以使用如下语句来读取、写入和删除属性值：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">example = Example(<span class="number">10</span>)</span><br><span class="line"><span class="built_in">print</span>(example.value) <span class="comment"># 读取属性值</span></span><br><span class="line">example.value = <span class="number">20</span>   <span class="comment"># 写入属性值</span></span><br><span class="line"><span class="keyword">del</span> example.value     <span class="comment"># 删除</span></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-
-<blockquote>
-<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1zg41197cy/?spm_id_from=333.788&vd_source=5e9891722f2b62adca440a5e92121b5b">Python中各种@property、@xxx.setter、@classmethod、@staticmethod 都是些啥啊？</a> 说得不好</p>
-</blockquote>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">User</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, name</span>):</span><br><span class="line">        self._name = name</span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">name</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self._name</span><br><span class="line"><span class="meta">    @name.setter</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">name</span>(<span class="params">self, name</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(name) &lt; <span class="number">5</span>:</span><br><span class="line">            <span class="keyword">raise</span> Exception(<span class="string">&quot;至少5个字符&quot;</span>)</span><br><span class="line">        self._name = name</span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_user</span>(<span class="params">cls</span>):</span><br><span class="line">        <span class="keyword">return</span> (cls(<span class="string">&#x27;people&#x27;</span>))</span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">lenght</span>():</span><br><span class="line">        <span class="keyword">return</span> <span class="number">18</span></span><br></pre></td></tr></table></figure>
-
-<p>@property和@.setter搭配使用</p>
-
-          
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/02/09/python/python%20@property/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1343,65 +878,18 @@
       
         
           
-            <h1 id="python下划线"><a href="#python下划线" class="headerlink" title="python下划线"></a>python下划线</h1><h2 id="python代码里的-下划线"><a href="#python代码里的-下划线" class="headerlink" title="python代码里的_ 下划线"></a>python代码里的_ 下划线</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1582867">我终于把Python中下划线的含义弄清楚了（憋了很久了）</a></p>
-</blockquote>
-<h3 id="1-前单下划线：-var"><a href="#1-前单下划线：-var" class="headerlink" title="1. 前单下划线： _var"></a>1. 前单下划线： <code>_var</code></h3><h4 id="变量或方法名加-单下划线："><a href="#变量或方法名加-单下划线：" class="headerlink" title="变量或方法名加 单下划线："></a>变量或方法名加 单下划线：</h4><p>变量或方法名加 单下划线 时，向其他程序员的<em>提示</em>，即以单个下划线开头的变量或方法供内部使用（表示私有），这不是Python强制执行的，直接访问也是可以访问的。</p>
-<p>举例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Test</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.foo = <span class="number">11</span></span><br><span class="line">        self._bar = <span class="number">23</span></span><br></pre></td></tr></table></figure>
+          python下划线python代码里的_ 下划线
+我终于把Python中下划线的含义弄清楚了（憋了很久了）
 
-<p>如果你实例化这个类并试图访问它的构造函数中定义的foo和_bar属性，会发生什么?让我们来看看:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; t = Test()</span><br><span class="line">&gt;&gt;&gt; t.foo</span><br><span class="line">11</span><br><span class="line">&gt;&gt;&gt; t._bar</span><br><span class="line">23</span><br></pre></td></tr></table></figure>
-
-<p>看到_bar中的前一个下划线并没有阻止我们“进入”类并访问该变量的值。</p>
-<p>这是因为Python中的单个下划线前缀仅仅是一种约定。</p>
-<h4 id="函数单下划线-从模块导入："><a href="#函数单下划线-从模块导入：" class="headerlink" title="函数单下划线 从模块导入："></a>函数单下划线 从模块导入：</h4><p>举例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># This is my_module.py:</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">external_func</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="number">23</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_internal_func</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="number">42</span></span><br></pre></td></tr></table></figure>
-
-<p>现在，如果使用通配符导入来从模块中导入所有名称，Python将不会导入带有前导下划线的名称(除非模块定义了覆盖此行为的_all__列表):</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from my_module import *</span><br><span class="line">&gt;&gt;&gt; external_func()</span><br><span class="line">23</span><br><span class="line">&gt;&gt;&gt; _internal_func()</span><br><span class="line">NameError: <span class="string">&quot;name &#x27;_internal_func&#x27; is not defined&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>顺便说一下，应该避免通配符导入，因为它们使名称空间中出现的名称变得不清楚。</p>
-<p>与通配符导入不同，常规导入不受主要的单下划线命名约定的影响:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; import my_module</span><br><span class="line">&gt;&gt;&gt; my_module.external_func()</span><br><span class="line">23</span><br><span class="line">&gt;&gt;&gt; my_module._internal_func()</span><br><span class="line">42</span><br></pre></td></tr></table></figure>
-
-<p>单下划线是一种Python命名约定，表示某个名称是供内部使用的。它通常不是由Python解释器强制执行的，只是对程序员的提示。</p>
-<h3 id="2-后单下划线：-var"><a href="#2-后单下划线：-var" class="headerlink" title="2. 后单下划线： var_"></a>2. 后单下划线：<code> var_</code></h3><p>有时候，一个变量最合适的名字已经被一个关键字代替了。因此，类或def之类的名称在Python中不能用作变量名。在这种情况下，你可以添加一个下划线打破命名冲突:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; def make_object(name, class):</span><br><span class="line">SyntaxError: <span class="string">&quot;invalid syntax&quot;</span></span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; def make_object(name, class_):</span><br><span class="line">...     pass</span><br></pre></td></tr></table></figure>
-
-<p>总之，惯例使用单个尾划线(后缀)来避免与Python关键字的命名冲突。在PEP 8中解释了这种约定。</p>
-<h3 id="3-前双下划线：-var"><a href="#3-前双下划线：-var" class="headerlink" title="3.前双下划线： __var"></a>3.前双下划线： <code>__var</code></h3><p>这个比较特殊！python会改变其 <strong>变量、方法</strong> 名！</p>
-<p>双下划线前缀导致Python解释器重写属性名，以避免子类中的命名冲突。</p>
-<p>这也叫做名字拼写——解释器改变变量的名字的方式使得在以后扩展类时很难产生冲突。</p>
-<p>举例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">XHX</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.foo = <span class="number">11</span></span><br><span class="line">        self._bar = <span class="number">23</span></span><br><span class="line">        self.__baz = <span class="number">23</span></span><br></pre></td></tr></table></figure>
-
-<p>让我们看看这个对象的属性使用内置的dir()函数:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; <span class="built_in">dir</span>(XHX())</span><br><span class="line">[<span class="string">&#x27;_XHX__baz&#x27;</span>, <span class="string">&#x27;__class__&#x27;</span>, <span class="string">&#x27;__delattr__&#x27;</span>, <span class="string">&#x27;__dict__&#x27;</span>, <span class="string">&#x27;__dir__&#x27;</span>, <span class="string">&#x27;__doc__&#x27;</span>, <span class="string">&#x27;__eq__&#x27;</span>, <span class="string">&#x27;__format__&#x27;</span>, <span class="string">&#x27;__ge__&#x27;</span>, <span class="string">&#x27;__getattribute__&#x27;</span>, <span class="string">&#x27;__gt__&#x27;</span>, <span class="string">&#x27;__hash__&#x27;</span>, <span class="string">&#x27;__init__&#x27;</span>, <span class="string">&#x27;__init_subclass__&#x27;</span>, <span class="string">&#x27;__le__&#x27;</span>, <span class="string">&#x27;__lt__&#x27;</span>, <span class="string">&#x27;__module__&#x27;</span>, <span class="string">&#x27;__ne__&#x27;</span>, <span class="string">&#x27;__new__&#x27;</span>, <span class="string">&#x27;__reduce__&#x27;</span>, <span class="string">&#x27;__reduce_ex__&#x27;</span>, <span class="string">&#x27;__repr__&#x27;</span>, <span class="string">&#x27;__setattr__&#x27;</span>, <span class="string">&#x27;__sizeof__&#x27;</span>, <span class="string">&#x27;__str__&#x27;</span>, <span class="string">&#x27;__subclasshook__&#x27;</span>, <span class="string">&#x27;__weakref__&#x27;</span>, <span class="string">&#x27;_bar&#x27;</span>, <span class="string">&#x27;foo&#x27;</span>]</span><br></pre></td></tr></table></figure>
-
-<p>这会给我们一个带有对象属性的列表。让我们看看这个列表：</p>
-<p><code>self.foo</code>在属性列表中，foo变量显示为未修改的foo。</p>
-<p><code>self._bar</code>的行为方式是一样的，它在类中显示为_bar。就像我之前说的，前导下划线只是一种惯例。给程序员的提示。</p>
-<p><code>self.__baz</code>看起来有点不同。当在该列表中搜索_baz时，将看到没有具有该名称的变量。它变成了 <code>_XHX__baz</code>！也就是 <code>_类名__变量名</code></p>
-<p>前面多了一个类名了！这是Python解释器应用的命名混乱。这样做是为了保护变量不被子类覆盖。</p>
-<p>举例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ManglingTest</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.__mangled = <span class="string">&#x27;hello&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_mangled</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self.__mangled</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ManglingTest().get_mangled()</span><br><span class="line"><span class="string">&#x27;hello&#x27;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ManglingTest().__mangled	<span class="comment"># 应该用：ManglingTest()._ManglingTest__mangled</span></span><br><span class="line">AttributeError: <span class="string">&quot;&#x27;ManglingTest&#x27; object has no attribute &#x27;__mangled&#x27;&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>如果这里没有用下划线，假设变量名叫 self.mangled，<code>ManglingTest().mangled</code>就可以正常返回的。</p>
-<p>并且不止是变量，方法（函数）也会变！</p>
-<p>举例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MangledMethod</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__method</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="number">42</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">call_it</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self.__method()</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>MangledMethod().__method()	<span class="comment"># 应该用：MangledMethod()._MangledMethod__method()</span></span><br><span class="line">AttributeError: <span class="string">&quot;&#x27;MangledMethod&#x27; object has no attribute &#x27;__method&#x27;&quot;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>MangledMethod().call_it()</span><br><span class="line"><span class="number">42</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="4-前后双下划线-var"><a href="#4-前后双下划线-var" class="headerlink" title="4. 前后双下划线__var__"></a>4. 前后双下划线<code>__var__</code></h3><p>表示由Python语言定义的特殊方法。避免为自己的属性使用此命名方案。</p>
-<p>也叫“魔法函数”，也就是<strong>python内置的函数</strong>，尽量避免自己写函数时写这种前后双下划线的形式。</p>
-<h2 id="python调用C-的-下划线"><a href="#python调用C-的-下划线" class="headerlink" title="python调用C++的_ 下划线"></a>python调用C++的_ 下划线</h2><p>import一个下划线的包</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> _wenet</span><br></pre></td></tr></table></figure>
-
-<p>这是在C++里写了这个module模块，python绑定了这个C++模块，在python里import时用的是加下划线的写法。</p>
-
-          
+1. 前单下划线： _var变量或方法名加 单下划线：变量或方法名加 单下划线 时，向其他
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/02/09/python/python%E4%B8%8B%E5%88%92%E7%BA%BF/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1552,44 +1040,18 @@
       
         
           
-            <h1 id="python中的-classmethod、-staticmethod"><a href="#python中的-classmethod、-staticmethod" class="headerlink" title="python中的@classmethod、@staticmethod"></a>python中的@classmethod、@staticmethod</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1jv4y1K7Yu/?spm_id_from=333.337.search-card.all.click&vd_source=5e9891722f2b62adca440a5e92121b5b">【python】staticmethod与classmethod深度机制解析——要知其所以然</a></p>
-</blockquote>
-<h2 id="classmethod、-staticmethod-的使用与实现"><a href="#classmethod、-staticmethod-的使用与实现" class="headerlink" title="@classmethod、@staticmethod 的使用与实现"></a>@classmethod、@staticmethod 的使用与实现</h2><h3 id="普通类函数"><a href="#普通类函数" class="headerlink" title="普通类函数"></a>普通类函数</h3><p>写一个类的方法，一般是这样写的：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 举例</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">A</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">f</span>(<span class="params">self,x</span>):</span><br><span class="line">        <span class="built_in">print</span>(x)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调用时</span></span><br><span class="line">A().f(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure>
+          python中的@classmethod、@staticmethod
+【python】staticmethod与classmethod深度机制解析——要知其所以然
 
-<p>方法（函数）的第一个参数是self，<strong>self表示把调用这个函数的对象传进去的机制</strong>。</p>
-<h3 id="staticmethod-的使用"><a href="#staticmethod-的使用" class="headerlink" title="staticmethod 的使用"></a>staticmethod 的使用</h3><p>而用 staticmethod 的写法是：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">A</span>:</span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">f</span>(<span class="params">x</span>):</span><br><span class="line">        <span class="built_in">print</span>(x)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调用时</span></span><br><span class="line">A.f(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line"><span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#也可以写A().f(1)，也是可以使用的</span></span><br></pre></td></tr></table></figure>
-
-<p>可以看出，和一般的写法很不一样，这种写法更像是通常写函数的样子，只不过把函数放在了class里面而已。</p>
-<p>一个定义在class里面的staticmethod，就是一个很普通的函数，使用它的时候，就像使用其它定义在外面的函数一样。</p>
-<p>staticmethod decorator，把函数放到了class的命名空间下，让这个函数从属于这个类class了。</p>
-<p>调用时，<code>A.f(1)</code>，这里的A是class，而不是class的对象object（如果是类的对象，应该写成 <code>A()</code>）。这种调用的用法很像在全局定义一个<code>f(x)</code>，然后再去调用<code>f(1)</code>。</p>
-<p>如果想用类的对象来调用函数，依然也是可以用的（不会报错）。就是@staticmethod修饰过的函数，用 <code>A()f(1)</code>，也就是用类的对象来调用函数，依然也是可以用的。</p>
-<h4 id="staticmethod的意义："><a href="#staticmethod的意义：" class="headerlink" title="staticmethod的意义："></a>staticmethod的意义：</h4><ol>
-<li>提供了一个更好的封装，这个函数从属于一个类了；</li>
-<li>不用建立这个类的对象，直接用类就可以调用这个函数；适用于想把功能绑定在类、而不是类的对象上的场景。</li>
-</ol>
-<h3 id="classmethod的使用"><a href="#classmethod的使用" class="headerlink" title="classmethod的使用"></a>classmethod的使用</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">A</span>:</span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">f</span>(<span class="params">cls, x</span>):</span><br><span class="line">        <span class="built_in">print</span>(cls, x)</span><br><span class="line"></span><br><span class="line">A.f(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">&lt;<span class="keyword">class</span> <span class="string">&#x27;__main__.A&#x27;</span>&gt; <span class="number">1</span></span><br><span class="line"></span><br><span class="line">A().f(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">&lt;<span class="keyword">class</span> <span class="string">&#x27;__main__.A&#x27;</span>&gt; <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<p>和staticmethod很像，也可以直接在class上调用，或者在class的对象上调用。</p>
-<p>classmethod装饰的函数传入的第一个参数是一个类class，但是调用时，不需要传入这个参数（class），和self参数很像。</p>
-<p>无论是class或class的object，调用函数时，第一个参数都是class类型。（对于object，会把object的type传进去（对象的类型是class））</p>
-<h3 id="staticmethod-的实现"><a href="#staticmethod-的实现" class="headerlink" title="staticmethod 的实现"></a>staticmethod 的实现</h3><p>这段没有看懂。</p>
-<h2 id="chatgpt解释"><a href="#chatgpt解释" class="headerlink" title="chatgpt解释"></a>chatgpt解释</h2><blockquote>
-<p>chatgpt的回答</p>
-</blockquote>
-<p><code>classmethod</code>是一种特殊类型的方法，它是针对类对象而不是实例对象进行操作的方法。它的第一个参数永远是类本身，而不是实例，因此可以通过类本身来访问类的属性和方法。下面是一个简单的例子：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Rectangle</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, width, height</span>):</span><br><span class="line">        self.width = width</span><br><span class="line">        self.height = height</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">area</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self.width * self.height</span><br><span class="line"></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">square</span>(<span class="params">cls, side_length</span>):</span><br><span class="line">        <span class="keyword">return</span> cls(side_length, side_length)</span><br><span class="line"></span><br><span class="line">square = Rectangle.square(<span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span>(square.area())  <span class="comment"># 25</span></span><br></pre></td></tr></table></figure>
-
-<p>在上面的例子中，我们通过使用<code>@classmethod</code>装饰器声明了一个类方法<code>square</code>，它接受一个参数<code>side_length</code>，并返回一个具有相同长和宽的矩形。在这个例子中，我们可以通过调用<code>Rectangle.square(5)</code>来获得一个5x5的正方形。</p>
-<p><code>staticmethod</code>是另一种特殊类型的方法，它不需要任何类或实例对象作为参数，它与类和实例对象没有任何关系。它是类内部的独立函数，可以通过类名直接访问。下面是一个简单的例子：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Rectangle</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, width, height</span>):</span><br><span class="line">        self.width = width</span><br><span class="line">        self.height = height</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">area</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self.width * self.height</span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">is_valid_dimension</span>(<span class="params">dimension</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(dimension, <span class="built_in">int</span>) <span class="keyword">and</span> dimension &gt; <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(Rectangle.is_valid_dimension(<span class="number">5</span>))  <span class="comment"># True</span></span><br><span class="line"><span class="built_in">print</span>(Rectangle.is_valid_dimension(-<span class="number">5</span>))  <span class="comment"># False</span></span><br></pre></td></tr></table></figure>
-
-<p>在上面的例子中，我们通过使用<code>@staticmethod</code>装饰器声明了一个静态方法<code>is_valid_dimension</code>，它接受一个参数<code>dimension</code>，并判断它是否是一个有效的整数。我们可以通过调用<code>Rectangle.is_valid_dimension(5)</code>来获得该方法的结果。</p>
-
-          
+@classmethod、@sta
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/02/09/python/python%20@classmethod%E5%92%8C@staticmethod/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1740,285 +1202,16 @@
       
         
           
-            <h1 id="pip笔记"><a href="#pip笔记" class="headerlink" title="pip笔记"></a>pip笔记</h1><h2 id="安装python包超时失败"><a href="#安装python包超时失败" class="headerlink" title="安装python包超时失败"></a>安装python包超时失败</h2><blockquote>
-<p>stackoverflow ：<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/43298872/how-to-solve-readtimeouterror-httpsconnectionpoolhost-pypi-python-org-port">How to solve ReadTimeoutError: HTTPSConnectionPool(host&#x3D;’pypi.python.org’, port&#x3D;443) with pip?</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zhangvalue/article/details/104271094">解决安装Python包时超时失败ReadTimeoutError: HTTPSConnectionPool(host&#x3D;’files.pythonhosted.org’, port&#x3D;443)</a></p>
-</blockquote>
-<p>遇到超时 timeout error：</p>
-<p><strong>方法1. 添加镜像源：</strong></p>
-<p>使用国内的镜像源安装。在原来安装时在命令里加一个参数 -i，然后在i后面加国内镜像地址。</p>
-<p>选择国内的镜像源列表如下：</p>
-<p>清华源： <a target="_blank" rel="noopener" href="https://pypi.tuna.tsinghua.edu.cn/simple/">https://pypi.tuna.tsinghua.edu.cn/simple/</a></p>
-<p>阿里云： <a target="_blank" rel="noopener" href="http://mirrors.aliyun.com/pypi/simple/">http://mirrors.aliyun.com/pypi/simple/</a></p>
-<p>中国科技大学： <a target="_blank" rel="noopener" href="https://pypi.mirrors.ustc.edu.cn/simple/">https://pypi.mirrors.ustc.edu.cn/simple/</a></p>
-<p>豆瓣(douban)：<a target="_blank" rel="noopener" href="http://pypi.douban.com/simple/">http://pypi.douban.com/simple/</a></p>
-<p>清华大学： <a target="_blank" rel="noopener" href="https://pypi.tuna.tsinghua.edu.cn/simple/">https://pypi.tuna.tsinghua.edu.cn/simple/</a></p>
-<p>中国科学技术大学： <a target="_blank" rel="noopener" href="http://pypi.mirrors.ustc.edu.cn/simple/">http://pypi.mirrors.ustc.edu.cn/simple/</a></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> pip install statsmodels -i https://pypi.tuna.tsinghua.edu.cn/simple/</span><br><span class="line">Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple/</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>方法2：</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo pip install --default-timeout=100 xx包</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>方法3：</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m pip install --upgrade pip</span><br></pre></td></tr></table></figure>
-
-
-
-<blockquote>
-<p>以下是chatgpt回答</p>
-</blockquote>
-<p>在安装Python包时如果超时失败，可以尝试以下几种方法：</p>
-<ol>
-<li>增加超时时间：可以在安装命令前添加参数，例如<code>pip install --default-timeout=1000 &lt;package-name&gt;</code>，以增加超时时间。</li>
-<li>更换镜像源：可以尝试使用国内镜像源进行安装，以减少安装时间。</li>
-<li>选择本地包：如果安装某个包时出现超时失败，可以尝试手动下载该包的.whl文件并使用<code>pip install &lt;whl-file&gt;</code>命令进行安装。</li>
-<li>尝试其他安装方法：如果使用<code>pip install</code>命令安装失败，可以尝试使用<code>conda install</code>或其他安装方法进行安装。</li>
-</ol>
-<h2 id="pip安装的路径在哪里"><a href="#pip安装的路径在哪里" class="headerlink" title="pip安装的路径在哪里"></a>pip安装的路径在哪里</h2><blockquote>
-<p>以下是chatgpt回答</p>
-</blockquote>
-<p>在 Windows 系统中，默认情况下 pip 安装的路径位于 Python 安装目录下的 Scripts 目录中，例如 <code>C:\PythonXX\Scripts</code>，其中 <code>XX</code> 代表 Python 的版本号。</p>
-<p>在 Linux 和 macOS 系统中，pip 安装的路径通常位于 <code>/usr/local/bin</code> 或 <code>/usr/bin</code> 目录中。</p>
-<p>可以使用以下命令查找 pip 安装的具体路径：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">which pip</span><br></pre></td></tr></table></figure>
-
-<p>或者在命令行中运行：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip show pip</span><br></pre></td></tr></table></figure>
-
-<p>它将显示 pip 包的详细信息，其中包括安装路径。</p>
-<h2 id="选择让pip安装在anaconda的虚拟环境中或默认环境中"><a href="#选择让pip安装在anaconda的虚拟环境中或默认环境中" class="headerlink" title="选择让pip安装在anaconda的虚拟环境中或默认环境中"></a>选择让pip安装在anaconda的虚拟环境中或默认环境中</h2><p>就是切换（activate激活）到虚拟环境中。</p>
-<p>有三类pip：</p>
-<ul>
-<li>第一类没有在anaconda环境中，也有装pip工具的，pip install时，安装的包的路径一般在 <code>/usr/bin</code>下；</li>
-<li>第二类在anaconda的base环境中，pip install时，安装的包的路径一般在 <code>XX/anaconda3/bin</code>下；</li>
-<li>第二类在anaconda的自建的环境中，pip install时，安装的包的路径一般在 <code>XX/anaconda3/envs/XX/bin</code>下；</li>
-</ul>
-<blockquote>
-<p>以下回答来自chatgpt</p>
-</blockquote>
-<p>如果想在 Anaconda 虚拟环境中使用 pip，请按以下步骤操作：</p>
-<ol>
-<li><p>创建虚拟环境：首先需要创建 Anaconda 虚拟环境，使用以下命令创建：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda create --name &lt;env_name&gt;</span><br></pre></td></tr></table></figure>
-
-<p>其中 <code>&lt;env_name&gt;</code> 是虚拟环境的名称。</p>
-</li>
-<li><p>激活虚拟环境：使用以下命令激活虚拟环境：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda activate &lt;env_name&gt;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>在虚拟环境中安装 pip：在虚拟环境中使用以下命令安装 pip：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install pip</span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>现在，您已在 Anaconda 虚拟环境中安装了 pip，并且可以使用它来安装 Python 包。在使用 pip 安装包时，请确保该虚拟环境处于激活状态。</p>
-<h2 id="用pip安装自己写的包"><a href="#用pip安装自己写的包" class="headerlink" title="用pip安装自己写的包"></a>用pip安装自己写的包</h2><p>要用pip安装自己写的包，可以使用pip install命令，并传入该包的路径作为参数：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install /path/to/your_package.tar.gz</span><br></pre></td></tr></table></figure>
-
-<p>如果该包未打包成.tar.gz或.whl文件，需要先打包，然后再使用pip install命令安装。</p>
-<p>打包方法：</p>
-<ol>
-<li><p>打包为.tar.gz文件：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python setup.py sdist</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>打包为.whl文件：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python setup.py bdist_wheel</span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>完成打包后，就可以使用pip install命令安装自己写的包了。</p>
-<h2 id="安装完-发现有问题：XXXapi-so-undefined-symbol报错怎么办？"><a href="#安装完-发现有问题：XXXapi-so-undefined-symbol报错怎么办？" class="headerlink" title="安装完 发现有问题：XXXapi.so: undefined symbol报错怎么办？"></a>安装完 发现有问题：XXXapi.so: undefined symbol报错怎么办？</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="https://github.com/pytorch/pytorch/issues/10234">https://github.com/pytorch/pytorch/issues/10234</a><br>chatgpt</p>
-</blockquote>
-<p>这个错误通常是由于共享库中缺少必要的符号引起的。原因可能是：</p>
-<ol>
-<li><p>缺少依赖库：检查它是否已安装，并确保它在系统库搜索路径中，或者使用环境变量LD_LIBRARY_PATH来指定其位置。具体地：<code>export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64</code> 把这个库链接到lib的path里，再试一试。</p>
-</li>
-<li><p>版本不兼容：检查该库的版本与使用它的程序的版本是否兼容。</p>
-</li>
-<li><p>损坏的共享库：重新安装该库并确保其完整性。</p>
-</li>
-</ol>
-<p>如果仍然不能解决问题，可以在问题的具体环境下向社区寻求帮助，例如编程论坛或 Stack Overflow。</p>
-<p>具体报错为：<code>ImportError: /mnt/k/anaconda3/envs/wenet/lib/python3.8/site-packages/torch/lib/libtorch_cuda_cpp.so: undefined symbol: _ZNK3c104Type14isSubtypeOfExtERKSt10shared_ptrIS0_EPSo</code></p>
-<h2 id="torch下载慢"><a href="#torch下载慢" class="headerlink" title="torch下载慢"></a>torch下载慢</h2><p>解决方法：直接在浏览器里下载网页的链接wsl文件，然后pip install手动安装。</p>
-<p>另一种方法，换channel：</p>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/">https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/</a><br>今天以pytorch1.7.1举栗子。<br>pytorch官网查看pytorch安装命令</p>
-</blockquote>
-<p><code>conda install pytorch==1.7.1 torchvision==0.8.2 torchaudio==0.7.2 cudatoolkit=11.0</code> -c pytorch<br>1<br>首先，使用命令将下述网址添加conda源</p>
-<p>conda config –add channels <a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/">https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/</a><br>1<br>其次，最后使用新的安装命令，将-c pytorch去掉，表示从我们配置的新路径中下载</p>
-<p>conda install pytorch&#x3D;&#x3D;1.7.1 torchvision&#x3D;&#x3D;0.8.2 torchaudio&#x3D;&#x3D;0.7.2 cudatoolkit&#x3D;11.0</p>
-<h2 id="pip-install-r"><a href="#pip-install-r" class="headerlink" title="pip install -r"></a>pip install -r</h2><p>在 pip install 时可以通过使用 -r 参数来安装一个包的依赖。比如，如果你想要安装包A，并且包A需要包B才能工作，你可以使用以下命令：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install -r requirements.txt</span><br></pre></td></tr></table></figure>
-
-<p>其中 requirements.txt 文件是一个文本文件，包含了需要安装的所有包的名称，比如：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">packageB</span><br><span class="line">packageA</span><br></pre></td></tr></table></figure>
-
-<p>运行以上命令后，pip 会先安装包B，再安装包A。</p>
-<h2 id="pip-install-链接已有的包"><a href="#pip-install-链接已有的包" class="headerlink" title="pip install 链接已有的包"></a>pip install 链接已有的包</h2><p>使用 pip install 命令可以从网络上下载并安装包，你也可以通过链接已有的包安装。使用“-f”参数即可：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install -f &lt;path-to-dependency&gt; &lt;your-package&gt;</span><br></pre></td></tr></table></figure>
-
-<p>其中，<code>&lt;path-to-dependency&gt;</code>是已有包的路径，<code>&lt;your-package&gt;</code>是你的包名称。在执行此命令时，pip 将使用路径指向的包作为依赖安装。</p>
-<h2 id="pip-install参数解释"><a href="#pip-install参数解释" class="headerlink" title="pip install参数解释"></a>pip install参数解释</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.twle.cn/t/85">Python Pip 参考手册 - pip install 命令 ( 一 )</a></p>
-</blockquote>
-<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><p><code>pip install</code> 命令的语法格式如下</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install [options] &lt;requirement specifier&gt; [package-index-options] ...</span><br></pre></td></tr></table></figure>
-
-<p>或</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install [options] -r &lt;requirements file&gt; [package-index-options] ...</span><br></pre></td></tr></table></figure>
-
-<p>或</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install [options] [-e] &lt;vcs project url&gt; ...</span><br></pre></td></tr></table></figure>
-
-<p>或</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install [options] [-e] &lt;local project path&gt; ...</span><br></pre></td></tr></table></figure>
-
-<p>或</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install [options] &lt;archive url/path&gt; ...</span><br></pre></td></tr></table></figure>
-
-<p><code>pip install</code> 命令可以从以下地址安装包</p>
-<ul>
-<li>使用需求说明符从 PiPY 或其它索引上安装</li>
-<li>VCS 项目网址</li>
-<li>本地项目目录</li>
-<li>本地或远程源代码归档</li>
-</ul>
-<p>pip 还支持从 「 需求文件 」 ( requirements file ) 安装，这为安装指定的整个环境提供了一种简便方法</p>
-<ul>
-<li><p><code>-c, --constraint &lt;file&gt;</code></p>
-<p>使用给定的约束文件约束版本，该选项可以重复添加</p>
-</li>
-<li><p><code>-r, --requirement &lt;file&gt;</code></p>
-<p>从给定的需求文件中安装，该选项可以重复添加</p>
-<p>按照惯例，需求文件名为 <code>requirements.txt</code></p>
-</li>
-<li><p><code>--no-deps</code></p>
-<p>不安装包的任何依赖项</p>
-</li>
-<li><p><code>--pre</code></p>
-<p>包含预发布版本和开发版本，默认只会包行稳定的版本</p>
-</li>
-<li><p><code>-e, --editable &lt;path/url&gt;</code></p>
-<p>在可编辑模式下从一个本地的项目路径或 VCS URL 中安装一个项目 ( 例如，setuptools 的 「 开发者模式 」 )</p>
-</li>
-<li><p><code>-t, --target &lt;dir&gt;</code></p>
-<p>将包安装到指定目录 <code>&lt;dir&gt;</code></p>
-<p>默认情况下，该选项并不会覆盖 <code>&lt;dir&gt;</code> 目录中已经存在的文件或目录，但可以使用 <code>--upgrade</code> 选项将已经存在的包更新到最新的版本</p>
-</li>
-<li><p><code>--user</code></p>
-<p>将所有的包安装到我们的平台的Python 用户安装目录，通常为 <code>~/.local/</code> 或 Windows 上为 <code>%APPDATA%Python</code> ( 更多详细信息，可以查看 Python 文档中的 <code>site.USER_BASE</code> 部分 )</p>
-</li>
-<li><p><code>--root &lt;dir&gt;</code></p>
-<p>安装与此备用根目录 <code>&lt;dir&gt;</code> 包含的所有内容</p>
-</li>
-<li><p><code>--prefix &lt;dir&gt;</code></p>
-<p>安装时，<code>lib</code> 、<code>bin</code> 和其它顶级目录的存放目录，也就是这些目录的路径前缀</p>
-</li>
-<li><p><code>-b, --build &lt;dir&gt;</code></p>
-<p>用于存放解压缩的包和构建的包</p>
-<p>请注意，初始构建仍发生在临时目录中</p>
-<p>可以通过适当地设置 <code>TMPDIR</code> 环境变量 （ Windows上的 <code>TEMP</code> ) 来控制临时目录的位置</p>
-<p>注意，如果使用了该参数，当构建发生故障时，并不会清空构建目录</p>
-</li>
-<li><p><code>--src &lt;dir&gt;</code></p>
-<p>用于存放迁出的可编辑项目</p>
-<p>在虚拟环境中，默认的目录为 <code>&lt;venv path&gt;/src</code>， 在全局安装中，默认的目录为 <code>&lt;current dir&gt;/src</code></p>
-</li>
-<li><p><code>-U, --upgrade</code></p>
-<p>更新所有指定的包到最新的可用版本。 依赖项的处理取决于所使用的升级策略</p>
-</li>
-<li><p><code>--upgrade-strategy &lt;upgrade_strategy&gt;</code></p>
-<p>确定应如何处理依赖项升级 ( 默认值：「 仅在需要时 」)</p>
-<ul>
-<li><code>eager</code> - 无论当前安装的版本是否满足升级包的要求，都会升级依赖项</li>
-<li><code>only-if-needed</code> - 仅在不满足升级包的要求时才升级</li>
-</ul>
-</li>
-<li><p><code>--force-reinstall</code></p>
-<p>重新安装所有的包，即使它们已经是最新的版本</p>
-</li>
-<li><p><code>-I, --ignore-installed</code></p>
-<p>忽略已经安装的包 ( 用重新安装取代 )</p>
-</li>
-<li><p><code>--ignore-requires-python</code></p>
-<p>忽略 Requires-Python 信息</p>
-</li>
-<li><p><code>--no-build-isolation</code></p>
-<p>在构建现代的源代码分发包是禁用隔离</p>
-<p>如果使用了此选项，则必须已安装 PEP518 规定的构建依赖项</p>
-</li>
-<li><p><code>--install-option &lt;options&gt;</code></p>
-<p>安装时提供给 <code>setup.py</code> 安装命令的额外参数( 使用方法类似于 <code>--install-option=&quot;--install-scripts=/usr/local/bin&quot;</code> )</p>
-<p>可以使用多个 <code>--install-option</code> 选项将多个选项传递给 <code>setup.py install</code></p>
-<p>如果你使用带有目录路径的选项，请确保使用绝对路径</p>
-</li>
-<li><p><code>--global-option &lt;options&gt;</code></p>
-<p>在 <code>bdist_wheel</code> 命令之前提供给 <code>setup.py</code> 调用的额外全局选项</p>
-</li>
-<li><p><code>--compile</code></p>
-<p>将 Python 源代码编译为 bytecode</p>
-</li>
-<li><p><code>--no-compile</code></p>
-<p>不要将 <a target="_blank" rel="noopener" href="https://www.twle.cn/l/yufei/python30/python-30-index.html">Python</a> 源代码编译为 <code>bytecode</code></p>
-</li>
-<li><p><code>--no-warn-script-location</code></p>
-<p>当安装脚本不在 <code>PATH</code> 路径中时不要发出警告</p>
-</li>
-<li><p><code>--no-warn-conflicts</code></p>
-<p>出现已损坏的依赖关系时不要发出警告</p>
-</li>
-<li><p><code>--no-binary &lt;format_control&gt;</code></p>
-<p>不使用二进制包</p>
-<p>该选项可以重复添加，每增加一个就会自增当前的值</p>
-<p>可选的值有</p>
-<ul>
-<li><code>:all:</code> ：禁用所有二进制包</li>
-<li><code>:none:</code> ：清空集合，或者使用逗号之间的一个或多个包名称</li>
-</ul>
-<p>注意，某些软件包编译起来很棘手，并且，即使在添加了此选项后仍然可能无法安装</p>
-</li>
-<li><p><code>--only-binary &lt;format_control&gt;</code></p>
-<p>不使用源代码包</p>
-<p>该选项可以重复添加，每增加一个就会自增当前的值</p>
-<p>可选的值有</p>
-<ul>
-<li><code>:all:</code> ：禁用所有源代码包</li>
-<li><code>:none:</code> ：清空集合，或者使用逗号之间的一个或多个包名称</li>
-</ul>
-<p>注意，没有二进制发行版的软件包在使用此选项时将无法安装</p>
-</li>
-<li><p><code>--no-clean</code></p>
-<p>不要清空构建目录</p>
-</li>
-<li><p><code>--require-hashes</code></p>
-<p>对于可重复安装，需要根据哈希值来检查每个需求</p>
-<p>如果需求文件中的任何一项包含了 <code>--hash</code> 选项，则隐式包含此选项</p>
-</li>
-<li><p><code>--progress-bar &lt;progress_bar&gt;</code></p>
-<p>用于指定要显示的进度条类型，可选项有 <code>on</code>、<code>ascii</code>、<code>off</code>、<code>pretty</code>、<code>emoji</code>，默认为 <code>on</code></p>
-</li>
-<li><p><code>-i, --index-url &lt;url&gt;</code></p>
-<p>Python 包索引的基础 URL 地址，默认为 <a target="_blank" rel="noopener" href="https://pypi.org/simple">https://pypi.org/simple</a></p>
-<p>该选项的值应该指向符合 PEP503 ( 简单存储库 API ) 的存储库或以相同格式布局的本地目录</p>
-</li>
-<li><p><code>--extra-index-url &lt;url&gt;</code></p>
-<p>除了 <code>--index-url</code> 之外的附加的 Python 包索引 URL，规则和 <code>--index-url</code> 一样</p>
-</li>
-<li><p><code>--no-index</code></p>
-<p>忽略包索引，使用 <code>--find-links</code> 指定的 URL</p>
-</li>
-<li><p><code>-f, --find-links &lt;url&gt;</code></p>
-<p>如果提供的 URL 或路径链接到一个 html 文件，则会解析该 html 文件以获取归档</p>
-<p>如果是本地目录，或 <code>file://url</code> 指向的是一个目录，那么就在该目录中查找归档</p>
-</li>
-<li><p><code>--process-dependency-links</code></p>
-<p>启用依赖关系链接的处理</p>
-</li>
-</ul>
-
-          
+          pip笔记安装python包超时失败
+stackoverflow ：How to solve ReadTimeoutError: HTTPSConnectionPool(host&#x3D;’pypi
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/02/08/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/pip%E7%AC%94%E8%AE%B0/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2169,54 +1362,19 @@
       
         
           
-            <h1 id="拉格朗日插值法"><a href="#拉格朗日插值法" class="headerlink" title="拉格朗日插值法"></a>拉格朗日插值法</h1><blockquote>
-<p>b站：【<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1fL4y1T7fL/?spm_id_from=333.999.0.0&vd_source=5e9891722f2b62adca440a5e92121b5b">拉格朗日插值】：思想、计算与误差</a></p>
-</blockquote>
-<p>拉格朗日插值法是一种数学插值方法，<strong>用于确定一个函数在给定点外的值</strong>。这种方法通过在已知点上构造拉格朗日插值多项式来确定该函数的值。</p>
-<p>拉格朗日插值法用于解决在没有足够的数学模型的情况下预测函数值的问题，或对具有随机误差的数据进行拟合的问题。它在统计学，工程，物理和生物学等领域都有广泛的应用。</p>
-<p>拉格朗日插值法是一种简单易用的插值方法，但它有一个缺点：当数据点数量很大时，拉格朗日插值多项式的计算可能会非常复杂，并且在某些情况下，结果可能不准确。因此，在实际应用中，有时会选择更复杂但更准确的插值方法。</p>
-<p>给定5个点，有唯一的4次多项式穿过它们。如何寻找该多项式？</p>
-<ol>
-<li>待定系数法</li>
-</ol>
-<p>写出y的形式，有待定的系数，然后带入5个点。<br>$$<br>\begin{aligned}<br>&amp; y&#x3D;a_0+a_1 x+a_2 x^2+a_3 x^3+a_4 x^4: \<br>&amp;<br>\end{aligned}<br>$$<br>带入5个点：<br>$$<br>\left{<br>\begin{aligned}<br> -1&amp;&#x3D;a_0+a_1(-3)+a_2(-3)^2+a_3(-3)^3+a_4(-3)^4 \<br> 1&amp;&#x3D;a_0+a_1(-2)+a_2(-2)^2+a_3(-2)^3+a_4(-2)^4 \<br> -0.5&amp;&#x3D;a_0+a_1 \quad(0)+a_2 \quad(0)^2+a_3\quad(0)^3+a_4 \quad(0)^4 \<br> 0&amp;&#x3D;a_0+a_1 \quad(1)+a_2 \quad(1)^2+a_3 \quad(1)^3+a_4 \quad(1)^4 \<br> 1.5&amp;&#x3D;a_0+a_1 \quad(3)+a_2\quad(3)^2+a_3\quad(3)^3+a_4 \quad(3)^4 \</p>
-<p>\end{aligned}<br>\right.<br>$$<br>写成矩阵乘法的形式<br>$$<br>\left[\begin{array}{c}<br>-1.0 \<br>1.0 \<br>-0.5 \<br>0.0 \<br>1.5<br>\end{array}\right]&#x3D;\left[\begin{array}{ccccc}<br>1 &amp; -3 &amp; (-3)^2 &amp; (-3)^3 &amp; (-3)^4 \<br>1 &amp; -2 &amp; (-2)^2 &amp; (-2)^3 &amp; (-2)^4 \<br>1 &amp; 0 &amp; 0^2 &amp; 0^3 &amp; 0^4 \<br>1 &amp; 1 &amp; 1^2 &amp; 1^3 &amp; 1^4 \<br>1 &amp; 3 &amp; 3^2 &amp; 3^3 &amp; 3^4<br>\end{array}\right]\left[\begin{array}{c}<br>a_0 \<br>a_1 \<br>a_2 \<br>a_3 \<br>a_4<br>\end{array}\right]<br>$$<br>其中，这个系数矩阵，叫“范德蒙矩阵（vandermonde matrix）”</p>
-<p>当数据点很多时，解这个方程运算量很大。于是引入拉格朗日插值法。</p>
-<ol start="2">
-<li>拉格朗日插值法</li>
-</ol>
-<p>多项式全体可以构成线性空间。而其中的部分多项式，比如P3，是次数不超过3（小于等于3）多项式全体构成的空间，P3的维度是4，因为 $1$，$x$，$x^2$，$x^3$，就给出了一组<strong>基</strong>（单项式基 monomial basis）。任何在P3中的多项式，都可以写成这些基的线性组合。</p>
-<p>拉格朗日插值，就是把多项式写在一组特殊的基下，它们被称为拉格朗日基函数。</p>
-<p>所以我们想求过5个点的拉格朗日基函数，用五个拉格朗日基函数表示（函数是4次多项式），认为第1个基函数，它在第1个点函数值为1（函数值不一定要经过第1个点（和第1个重合）），经过其它4个点时，函数值为0；认为第2个基函数，它在第2个点函数值为1，经过其它4个点时，函数值为0；……以此类推。因此对这五个函数进行伸缩变换，也就是乘一个常数（观测值，也就是5个点的值），就可以经过那5个点，经过变换后的五个基函数加起来，就是我们想要的多项式（4次多项式）。</p>
-<img src="/2023/02/07/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E6%8F%92%E5%80%BC%E6%B3%95/image-20230207094409750.png" alt="image-20230207094409750" style="zoom: 25%;">
+          拉格朗日插值法
+b站：【拉格朗日插值】：思想、计算与误差
 
-
-
-<p>任务是找到这样的n次多项式p，它在 $x_0$ 到 $x_n$ 这 n+1 个节点处，取值分别是 $y_0$ 到 $y_n$ ：<br>$$<br>p_n\left(x_0\right)&#x3D;y_0, p_n\left(x_1\right)&#x3D;y_1, \ldots, p_n\left(x_n\right)&#x3D;y_n<br>$$</p>
-<p>把p写成拉格朗日基函数的线性组合：<br>$$<br>p_n(x)&#x3D;y_0 l_0(x)+y_1 l_1(x)+\cdots+y_n l_n(x)&#x3D;\sum_{j&#x3D;0}^ny_jl_j(x)<br>$$<br>用 $l$ 表示拉格朗日基函数，其中，$l_0$ 只在 $x_0$ 处取1，而在 $x_1$ 到 $x_n$ 处取零，。。。以此类推。<br>$$<br>\begin{aligned}<br>&amp; p_n(x)&#x3D;y_0 \underbrace{l_0(x)}<em>{l_0\left(x_0\right)&#x3D;1,l_0(x_i)&#x3D;0}+y_1 \underbrace{l_1(x)}</em>{l_1\left(x_1\right)&#x3D;1,l_1(x_i)&#x3D;0}+\cdots+y_n \underbrace{l_n(x)}_{l_n\left(x_n\right)&#x3D;1,l_n(x_i)&#x3D;0} \<br>&amp; \begin{array}{lll}<br>\end{array} \<br>&amp;<br>\end{aligned}<br>$$<br>因此，现在的问题简化成了找基函数 $l$。</p>
-<p>以第2个基函数 $l_1$ 为例，基函数在第2个点值为1，其它4个点值为0，基函数是4次多项式，有4个根，分别是其它4个点所在位置。</p>
-<p>因此第2个基函数的表达式为：$l_1(x)&#x3D;c(x-x_0)(x-x_2)(x-x_3)(x-x_4)$</p>
-<p>而经过第2个点，代入：$l_1(1)&#x3D;1$  ，所以 $\large c&#x3D;\frac{1}{(x_1-x_0)(x_1-x_2)(x_1-x_3)(x_1-x_4)}$</p>
-<p>所以表达式为 $\large l_1(x)&#x3D;\frac{(x-x_0)(x-x_2)(x-x_3)(x-x_4)}{(x_1-x_0)(x_1-x_2)(x_1-x_3)(x_1-x_4)}$</p>
-<p>更一般的拉格朗日基函数表达式：<br>$$<br>l_j(x)&#x3D;\prod_{k&#x3D;0, k \neq j}^n \frac{x-x_k}{x_j-x_k}<br>$$<br>牛呀！</p>
-<p>这样就可以写出各个拉格朗日基函数了！也就可以写出最终的表达式了！</p>
-<p>这个方法构造性地证明了：过n+1个点（横坐标互异）确定了唯一的不超过n次的多项式 $p_n$ 。（这个结论也可以通过范德蒙矩阵的可逆性证明。）</p>
-<p>拉格朗日插值法存在的问题：</p>
-<ol>
-<li>$O(n^2)$次加法和乘法（基函数表达式n方乘法、p表达式n次求和）。</li>
-<li>加入新点要重新计算。</li>
-</ol>
-<h3 id="改进拉格朗日插值法"><a href="#改进拉格朗日插值法" class="headerlink" title="改进拉格朗日插值法"></a>改进拉格朗日插值法</h3><p>引入节点函数 $l(x)$，$l(x)&#x3D;(x_1-x_0)(x_1-x_1)\cdots(x-x_n)$ ，因此上式中的 $\large l_j(x)&#x3D;\frac{\prod_{k&#x3D;0, k \neq j}^n x-x_k}{\prod_{k&#x3D;0, k \neq j}^n x_j-x_k}$ ，分子只缺少 $(x-x_j)$ 这一项， 因此写成 $\large \frac{l(x)}{x-x_j}$ ，分母是求出来是一个常数（与x无关），因此用权重 $w_j$ 代替，$\large w_j&#x3D;\frac{1}{\prod_{k&#x3D;0, k \neq j}^n x_j-x_k}$。</p>
-<p>因此 $\large l_j(x)&#x3D;w_j\cdot \frac{l(x)}{x-x_j}$ 。代入到 $p(x)$ 中：<br>$$<br>\begin{aligned}<br>\large p(x)&amp;&#x3D;\sum_{j&#x3D;0}^ny_jl_j(x) \<br>&amp;&#x3D;\sum_{j&#x3D;0}^n w_j\cdot \frac{l(x)}{x-x_j}y_j \<br>&amp;&#x3D;l(x)\sum_{j&#x3D;0}^n \frac{w_j}{x-x_j}y_j \<br>&amp;&#x3D;\frac{l(x)\sum_{j&#x3D;0}^n \frac{w_j}{x-x_j}y_j}{\sum_{j&#x3D;0}^nl_j(x)}\<br>&amp;&#x3D;\frac{l(x)\sum_{j&#x3D;0}^n \frac{w_j}{x-x_j}y_j}{\sum_{j&#x3D;0}^nw_j\cdot \frac{l(x)}{x-x_j}}\<br>&amp;&#x3D;\frac{\sum_{j&#x3D;0}^n \frac{w_j}{x-x_j}y_j}{\sum_{j&#x3D;0}^n \frac{w_j}{x-x_j}}<br>\end{aligned}<br>$$</p>
-<p>第三行提出l(x)到前面；第四行除以一个“1”，也就是基函数的和；第六行消掉分子分母同时出现的l(x)，最后得到：<br>$$<br>p(x)&#x3D;\frac{\sum_{j&#x3D;0}^n \frac{w_j}{x-x_j}y_j}{\sum_{j&#x3D;0}^n \frac{w_j}{x-x_j}}<br>$$<br>称为<strong>质心公式</strong>（barycentric formula）。</p>
-<p>举例：</p>
-<p>给定四个点 $(-1,1)(0,2)  \left(\frac{1}{2}, 3\right)(1,4)$ ，则质心形式的拉格朗日插值表达式为：</p>
-<p>$$</p>
-<p>p(x) &#x3D;\frac{\frac{-\frac{1}{3}}{x+1} \cdot 1+\frac{2}{x-0} \cdot 2+\frac{-\frac{8}{3}}{x-\frac{1}{2}} \cdot 3+\frac{1}{x-1} \cdot 4}{\frac{-\frac{1}{3}}{x+1}+\frac{2}{x-0}+\frac{-\frac{8}{3}}{x-\frac{1}{2}}+\frac{1}{x-1}}<br>$$<br>运算量主要在计算权重上，而这些权重不随x变换，只需要计算一次，之后每给定一个x，估值的计算量是 $O(n)$级别。如果增加新的点，也就在估计权重，计算量也比之前减少了。</p>
-<p>。。。后面听不懂了。。TODO</p>
-<p>待看：b站 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1TR4y1j745/?spm_id_from=333.999.0.0&vd_source=5e9891722f2b62adca440a5e92121b5b">【拉格朗日插值法的本质】拉格朗日，孙子，与每个人都能推出来的插值法</a></p>
-
-          
+拉格朗日插值法是一种数学插值方法，用于确定一个函数在给定点外的值。这种方法通过在已知点上构造拉格朗日插值多项式来确定该函数的值。
+拉格朗日插
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/02/07/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E6%8F%92%E5%80%BC%E6%B3%95/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2367,31 +1525,19 @@
       
         
           
-            <h1 id="python-类装饰器-class-decorator"><a href="#python-类装饰器-class-decorator" class="headerlink" title="python 类装饰器 class decorator"></a>python 类装饰器 class decorator</h1><blockquote>
-<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV19U4y1d79C/?spm_id_from=333.788&vd_source=5e9891722f2b62adca440a5e92121b5b">【python】一个公式解决所有复杂的装饰器，理解了它以后任何装饰器都易如反掌！</a></p>
-</blockquote>
-<h3 id="类装饰器"><a href="#类装饰器" class="headerlink" title="类装饰器"></a>类装饰器</h3><p>举例</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Timer</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, func</span>):</span><br><span class="line">        self.func = func</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__call__</span>(<span class="params">self, *args, **kwargs</span>):</span><br><span class="line">        start = time.time()</span><br><span class="line">        ret = self.func(*args, **kwargs)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Time: <span class="subst">&#123;time.time() - start&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> ret</span><br><span class="line"></span><br><span class="line"><span class="meta">@Timer</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">a, b</span>):</span><br><span class="line">    <span class="keyword">return</span> a + b</span><br><span class="line"></span><br><span class="line"><span class="comment"># 完全等价</span></span><br><span class="line">add = Timer(add)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(add(<span class="number">2</span>, <span class="number">3</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行该python程序，输出</span></span><br><span class="line">Time: <span class="number">1.1920928955078125e-06</span></span><br><span class="line"><span class="number">5</span></span><br></pre></td></tr></table></figure>
+          python 类装饰器 class decorator
+b站：【python】一个公式解决所有复杂的装饰器，理解了它以后任何装饰器都易如反掌！
 
-
-
-<p><code>add = Timer(add)</code> 这句话，Timer装饰器，把add从一个函数，变成了<strong>Timer类的对象</strong>（赋给右边add），因为Timer是一个类，相当于创建了一个类的对象。因此创建对象，括号内的add就会传入Timer类的<code>__init__</code>函数里，所以add作为一个参数被保存在了self.func里。然后整个Timer对象被保存在add这个变量名字里。</p>
-<p><code>add(2, 3)</code> 执行这句话时，相当于做了对象的调用，因此调用了Timer的<code>__call__</code>函数，因此参数(2, 3)就传入了<code>__call__</code>里，开始执行函数内部，self.func就是原来的add函数。</p>
-<h3 id="带参数的类装饰器"><a href="#带参数的类装饰器" class="headerlink" title="带参数的类装饰器"></a>带参数的类装饰器</h3><p>举例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Timer</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, prefix</span>):</span><br><span class="line">        self.prefix = prefix</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__call__</span>(<span class="params">self, func</span>):</span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">            start = time.time()</span><br><span class="line">            ret = func(*args, **kwargs)</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;self.prefix&#125;</span><span class="subst">&#123;time.time() - start&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> ret</span><br><span class="line">        <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"><span class="meta">@Timer(<span class="params">prefix=<span class="string">&quot;curr_time: &quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">a, b</span>):</span><br><span class="line">    <span class="keyword">return</span> a + b</span><br><span class="line"></span><br><span class="line"><span class="comment"># 完全等价</span></span><br><span class="line">add = Timer(prefix=<span class="string">&quot;curr_time: &quot;</span>)(add)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(add(<span class="number">2</span>, <span class="number">3</span>))</span><br></pre></td></tr></table></figure>
-
-<p>想实现一个功能，先打印一个prefix字符串，再打印时间。</p>
-<p>Timer输入参数prefix，返回一个函数，比如把<code>Timer(prefix)</code>记为k，也就是<code>k=Timer(prefix)</code>，这个函数k当call时，也就是<code>k(add)</code>时，也要输出一个函数（再赋给add），因此在Timer类的<code>__call__()</code>方法里return的是一个函数对象，也就是<code>wrapper(*args, **kwargs)</code>。</p>
-<p>执行<code>add(2, 3)</code>时，也就是执行<code>wrapper(*args, **kwargs)</code>的函数内部代码。</p>
-<h3 id="类的装饰器"><a href="#类的装饰器" class="headerlink" title="类的装饰器"></a>类的装饰器</h3><p>上面更像是装饰器的类，这里介绍类的装饰器</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">add_str</span>(<span class="params">cls</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__str__</span>(<span class="params">self</span>):  <span class="comment">#通过重载__str__来改变它print的值</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">str</span>(self.__dict__)</span><br><span class="line">    cls.__str__ = __str__</span><br><span class="line">    <span class="keyword">return</span> cls</span><br><span class="line"></span><br><span class="line"><span class="meta">@add_str</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyObject</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, a, b</span>):</span><br><span class="line">        self.a = a</span><br><span class="line">        self.b = b</span><br><span class="line"></span><br><span class="line"><span class="comment"># 完全等价</span></span><br><span class="line"><span class="comment"># MyObject = add_str(MyObject)</span></span><br><span class="line"></span><br><span class="line">o = MyObject(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line"><span class="built_in">print</span>(o)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出</span></span><br><span class="line">&#123;<span class="string">&#x27;a&#x27;</span>: <span class="number">1</span>, <span class="string">&#x27;b&#x27;</span>: <span class="number">2</span>&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在python里面，一个自定义类class的对象，当 print 它时，它不会打印出什么，只会打印出这个对象是一个什么类。</p>
-<p><strong>可以通过重载它的<code>__str__</code>函数，来改变它print出来的结果</strong>。</p>
-<p>但是每个class都改很麻烦，于是写一个装饰类的装饰器。</p>
-<p>上面的例子中，<code>add_str</code>输入是一个class，返回也是这个class（同一个class），只不过重载了它的print方法，把cls的<code>__str__</code>函数替换成了自定义的<code>__str__</code>函数。</p>
-
-          
+类装饰器举例
+12345678910111213141
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/02/06/python/python%20%E7%B1%BB%E8%A3%85%E9%A5%B0%E5%99%A8/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2542,117 +1688,18 @@
       
         
           
-            <h1 id="拉格朗日乘子法"><a href="#拉格朗日乘子法" class="headerlink" title="拉格朗日乘子法"></a>拉格朗日乘子法</h1><blockquote>
-<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV15T411f7DY/?spm_id_from=333.337.search-card.all.click&vd_source=5e9891722f2b62adca440a5e92121b5b">理解【拉格朗日乘数法】：有等号约束的最优化</a></p>
-</blockquote>
-<p>拉格朗日乘子法是数学中一种用于求解非线性规划问题的方法。它利用了拉格朗日乘数法的思想，通过把约束条件看作限制变量的函数，并给这些函数乘以一个不等于零的乘数，形成拉格朗日函数，然后对该函数进行极值求解。拉格朗日乘子法是非线性规划的常用方法之一。</p>
-<p>先列出公式：</p>
-<p>$L(\overrightarrow{\boldsymbol{x}}, \lambda)&#x3D;f(\overrightarrow{\boldsymbol{x}})-\lambda c(\overrightarrow{\boldsymbol{x}}) $</p>
-<p>$L(\overrightarrow{\boldsymbol{x}}, \lambda)$ 是拉格朗日函数，$\lambda c(\overrightarrow{\boldsymbol{x}})$ 是拉格朗日乘子</p>
-<p>$$<br>\begin{gathered}<br>\nabla L&#x3D;0 \Longleftrightarrow\left{\begin{array}{l}<br>\nabla f(\overrightarrow{\boldsymbol{x}})&#x3D;\lambda \nabla c(\overrightarrow{\boldsymbol{x}}) \<br>c(\overrightarrow{\boldsymbol{x}})&#x3D;0<br>\end{array}\right.<br>\end{gathered}<br>$$<br>举例说明（含约束的优化）：</p>
-<p>找空间中的一个平面 $f(x,y)&#x3D;x+y$ 在约束条件为 $x^2+y^2&#x3D;1$ 的圆柱下，求极大、极小值。</p>
-<p>由于有了圆的约束，一个无界平面成了空间里的一条闭曲线。</p>
-<p>为了方便可视化，把平面看作是一条条线组成，每条线是函数值取相同点连起来的。因此平面的等高线是一条条直线，圆柱的等高线是一圈圈的圆。</p>
-<p>蓝线c表示约束条件，各自算出f和c的梯度，如图所示。</p>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206172949541.png" alt="image-20230206172949541" style="zoom: 33%;">
+          拉格朗日乘子法
+b站：理解【拉格朗日乘数法】：有等号约束的最优化
 
-<p>找出f的极值点，使得在圆上（满足约束条件），又不会让f值再变小、变大了。因此是“与$\nabla c$垂直的方向，并且不与$\nabla f$夹钝角或锐角”。因此是“ 与$\nabla c$垂直的方向，也垂直于$\nabla f$ ”，意味着 f 和 c 的梯度在此处<strong>共线</strong>。</p>
-<p>因此是下图白线。</p>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206173925491.png" alt="image-20230206173925491" style="zoom: 33%;">
-
-
-
-<p><strong>极值点的必要条件：函数f和约束c的梯度是共线的</strong> $\nabla f(\overrightarrow x)&#x2F;&#x2F; \nabla c(\overrightarrow x)$ ，即 $\nabla f(\overrightarrow x)&#x3D;\lambda \nabla c(\overrightarrow x)$ ，并且极值点要满足约束条件 $c(\overrightarrow x)&#x3D;0$ 。</p>
-<p>把这样求出来的点，看成是 $f(\overrightarrow x)$ 在约束条件 $c(\overrightarrow x)&#x3D;0$ 下的<strong>驻点</strong>。</p>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206174803618.png" alt="image-20230206174803618" style="zoom:33%;">
-
-
-
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206174945853.png" alt="image-20230206174945853" style="zoom:33%;">
-
-
-
-<p>数值求解这个例子：</p>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206175120914.png" alt="image-20230206175120914" style="zoom:33%;">
-
-<p>对应极大、极小值</p>
-<p>规范定义：</p>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206175809428.png" alt="image-20230206175809428" style="zoom:33%;">
-
-
-
-<p>证明：</p>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206175544109.png" alt="image-20230206175544109" style="zoom:33%;">
-
-
-
-
-
-<p>推广到高维空间：</p>
-<p>垂直于所有的 $\nabla c$ 张成的空间。</p>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206180015200.png" alt="image-20230206180015200" style="zoom:33%;">
-
-
-
-
-
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206180056362.png" alt="image-20230206180056362" style="zoom:33%;">
-
-
-
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206180117641.png" alt="image-20230206180117641" style="zoom:33%;">
-
-
-
-
-
-<h2 id="题目求解"><a href="#题目求解" class="headerlink" title="题目求解"></a>题目求解</h2><blockquote>
-<p>b站 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1mF411h7vf/?spm_id_from=333.337.search-card.all.click&vd_source=5e9891722f2b62adca440a5e92121b5b">弱爆了，拉格朗日乘子法还不会解吗，学会这个直接送你12分，2022考研数学</a></p>
-</blockquote>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206180352859.png" alt="image-20230206180352859" style="zoom:50%;">
-
-
-
-<h4 id="解法1："><a href="#解法1：" class="headerlink" title="解法1："></a>解法1：</h4><p>找到有规律的方程，做加减运算，因式分解，讨论里面的因子。</p>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206181217210.png" alt="image-20230206181217210" style="zoom:50%;">
-
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206181106168.png" alt="image-20230206181106168" style="zoom: 45%;">
-
-
-
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206181403626.png" alt="image-20230206181403626" style="zoom:50%;">
-
-
-
-<h4 id="解法2："><a href="#解法2：" class="headerlink" title="解法2："></a>解法2：</h4><p>消元，把 $\lambda$ 约掉。</p>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206181626968.png" alt="image-20230206181626968" style="zoom: 50%;">
-
-
-
-<h4 id="解法3："><a href="#解法3：" class="headerlink" title="解法3："></a>解法3：</h4><p><strong>方法3适用于 目标函数是二次型、约束条件是二次型。</strong></p>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206181924126.png" alt="image-20230206181924126" style="zoom:50%;">
-
-<p>函数有非零解，通过行列式等于0，可以求出 $\lambda$ 的表达式，带入 f 函数，得到最大最小值：</p>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206182003613.png" alt="image-20230206182003613" style="zoom:50%;">
-
-
-
-
-
-
-
-<p>方法3，在更一般的式子下举例：</p>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206183843154.png" alt="image-20230206183843154" style="zoom:50%;">
-
-
-
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206183934214.png" alt="image-20230206183934214" style="zoom:50%;">
-
-<p>再把 $L_x$ ，$L_y$ 有非零解，写出来。</p>
-<img src="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/image-20230206184300534.png" alt="image-20230206184300534" style="zoom:50%;">
-
-
-          
+拉格朗日乘子法是数学中一种用于求解非线性规划问题的方法。它利用了拉格朗日乘数法的思想，通过把约束条件看作限制变量的函数，并给这些函数
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/02/06/%E6%95%B0%E5%AD%A6/%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E5%AD%90%E6%B3%95/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2803,78 +1850,19 @@
       
         
           
-            <h1 id="python-装饰器-decorators"><a href="#python-装饰器-decorators" class="headerlink" title="python 装饰器 decorators"></a>python 装饰器 decorators</h1><blockquote>
-<p><a target="_blank" rel="noopener" href="https://realpython.com/primer-on-python-decorators/">https://realpython.com/primer-on-python-decorators/</a></p>
-</blockquote>
-<h2 id="装饰器解释"><a href="#装饰器解释" class="headerlink" title="装饰器解释"></a>装饰器解释</h2><blockquote>
-<p>术语对照表：<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/glossary.html#term-decorator">https://docs.python.org/zh-cn/3/glossary.html#term-decorator</a></p>
-</blockquote>
-<p>decorator – 装饰器</p>
-<p>返回值为另一个函数的函数，通常使用 <code>@wrapper</code> 语法形式来进行函数变换。 装饰器的常见例子包括 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/functions.html#classmethod"><code>classmethod()</code></a> 和 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/functions.html#staticmethod"><code>staticmethod()</code></a>。</p>
-<p>装饰器语法只是一种语法糖，以下两个函数定义在语义上完全等价:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">def f(arg):</span><br><span class="line">    ...</span><br><span class="line">f = staticmethod(f)</span><br><span class="line"></span><br><span class="line">@staticmethod</span><br><span class="line">def f(arg):</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+          python 装饰器 decorators
+https://realpython.com/primer-on-python-decorators/
 
-<p>同样的概念也适用于类，但通常较少这样使用。有关装饰器的详情可参见 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/reference/compound_stmts.html#function">函数定义</a> 和 <a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/reference/compound_stmts.html#class">类定义</a> 的文档。</p>
-<h2 id="chatgpt解释"><a href="#chatgpt解释" class="headerlink" title="chatgpt解释"></a>chatgpt解释</h2><p>Python装饰器是一种可以在不修改函数定义的情况下为函数添加额外功能的方法。装饰器是一种特殊类型的函数，它接收一个函数作为参数并返回一个新函数，新函数在原函数的基础上添加了额外的功能。装饰器的语法在 Python 中是通过 @ 语法实现的，例如：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@decorator</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">function</span>():</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p>装饰器可以用来给函数加入缓存、检查函数参数类型、记录函数调用日志等等。</p>
-<h2 id="装饰器详解"><a href="#装饰器详解" class="headerlink" title="装饰器详解"></a>装饰器详解</h2><blockquote>
-<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Gu411Q7JV/?spm_id_from=333.788&vd_source=5e9891722f2b62adca440a5e92121b5b">【python】装饰器超详细教学，用尽毕生所学给你解释清楚，以后再也不迷茫了！</a></p>
-</blockquote>
-<p>python里所有东西都是对象，函数也是对象。</p>
-<ol>
-<li>因此函数也可以当作参数、变量（理解成是<strong>保存着函数对象的变量</strong>），传进其它函数里。</li>
-</ol>
-<p>举例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">double</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> x * <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">triple</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> x * <span class="number">3</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">calc_number</span>(<span class="params">func, x</span>):</span><br><span class="line">    <span class="built_in">print</span>(func(x))</span><br><span class="line"></span><br><span class="line">calc_number(double, <span class="number">3</span>)</span><br><span class="line">calc_number(triple, <span class="number">3</span>)</span><br></pre></td></tr></table></figure>
-
-
-
-<ol start="2">
-<li>函数还可以成为一个返回值（函数的返回值可以是一个函数）</li>
-</ol>
-<p>举例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_multiple_func</span>(<span class="params">n</span>):</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">multiple</span>(<span class="params">x</span>):</span><br><span class="line">        <span class="keyword">return</span> n * x</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> multiple</span><br><span class="line"></span><br><span class="line">double = get_multiple_func(<span class="number">2</span>)	<span class="comment"># 这里double变量其实拿到的是multiple这个函数对象，可以把double看作是multiple函数，只不过函数里面的n是2</span></span><br><span class="line">triple = get_multiple_func(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(double(<span class="number">3</span>))</span><br><span class="line"><span class="built_in">print</span>(triple(<span class="number">3</span>))</span><br></pre></td></tr></table></figure>
-
-
-
-<p>函数可被调用的，callable。装饰器是一个callable。</p>
-<p>decorator是一个函数，写法是<code>@</code>后面跟着的名字，就是函数名。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">dec</span>(<span class="params">f</span>):</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@dec</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">double</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> x * <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 完全等价</span></span><br><span class="line">double = dec(double)</span><br></pre></td></tr></table></figure>
-
-
-
-<p>多练习几遍这个写法加深记忆！ double函数上面写一个@dec函数，其实完全等价于这样写：<code>double = dec(double)</code>，输入是double函数，dec的输出传给double变量（函数）</p>
-<p>decorator是一个输入和输出都是函数的函数（其实输出不一定是函数，极端情况故意不是函数（没意义），一般写法都是函数的）</p>
-<p>举例：（这里先不用看args和kwargs）</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">timeit</span>(<span class="params">f</span>):</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">x</span>):	<span class="comment"># 参数只有一个，x</span></span><br><span class="line">        start = time.time()</span><br><span class="line">        ret = f(x)</span><br><span class="line">        <span class="built_in">print</span>(time.time() - start)</span><br><span class="line">        <span class="keyword">return</span> ret</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"><span class="meta">@timeit</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_func</span>(<span class="params">x</span>):</span><br><span class="line">    time.sleep(x)</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line"><span class="meta">@timeit</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">other_func</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> x * <span class="number">2</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">my_func(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(other_func(<span class="number">2</span>))</span><br></pre></td></tr></table></figure>
-
-<p>等价于 my_func &#x3D; timeit(my_func) ， 所以就是wrapper(1)传给左边my_func这个变量。</p>
-<p>timeit函数当作decorator来用，输入f是一个函数，返回wrapper还是一个函数。</p>
-<p>使用decorator好处：有不同函数时，都可以比较简洁的来完成这件事。</p>
-<p>上述wrapper函数的初始形态为（补上args和kwargs）：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">timeit</span>(<span class="params">f</span>):</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">*args, **kwargs</span>): </span><br><span class="line">        start = time.time()</span><br><span class="line">        ret = f(*args, **kwargs)</span><br><span class="line">        <span class="built_in">print</span>(time.time() - start)</span><br><span class="line">        <span class="keyword">return</span> ret</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br></pre></td></tr></table></figure>
-
-
-
-<p>args、kwargs作用：<strong>允许变长的函数参数</strong> ，因此不管装饰的是什么函数，都能用这个装饰器。</p>
-<p>还是以上面的例子为例，比如：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@timeit</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">x, y</span>):</span><br><span class="line">    <span class="keyword">return</span> x + y</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(add(<span class="number">2</span>,<span class="number">3</span>))</span><br></pre></td></tr></table></figure>
-
-<p>对于两个参数，装饰器timeit也能用。</p>
-<p><strong>带参数的decorator</strong>：相当于在等价的过程中，多了一次函数调用。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@timeit(<span class="params"><span class="number">10</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">double</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> x * <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 完全等价</span></span><br><span class="line">double = timeit(<span class="number">10</span>)(double)</span><br></pre></td></tr></table></figure>
-
-<p>先计算timeit(10)，返回一个函数，再用这个函数去调用double（传入double），再返回一个函数。</p>
-<p>（之前不带参数的情况是：timeit(double)，直接用timeit这个函数去调用double。）</p>
-<p>举例：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">timeit</span>(<span class="params">iteration</span>):</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">inner</span>(<span class="params">f</span>):</span><br><span class="line"></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">*args, **kwargs</span>): </span><br><span class="line">            start = time.time()</span><br><span class="line">            <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(iteration):</span><br><span class="line">                ret = f(*args, **kwargs)</span><br><span class="line">            <span class="built_in">print</span>(time.time() - start)</span><br><span class="line">            <span class="keyword">return</span> ret</span><br><span class="line">        <span class="keyword">return</span> wrapper</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> inner</span><br><span class="line"></span><br><span class="line"><span class="meta">@timeit(<span class="params"><span class="number">1000</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">double</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> x * <span class="number">2</span></span><br><span class="line"></span><br><span class="line">double(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 完全等价</span></span><br><span class="line"><span class="comment"># double = timeit(1000)(double)</span></span><br><span class="line">inner = timeit(<span class="number">1000</span>)</span><br><span class="line">double = inner(double)</span><br></pre></td></tr></table></figure>
-
-
-          
+装饰器解释
+术语对照表：https://docs.
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2023/02/03/python/python%20%E8%A3%85%E9%A5%B0%E5%99%A8/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2924,92 +1912,6 @@
           
 
         </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
-        <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-            
-              <p class="site-author-name" itemprop="name"></p>
-              <p class="site-description motion-element" itemprop="description"></p>
-          </div>
-
-          <nav class="site-state motion-element">
-
-            
-              <div class="site-state-item site-state-posts">
-              
-                <a href="/archives/%7C%7C%20archive">
-              
-                  <span class="site-state-item-count">140</span>
-                  <span class="site-state-item-name">posts</span>
-                </a>
-              </div>
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-categories">
-                <a href="/categories/index.html">
-                  <span class="site-state-item-count">14</span>
-                  <span class="site-state-item-name">categories</span>
-                </a>
-              </div>
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-tags">
-                <a href="/tags/index.html">
-                  <span class="site-state-item-count">14</span>
-                  <span class="site-state-item-name">tags</span>
-                </a>
-              </div>
-            
-
-          </nav>
-
-          
-
-          
-
-          
-          
-
-          
-          
-
-          
-
-        </div>
-      </section>
-
-      
-      
-    </div>
-<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
-  </aside>
-
-
         
       </div>
     </main>
