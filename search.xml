@@ -13959,4 +13959,481 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>C++</tag>
       </tags>
   </entry>
+  <entry>
+    <title>互斥锁</title>
+    <url>/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BA%92%E6%96%A5%E9%94%81/</url>
+    <content><![CDATA[<h1 id="互斥锁"><a href="#互斥锁" class="headerlink" title="互斥锁"></a>互斥锁</h1><blockquote>
+<p>chatgpt：C++互斥锁教程</p>
+</blockquote>
+<p>在 C++ 中使用互斥锁（mutex）可以保证线程安全，避免竞态条件和数据竞争等问题。下面是一个简单的互斥锁使用示例：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;mutex&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::mutex g_mutex;  <span class="comment">// 全局互斥锁</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">print</span><span class="params">(<span class="type">int</span> num)</span></span><br><span class="line">&#123;</span><br><span class="line">    g_mutex.lock();  <span class="comment">// 上锁</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Thread &quot;</span> &lt;&lt; num &lt;&lt; <span class="string">&quot; is printing.&quot;</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    g_mutex.unlock();  <span class="comment">// 解锁</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">std</span>::thread <span class="title function_">t1</span><span class="params">(print, <span class="number">1</span>)</span>;</span><br><span class="line">    <span class="built_in">std</span>::thread <span class="title function_">t2</span><span class="params">(print, <span class="number">2</span>)</span>;</span><br><span class="line">    t1.join();</span><br><span class="line">    t2.join();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，我们定义了一个全局互斥锁 <code>g_mutex</code>，并在 <code>print</code> 函数中使用了它来保护输出操作。在 <code>print</code> 函数中，先调用 <code>g_mutex.lock()</code> 上锁，执行输出操作，最后调用 <code>g_mutex.unlock()</code> 解锁。</p>
+<p>在 <code>main</code> 函数中，我们创建了两个线程 <code>t1</code> 和 <code>t2</code>，分别调用 <code>print</code> 函数，并使用 <code>join()</code> 函数等待线程结束。</p>
+<p>使用互斥锁时需要注意以下事项：</p>
+<ol>
+<li>互斥锁的生命周期应该尽量短，以避免锁的持有时间过长，影响程序性能。</li>
+<li>在需要共享数据的线程中，需要使用相同的互斥锁来保护共享数据。</li>
+<li>在使用互斥锁时，要注意避免死锁和饥饿等问题。</li>
+<li>可以使用 RAII 技术来管理互斥锁，以避免忘记解锁而导致的死锁问题。</li>
+<li>C++11 中提供了更加灵活和高效的锁，如 <code>std::unique_lock</code>、<code>std::shared_lock</code> 和 <code>std::lock_guard</code> 等，可以根据实际情况选择适合的锁类型。</li>
+</ol>
+<p>这是互斥锁的简单介绍，如果需要更深入的了解，可以参考 C++ 的相关文档或教程。</p>
+]]></content>
+      <categories>
+        <category>多线程</category>
+      </categories>
+      <tags>
+        <tag>多线程</tag>
+        <tag>C语言中文网</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>创建线程 pthread_create()</title>
+    <url>/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B/</url>
+    <content><![CDATA[<h1 id="创建线程-pthread-create"><a href="#创建线程-pthread-create" class="headerlink" title="创建线程 pthread_create()"></a>创建线程 pthread_create()</h1><blockquote>
+<p>c语言中文网：<a href="http://c.biancheng.net/thread/vip_8626.html">创建线程</a></p>
+</blockquote>
+<p><code>pthread_create()</code> 函数声明在<code>&lt;pthread.h&gt;</code>头文件中，语法格式如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_create</span><span class="params">(<span class="type">pthread_t</span> *thread,</span></span><br><span class="line"><span class="params">                   <span class="type">const</span> <span class="type">pthread_attr_t</span> *attr,</span></span><br><span class="line"><span class="params">                   <span class="type">void</span> *(*start_routine) (<span class="type">void</span> *),</span></span><br><span class="line"><span class="params">                   <span class="type">void</span> *arg)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>各个参数的含义是：</p>
+<ol>
+<li><p><code>pthread_t *thread</code>：传递一个 pthread_t 类型的指针变量，也可以直接传递某个 pthread_t 类型变量的地址。pthread_t 是一种用于表示线程的数据类型，每一个 pthread_t 类型的变量都可以表示一个线程。</p>
+</li>
+<li><p><code>const pthread_attr_t *attr</code>：用于手动设置新建线程的属性，例如线程的调用策略、线程所能使用的栈内存的大小等。大部分场景中，我们都不需要手动修改线程的属性，将 attr 参数赋值为 NULL，pthread_create() 函数会采用系统默认的属性值创建线程。</p>
+<p>pthread_attr_t 类型以结构体的形式定义在<code>&lt;pthread.h&gt;</code>头文件中，此类型的变量专门表示线程的属性。关于线程属性，您可以阅读《<a href="http://c.biancheng.net/thread/vip_8620.html">Linux线程属性详解</a>》一文做详细地了解。</p>
+</li>
+</ol>
+<ol start="3">
+<li><p><code>void *(*start_routine) (void *)</code>：以函数指针的方式指明新建线程需要执行的函数，该函数的参数最多有 1 个（可以省略不写），形参和返回值的类型都必须为 void* 类型。&#x3D;&#x3D;void* 类型又称空指针类型，表明指针所指数据的类型是未知的。使用此类型指针时，我们通常需要先对其进行强制类型转换，然后才能正常访问指针指向的数据。&#x3D;&#x3D;（空指针强转其它类型指针是低风险的）</p>
+<blockquote>
+<p>如果该函数有返回值，则线程执行完函数后，函数的返回值可以由 pthread_join() 函数接收。有关 phtread_join() 函数的用法，我们会在《<a href="http://c.biancheng.net/thread/vip_8627.html">获取线程函数的返回值</a>》一节给大家做详细讲解。</p>
+</blockquote>
+</li>
+</ol>
+<ol start="4">
+<li>void *arg：指定传递给 start_routine 函数的实参，当不需要传递任何数据时，将 arg 赋值为 NULL 即可。</li>
+</ol>
+<p>如果成功创建线程，pthread_create() 函数返回数字 0，反之返回非零值。各个非零值都对应着不同的宏，指明创建失败的原因，常见的宏有以下几种：</p>
+<ul>
+<li>EAGAIN：系统资源不足，无法提供创建线程所需的资源。</li>
+<li>EINVAL：传递给 pthread_create() 函数的 attr 参数无效。</li>
+<li>EPERM：传递给 pthread_create() 函数的 attr 参数中，某些属性的设置为非法操作，程序没有相关的设置权限。</li>
+</ul>
+<blockquote>
+<p>以上这些宏都声明在 &lt;errno.h&gt; 头文件中，如果程序中想使用这些宏，需提前引入此头文件。</p>
+</blockquote>
+<p>接下来通过一个样例，给大家演示 pthread_create() 函数的用法：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span>   <span class="comment">//调用 sleep() 函数</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span>  <span class="comment">//调用 pthread_create() 函数</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> *<span class="title function_">ThreadFun</span><span class="params">(<span class="type">void</span> *arg)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (arg == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;arg is NULL\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, (<span class="type">char</span>*)arg);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> res;</span><br><span class="line">    <span class="type">char</span> * url = <span class="string">&quot;http://www.biancheng.net&quot;</span>;</span><br><span class="line">    <span class="comment">//定义两个表示线程的变量（标识符）</span></span><br><span class="line">    <span class="type">pthread_t</span> myThread1,myThread2;</span><br><span class="line">    <span class="comment">//创建 myThread1 线程</span></span><br><span class="line">    res = pthread_create(&amp;myThread1, <span class="literal">NULL</span>, ThreadFun, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;线程创建失败&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    sleep(<span class="number">5</span>);  <span class="comment">//令主线程等到 myThread1 线程执行完成</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//创建 myThread2 线程</span></span><br><span class="line">    res = pthread_create(&amp;myThread2, <span class="literal">NULL</span>, ThreadFun,(<span class="type">void</span>*)url);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;线程创建失败&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    sleep(<span class="number">5</span>); <span class="comment">// 令主线程等到 mythread2 线程执行完成</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设程序编写在 thread.c 文件中，执行过程如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># gcc thread.c -o thread.exe -lpthread</span></span><br><span class="line">[root@localhost ~]<span class="comment"># ./thread.exe</span></span><br><span class="line">arg is NULL</span><br><span class="line">http://www.biancheng.net</span><br></pre></td></tr></table></figure>
+
+<p>程序中共创建了 2 个线程，分别命名为 myThread1 和 myThread2。myThread1 和 myThread2 线程执行的都是 threadFun() 函数，不同之处在于，myThread1 线程没有给 threadFun() 函数传递任何数据，而 myThread2 线程向 threadFun() 函数传递了 “<a href="http://www.biancheng.net&quot;/">http://www.biancheng.net&quot;</a> 这个字符串。</p>
+<p>从程序的执行过程不难看出， pthread_create() 函数成功创建的线程会自动执行指定的函数，不需要手动开启。此外，为了确保创建的线程能在主线程之前执行完，程序中调用 sleep() 函数延缓了主线程的执行速度。</p>
+<blockquote>
+<p>您可以尝试将程序中的 sleep() 函数全部注释掉，然后重新编译、执行此程序。整个进程会随着主线程执行结束而立即终止。</p>
+<p>&#x3D;&#x3D;由于主线程执行太快，子线程可能尚未执行完就被强制终止。&#x3D;&#x3D;</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>多线程</category>
+      </categories>
+      <tags>
+        <tag>多线程</tag>
+        <tag>C语言中文网</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>多线程 multithreading</title>
+    <url>/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E5%A4%9A%E7%BA%BF%E7%A8%8B/</url>
+    <content><![CDATA[<h1 id="多线程-multithreading"><a href="#多线程-multithreading" class="headerlink" title="多线程 multithreading"></a>多线程 multithreading</h1><blockquote>
+<p>c语言中文网 多线程系列 <a href="http://c.biancheng.net/thread/">多线程编程（C语言+Linux）</a></p>
+<p><a href="https://developer.aliyun.com/article/1135034">生产者消费者模式保姆级教程 (阻塞队列解除耦合性) 一文帮你从C语言版本到C++ 版本, 从理论到实现 (一文足以)</a></p>
+<p>c语言中文网 <a href="http://c.biancheng.net/view/8631.html">Linux Mutex互斥锁详解</a></p>
+<p>cppreference <a href="https://zh.cppreference.com/w/cpp/thread/mutex">std::mutex</a></p>
+</blockquote>
+<p>提高计算机资源利用率的方法。</p>
+<p>多进程编程：让多个程序同时执行。进程指的是正在执行的应用程序。</p>
+<p>多线程编程：多核基础上，让多个程序同时执行。线程指的是执行应用程序中的某个具体任务，比如一段程序、一个函数等。</p>
+<p>多道批处理系统主要有以下两点优势：</p>
+<ul>
+<li>它将计算机的内存分成很多区域，每个区域都可以存储一个程序；（一开始给每个程序分配一部分内存，参见《计算机科学速成课（二）》）</li>
+<li>当执行的程序执行 I&#x2F;O 操作时（io操作，只是读写操作，cpu没有在计算，因此是空闲的），操作系统会将 CPU 资源分配给其它等待执行的程序。</li>
+</ul>
+<p>早期的多任务操作系统，以进程为单位管理各个程序的运行以及计算机资源的分配和回收，进一步提高了计算机资源的利用率。但随着计算机硬、软件的发展，人们发现还可以做进一步优化，例如：</p>
+<ul>
+<li>操作系统将 CPU 资源从一个进程分配给另一个进程时，开销较大；</li>
+<li>各个进程占用的内存空间是相互独立的，大大增加了进程间通信的实现难度；</li>
+<li>一个进程可能会执行多个任务，当某个任务因 I&#x2F;O 操作暂停执行时，其他任务将无法执行。</li>
+</ul>
+<p>在计算机软、硬件快速发展，人们计算机运行效率的要求越来越高的大背景下，“线程”应运而生。</p>
+<p>每个进程执行前，操作系统都会为其分配所需的资源，包括要执行的程序代码、数据、内存空间、文件资源等。一个进程至少包含 1 个线程，可以包含多个线程，所有线程共享进程的资源，各个线程也可以拥有属于自己的私有资源。</p>
+<blockquote>
+<p>进程仅负责为各个线程提供所需的资源，真正执行任务的是线程，而不是进程。</p>
+</blockquote>
+<p>下图描述了进程和线程之间的关系：</p>
+<p><img src="/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E5%A4%9A%E7%BA%BF%E7%A8%8B/1K4095H5-0.gif" alt="1K4095H5-0"></p>
+<p>如图所示，所有线程共享的进程资源有：</p>
+<ul>
+<li>代码：即应用程序的代码；</li>
+<li>数据：包括全局变量、函数内的静态变量、堆空间的数据等；</li>
+<li>进程空间：操作系统分配给进程的内存空间；</li>
+<li>打开的文件：各个线程打开的文件资源，也可以为所有线程所共享，例如线程 A 打开的文件允许线程 B 进行读写操作。</li>
+</ul>
+<p>各个线程也可以拥有自己的私有资源，包括寄存器中存储的数据、线程执行所需的局部变量（函数参数）等。</p>
+<h2 id="C-多线程编程要注意什么？"><a href="#C-多线程编程要注意什么？" class="headerlink" title="C++多线程编程要注意什么？"></a>C++多线程编程要注意什么？</h2><blockquote>
+<p>chatgpt</p>
+</blockquote>
+<p>在 C++ 中进行多线程编程时需要注意以下事项：</p>
+<ol>
+<li>线程安全：在多线程环境中，多个线程可能会同时访问同一个变量或资源。要确保在并发访问时不会出现竞态条件和数据竞争等问题，需要使用互斥量、读写锁、条件变量等同步机制来保证线程安全。</li>
+<li>死锁：在使用互斥量等同步机制时，如果线程持有一个锁并试图获取另一个锁，而另一个锁已经被另一个线程占用，则可能发生死锁。要避免死锁，需要避免循环等待、尽量避免使用多个锁等策略。</li>
+<li>上下文切换：线程的创建和销毁、线程之间的切换都需要消耗系统资源，因此过多的线程会导致上下文切换频繁，影响性能。需要根据实际情况合理控制线程的数量。</li>
+<li>线程间通信：在多线程编程中，线程之间需要进行通信，共享数据或者传递消息等。需要使用同步机制来保证线程间的通信安全。</li>
+<li>内存管理：多线程环境中，内存管理也需要注意线程安全问题。例如，线程A分配了一块内存，但是在使用之前被线程B释放，这将导致未定义的行为和程序崩溃。</li>
+</ol>
+<p>除了上述几点，还需要注意线程的优先级、线程的创建顺序等问题。多线程编程比较复杂，需要仔细考虑各种情况，确保程序的正确性和性能。</p>
+]]></content>
+      <categories>
+        <category>多线程</category>
+      </categories>
+      <tags>
+        <tag>多线程</tag>
+        <tag>C语言中文网</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>条件变量 condition_variable</title>
+    <url>/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8Fcondition_variable/</url>
+    <content><![CDATA[<h1 id="条件变量-condition-variable"><a href="#条件变量-condition-variable" class="headerlink" title="条件变量 condition_variable"></a>条件变量 condition_variable</h1><h2 id="std-condition-variable-native-handle"><a href="#std-condition-variable-native-handle" class="headerlink" title="std::condition_variable::native_handle"></a>std::condition_variable::native_handle</h2><blockquote>
+<p><a href="https://zh.cppreference.com/w/cpp/thread/condition_variable/native_handle">https://zh.cppreference.com/w/cpp/thread/condition_variable/native_handle</a></p>
+</blockquote>
+<p>用于linux系统、posix系统</p>
+<p>此函数结果的含义和类型是实现定义的。 POSIX 系统上，这可以是 pthread_cond_t* 类型值。 Windows 系统上，这可以是 PCONDITION_VARIABLE 。</p>
+<h2 id="Linux条件变量详解"><a href="#Linux条件变量详解" class="headerlink" title="Linux条件变量详解"></a>Linux条件变量详解</h2><blockquote>
+<p>c语言中文网 <a href="http://c.biancheng.net/view/8633.html">Linux条件变量详解</a></p>
+</blockquote>
+<p>假设一个进程中包含多个线程，这些线程共享变量 x，我们希望某个（或某些）线程等待 “x&#x3D;&#x3D;10’ 条件成立后再执行后续的代码，该如何实现呢？</p>
+<p>您可能想到用 while 循环实现，例如：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">void</span>* <span class="title function_">threadFun</span><span class="params">(<span class="type">void</span> * args)</span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(x != <span class="number">10</span>)&#123;</span><br><span class="line">        sleep(<span class="number">5</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 待条件成立后，执行后续的代码</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当线程执行此函数时，会判断 x 的值是否等于 10，如果不等则间隔 5 秒后再重复判断，直到 x 的值等于 10 ，线程才能执行后续的代码。</p>
+<p>直观上看，while 循环确实能够阻塞线程，但这种方法存在严重的效率问题。当线程因条件不成立进入等待状态时，如果此时恰好有另一个线程将 x 的值改为 10，该线程必须等待 5 秒后才能继续执行。如果我们将等待时间缩短（或者直接将 sleep(5) 注释掉），线程将反复判断 x 的值是否等于 10，它可能会一直霸占着 CPU 资源，导致其它线程无法执行，x 变量的值会出现“长时间不改变”的情况。</p>
+<p>用条件变量来实现。和互斥锁、信号量类似，条件变量本质也是一个全局变量，它的功能是阻塞线程，直至接收到“条件成立”的信号后，被阻塞的线程才能继续执行。</p>
+<p>一个条件变量可以阻塞多个线程，这些线程会组成一个等待队列。当条件成立时，条件变量可以解除线程的“被阻塞状态”。也就是说，条件变量可以完成以下两项操作：</p>
+<ul>
+<li>阻塞线程，直至接收到“条件成立”的信号；</li>
+<li>向等待队列中的一个或所有线程发送“条件成立”的信号，解除它们的“被阻塞”状态。</li>
+</ul>
+<p>为了避免多线程之间发生“抢夺资源”的问题，条件变量在使用过程中必须和一个互斥锁搭配使用。</p>
+<p>。。。todo</p>
+]]></content>
+      <categories>
+        <category>多线程</category>
+      </categories>
+      <tags>
+        <tag>多线程</tag>
+        <tag>C语言中文网</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>并发、并行、异步、同步</title>
+    <url>/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E5%B9%B6%E5%8F%91%E3%80%81%E5%B9%B6%E8%A1%8C%E3%80%81%E5%BC%82%E6%AD%A5%E3%80%81%E5%90%8C%E6%AD%A5%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h1 id="并发、并行、异步、同步"><a href="#并发、并行、异步、同步" class="headerlink" title="并发、并行、异步、同步"></a>并发、并行、异步、同步</h1><blockquote>
+<p>b站 奇乐编程学院 <a href="https://www.bilibili.com/video/BV17V411e7Ua/?spm_id_from=333.999.0.0&vd_source=5e9891722f2b62adca440a5e92121b5b">一个视频告诉你“并发、并行、异步、同步”的区别</a></p>
+</blockquote>
+<p>并发：concurrency</p>
+<p>并行：parallelism</p>
+<p>异步：asynchronous</p>
+<p>同步：synchronous</p>
+<ul>
+<li>并发：表示计算机能够同时执行多项任务。对单核处理器来说，用的是分配时间片的方法，上下文切换（context switching）（任务1执行一段时间切换到任务2，任务2执行一段时间切换到任务1）；</li>
+<li>并行：对多核来说，在不同核心执行不同任务，并行处理多个任务。</li>
+<li>同步：编程模型，等到前一个任务执行完成后，才能进行下一个任务，没有并发、并行的概念。</li>
+<li>异步：编程模型，不同任务之间不会相互等待、先后执行，运行任务1也可以同时运行任务2。典型实现异步的方式是“多线程”编程（multithreading），python里的asyncio、C++20里的co_await。</li>
+</ul>
+<p>创建多个线程并启动，在多核环境下每个线程会被分配到独立的核心上运行，实现“并行”，在单核环境下，操作系统会通过分配时间片的方式来执行这些线程，“并发”。</p>
+<p>通过“函数回调” function callback机制，实现单线程的并发，比如javascript里的fetch()函数。</p>
+<h4 id="多线程编程-VS-（单线程）异步编程："><a href="#多线程编程-VS-（单线程）异步编程：" class="headerlink" title="多线程编程 VS. （单线程）异步编程："></a>多线程编程 VS. （单线程）异步编程：</h4><p>对于I&#x2F;O密集型的应用程序，比如web应用经常执行网络操作，适合使用异步编程。此时如果使用多线程，会浪费系统资源，因为每个线程的绝大多数时间都是在等待这些I&#x2F;O操作，而线程自身会占用额外的内存，线程的切换也会有额外的开销、以及线程资源竞争。</p>
+<p>对于计算量密集的应用，适合多线程编程。</p>
+<p>对于I&#x2F;O操作密集的应用，大多数时间CPU都是在等待这些IO操作的完成，CPU会处于空闲操作，如果使用多线程等待线程自身还有切换+内存开销，会浪费系统资源。所以服务器程序通常都是1个线程处理一个客户端请求，在“这个”线程中会完成所有的数据库&#x2F;文件系统&#x2F;网络等待操作。</p>
+<p>其实没有看很懂。</p>
+<h1 id="多线程编程：一次性搞懂线程同步机制"><a href="#多线程编程：一次性搞懂线程同步机制" class="headerlink" title="多线程编程：一次性搞懂线程同步机制"></a>多线程编程：一次性搞懂线程同步机制</h1><blockquote>
+<p>b站 奇乐编程学院 <a href="https://www.bilibili.com/video/BV1oQ4y1C73G?vd_source=f543adafa22ae8c737564797f76a2bc0">多线程编程：一次性搞懂线程同步机制</a></p>
+</blockquote>
+<p>看完感觉不是非常明白。</p>
+<h1 id="同步和异步，阻塞和非阻塞"><a href="#同步和异步，阻塞和非阻塞" class="headerlink" title="同步和异步，阻塞和非阻塞"></a>同步和异步，阻塞和非阻塞</h1><blockquote>
+<p>b站 <a href="https://www.bilibili.com/video/BV1yr4y1j7mM?vd_source=f543adafa22ae8c737564797f76a2bc0">同步和异步，阻塞和非阻塞-结合一个例子简单说明</a></p>
+</blockquote>
+<ul>
+<li><strong>同步</strong>：<strong>客户端</strong>有一个请求的连接，请求服务器端处理一个数据、返回一个结果，但是服务器端计算这个结果的过程很长，连接就要处于一直等待的状态下。</li>
+<li><strong>异步</strong>：<strong>客户端</strong>有一个请求的连接，请求服务器端处理一个数据、返回一个结果，但是服务器端计算这个结果的过程很长，客户端不想等待，直接连接返回（直接返回，此时并没有真正得到服务器端返回的结果），因此还有一个消息，消息回写的接口或服务，用来当服务器端把结果算出来后，通过消息回写把数据给客户端。</li>
+</ul>
+<p>请求线程：客户端发一个请求给服务端，服务端接收到这个叫请求线程。</p>
+<p>处理线程：服务端接收到后，去进行处理数据的过程叫处理线程。（比如处理完的结果再返回给客户端）</p>
+<ul>
+<li><strong>阻塞：</strong>针对<strong>服务器端</strong>的请求线程、处理线程来说的，线程不能做别的事，请求线程要一直处于等待状态</li>
+<li><strong>非阻塞</strong>：针对<strong>服务器端</strong>的请求线程、处理线程来说的，请求线程发出请求给处理线程之后，不用一直等待，这个请求线程可以快速释放回资源池，去处理其它请求。但是这个请求线程每隔10s、或20s，要轮询一下处理线程，去查看处理线程完成了没有。如果完成了，请求线程就拿着结果返回给客户端。</li>
+</ul>
+<p>消息队列。</p>
+]]></content>
+      <categories>
+        <category>多线程</category>
+      </categories>
+      <tags>
+        <tag>多线程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>终止线程执行（3种方法）pthread_exit()、pthread_cancel()</title>
+    <url>/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E7%BB%88%E6%AD%A2%E7%BA%BF%E7%A8%8B%E6%89%A7%E8%A1%8C%EF%BC%883%E7%A7%8D%E6%96%B9%E6%B3%95%EF%BC%89/</url>
+    <content><![CDATA[<h1 id="终止线程执行（3种方法）pthread-exit-、pthread-cancel"><a href="#终止线程执行（3种方法）pthread-exit-、pthread-cancel" class="headerlink" title="终止线程执行（3种方法）pthread_exit()、pthread_cancel()"></a>终止线程执行（3种方法）pthread_exit()、pthread_cancel()</h1><blockquote>
+<p>c语言中文网：<a href="http://c.biancheng.net/thread/vip_8610.html">终止线程执行（3种方法）</a></p>
+</blockquote>
+<p>多线程程序中，终止线程执行的方式有 3 种，分别是：</p>
+<ol>
+<li>线程执行完成后，自行终止；</li>
+<li>线程执行过程中遇到了 pthread_exit() 或者 return，也会终止执行；</li>
+<li>线程执行过程中，接收到其它线程发送的“终止执行”的信号，然后终止执行。</li>
+</ol>
+<p>三种方式中，第一种很容易理解，本节重点给大家讲解后两种方法。</p>
+<h2 id="1、pthread-exit"><a href="#1、pthread-exit" class="headerlink" title="1、pthread_exit()"></a>1、pthread_exit()</h2><p>在 C 语言中，return 关键字用于终止函数执行，必要时还能将函数的执行结果反馈给调用者。return 关键字不仅可以用于普通函数，线程函数中也可以使用它。</p>
+<p><code>&lt;pthread.h&gt;</code>头文件中，提供有一个和 return 关键字相同功能的 pthread_exit() 函数。和之前不同，pthread_exit() 函数只适用于线程函数，而不能用于普通函数。</p>
+<p>（遇到pthread_exit，视为return来处理）</p>
+<p>pthread_exit() 函数的语法格式如下：</p>
+<p><code>void pthread_exit(void *retval); </code>（没有返回值，<code>pthread_exit</code>定义在<code>pthread.h</code>里）</p>
+<p>retval 是<code>void*</code>类型的指针，可以指向任何类型的数据，它指向的数据将作为线程退出时的返回值。如果线程不需要返回任何数据，将 retval 参数置为<code>NULL</code>即可。</p>
+<blockquote>
+<p>注意，retval 指针不能指向函数内部的局部数据（比如局部变量）。换句话说，pthread_exit() 函数不能返回一个指向局部数据的指针，否则很可能使程序运行结果出错甚至崩溃。</p>
+</blockquote>
+<p>通过一个样例，给大家演示 pthread_exit() 函数的用法（样例一）：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="comment">//线程要执行的函数，arg 用来接收线程传递过来的数据</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">ThreadFun</span><span class="params">(<span class="type">void</span> *arg)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//终止线程的执行，将“http://c.biancheng.net”返回</span></span><br><span class="line">    pthread_exit(<span class="string">&quot;http://c.biancheng.net&quot;</span>); <span class="comment">//返回的字符串存储在常量区，并非当前线程的私有资源</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;*****************&quot;</span>);<span class="comment">//此语句不会被线程执行</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> res;</span><br><span class="line">    <span class="comment">//创建一个空指针</span></span><br><span class="line">    <span class="type">void</span> * thread_result;</span><br><span class="line">    <span class="comment">//定义一个表示线程的变量</span></span><br><span class="line">    <span class="type">pthread_t</span> myThread;</span><br><span class="line">    res = pthread_create(&amp;myThread, <span class="literal">NULL</span>, ThreadFun, <span class="literal">NULL</span>);  <span class="comment">//没有打印第8行</span></span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;线程创建失败&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//等待 myThread 线程执行完成，并用 thread_result 指针接收该线程的返回值</span></span><br><span class="line">    res = pthread_join(myThread, &amp;thread_result);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;等待线程失败&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, (<span class="type">char</span>*)thread_result);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设程序存储在 thread.c 文件中，执行过程如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># gcc thread.c -o thread.exe -lpthread</span></span><br><span class="line">[root@localhost ~]<span class="comment"># ./thread.exe</span></span><br><span class="line">http://c.biancheng.net</span><br></pre></td></tr></table></figure>
+
+<p>不难看出，myThread 线程并没有执行 ThreadFun() 函数中最后一个 printf() 语句，从侧面验证了 pthread_exit() 函数的功能。此外，我们通过在主线程（main() 函数）调用 pthread_join() 函数，获取到了 myThread 线程返回的数据。</p>
+<blockquote>
+<p>有关 pthread_join() 函数的功能和用法，我们会在《<a href="http://c.biancheng.net/thread/vip_8627.html">获取线程函数的返回值</a>》一节中给大家讲解。</p>
+</blockquote>
+<h4 id="pthread-exit-和return的区别"><a href="#pthread-exit-和return的区别" class="headerlink" title="pthread_exit()和return的区别"></a>pthread_exit()和return的区别</h4><p>修改样例一中的程序，将第 8 行（调用 pthread_exit() ）代码替换成如下语句：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">return</span> <span class="string">&quot;http://c.biancheng.net&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>重新编译、执行此程序，会发现程序的执行结果和之前完全相同。这意味着当线程执行结束时，无论是采用 return 语句还是调用 pthread_exit() 函数，主线程中的 pthread_join() 函数都可以接收到线程的返回值。</p>
+<p>这就产生了一个问题，既然 return 关键字也适用于线程函数，&lt;pthread.h&gt; 头文件为什么还提供 pthread_exit() 函数，不是多此一举吗？</p>
+<p>首先，return 语句和 pthread_exit() 函数的含义不同，return 的含义是返回，它不仅可以用于线程执行的函数，普通函数也可以使用；pthread_exit() 函数的含义是线程退出，它专门用于结束某个线程的执行。</p>
+<p>在主线程（main() 函数）中，return 和 pthread_exit() 函数的区别最明显。举个例子：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">ThreadFun</span><span class="params">(<span class="type">void</span> *arg)</span></span><br><span class="line">&#123;</span><br><span class="line">    sleep(<span class="number">5</span>);<span class="comment">//等待一段时间</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;http://c.biancheng.net\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> res;</span><br><span class="line">    <span class="type">pthread_t</span> myThread;</span><br><span class="line">    </span><br><span class="line">    res = pthread_create(&amp;myThread, <span class="literal">NULL</span>, ThreadFun, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;线程创建失败&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;C语言中文网\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过执行结果可以看到，主线程正常执行结束，myThread 线程并没有输出指定的数据。原因很简单，&#x3D;&#x3D;主线程执行速度很快，主线程最后执行的 return 语句不仅会终止主线程执行，还会终止其它子线程执行&#x3D;&#x3D;。也就是说，myThread 线程还没有执行输出语句就被终止了。</p>
+<p>将上面程序中，main() 函数中的<code>return 0;</code>用如下语句替换：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">pthread_exit(<span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure>
+
+<p>重新编译、执行程序，运行结果为：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">C语言中文网</span><br><span class="line">http://c.biancheng.net</span><br></pre></td></tr></table></figure>
+
+<p>对比上面两个执行结果，可以得出的结论是：&#x3D;&#x3D;pthread_exit() 函数只会终止当前线程，不会影响其它线程的执行（比如主线程）&#x3D;&#x3D;。</p>
+<blockquote>
+<p>此外，pthread_exit() 函数还会自动调用线程清理程序（本质是一个由 pthread_cleanup_push() 指定的自定义函数），而 return 不具备这个能力。</p>
+</blockquote>
+<p>总之，如果实际场景中想终止某个子线程，强烈建议大家使用 pthread_exit() 函数。终止主线程时，return 和 pthread_exit() 函数发挥的功能不同，可以根据需要自行选择。</p>
+<h2 id="2、pthread-cancel"><a href="#2、pthread-cancel" class="headerlink" title="2、pthread_cancel()"></a>2、pthread_cancel()</h2><p>多线程程序中，一个线程还可以向另一个线程发送“终止执行”的信号（后续称“Cancel”信号），这时就需要调用 pthread_cancel() 函数。</p>
+<p>pthread_cancel() 函数声明在<code>&lt;pthread.h&gt;</code>头文件中，语法格式如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_cancel</span><span class="params">(<span class="type">pthread_t</span> thread)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>参数 thread 用于接收 Cancel 信号的目标线程。</p>
+<p>如果 pthread_cancel() 函数成功地发送了 Cancel 信号，返回数字 0，否则返回非零数。对于因“未找到目标线程”导致的信号发送失败，函数返回 ESRCH 宏（定义在<code>&lt;errno.h&gt;</code>头文件中，该宏的值为整数 3）。</p>
+<blockquote>
+<p>注意，pthread_cancel() 函数的功能仅仅是向目标线程发送 Cancel 信号，至于目标线程是否接收该信号，何时响应该信号，全由目标线程决定。我们会在《<a href="http://c.biancheng.net/thread/vip_8613.html">终止线程执行，千万别踩这个坑！</a>》一节给您做详细讲解。</p>
+</blockquote>
+<p>对于接收 Cancel 信号后结束执行的目标线程，等同于该线程自己执行如下语句：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">pthread_exit(PTHREAD_CANCELED);</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，当一个线程被强制终止执行时，它会返回<code>PTHREAD_CANCELED</code>这个宏（定义在<code>&lt;pthread.h&gt;</code>头文件中）。</p>
+<p>接下来通过一个样例，给大家演示 pthread_cancel() 函数的用法：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span>     <span class="comment">// sleep() 函数</span></span></span><br><span class="line"><span class="comment">//线程执行的函数</span></span><br><span class="line"><span class="type">void</span> * <span class="title function_">thread_Fun</span><span class="params">(<span class="type">void</span> * arg)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;新建线程开始执行\n&quot;</span>);</span><br><span class="line">    sleep(<span class="number">10</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">pthread_t</span> myThread;</span><br><span class="line">    <span class="type">void</span> * mess;</span><br><span class="line">    <span class="type">int</span> value;</span><br><span class="line">    <span class="type">int</span> res;</span><br><span class="line">    <span class="comment">//创建 myThread 线程</span></span><br><span class="line">    res = pthread_create(&amp;myThread, <span class="literal">NULL</span>, thread_Fun, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;线程创建失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line">    <span class="comment">//向 myThread 线程发送 Cancel 信号</span></span><br><span class="line">    res = pthread_cancel(myThread);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;终止 myThread 线程失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//获取已终止线程的返回值</span></span><br><span class="line">    res = pthread_join(myThread, &amp;mess);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;等待线程失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//如果线程被强制终止，其返回值为 PTHREAD_CANCELED</span></span><br><span class="line">    <span class="keyword">if</span> (mess == PTHREAD_CANCELED) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;myThread 线程被强制终止\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;error\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设程序编写在 thread.c 文件中，执行过程为：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># gcc thread.c -o thread.exe -lpthread</span></span><br><span class="line">[root@localhost ~]<span class="comment"># ./thread.exe</span></span><br><span class="line">新建线程开始执行</span><br><span class="line">myThread 线程被强制终止</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>多线程</category>
+      </categories>
+      <tags>
+        <tag>多线程</tag>
+        <tag>C语言中文网</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>终止线程执行，千万别踩这个坑！</title>
+    <url>/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E7%BB%88%E6%AD%A2%E7%BA%BF%E7%A8%8B%E6%89%A7%E8%A1%8C%EF%BC%8C%E5%8D%83%E4%B8%87%E5%88%AB%E8%B8%A9%E8%BF%99%E4%B8%AA%E5%9D%91%EF%BC%81/</url>
+    <content><![CDATA[<h1 id="终止线程执行，千万别踩这个坑！"><a href="#终止线程执行，千万别踩这个坑！" class="headerlink" title="终止线程执行，千万别踩这个坑！"></a>终止线程执行，千万别踩这个坑！</h1><blockquote>
+<p>c语言中文网：<a href="http://c.biancheng.net/thread/vip_8613.html">终止线程执行，千万别踩这个坑！</a> </p>
+</blockquote>
+<p>使用 <code>pthread_cancel()</code>函数，有时候会发生并没有cancel掉子线程的情况，子线程仍然继续运行。</p>
+<p>在《<a href="http://c.biancheng.net/thread/vip_8610.html">终止线程执行（3种方法）</a>》一节中，我们对 pthread_cancel() 函数的功能和用法做了详细的介绍。总的来说，通过调用 pthread_cancel() 函数，一个线程可以向同进程内的另一个线程发送“终止执行”的信号（Cancel 信号），使目标线程结束执行。</p>
+<p>实际使用 pthread_cancel() 函数时，很多读者会发现“Cancel 信号成功发送，但目标线程并未立即终止执行”等类似的问题举个例子，在 Linux 环境中执行如下程序：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="type">void</span> * <span class="title function_">thread_Fun</span><span class="params">(<span class="type">void</span> * arg)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;新建线程开始执行\n&quot;</span>);</span><br><span class="line">    <span class="comment">//插入无限循环的代码，测试 pthread_cancel()函数的有效性</span></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">pthread_t</span> myThread;</span><br><span class="line">    <span class="type">void</span> * mess;</span><br><span class="line">    <span class="type">int</span> value;</span><br><span class="line">    <span class="type">int</span> res;</span><br><span class="line">    res = pthread_create(&amp;myThread, <span class="literal">NULL</span>, thread_Fun, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;线程创建失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line">    <span class="comment">//令 myThread 线程终止执行</span></span><br><span class="line">    res = pthread_cancel(myThread);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;终止 myThread 线程失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;等待 myThread 线程执行结束：\n&quot;</span>);</span><br><span class="line">    res = pthread_join(myThread, &amp;mess);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;等待线程失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (mess == PTHREAD_CANCELED) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;myThread 线程被强制终止\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;error\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设程序编写在 thread.c 文件中，执行过程如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># gcc thread.c -o thread.exe -lpthread</span></span><br><span class="line">[root@localhost ~]<span class="comment"># ./thread.exe</span></span><br><span class="line">新建线程开始执行</span><br><span class="line">等待 myThread 线程执行结束：</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<p><code>myThread 线程被强制终止</code>这行并没有出来，就卡在<code>res = pthread_join(myThread, &amp;mess);</code>这步，子线程一直在运行，说明并没有cancel掉。</p>
+<p>程序中，主线程（ main() 函数）试图调用 pthread_cancel() 函数终止 myThread 线程执行。从运行结果不难发现，pthread_cancel() 函数成功发送了 Cancel 信号，但目标线程仍在执行。</p>
+<p>也就是说，&#x3D;&#x3D;接收到 Cancel 信号的目标线程并没有立即处理该信号，或者说目标线程根本没有理会此信号。&#x3D;&#x3D;解决类似的问题，我们就需要搞清楚目标线程对 Cancel 信号的处理机制。</p>
+<h2 id="线程对Cancel信号的处理"><a href="#线程对Cancel信号的处理" class="headerlink" title="线程对Cancel信号的处理"></a>线程对Cancel信号的处理</h2><p>对于默认属性的线程，当有线程借助 pthread_cancel() 函数向它发送 Cancel 信号时，它并不会立即结束执行，而是选择在一个适当的时机结束执行。</p>
+<p>所谓适当的时机，POSIX 标准中规定，当线程执行一些特殊的函数时，会响应 Cancel 信号并终止执行，比如常见的 pthread_join()、pthread_testcancel()、sleep()、system() 等，POSIX 标准称此类函数为“cancellation points”（中文可译为“取消点”）。</p>
+<blockquote>
+<p>POSIX 标准中明确列举了所有可以作为取消点的函数，这里不再一一罗列，感兴趣的读者可以自行查阅 POSIX 标准手册。</p>
+</blockquote>
+<p>此外，&lt;pthread.h&gt; 头文件还提供有 pthread_setcancelstate() 和 pthread_setcanceltype() 这两个函数，我们可以手动修改目标线程处理 Cancel 信号的方式。</p>
+<h4 id="1、pthread-setcancelstate-函数"><a href="#1、pthread-setcancelstate-函数" class="headerlink" title="1、pthread_setcancelstate()函数"></a>1、pthread_setcancelstate()函数</h4><p>借助 pthread_setcancelstate() 函数，我们可以令目标线程处理 Cancal 信号，也可以令目标线程不理会其它线程发来的 Cancel 信号。</p>
+<p>pthread_setcancelstate() 函数的语法格式如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_setcancelstate</span><span class="params">( <span class="type">int</span> state , <span class="type">int</span> * oldstate )</span>; </span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>state 参数有两个可选值，分别是：</p>
+<ul>
+<li>PTHREAD_CANCEL_ENABLE（默认值）：当前线程会处理其它线程发送的 Cancel 信号；</li>
+<li>PTHREAD_CANCEL_DISABLE：当前线程不理会其它线程发送的 Cancel 信号，直到线程状态重新调整为 PTHREAD_CANCEL_ENABLE 后，才处理接收到的 Cancel 信号。</li>
+</ul>
+</li>
+<li><p>oldtate 参数用于接收线程先前所遵循的 state 值，通常用于对线程进行重置。如果不需要接收此参数的值，置为 NULL 即可。</p>
+</li>
+</ol>
+<p>pthread_setcancelstate() 函数执行成功时，返回数字 0，反之返回非零数。</p>
+<h4 id="2、pthread-setcanceltype-函数"><a href="#2、pthread-setcanceltype-函数" class="headerlink" title="2、pthread_setcanceltype()函数"></a>2、pthread_setcanceltype()函数</h4><p>当线程会对 Cancel 信号进行处理时，我们可以借助 pthread_setcanceltype() 函数设置线程响应 Cancel 信号的时机。</p>
+<p>pthread_setcanceltype() 函数的语法格式如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_setcanceltype</span><span class="params">( <span class="type">int</span> type , <span class="type">int</span> * oldtype )</span>;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>type 参数有两个可选值，分别是：</p>
+<ul>
+<li>PTHREAD_CANCEL_DEFERRED（默认值）：当线程执行到某个可作为取消点的函数时终止执行；</li>
+<li>PTHREAD_CANCEL_ASYNCHRONOUS：线程接收到 Cancel 信号后立即结束执行。</li>
+</ul>
+</li>
+<li><p>oldtype 参数用于接收线程先前所遵循的 type 值，如果不需要接收该值，置为 NULL 即可。</p>
+</li>
+</ol>
+<p>pthread_setcanceltype() 函数执行成功时，返回数字 0，反之返回非零数。</p>
+<p>接下来通过一个实例给大家演示以上两个函数的功能和用法：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="type">void</span> * <span class="title function_">thread_Fun</span><span class="params">(<span class="type">void</span> * arg)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;新建线程开始执行\n&quot;</span>);</span><br><span class="line">    <span class="type">int</span> res;</span><br><span class="line">    <span class="comment">//设置线程为可取消状态</span></span><br><span class="line">    res = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;修改线程可取消状态失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>  <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//设置线程接收到 Cancel 信号后立即结束执行</span></span><br><span class="line">    res = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;修改线程响应 Cancel 信号的方式失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>  <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">pthread_t</span> myThread;</span><br><span class="line">    <span class="type">void</span> * mess;</span><br><span class="line">    <span class="type">int</span> value;</span><br><span class="line">    <span class="type">int</span> res;</span><br><span class="line">    res = pthread_create(&amp;myThread, <span class="literal">NULL</span>, thread_Fun, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;线程创建失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line">    <span class="comment">//向 myThread 线程发送 Cancel 信号</span></span><br><span class="line">    res = pthread_cancel(myThread);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;终止 myThread 线程失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//等待 myThread 线程执行结束，获取返回值</span></span><br><span class="line">    res = pthread_join(myThread, &amp;mess);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;等待线程失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (mess == PTHREAD_CANCELED) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;myThread 线程被强制终止\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;error\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设程序编写在 thread.c 文件中，程序执行过程如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># gcc thread.c -o thread.exe -lpthread</span></span><br><span class="line">[root@localhost ~]<span class="comment"># ./thread.exe</span></span><br><span class="line">新建线程开始执行</span><br><span class="line">myThread 线程被强制终止</span><br></pre></td></tr></table></figure>
+
+<p>和《<a href="http://c.biancheng.net/thread/vip_8610.html">终止线程执行（3种方法）</a>》一节中 pthread_cancel() 函数的演示程序相比，我们仅仅是将 myThread 线程设置为“接收到 Cancel 信号后立即结束执行”。通过对比两个程序的输出结果，很容易就可以体会出 pthread_setcancelstate() 和 pthread_setcanceltype() 函数的功能。</p>
+<p>其实就是在要用多线程的函数里多写几句话，设置线程为可取消状态、设置线程接收到 Cancel 信号后立即结束执行。</p>
+]]></content>
+      <categories>
+        <category>多线程</category>
+      </categories>
+      <tags>
+        <tag>多线程</tag>
+        <tag>C语言中文网</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>第一个多线程程序</title>
+    <url>/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%A8%8B%E5%BA%8F/</url>
+    <content><![CDATA[<h1 id="第一个多线程程序"><a href="#第一个多线程程序" class="headerlink" title="第一个多线程程序"></a>第一个多线程程序</h1><blockquote>
+<p>c语言中文网：<a href="http://c.biancheng.net/thread/first-thread.html">第一个多线程程序</a></p>
+</blockquote>
+<p>为了避免多个程序访问系统资源（包括文件资源、I&#x2F;O 设备、网络等）时产生冲突，操作系统会将可能产生冲突的系统资源保护起来，阻止应用程序直接访问。如果程序中需要访问被操作系统保护起来的资源，需使用操作系统规定的方法（函数、命令），我们习惯将这些调用方法（函数、命令）称为接口（<strong>A</strong>pplication <strong>P</strong>rogramming <strong>I</strong>nterface，简称 API）。（程序要访问资源，需要使用操作系统支持的调用方法，也就是符合操作系统支持的接口（API）来访问）</p>
+<p>事实上，无论我们用哪种编程语言编写多线程程序，最终都要借助操作系统预留的接口实现。接下来，我们将为您讲解如何借助 Linux 系统预留的接口编写 C 语言多线程程序。</p>
+<h2 id="POSIX标准"><a href="#POSIX标准" class="headerlink" title="POSIX标准"></a>POSIX标准</h2><p>类 UNIX 系统有很多种版本，包括 Linux、FreeBSD、OpenBSD 等，它们预留的系统调用接口各不相同。但幸运的是，几乎所有的类 UNIX 系统都兼容 POSIX 标准。</p>
+<p>POSIX 标准全称“<strong>P</strong>ortable <strong>O</strong>perating <strong>S</strong>ystem <strong>I</strong>nterface”，中文译为可移植操作系统接口，最后的字母 X 代指类 UNIX 操作系统。简单地理解，POSIX 标准发布的初衷就是为了统一所有类 UNIX 操作系统的接口，这意味着，只要我们编写的程序严格按照 POSIX 标准调用系统接口，它就可以在任何兼容 POSIX 标准的类 UNIX 系统上运行。</p>
+<blockquote>
+<p>所谓兼容，很多支持 POSIX 标准的类 UNIX 操作系统并没有从根本上修改自己的 API，它们仅仅通过对现有的 API 进行再封装，生成了一套符合 POSIX 标准的系统接口，进而间接地支持 POSIX 标准。</p>
+</blockquote>
+<p>值得一提的是，POSIX 标准中规范了与多线程相关的系统接口。我们在 Linux 系统上编写多线程程序，只需在程序中引入<code>&lt;pthread.h&gt;</code>头文件，调用该文件中包含的函数即可实现多线程编程。</p>
+<blockquote>
+<p>注意，pthread.h 头文件中只包含各个函数的声明部分，具体实现位于 libpthread.a 库中。</p>
+</blockquote>
+<h2 id="第一个多线程程序-1"><a href="#第一个多线程程序-1" class="headerlink" title="第一个多线程程序"></a>第一个多线程程序</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="comment">// include &lt;iostream&gt; // c++加一行</span></span><br><span class="line"><span class="comment">//定义线程要执行的函数，arg 为接收线程传递过来的数据</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">Thread1</span><span class="params">(<span class="type">void</span> *arg)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;http://c.biancheng.net\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;Thread1成功执行&quot;</span>;	<span class="comment">// C++ 改为：return const_cast&lt;char*&gt;(&quot;Thread1成功执行&quot;);</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//定义线程要执行的函数，arg 为接收线程传递过来的数据</span></span><br><span class="line"><span class="type">void</span>* <span class="title function_">Thread2</span><span class="params">(<span class="type">void</span>* arg)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;C语言中文网\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;Thread2成功执行&quot;</span>;	<span class="comment">// C++ 改为：return const_cast&lt;char*&gt;(&quot;Thread2成功执行&quot;);</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> res;</span><br><span class="line">    <span class="type">pthread_t</span> mythread1, mythread2;</span><br><span class="line">    <span class="type">void</span>* thread_result;</span><br><span class="line">    <span class="comment">/*创建线程</span></span><br><span class="line"><span class="comment">    &amp;mythread:要创建的线程</span></span><br><span class="line"><span class="comment">    NULL：不修改新建线程的任何属性</span></span><br><span class="line"><span class="comment">    ThreadFun:新建线程要执行的任务</span></span><br><span class="line"><span class="comment">    NULL：不传递给 ThreadFun() 函数任何参数</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    返回值 res 为 0 表示线程创建成功，反之则创建失败。</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    res = pthread_create(&amp;mythread1, <span class="literal">NULL</span>, Thread1, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;线程创建失败&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    res = pthread_create(&amp;mythread2, <span class="literal">NULL</span>, Thread2, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;线程创建失败&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    等待指定线程执行完毕</span></span><br><span class="line"><span class="comment">    mtThread:指定等待的线程</span></span><br><span class="line"><span class="comment">    &amp;thead_result:接收 ThreadFun() 函数的返回值，或者接收 pthread_exit() 函数指定的值</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    返回值 res 为 0 表示函数执行成功，反之则执行失败。</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    res = pthread_join(mythread1, &amp;thread_result); <span class="comment">// 令主线程等待 mythread1 线程执行完毕后再执行后续的代码</span></span><br><span class="line">    <span class="comment">//输出线程执行完毕后返回的数据</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, (<span class="type">char</span>*)thread_result);</span><br><span class="line">   </span><br><span class="line">    res = pthread_join(mythread2, &amp;thread_result); <span class="comment">// 令主线程等待 mythread2 线程执行完毕后再执行后续的代码</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, (<span class="type">char</span>*)thread_result);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;主线程执行完毕\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>假设我们将程序编写在 thead.c 文件中，调用 gcc 编译器编译（包含链接）此程序：</p>
+<p><code>[root@localhost ~]# gcc thread.c -o thread.exe -lpthread</code>  （C++版则是 <code>g++ thread.cc -o thread.exe -lpthread</code>）</p>
+<p>在保证程序没有语法错误的前提下，执行此命令会生成一个名为 thread.exe 的可执行文件。需要强调的是，命令中必须包含 “-lpthread” 参数，否则会导致程序链接失败。</p>
+<p>在当前目录下找到新生成的 thread.exe 文件，执行如下命令即可看到程序的执行结果：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># ./thead.exe</span></span><br><span class="line">http://c.biancheng.net</span><br><span class="line">C语言中文网</span><br><span class="line">Thread1成功执行</span><br><span class="line">Thread2成功执行</span><br><span class="line">主线程执行完毕</span><br></pre></td></tr></table></figure>
+
+<p>程序中共存在 3 个线程，包括本就存在的主线程以及两个调用 pthread_create() 函数创建的线程（又称子线程），其中名为 mythread1 的线程负责执行 thread1() 函数，名为 mythread2 的线程负责执行 thread2() 函数。</p>
+<p>程序中调用了两次 pthread_join() 函数，第 47 行 pthread_join() 函数的功能是令主线程等待 mythread1 线程执行完毕后再执行后续的代码，第 51 行处 pthread_join() 函数的功能是令主线程等待 mythread2 线程执行完毕后在执行后续的代码。</p>
+<p>由此，我们已经学会了如何编写一个简单的多线程程序。</p>
+<p>说明：</p>
+<ul>
+<li><p><code>pthread_t mythread</code> ：创建一个线程对象，线程名称叫<code>mythread</code>，此时线程还没有和要做的任务绑定；</p>
+</li>
+<li><p><code>pthread_create(&amp;mythread, NULL, Thread1, NULL) ： 创建一个线程，将线程对象和任务绑定，任务名叫</code>Thread1&#96;，任务也就是某个函数。</p>
+<ul>
+<li>第一个参数：要创建的线程，pthread_t 类型的<strong>指针</strong>变量，因此如果是线程对象，传入的是对象地址。</li>
+<li>第二个参数为 NULL时表示：不修改新建线程的任何属性；</li>
+<li>第三个参数  ThreadFun：新建线程要执行的任务（函数）；</li>
+<li>第四个参数为NULL时表示：不传递给 ThreadFun() 函数任何参数；</li>
+<li><code>res = pthread_create(&amp;mythread, NULL, Thread1, NULL);</code> 返回值 res 为 0 表示线程创建成功，反之则创建失败。</li>
+</ul>
+<p>&#x3D;&#x3D;<code>pthread_create</code>就开始进入线程，开始执行任务了，和主线程并行的，主线程接着往下走，互不影响。&#x3D;&#x3D;</p>
+</li>
+<li><p><code>pthread_join(mythread, &amp;thread_result)</code>：执行此语句时，表示主线程必须等待指定线程执行完毕，才能继续接着执行主语句。</p>
+<ul>
+<li>第一个参数：指定等待的线程</li>
+<li>第二个参数：接收 ThreadFun() 函数的返回值，或者接收 pthread_exit() 函数指定的值</li>
+<li><code>res = pthread_join(mythread, &amp;thread_result);</code> 返回值 res 为 0 表示函数执行成功，反之则执行失败。</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>多线程</category>
+      </categories>
+      <tags>
+        <tag>多线程</tag>
+        <tag>C语言中文网</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>获取线程函数的返回值 pthread_join()</title>
+    <url>/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E8%8E%B7%E5%8F%96%E7%BA%BF%E7%A8%8B%E5%87%BD%E6%95%B0%E7%9A%84%E8%BF%94%E5%9B%9E%E5%80%BC/</url>
+    <content><![CDATA[<h1 id="获取线程函数的返回值-pthread-join"><a href="#获取线程函数的返回值-pthread-join" class="headerlink" title="获取线程函数的返回值 pthread_join()"></a>获取线程函数的返回值 pthread_join()</h1><blockquote>
+<p>c语言中文网：<a href="http://c.biancheng.net/thread/vip_8627.html">获取线程函数的返回值</a></p>
+</blockquote>
+<p>前面提到，如果我们想获取某个线程执行结束时返回的数据，可以调用 pthread_join() 函数来实现。本节，我们就为您详细讲解 pthread_join() 函数的功能和用法。</p>
+<p>pthread_join() 函数声明在<code>&lt;pthread.h&gt;</code>头文件中，语法格式如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_join</span><span class="params">(<span class="type">pthread_t</span> thread, <span class="type">void</span> ** retval)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>thread 参数用于指定接收哪个线程的返回值；retval 参数表示接收到的返回值，如果 thread 线程没有返回值，又或者我们不需要接收 thread 线程的返回值，可以将 retval 参数置为 NULL。</p>
+<p>&#x3D;&#x3D;pthread_join() 函数会一直阻塞调用它的线程（调用它的线程指的是，比如主线程），直至目标线程执行结束（接收到目标线程的返回值），阻塞状态才会解除。&#x3D;&#x3D;如果 pthread_join() 函数成功等到了目标线程执行结束（成功获取到目标线程的返回值），返回值为数字 0；反之如果执行失败，函数会根据失败原因返回相应的非零值，每个非零值都对应着不同的宏，例如：</p>
+<ul>
+<li>EDEADLK：检测到线程发生了死锁。关于线程发生死锁，我们会在《<a href="http://c.biancheng.net/thread/vip_8619.html">Linux如何避免线程发生死锁？</a>》一节中做详细讲解。</li>
+<li>EINVAL：分为两种情况，要么目标线程本身不允许其它线程获取它的返回值，要么事先就已经有线程调用 pthread_join() 函数获取到了目标线程的返回值。</li>
+<li>ESRCH：找不到指定的 thread 线程。</li>
+</ul>
+<blockquote>
+<p>以上这些宏都声明在 &lt;errno.h&gt; 头文件中，如果程序中想使用这些宏，需提前引入此头文件。</p>
+</blockquote>
+<p>再次强调，一个线程执行结束的返回值只能由一个 pthread_join() 函数获取，当有多个线程调用 pthread_join() 函数获取同一个线程的执行结果时，哪个线程最先执行 pthread_join() 函数，执行结果就由那个线程获得，其它线程的 pthread_join() 函数都将执行失败。</p>
+<p>&#x3D;&#x3D;对于一个默认属性的线程 A 来说，线程占用的资源并不会因为执行结束而得到释放。而通过在其它线程中执行<code>pthread_join(A,NULL);</code>语句，可以轻松实现“及时释放线程 A 所占资源”的目的。&#x3D;&#x3D;</p>
+<p>接下来通过一个样例，给大家演示 pthread_join() 函数的用法：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;errno.h&gt;</span>   <span class="comment">//使用宏 ESRCH</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="comment">//线程执行的函数</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">ThreadFun</span><span class="params">(<span class="type">void</span> *arg)</span></span><br><span class="line">&#123;</span><br><span class="line">    pthread_exit(<span class="string">&quot;http://c.biancheng.net&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> res;</span><br><span class="line">    <span class="type">void</span> * thread_result;</span><br><span class="line">    <span class="type">pthread_t</span> myThread;</span><br><span class="line">    <span class="comment">//创建 myThread 线程</span></span><br><span class="line">    res = pthread_create(&amp;myThread, <span class="literal">NULL</span>, ThreadFun, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;线程创建失败&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//阻塞主线程，等待 myThread 线程执行结束</span></span><br><span class="line">    res = pthread_join(myThread, &amp;thread_result);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;1：等待线程失败&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//输出获取到的 myThread 线程的返回值</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, (<span class="type">char</span>*)thread_result);</span><br><span class="line">    <span class="comment">//尝试再次获取 myThread 线程的返回值</span></span><br><span class="line">    res = pthread_join(myThread, &amp;thread_result);</span><br><span class="line">    <span class="keyword">if</span> (res == ESRCH) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;2：等待线程失败，线程不存在&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设程序位于 thread.c 文件中，执行过程如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># gcc thread.c -o thread.exe -lpthread</span></span><br><span class="line">[root@localhost ~]<span class="comment"># ./thread.exe</span></span><br><span class="line">http://c.biancheng.net</span><br><span class="line">2：等待线程失败，线程不存在</span><br></pre></td></tr></table></figure>
+
+
+
+<p>在程序的在主线程（main() 函数）中，我们尝试两次调用 pthread_join() 函数获取 myThread 线程执行结束的返回值。通过执行结果可以看到，第一个 pthread_join() 函数成功执行，而第二个 Pthread_join() 函数执行失败。原因很简单，第一个成功执行的 pthread_join() 函数会使 myThread 线程释放自己占用的资源，myThread 线程也就不复存在，所以第二个 pthread_join() 函数会返回 ESRCH。</p>
+]]></content>
+      <categories>
+        <category>多线程</category>
+      </categories>
+      <tags>
+        <tag>多线程</tag>
+        <tag>C语言中文网</tag>
+      </tags>
+  </entry>
 </search>
