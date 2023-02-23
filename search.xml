@@ -14339,6 +14339,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
     <content><![CDATA[<h1 id="获取线程函数的返回值-pthread-join"><a href="#获取线程函数的返回值-pthread-join" class="headerlink" title="获取线程函数的返回值 pthread_join()"></a>获取线程函数的返回值 pthread_join()</h1><blockquote>
 <p>c语言中文网：<a href="http://c.biancheng.net/thread/vip_8627.html">获取线程函数的返回值</a></p>
 </blockquote>
+<p>阻塞主线程！阻塞主线程！阻塞主线程！</p>
 <p>前面提到，如果我们想获取某个线程执行结束时返回的数据，可以调用 pthread_join() 函数来实现。本节，我们就为您详细讲解 pthread_join() 函数的功能和用法。</p>
 <p>pthread_join() 函数声明在<code>&lt;pthread.h&gt;</code>头文件中，语法格式如下：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_join</span><span class="params">(<span class="type">pthread_t</span> thread, <span class="type">void</span> ** retval)</span>;</span><br></pre></td></tr></table></figure>
@@ -14785,6 +14786,286 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li><strong>条件变量</strong>的功能类似于实际生活中的门，门有“打开”和“关闭”两种状态，分别对应条件变量的“成立”状态和“不成立”状态。当条件变量“不成立”时，任何线程都无法访问资源，只能等待条件变量成立；一旦条件变量成立，所有等待的线程都会恢复执行，访问目标资源。为了防止各个线程竞争资源，条件变量总是和互斥锁搭配使用。</li>
 <li>多线程程序中，如果大多数线程都是对公共资源执行读取操作，仅有少量的线程对公共资源进行修改，这种情况下可以使用<strong>读写锁</strong>解决线程同步问题。</li>
 </ul>
+]]></content>
+      <categories>
+        <category>多线程</category>
+      </categories>
+      <tags>
+        <tag>多线程</tag>
+        <tag>C语言中文网</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>线程属性有哪些，如何自定义线程属性？</title>
+    <url>/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E7%BA%BF%E7%A8%8B%E5%B1%9E%E6%80%A7%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%8C%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BA%BF%E7%A8%8B%E5%B1%9E%E6%80%A7%EF%BC%9F/</url>
+    <content><![CDATA[<h1 id="线程属性有哪些，如何自定义线程属性？"><a href="#线程属性有哪些，如何自定义线程属性？" class="headerlink" title="线程属性有哪些，如何自定义线程属性？"></a>线程属性有哪些，如何自定义线程属性？</h1><blockquote>
+<p>C语言中文网：<a href="http://c.biancheng.net/thread/vip_8620.html">线程属性有哪些，如何自定义线程属性？</a>    </p>
+</blockquote>
+<p>通过阅读前面章节，我们已经学会了如果创建一个线程，例如：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="type">void</span> * <span class="title function_">threadFun</span><span class="params">(<span class="type">void</span>* args)</span>&#123;</span><br><span class="line">    <span class="comment">//......</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="type">pthread_t</span> myThread;</span><br><span class="line">pthread_create(&amp;myThread, <span class="literal">NULL</span>, ThreadFun, <span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure>
+
+<p>程序中，pthread_create() 函数需要传递 4 个参数，其中第二个参数 NULL 表示以系统默认的属性创建线程。</p>
+<p>那么，线程都有哪些属性，线程的属性又该如何设置或者修改呢？接下来，我们将一一为大家解开这些疑惑。</p>
+<h2 id="线程属性的种类"><a href="#线程属性的种类" class="headerlink" title="线程属性的种类"></a>线程属性的种类</h2><p>POSIX 标准中，线程的属性用 pthread_attr_t 类型的变量表示，举个例子：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="type">pthread_attr_t</span> myAttr;</span><br></pre></td></tr></table></figure>
+
+<p>由此，我们就定义了一个表示线程属性的变量。使用此变量前，必须调用 pthread_attr_init() 函数进行初始化，该函数的语法格式如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_init</span><span class="params">(<span class="type">pthread_attr_t</span> * attr)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>此函数定义在 &lt;pthread.h&gt; 头文件中，函数执行成功时，返回数字 0，反之返回非零数。</p>
+<p>例如，对 myAttr 变量进行初始化：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">pthread_attr_init(&amp;myAttr);</span><br></pre></td></tr></table></figure>
+
+<p>通过调用 pthread_attr_init() 函数，myAttr 变量就拥有了系统默认的线程属性。在此基础上，我们可以根据需要对 myAttr 变量的属性值进行修改。</p>
+<p>pthread_attr_t 是一种结构体类型，内部包含多种线程属性：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">       <span class="type">int</span> __detachstate;</span><br><span class="line">       <span class="type">int</span> __schedpolicy;</span><br><span class="line">       <span class="class"><span class="keyword">struct</span> <span class="title">sched_param</span> __<span class="title">schedparam</span>;</span></span><br><span class="line">       <span class="type">int</span> __inheritsched;</span><br><span class="line">       <span class="type">int</span> __scope;</span><br><span class="line">       <span class="type">size_t</span> __guardsize;</span><br><span class="line">       <span class="type">int</span> __stackaddr_set;</span><br><span class="line">       <span class="type">void</span>* __stackaddr;</span><br><span class="line">       <span class="type">size_t</span> __stacksize;</span><br><span class="line">&#125; <span class="type">pthread_attr_t</span>;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们将从中挑选出几个常用的属性，给您讲解它们的功能以及修改的方法。</p>
+<h4 id="1-detachstate"><a href="#1-detachstate" class="headerlink" title="1) __detachstate"></a>1) __detachstate</h4><p>我们知道，默认属性的线程在执行完目标函数后，占用的私有资源并不会立即释放，要么执行完 pthread_join() 函数后释放，要么整个进程执行结束后释放。某些场景中，我们并不需要接收线程执行结束后的返回值，如果想让线程执行完后立即释放占用的私有资源，就可以通过修改 __detachstate 属性值来实现。</p>
+<p>__detachstate 属性值用于指定线程终止执行的时机，该属性的值有两个，分别是：</p>
+<ul>
+<li>PTHREAD_CREATE_JOINABLE（默认值）：线程执行完函数后不会自行释放资源；</li>
+<li>PTHREAD_CREATE_DETACHED：线程执行完函数后，会自行终止并释放占用的资源。</li>
+</ul>
+<p>关于 __detachstate 属性，&lt;pthread.h&gt; 头文件中提供了 2 个与它相关的函数，分别是：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_getdetachstate</span><span class="params">(<span class="type">const</span> <span class="type">pthread_attr_t</span> * attr,<span class="type">int</span> * detachstate)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_setdetachstate</span><span class="params">(<span class="type">pthread_attr_t</span> *sttr，<span class="type">int</span> detachstate)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>pthread_attr_getdetachstate() 函数用于获取 __detachstate 属性的值，detachstate 指针用于接收 __detachstate 属性的值；pthread_attr_setdetachstate() 函数用于修改 __detachstate 属性的值，detachstate 整形变量即为新的 __detachstate 属性值。两个函数执行成功时返回数字 0，反之返回非零数。</p>
+<p>此外，&lt;pthread.h&gt; 头文件还提供有 pthread_detach() 函数，可以直接将目标线程的 __detachstate 属性改为 PTHREAD_CREATE_DETACHED，语法格式如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_detach</span><span class="params">(<span class="type">pthread_t</span> thread)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>函数执行成功时返回数字 0 ，反之返回非零数。</p>
+<h4 id="2-schedpolicy"><a href="#2-schedpolicy" class="headerlink" title="2) __schedpolicy"></a>2) __schedpolicy</h4><p>__schedpolicy 属性用于指定系统调度该线程所用的算法，它的值有以下 3 个：</p>
+<ul>
+<li>SCHED_OTHER（默认值）：分时调度算法；</li>
+<li>SCHED_FIFO：先到先得（实时调度）算法；</li>
+<li>SCHED_RR：轮转法；</li>
+</ul>
+<blockquote>
+<p>其中，SCHED_OTHER 调度算法不支持为线程设置优先级，而另外两种调度算法支持。</p>
+</blockquote>
+<p>&lt;pthread.h&gt; 头文件提供了如下两个函数，专门用于访问和修改 __schedpolicy 属性：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_getschedpolicy</span><span class="params">(<span class="type">const</span> <span class="type">pthread_attr_t</span> *, <span class="type">int</span> * policy)</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_setschedpolicy</span><span class="params">(pthread_attr_*, <span class="type">int</span> policy)</span></span><br></pre></td></tr></table></figure>
+
+<p>pthread_attr_getschedpolicy() 函数用于获取当前 __schedpolicy 属性的值；pthread_attr_setschedpolicy() 函数用于修改 __schedpolicy 属性的值。函数执行成功时，返回值为数字 0，反之返回非零数。</p>
+<h4 id="3-schedparam"><a href="#3-schedparam" class="headerlink" title="3) __schedparam"></a>3) __schedparam</h4><p>__scheparam 用于设置线程的优先级（默认值为 0），该属性仅当线程的 __schedpolicy 属性为 SCHED_FIFO 或者 SCHED_RR 时才能发挥作用。</p>
+<p>&lt;pthread.h&gt; 头文件中提供了如下两个函数，用于获取和修改 __schedparam 属性的值：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_getschedparam</span><span class="params">(<span class="type">const</span> <span class="type">pthread_attr_t</span> *attr, <span class="keyword">struct</span> sched_param *param)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_setschedparam</span><span class="params">(<span class="type">pthread_attr_t</span> *attr, <span class="type">const</span> <span class="keyword">struct</span> sched_param *param)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>其中，param 参数用于接收或者修改 __scheparam 属性的优先级，它是 sched_param 结构体类型的变量，定义在 &lt;sched.h&gt; 头文件中，内部仅有一个 sched_priority 整形变量，用于表示线程的优先级。函数执行成功时返回数字 0，反之返回非零数。</p>
+<blockquote>
+<p>当需要修改线程的优先级时，我们只需创建一个 sched_param 类型的变量并为其内部的 sched_priority 成员赋值，然后将其传递给 pthrerd_attr_setschedparam() 函数。</p>
+</blockquote>
+<p>不同的操作系统，线程优先级的值的范围不同，您可以通过调用如下两个系统函数获得当前系统支持的最大和最小优先级的值：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">sched_get_priority_max</span><span class="params">(<span class="type">int</span> policy)</span>;   <span class="comment">//获得最大优先级的值</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">sched_get_priority_min</span><span class="params">(<span class="type">int</span> policy)</span>;   <span class="comment">//获得最小优先级的值</span></span><br></pre></td></tr></table></figure>
+
+<p>其中，policy 的值可以为 SCHED_FIFO、SCHED_RR 或者 SCHED_OTHER，当 policy 的值为 SCHED_OTHER 时，最大和最小优先级的值都为 0。</p>
+<h4 id="4-inheritsched"><a href="#4-inheritsched" class="headerlink" title="4) __inheritsched"></a>4) __inheritsched</h4><p>新建线程的调度属性（____schedpolicy 和 __schedparam 属性）默认遵循父线程的属性（谁创建它，谁就是它的父线程），如果我们想自定义线程的调度属性，就需要借助 __inheritsched 属性。</p>
+<p>也就是说，新线程的调度属性要么遵循父线程，要么遵循 myAttr 规定的属性，默认情况下 __inheritsched 规定新线程的调度属性遵循父线程，我们也可以修改 __inheritsched 的值，使新线程的调度属性遵循自定义的属性变量（如文章开头定义的 myAttr）规定的值。</p>
+<p>&lt;pthread.h&gt; 头文件提供了如下两个函数，分别用于获取和修改 __inheritsched 属性的值：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//获取 __inheritsched 属性的值</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_getinheritsched</span><span class="params">(<span class="type">const</span> <span class="type">pthread_attr_t</span> *attr,<span class="type">int</span> *inheritsched)</span>;</span><br><span class="line"><span class="comment">//修改 __inheritsched 属性的值</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_setinheritsched</span><span class="params">(<span class="type">pthread_attr_t</span> *attr,<span class="type">int</span> inheritsched)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>其中在 pthread_attr_setinheritsched() 函数中，inheritsched 参数的可选值有两个，分别是：</p>
+<ul>
+<li>PTHREAD_INHERIT_SCHED（默认值）：新线程的调度属性继承自父线程；</li>
+<li>PTHREAD_EXPLICIT_SCHED：新线程的调度属性继承自 myAttr 规定的值。</li>
+</ul>
+<p>以上两个函数执行成功时返回数字 0，反之返回非零数。</p>
+<h4 id="5-scope"><a href="#5-scope" class="headerlink" title="5) __scope"></a>5) __scope</h4><p>线程执行过程中，可以只和同进程内的其它线程争夺 CPU 资源，也可以和系统中所有的其它线程争夺 CPU 资源，__scope 属性用于指定目标线程和哪些线程抢夺 CPU 资源。</p>
+<p>&lt;pthread.h&gt; 头文件中提供了如下两个函数，分别用于获取和修改 __scope 属性的值：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//获取 __scope 属性的值</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_getscope</span><span class="params">(<span class="type">const</span> <span class="type">pthread_attr_t</span> * attr,<span class="type">int</span> * scope)</span>;</span><br><span class="line"><span class="comment">//修改 __scope 属性的值</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_setscope</span><span class="params">(<span class="type">pthread_attr_t</span> * attr,<span class="type">int</span> * scope)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>当调用 pthread_attr_setscope() 函数时，scope 参数的可选值有两个，分别是：</p>
+<ul>
+<li>PTHREAD_SCOPE_PROCESS：同一进程内争夺 CPU 资源；</li>
+<li>PTHREAD_SCOPE_SYSTEM：系统所有线程之间争夺 CPU 资源。</li>
+</ul>
+<blockquote>
+<p>Linux系统仅支持 PTHREAD_SCOPE_SYSTEM，即所有线程之间争夺 CPU 资源。</p>
+</blockquote>
+<p>当函数执行成功时，返回值为数字 0，反之返回非零数。</p>
+<h4 id="6-stacksize"><a href="#6-stacksize" class="headerlink" title="6) __stacksize"></a>6) __stacksize</h4><p>每个线程都有属于自己的内存空间，通常称为栈（有时也称堆栈、栈空间、栈内存等）。某些场景中，线程执行可能需要较大的栈内存，此时就需要我们自定义线程拥有的栈的大小。</p>
+<p>__stacksize 属性用于指定线程所拥有的栈内存的大小。&lt;pthread.h&gt; 提供有以下两个函数，分别用于获取和修改栈空间的大小：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//获取当前栈内存的大小</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_getstacksize</span><span class="params">(<span class="type">const</span> <span class="type">pthread_attr_t</span> * attr,<span class="type">size_t</span> * stacksize)</span>;</span><br><span class="line"><span class="comment">//修改栈内存的大小</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_setsstacksize</span><span class="params">(<span class="type">pthread_attr_t</span> * attr,<span class="type">size_t</span> * stacksize)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>函数执行成功时，返回值为数字 0，反之返回非零数。</p>
+<h4 id="7-guardsize"><a href="#7-guardsize" class="headerlink" title="7) __guardsize"></a>7) __guardsize</h4><p>每个线程中，栈内存的后面都紧挨着一块空闲的内存空间，我们通常称这块内存为警戒缓冲区，它的功能是：一旦我们使用的栈空间超出了额定值，警戒缓冲区可以确保线程不会因“栈溢出”立刻执行崩溃。</p>
+<p>__guardsize 属性专门用来设置警戒缓冲区的大小，&lt;pthread.h&gt; 头文件中提供了如下两个函数，分别用于获取和修改 __guardsize 属性的值：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_getguardsize</span><span class="params">(<span class="type">const</span> <span class="type">pthread_attr_t</span> *<span class="keyword">restrict</span> attr,<span class="type">size_t</span> *<span class="keyword">restrict</span> guardsize)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_attr_setguardsize</span><span class="params">(<span class="type">pthread_attr_t</span> *attr ,<span class="type">size_t</span> *guardsize)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>pthread_attr_setguardsize() 函数中，设置警戒缓冲区的大小为参数 guardsize 指定的字节数。函数执行成功时返回数字 0，反之返回非零数。</p>
+<h2 id="实际应用"><a href="#实际应用" class="headerlink" title="实际应用"></a>实际应用</h2><p>接下来通过一个样例，给大家演示如何自定义线程的属性：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;errno.h&gt;</span></span></span><br><span class="line"><span class="comment">//myThread1 线程执行的函数</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">Thread1</span><span class="params">(<span class="type">void</span> *arg)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Thread1 正在执行\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;http://c.biancheng.net\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Thread1 执行完毕\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//myThread2 线程执行的函数</span></span><br><span class="line"><span class="type">void</span>* <span class="title function_">Thread2</span><span class="params">(<span class="type">void</span>* arg)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Thread2 正在执行\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;C语言中文网\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Thread2 执行完毕\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc,<span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> num1, num2, res;</span><br><span class="line">    <span class="comment">//创建两个线程</span></span><br><span class="line">    <span class="type">pthread_t</span> mythread1, mythread2;</span><br><span class="line">    <span class="comment">//创建两个表示线程优先级的变量</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span>  <span class="title">sched_param</span> <span class="title">param1</span>, <span class="title">param2</span>;</span></span><br><span class="line">    <span class="comment">//创建两个表示线程属性的变量</span></span><br><span class="line">    <span class="type">pthread_attr_t</span> myAttr1, myAttr2;</span><br><span class="line">    <span class="comment">//接收 2 个整数，用于设定线程的优先级</span></span><br><span class="line">    <span class="keyword">if</span> (argc != <span class="number">3</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;未向程序传入 2 个表示优先级的数字\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//初始化线程属性</span></span><br><span class="line">    res = pthread_attr_init(&amp;myAttr1);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;myAttr1 init Fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">   </span><br><span class="line">    res = pthread_attr_init(&amp;myAttr2);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;myAttr1 init Fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//设置 myAttr1 的 __detachstate 属性值为 PTHREAD_CREATE_DETACHED</span></span><br><span class="line">    <span class="comment">//遵循 myAttr1 属性的线程执行函数完毕后会自行释放占用私有资源，不支持 pthread_join() 函数</span></span><br><span class="line">    res = pthread_attr_setdetachstate(&amp;myAttr1, PTHREAD_CREATE_DETACHED);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;myAttr1 set_detachstate Fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//设置 myAttr1 的 __scope 属性值为 PTHREAD_SCOPE_SYSTEM</span></span><br><span class="line">    <span class="comment">//遵循 myAttr1 属性的线程将同系统中的所有其它线程争夺 CPU 资源</span></span><br><span class="line">    res = pthread_attr_setscope(&amp;myAttr1, PTHREAD_SCOPE_SYSTEM);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;myAttr1 set_scope Fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//设置 myAttr2 的 __scope 属性值为 PTHREAD_SCOPE_SYSTEM</span></span><br><span class="line">    <span class="comment">//遵循 myAttr2 属性的线程将同系统中的所有其它线程争夺 CPU 资源</span></span><br><span class="line">    res = pthread_attr_setscope(&amp;myAttr2, PTHREAD_SCOPE_SYSTEM);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;myAttr2 set_scope Fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//设置 myAttr1 的 __schedpolicy 属性值为 SCHED_FIFO</span></span><br><span class="line">    <span class="comment">//系统会以实时调用的方式执行遵循 myAttr1 属性的线程</span></span><br><span class="line">    res = pthread_attr_setschedpolicy(&amp;myAttr1, SCHED_FIFO);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;myAttr1 set_policy Fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">   </span><br><span class="line">    <span class="comment">//设置 myAttr2 的 __schedpolicy 属性值为 SCHED_FIFO</span></span><br><span class="line">    <span class="comment">//系统会以实时调用的方式执行遵循 myAttr2 属性的线程</span></span><br><span class="line">    res = pthread_attr_setschedpolicy(&amp;myAttr2, SCHED_FIFO);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;myAttr2 set_policy Fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//设置 myAttr1 的 __inheritsched 属性值为 PTHREAD_EXPLICIT_SCHED</span></span><br><span class="line">    <span class="comment">//myAttr1 属性的线程将遵循自定义的线程属性</span></span><br><span class="line">    res = pthread_attr_setinheritsched(&amp;myAttr1, PTHREAD_EXPLICIT_SCHED);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;myAttr1 set_inheritsched fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">   </span><br><span class="line">    <span class="comment">//设置 myAttr2 的 __inheritsched 属性值为 PTHREAD_EXPLICIT_SCHED</span></span><br><span class="line">    <span class="comment">//myAttr2 属性的线程将遵循自定义的线程属性</span></span><br><span class="line">    res = pthread_attr_setinheritsched(&amp;myAttr2, PTHREAD_EXPLICIT_SCHED);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;myAttr2 set_inheritsched fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//想 argv[] 数组中的字符转换为数字</span></span><br><span class="line">    num1 = atoi(argv[<span class="number">1</span>]);</span><br><span class="line">    num2 = atoi(argv[<span class="number">2</span>]);</span><br><span class="line">    <span class="comment">// 分别将 num1 和 num2 作为线程优先级的值</span></span><br><span class="line">    param1.sched_priority = num1;</span><br><span class="line">    param2.sched_priority = num2;</span><br><span class="line">    <span class="comment">//设置 myAttr1 属性的优先级为 param1</span></span><br><span class="line">    res = pthread_attr_setschedparam(&amp;myAttr1, &amp;param1);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;param1 setscheparam Fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//设置 myAttr2 属性的优先级为 param2</span></span><br><span class="line">    res = pthread_attr_setschedparam(&amp;myAttr2, &amp;param2);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;param2 setscheparam Fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//创建新线程并遵循 myAttr1 属性</span></span><br><span class="line">    res = pthread_create(&amp;mythread1, &amp;myAttr1, Thread1, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;mythread1 create Fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//创建新线程并遵循 myAttr2 属性</span></span><br><span class="line">    res = pthread_create(&amp;mythread2, &amp;myAttr2, Thread2, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;mythread2 create Fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    sleep(<span class="number">5</span>);  <span class="comment">//等待 mythread1 和 mythread2 两个线程执行完</span></span><br><span class="line">    <span class="comment">//尝试 pthread_join() 函数等待 mythread1 线程执行结束</span></span><br><span class="line">    res = pthread_join(mythread1, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (res == EINVAL) &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;mythread1不支持调用 pthread_join()函数\n&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//尝试等待 mythread2 线程执行结束</span></span><br><span class="line">    res = pthread_join(mythread2, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;mythread2 has finished\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;主线程执行完毕\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设程序编写在 thread.c 文件中，执行过程如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># gcc thread.c -o thread.exe -lpthread</span></span><br><span class="line">[root@localhost ~]<span class="comment"># ./thread.exe 30 3</span></span><br><span class="line">Thread1 正在执行</span><br><span class="line">http://c.biancheng.net</span><br><span class="line">Thread1 执行完毕</span><br><span class="line">Thread2 正在执行</span><br><span class="line">C语言中文网</span><br><span class="line">Thread2 执行完毕</span><br><span class="line">mythread1不支持调用 pthread_join()函数</span><br><span class="line">主线程执行完毕</span><br><span class="line">[root@localhost ~]<span class="comment"># ./thread.exe 3 30</span></span><br><span class="line">Thread2 正在执行</span><br><span class="line">C语言中文网</span><br><span class="line">Thread2 执行完毕</span><br><span class="line">Thread1 正在执行</span><br><span class="line">http://c.biancheng.net</span><br><span class="line">Thread1 执行完毕</span><br><span class="line">mythread1不支持调用 pthread_join()函数</span><br><span class="line">主线程执行完毕</span><br></pre></td></tr></table></figure>
+
+
+
+<p>上面展示了两组执行结果，分别为 mythread1 和 mythread2 设置了不同的优先级，从运行结果可以看到，哪个线程的优先级高（数值大），哪个线程先执行。</p>
+<p>此外，通过程序的执行结果还可以看出，由于 mythread 线程的 __detachstate 属性为 PTHREAD_CREATE_DETACHED，因此该线程执行完 Thread1() 函数后会自行终止并释放占用的私有资源，不需要也不允许在其它线程（比如主线程）中执行 pthread_join(mythread1, NULL) 函数。</p>
+]]></content>
+      <categories>
+        <category>多线程</category>
+      </categories>
+      <tags>
+        <tag>多线程</tag>
+        <tag>C语言中文网</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用C++11进行多线程编程</title>
+    <url>/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8C++11%E8%BF%9B%E8%A1%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B/</url>
+    <content><![CDATA[<h1 id="使用C-11进行多线程编程"><a href="#使用C-11进行多线程编程" class="headerlink" title="使用C++11进行多线程编程"></a>使用C++11进行多线程编程</h1><blockquote>
+<p>C语言中文网：<a href="http://c.biancheng.net/thread/vip_8622.html">使用C++11进行多线程编程</a>   </p>
+</blockquote>
+<p>前面章节中，我们借助操作系统提供的接口实现了 C 语言多线程程序的编写。C++ 11 标准中新引入了与多线程编程相关的多个头文件，包括 <thread>、<mutex>、<future>、<condition_variable> 和 <atomic>。</atomic></condition_variable></future></mutex></thread></p>
+<p>当我们在 Linux 环境中编写 C++ 的多线程程序时，既可以借助 POSIX 标准提供的 &lt;pthread.h&gt; 实现，也可以借助 C++11 标准提供的头文件实现。本节，我们就给大家详细地讲解如何利用 C++11 标准编写多线程程序。</p>
+<h2 id="线程的创建和使用"><a href="#线程的创建和使用" class="headerlink" title="线程的创建和使用"></a>线程的创建和使用</h2><p>C++11 标准中，<code>&lt;thread&gt;</code>头文件提供了 thread 类（位于 std 命令空间中），专门用来完成线程的创建和使用。</p>
+<p><code>thread.h</code> 比 <code>pthread.h</code> 常用的多！</p>
+<h4 id="1-创建线程"><a href="#1-创建线程" class="headerlink" title="1) 创建线程"></a>1) 创建线程</h4><p>一个线程可以用 thread 类的对象来表示，thread类中重载了多种构造函数，最常用的有以下两个：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//1、Fn 表示线程要执行的函数，args 表示向 Fn 传递的多个参数，此构造函数支持泛型</span></span><br><span class="line">template &lt;<span class="class"><span class="keyword">class</span> <span class="title">Fn</span>, <span class="title">class</span>... <span class="title">Args</span>&gt;</span></span><br><span class="line">explicit <span class="title function_">thread</span> <span class="params">(Fn&amp;&amp; fn, Args&amp;&amp;... args)</span>;</span><br><span class="line"><span class="comment">//2、移动构造函数</span></span><br><span class="line">thread (thread&amp;&amp; x) noexcept;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意，thread 类只提供了移动构造函数，未提供拷贝构造函数。这意味着，我们不能直接将一个事先定义好的 thread 对象赋值给另一个 thread 对象，但可以将临时的（匿名的）thread 对象赋值给另一个 thread 对象。有关移动构造函数，读者可阅读《<a href="http://c.biancheng.net/view/7847.html">C++11移动构造函数详解</a>》一文做详细了解。</p>
+</blockquote>
+<p>POSIX 标准中，线程所执行函数的参数和返回值都必须为 void* 类型。而 thread 类创建的线程可以执行任意的函数，即不对函数的参数和返回值做具体限定。</p>
+<p>举个例子：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line">using namespace <span class="built_in">std</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">threadFun1</span><span class="params">(<span class="type">int</span> n)</span> &#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;---thread1 running\n&quot;</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;n=&quot;</span> &lt;&lt; n &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> <span class="title function_">threadFun2</span><span class="params">(<span class="type">const</span> <span class="type">char</span> * url)</span> &#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;---thread2 running\n&quot;</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;url=&quot;</span> &lt;&lt; url &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">//调用第 1 种构造函数</span></span><br><span class="line">    thread <span class="title function_">thread1</span><span class="params">(threadFun1,<span class="number">10</span>)</span>;</span><br><span class="line">    <span class="comment">//调用移动构造函数</span></span><br><span class="line">    thread thread2 = <span class="built_in">std</span>::thread(threadFun2,<span class="string">&quot;http://c.biancheng.net&quot;</span>);</span><br><span class="line">    <span class="comment">//阻塞主线程，等待 thread1 线程执行完毕</span></span><br><span class="line">    thread1.join();</span><br><span class="line">    <span class="comment">//阻塞主线程，等待 thread2 线程执行完毕</span></span><br><span class="line">    thread2.join();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>程序执行结果为（不唯一）：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">---thread1 running</span><br><span class="line">n=10</span><br><span class="line">---thread2 running</span><br><span class="line">url=http://c.biancheng.net</span><br></pre></td></tr></table></figure>
+
+
+
+<p>程序中，我们分别调用两种构造函数创建了两个线程，它们分别执行 threadFun1() 和 threadFun2() 函数。我们在主线程（main() 函数）中调用了 thread 类提供的 join() 成员函数，以 thread1.join() 为例，它的功能是阻塞主线程，直至 thread1 线程执行完毕后，主线程才能继续执行。</p>
+<h4 id="2-线程的使用"><a href="#2-线程的使用" class="headerlink" title="2) 线程的使用"></a>2) 线程的使用</h4><p>除了 join() 成员函数外，thread 类还提供有很多实用的成员函数，表 1 给大家列出了几个最常用的函数：</p>
+<p>表 1 thread 类的常用成员函数：</p>
+<table>
+<thead>
+<tr>
+<th>成员函数</th>
+<th>功 能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>get_id()</td>
+<td>获取当前 thread 对象的线程 ID。</td>
+</tr>
+<tr>
+<td>joinable()</td>
+<td>判断当前线程是否支持调用 join() 成员函数。</td>
+</tr>
+<tr>
+<td>join()</td>
+<td>阻塞当前 thread 对象所在的线程，直至 thread 对象表示的线程执行完毕后，所在线程才能继续执行。</td>
+</tr>
+<tr>
+<td>detach()</td>
+<td>将当前线程从调用该函数的线程中分离出去，它们彼此独立执行。</td>
+</tr>
+<tr>
+<td>swap()</td>
+<td>交换两个线程的状态。</td>
+</tr>
+</tbody></table>
+<p>注意，每个thread 对象在调用析构函数销毁前，要么调用 join() 函数令主线程等待子线程执行完成，要么调用 detach() 函数将子线程和主线程分离，两者比选其一，否则程序可能存在以下两个问题：</p>
+<ul>
+<li>&#x3D;&#x3D;线程占用的资源将无法全部释放，造成内存泄漏；&#x3D;&#x3D;</li>
+<li>&#x3D;&#x3D;当主线程执行完成而子线程未执行完时，程序执行将引发异常。&#x3D;&#x3D;</li>
+</ul>
+<p>举个例子：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line">using namespace <span class="built_in">std</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">threadFun1</span><span class="params">(<span class="type">int</span> n)</span> &#123;</span><br><span class="line">    sleep(<span class="number">5</span>);</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;---thread1 running\n&quot;</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;n=&quot;</span> &lt;&lt; n &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> <span class="title function_">threadFun2</span><span class="params">(<span class="type">const</span> <span class="type">char</span> * url)</span> &#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;---thread2 running\n&quot;</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;url=&quot;</span> &lt;&lt; url &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">//调用第 1 种构造函数</span></span><br><span class="line">    thread <span class="title function_">thread1</span><span class="params">(threadFun1, <span class="number">10</span>)</span>;</span><br><span class="line">    <span class="comment">//输出 thread1 线程的 ID</span></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;thread1 ID:&quot;</span> &lt;&lt; thread1.get_id() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="comment">//调用移动构造函数</span></span><br><span class="line">    thread thread2 = <span class="built_in">std</span>::thread(threadFun2, <span class="string">&quot;http://c.biancheng.net&quot;</span>);</span><br><span class="line">    <span class="comment">//输出 thread2 线程的 ID</span></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;thread2 ID:&quot;</span> &lt;&lt; thread2.get_id() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="comment">//将 thread1 与主线程分离开，thread1 线程独立执行。</span></span><br><span class="line">    thread1.detach();</span><br><span class="line">    <span class="comment">//判断 thread2 线程是否可以调用 join() 函数</span></span><br><span class="line">    <span class="keyword">if</span> (thread2.joinable()) &#123;</span><br><span class="line">        <span class="comment">//阻塞主线程，直至 thread2 线程执行完毕。</span></span><br><span class="line">        thread2.join();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;main finished&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设程序编写在 thread.cpp 文件中，执行过程如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># g++ thread.cpp -o thread.exe -std=c++11 -lpthread</span></span><br><span class="line">[root@localhost ~]<span class="comment"># ./thread.exe</span></span><br><span class="line">thread1 ID:140278776624896</span><br><span class="line">thread2 ID:140278768232192</span><br><span class="line">---thread2 running</span><br><span class="line">url=http://c.biancheng.net</span><br><span class="line">main finished</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果在 Windows 环境中运行，将程序中引入的 &lt;unistd.h&gt; 头文件改为 &lt;Windows.h&gt;，将第 6 行的 sleep(5); 语句改为 Sleep(5); 语句即可。</p>
+</blockquote>
+<p>程序中创建了 2 个线程，通过调用 get_id() 成员函数分别获得了它们的线程 ID，其中 thread1 线程独立执行，thread2 线程先于主线程执行完成。通过执行结果可以看到，thread1 线程的执行结果并没有显示到屏幕上，这是因为 thread1 线程还未执行输出语句，主线程就已经执行结束（整个进程也执行结束），thread1 线程无法将执行结果输出到屏幕上。</p>
+<p><code>&lt;thread&gt;</code>头文件中不仅定义了 thread 类，还提供了一个名为 this_thread 的命名空间，此空间中包含一些功能实用的函数，如表 2 所示</p>
+<p>表 2 this_thread命名空间常用函数：</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>功 能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>get_id()</td>
+<td>获得当前线程的 ID。</td>
+</tr>
+<tr>
+<td>yield()</td>
+<td>阻塞当前线程，直至条件成熟。</td>
+</tr>
+<tr>
+<td>sleep_until()</td>
+<td>阻塞当前线程，直至某个时间点为止。</td>
+</tr>
+<tr>
+<td>sleep_for()</td>
+<td>阻塞当前线程指定的时间（例如阻塞 5 秒）。</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>有关表 2 中这些函数的用法，我们不再一一举例，感兴趣的读者可查阅 C++ 函数手册。</p>
+</blockquote>
+<h2 id="实现线程同步"><a href="#实现线程同步" class="headerlink" title="实现线程同步"></a>实现线程同步</h2><p>C++ 11 标准为解决“线程间抢夺公共资源”提供了多种方案，其中就包括我们前面讲到的互斥锁和条件变量。</p>
+<h4 id="1-互斥锁"><a href="#1-互斥锁" class="headerlink" title="1) 互斥锁"></a>1) 互斥锁</h4><blockquote>
+<p>有关互斥锁实现线程同步的原理，这里不再赘述，您可以阅读《<a href="http://c.biancheng.net/thread/vip_8615.html">Linux互斥锁实现线程同步</a>》一文做详细了解。</p>
+</blockquote>
+<p>考虑到不同场景的需要，C++ 11 标准提供有多种互斥锁，比如递归互斥锁、定时互斥锁，自动“加锁”和“解锁”的互斥锁等。本节我们以普通的互斥锁为例，给大家讲解互斥锁的基本用法。</p>
+<p>C++11标准规定，互斥锁用 mutex 类（位于 std 命名空间中）的对象表示，该类定义在<code>&lt;mutex&gt;</code>头文件中。mutex 类提供有 lock() 和 unlock() 成员函数，分别完成“加锁”和“解锁”功能。</p>
+<p>举个例子：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;mutex&gt;</span>          <span class="comment">// std::mutex</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;chrono&gt;</span>         <span class="comment">// std::chrono::seconds()</span></span></span><br><span class="line">using namespace <span class="built_in">std</span>;</span><br><span class="line"><span class="type">int</span>  n = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">std</span>::mutex mtx;           <span class="comment">// 定义一个 mutex 类对象，创建一个互斥锁</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">threadFun</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">while</span>(n&lt;<span class="number">10</span>)&#123;</span><br><span class="line">        <span class="comment">//对互斥锁进行“加锁”</span></span><br><span class="line">        mtx.lock();</span><br><span class="line">        n++;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;ID&quot;</span> &lt;&lt; <span class="built_in">std</span>::this_thread::get_id() &lt;&lt; <span class="string">&quot; n = &quot;</span>&lt;&lt; n &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">        <span class="comment">//对互斥锁进行“解锁”</span></span><br><span class="line">        mtx.unlock();</span><br><span class="line">        <span class="comment">//暂停 1 秒</span></span><br><span class="line">        <span class="built_in">std</span>::this_thread::sleep_for(<span class="built_in">std</span>::chrono::seconds(<span class="number">1</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    thread <span class="title function_">th1</span><span class="params">(threadFun)</span>;</span><br><span class="line">    thread <span class="title function_">th2</span><span class="params">(threadFun)</span>;</span><br><span class="line">    th1.join();</span><br><span class="line">    th2.join();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>程序执行结果为（不唯一）：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ID16064 n = 1</span><br><span class="line">ID1956 n = 2</span><br><span class="line">ID16064 n = 3</span><br><span class="line">ID1956 n = 4</span><br><span class="line">ID16064 n = 5</span><br><span class="line">ID1956 n = 6</span><br><span class="line">ID16064 n = 7</span><br><span class="line">ID1956 n = 8</span><br><span class="line">ID16064 n = 9</span><br><span class="line">ID1956 n = 10</span><br></pre></td></tr></table></figure>
+
+
+
+<p>程序中，访问公共变量 n 的线程有 2 个，为了避免它们之间竞争资源，我们对 threadFun() 函数中访问 n 变量的过程引入了互斥锁机制。</p>
+<h4 id="2-条件变量"><a href="#2-条件变量" class="headerlink" title="2) 条件变量"></a>2) 条件变量</h4><p>有关条件变量实现线程同步的原理，这里不再赘述，您可以阅读《<a href="http://c.biancheng.net/thread/vip_8617.html">Linux条件变量实现线程同步</a>》一文做详细了解。</p>
+<p>C++ 11标准提供了两种表示条件变量的类，分别是 condition_variable 和 condition_variable_any，它们都定义在<code>&lt;condition_variable&gt;</code>头文件中。我们知道，为了避免线程间抢夺资源，条件变量通常和互斥锁搭配使用，condition_variable 类表示的条件变量只能和 unique_lock 类表示的互斥锁（可自行加锁和解锁）搭配使用，而 condition_variable_any 类表示的条件变量可以和任意类型的互斥锁搭配使用（例如递归互斥锁、定时互斥锁等）。</p>
+<p>这里我们以 condition_variable_any 为例，给大家讲解 C++11 标准中条件变量的基本用法。每个 condition_variable_any 类的对象都表示一个条件变量，该类提供的成员函数如表 3 所示。</p>
+<p>表 3 条件变量常用函数：</p>
+<table>
+<thead>
+<tr>
+<th>成员函数</th>
+<th>功 能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>wait()</td>
+<td>阻塞当前线程，等待条件成立。</td>
+</tr>
+<tr>
+<td>wait_for()</td>
+<td>阻塞当前线程的过程中，该函数会自动调用 unlock() 函数解锁互斥锁，从而令其他线程使用公共资源。当条件成立或者超过了指定的等待时间（比如 3 秒），该函数会自动调用 lock() 函数对互斥锁加锁，同时令线程继续执行。</td>
+</tr>
+<tr>
+<td>wait_until()</td>
+<td>和 wait_for() 功能类似，不同之处在于，wait_until() 函数可以设定一个具体时间点（例如 2021年4月8日 的某个具体时间），当条件成立或者等待时间超过了指定的时间点，函数会自动对互斥锁加锁，同时线程继续执行。</td>
+</tr>
+<tr>
+<td>notify_one()</td>
+<td>向其中一个正在等待的线程发送“条件成立”的信号。</td>
+</tr>
+<tr>
+<td>notify_all()</td>
+<td>向所有等待的线程发送“条件成立”的信号。</td>
+</tr>
+</tbody></table>
+<p>举个例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;thread&gt;             // std::thread</span><br><span class="line">#include &lt;mutex&gt;              // std::mutex, std::unique_lock</span><br><span class="line">#include &lt;condition_variable&gt; // std::condition_variable_any</span><br><span class="line">#include &lt;chrono&gt;         // std::chrono::seconds()</span><br><span class="line">//创建一个互斥锁</span><br><span class="line">std::mutex mtx;</span><br><span class="line">//创建一个条件变量</span><br><span class="line">std::condition_variable_any cond;</span><br><span class="line">void print_id() &#123;</span><br><span class="line">    mtx.lock();</span><br><span class="line">    //阻塞线程，直至条件成立</span><br><span class="line">    cond.wait(mtx);</span><br><span class="line">    std::cout &lt;&lt; &quot;----threadID &quot; &lt;&lt; std::this_thread::get_id() &lt;&lt;&quot; run&quot; &lt;&lt; std::endl;</span><br><span class="line">    //等待 2 秒</span><br><span class="line">    std::this_thread::sleep_for(std::chrono::seconds(2));</span><br><span class="line">    mtx.unlock();</span><br><span class="line">&#125;</span><br><span class="line">void go() &#123;</span><br><span class="line">    std::cout &lt;&lt; &quot;go running\n&quot;;</span><br><span class="line">    //阻塞线程 2 秒钟</span><br><span class="line">    std::this_thread::sleep_for(std::chrono::seconds(2));</span><br><span class="line">    //通知所有等待的线程条件成立</span><br><span class="line">    cond.notify_all();</span><br><span class="line">&#125;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    //创建 4 个线程执行 print_id() 函数</span><br><span class="line">    std::thread threads[4];</span><br><span class="line">    for (int i = 0; i &lt; 4; ++i)</span><br><span class="line">        threads[i] = std::thread(print_id);</span><br><span class="line">    //创建 1 个线程执行 go() 函数</span><br><span class="line">    std::thread goThread(go);</span><br><span class="line">    //等待所有线程执行结果后，主线程才能继续执行</span><br><span class="line">    goThread.join();</span><br><span class="line">    for (auto&amp; th : threads) &#123;</span><br><span class="line">        th.join();</span><br><span class="line">    &#125;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果为：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">go running</span><br><span class="line">----threadID 11416 run</span><br><span class="line">----threadID 18696 run</span><br><span class="line">----threadID 11268 run</span><br><span class="line">----threadID 16824 run</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <categories>
         <category>多线程</category>
