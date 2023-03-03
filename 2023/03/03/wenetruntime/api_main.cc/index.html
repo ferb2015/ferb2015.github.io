@@ -87,7 +87,7 @@
 <meta property="og:description" content="api_main.cc可执行文件路径在：wenet&#x2F;runtime&#x2F;libtorch&#x2F;build&#x2F;bin 想编译出这个可执行文件，需要在 runtime&#x2F;core&#x2F;bin&#x2F;CMakeLists.txt 里添加： 12345678add_executable(api_main api_main.cc)target_link_libraries(api_main PUBLIC wenet_api)#或">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-03-02T16:00:00.000Z">
-<meta property="article:modified_time" content="2023-03-03T10:24:07.935Z">
+<meta property="article:modified_time" content="2023-03-03T11:01:07.112Z">
 <meta property="article:author" content="Long Ye">
 <meta property="article:tag" content="wenetruntime">
 <meta name="twitter:card" content="summary">
@@ -412,10 +412,7 @@
 
 <h3 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cd libtorch</span></span><br><span class="line">cgdb ./build/bin/api_main</span><br><span class="line"><span class="comment"># 打断点</span></span><br><span class="line">run --model_dir /mnt/k/wenet/model/20220506_u2pp_conformer_libtorch/ --wav_path test.wav</span><br><span class="line">run --model_dir /mnt/k/wenet/model/20210601_u2++_conformer_libtorch/ --wav_path test.wav</span><br></pre></td></tr></table></figure>
 
-
-
-
-
+<p>这里 <code>chunk_size</code> 用的默认值（16）（<code>core/decoder/asr_decoder.h</code>）</p>
 <h3 id="代码解释"><a href="#代码解释" class="headerlink" title="代码解释"></a>代码解释</h3><p>另一个版本的可执行文件 <code>decoder_main</code> 里，用的是<code>AsrDecoder</code>基类，<code>wenet::AsrDecoder decoder(feature_pipeline, g_decode_resource, *g_decode_config);</code></p>
 <p>这里 <code>api_main</code> 用的是 <code>core/api/wenet_api.cc </code>里的 <code>Recognizer</code> 类，里面也是有<code>feature_pipeline</code>_、<code>resource_</code>、<code>model</code>等成员。</p>
 <p>这里直接把 model 固定为<code>TorchAsrModel</code>类型，只是可以选用libtorch的gpu运行还是cpu运行模型：</p>
