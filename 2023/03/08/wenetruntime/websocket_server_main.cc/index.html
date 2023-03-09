@@ -87,7 +87,7 @@
 <meta property="og:description" content="websocket_server_main.cc可执行文件路径：wenet&#x2F;runtime&#x2F;libtorch&#x2F;build&#x2F;bin&#x2F;websocket_server_main 直接执行在命令行窗口执行： bash websocket_server.sh： websocket_server.sh： 12345678910export GLOG_logt">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-03-07T16:00:00.000Z">
-<meta property="article:modified_time" content="2023-03-08T02:28:13.059Z">
+<meta property="article:modified_time" content="2023-03-09T03:06:12.957Z">
 <meta property="article:author" content="Long Ye">
 <meta property="article:tag" content="wenetruntime">
 <meta name="twitter:card" content="summary">
@@ -412,7 +412,7 @@
 
 
 
-<h3 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> GLOG_logtostderr=1</span><br><span class="line"><span class="built_in">export</span> GLOG_v=2</span><br><span class="line"></span><br><span class="line">cgdb ./build/bin/websocket_server_main </span><br><span class="line"><span class="comment"># 打断点</span></span><br><span class="line">run --port 10086 --chunk_size 16 --model_path /mnt/k/wenet/model/20210601_u2++_conformer_libtorch/final.zip --unit_path /mnt/k/wenet/model/20210601_u2++_conformer_libtorch/units.txt </span><br><span class="line"></span><br><span class="line"><span class="comment"># 在另一个命令行窗口，执行</span></span><br><span class="line">bash websocket_client.sh</span><br></pre></td></tr></table></figure>
+<h3 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cd runtime/libtorch</span></span><br><span class="line"><span class="built_in">export</span> GLOG_logtostderr=1</span><br><span class="line"><span class="built_in">export</span> GLOG_v=2</span><br><span class="line"></span><br><span class="line">cgdb ./build/bin/websocket_server_main </span><br><span class="line"><span class="comment"># 打断点  比如 b core/websocket/websocket_server.cc:125</span></span><br><span class="line">run --port 10086 --chunk_size 16 --model_path /mnt/k/wenet/model/20210601_u2++_conformer_libtorch/final.zip --unit_path /mnt/k/wenet/model/20210601_u2++_conformer_libtorch/units.txt </span><br><span class="line"></span><br><span class="line"><span class="comment"># 在另一个命令行窗口，执行</span></span><br><span class="line">bash websocket_client.sh</span><br></pre></td></tr></table></figure>
 
 
 
@@ -420,8 +420,9 @@
 <p>子线程具体通信过程（下面把“当前这个子线程”叫“主线程”，因为这个子线程里面又会新开线程）：</p>
 <p>client先发一个text作为开始通信的表示，server接收，server通过连续三个判断（接收的字符串里有三个字段，分别是<code>signal == &quot;start&quot;</code>、<code>obj.find(&quot;nbest&quot;) != obj.end()</code>、<code>obj.find(&quot;continuous_decoding&quot;) != obj.end()</code>）确认它是想开始通信。</p>
 <p>然后进入<code>OnSpeechStart()</code>函数，server告诉client接收到了，发送给client（发送，也就是<code>ws.write</code>）ok的状态，server准备好了。</p>
-<p>新建一个线程类型的共享指针，子线程内执行的函数是 <code>DecodeThreadFunc()</code>函数。于是子线程<code>decode_thread_</code>去执行 <code>DecodeThreadFunc()</code>函数，原来的线程继续执行，新一轮for循环会执行到 <code>OnSpeechData()</code> 函数，读入音频数据。音频数据全部读完后，break退出for循环，程序来到 <code>decode_thread_-&gt;join();</code>，主线程等待子线程 <code>decode_thread_</code> 程序执行完毕。</p>
-<p><code>DecodeThreadFunc()</code>函数流程：用了<code>while(true)</code>循环，直到遇到end结束符就break，否则一直循环，根据解码返回状态决定接下去的步骤：</p>
+<p>新建一个线程类型的共享指针，子线程内执行的函数是 <code>DecodeThreadFunc()</code>函数。于是子线程<code>decode_thread_</code>去执行 <code>DecodeThreadFunc()</code>函数，原来的线程继续执行，新一轮for循环会执行到 <code>OnSpeechData()</code> 函数，读入音频数据，<code>feature_pipeline_-&gt;AcceptWaveform(pcm_data, num_samples);</code>，计算成fbank特征，放进特征队列里，等待解码器的解码。音频数据全部读完后，break退出for循环，程序来到 <code>decode_thread_-&gt;join();</code>，主线程等待子线程 <code>decode_thread_</code> 程序执行完毕。</p>
+<p><code>DecodeThreadFunc()</code>函数流程：用了<code>while(true)</code>循环，直到遇到end结束符就break，否则一直循环，执行<code>state = decoder_-&gt;Decode()</code>，<code>decoder_-&gt;Decode()</code> 具体操作是：从特征队列里读取read特征，存放在chunk_feat 里，送入模型 <code>model_-&gt;ForwardEncoder</code> 识别，再做CtcPrefixBeamSearch。</p>
+<p>根据解码返回状态 state 决定接下去的步骤：</p>
 <ul>
 <li>状态为 “解码完所有音频特征 kEndFeats 时”，说明所有音频解码完了，进行rescore，结果保存在json中，写入ws_，也就是传结果这个消息给客户端，然后break出去；</li>
 <li>状态为“检测到端点 kEndpoint 时”，说明遇到端点，进行rescore，结果保存在json中，写入ws_，也就是传结果这个消息给客户端，然后根据初始参数设置的是要连续解码还是非连续解码，进行不同的后续步骤。如果设定为要连续解码，则虽然遇到端点了，还是要接着下一轮循环继续解码，把decoder清空历史内存，reset各种状态，重新开始解码；如果设定为非连续解码，则遇到端点，视为结束，传结束符给client，break出去。</li>
@@ -468,6 +469,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/03/09/wenetruntime/websocket_client_main.cc/" rel="prev" title="websocket_client_main.cc">
+                websocket_client_main.cc <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -554,7 +559,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">168</span>
+                  <span class="site-state-item-count">169</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
