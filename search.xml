@@ -15657,8 +15657,8 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 
 <p>然后新建子线程，子线程里执行 <code>ReadLoopFunc()</code> 函数，主线程发送开始符给server，是一个text格式的字符串，write写进ws_里，也就是和server发消息（发开始符）（对应函数为 <code>SendTextData(const std::string&amp; data)</code> ， data内容是<code>&#123;\&quot;signal\&quot;:\&quot;start\&quot;,\&quot;nbest\&quot;:1,\&quot;continuous_decoding\&quot;:false&#125;</code>）。主线程接着往下走，读取要识别的音频，然后每隔0.5s发送0.5s的音频数据给server，发送给server了就休息一下，sleep 0.5s，直到把音频数据全发送完，再发送结束符。然后等待子线程里 <code>ReadLoopFunc()</code>函数执行完，主线程也结束。</p>
 <p><code>ReadLoopFunc()</code> 函数作用：这个函数作用是验证server返回的消息是不是正常的。</p>
-<p><code>ReadLoopFunc()</code>函数流程：（主线程client已经给server发送开始请求了），用 <code>while(true)</code>循环一直在read读取 server返回的消息，确认client接收到消息的status一直是ok的，如果不ok，就会break退出循环，因此起到验证serber返回的消息是否正常的功能，然后一直到client接收到消息的type是speech_end字符串，也会break退出循环，结束子线程。</p>
-<p>如果不是正常的也不会怎么样啊？</p>
+<p><code>ReadLoopFunc()</code>函数流程：（主线程client已经给server发送开始请求了），用 <code>while(true)</code>循环一直在read读取 server返回的消息，确认client接收到消息的status一直是ok的，如果不ok，就会break退出循环。而server端发送不ok的情况就是进入<code>OnError()</code>函数，里面的status会是<code>failed</code>，会发给client非ok的状态，而此时server的代码会执行<code>ws_.close()</code>，也就是断开和client的连接，因此起到验证server返回的消息是否正常的功能。</p>
+<p>然后一直到client接收到消息的type是speech_end字符串，也会break退出循环，结束子线程。</p>
 ]]></content>
       <categories>
         <category>wenetruntime</category>
