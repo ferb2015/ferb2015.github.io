@@ -15696,20 +15696,21 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
   </entry>
   <entry>
     <title>Delay-penalized transducer for low-latency streaming ASR</title>
-    <url>/2023/03/10/k2/Delay-penalized%20transducer%20for%20low-latency%20streaming%20ASR/</url>
+    <url>/2023/03/12/k2/Delay-penalized%20transducer%20for%20low-latency%20streaming%20ASR/</url>
     <content><![CDATA[<h1 id="Delay-penalized-transducer-for-low-latency-streaming-ASR"><a href="#Delay-penalized-transducer-for-low-latency-streaming-ASR" class="headerlink" title="Delay-penalized transducer for low-latency streaming ASR"></a>Delay-penalized transducer for low-latency streaming ASR</h1><blockquote>
 <p>Kang, Wei, et al. “Delay-penalized transducer for low-latency streaming ASR.” <em>arXiv preprint arXiv:2211.00490</em> (2022).</p>
 <p>公众号 新一代Kaldi <a href="https://mp.weixin.qq.com/s?__biz=MzkyMzI5NTM2Ng==&mid=2247485555&idx=1&sn=7e67970fff5cd6594a07f1101143f587&scene=21#wechat_redirect">低时延 RNN-T 训练</a></p>
 <p>公众号 新一代Kaldi <a href="https://mp.weixin.qq.com/s/zOBbLeqKASLE9cvOYwCM4w">Delay Penalty For RNN-T and CTC</a></p>
 <p>github：<a href="https://github.com/k2-fsa/k2/pull/976">https://github.com/k2-fsa/k2/pull/976</a> 、 <a href="https://github.com/k2-fsa/icefall/pull/654">https://github.com/k2-fsa/icefall/pull/654</a></p>
+<p>k2 fsa 实现计算 CTC 目标函数：<a href="https://github.com/k2-fsa/next-gen-kaldi-wechat/blob/master/pdf/LF-MMI-training-and-decoding-in-k2-Part-I.pdf">https://github.com/k2-fsa/next-gen-kaldi-wechat/blob/master/pdf/LF-MMI-training-and-decoding-in-k2-Part-I.pdf</a></p>
 </blockquote>
 <ul>
 <li><p><strong>解决什么问题</strong></p>
-<p>解决CTC、RNNT的transducer模型（并且是流式模型）本身带来的输出延迟 symbol deay，造成的识别实时性效果体验不佳。</p>
+<p>解决CTC、RNNT的transducer模型（并且是流式模型）本身带来的输出延迟 symbol delay，造成的识别实时性效果体验不佳。</p>
 </li>
 <li><p><strong>用了什么方法</strong></p>
 <p>修改symbol的概率，具体做法是添加一个小常数 $\lambda$ 乘以 (T&#x2F;2 - t)，得到一个值（其中T是帧数，t是输出某个token对应的时刻），在transducer模型输出的可能路径上，把这个值作用在非blank对数概率上(归一化后)。</p>
-<p>这里的 (T&#x2F;2 - t) 物理意义是，在输出的 $T \times U$ 的可能路径图上，如果输出token对应的时刻越前（小），则 (T&#x2F;2 - t) 的值越大，设定是这个值（偏移量）越大表示时延越小。</p>
+<p>这里的 (T&#x2F;2 - t) 物理意义是，在输出的 $T \times U$ 的可能路径图上，如果输出token对应的时刻越前（小），则 (T&#x2F;2 - t) 的值越大，设定是这个值（偏移量）越大表示时延越小。希望token输出的时间越早越好。</p>
 <p>该方法通过修改symbol的概率，近似等价于对loss添加正则项，进行 时延惩罚，delay-penalized 。</p>
 </li>
 <li><p><strong>效果如何</strong></p>
@@ -15732,16 +15733,19 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <p>造成时延的原因：时延问题可以说是端到端模型基因里带来的缺点，一个大家都比较认可的解释是，<code>RNN-T/CTC</code> 这样基于序列的损失函数对于 <code>Alignments</code> 的优化是无差别的，即只管优化能输出 transcript 对应的路径，不管这个路径是先输出 <code>symbol</code> 还是先输出 <code>blank</code>。所以，对于流式模型的训练，由于当前看到的 <code>context</code> 有限，模型总是倾向于看到更多的 context 后再决定是否输出 <code>symbol</code>。</p>
 <h4 id="2-alignment"><a href="#2-alignment" class="headerlink" title="2. alignment"></a>2. alignment</h4><p>可能的路径，也叫alignment对齐，也叫token-time alignment。</p>
 <h2 id="时延正则"><a href="#时延正则" class="headerlink" title="时延正则"></a>时延正则</h2><p>时延正则的目标是给低时延的路径一些鼓励（加分），给高时延的路径一些抑制（减分）。最终的实现就是给 <code>lattice</code> 中每条输出 <code>symbol</code> 的边加一个分数，这个分数根据边所在的帧而不同，以中轴线为基准，左侧加<code>正值</code>（鼓励），右侧加<code>负值</code>（惩罚），示意图如下图所示。这样位于左上角的路径的分数得到增强，位于右下角的路径分数会被抑制，从而达到降低时延的目的。</p>
-<img src="/2023/03/10/k2/Delay-penalized%20transducer%20for%20low-latency%20streaming%20ASR/image-20230309194826398.png" alt="image-20230309194826398" style="zoom:67%;">
+<img src="/2023/03/12/k2/Delay-penalized%20transducer%20for%20low-latency%20streaming%20ASR/image-20230309194826398.png" alt="image-20230309194826398" style="zoom:67%;">
 
 <h3 id="路径分数"><a href="#路径分数" class="headerlink" title="路径分数"></a>路径分数</h3><p>原目标函数：最大化所有对齐路径的路径概率之和。<br>$$<br>\mathcal{L}&#x3D;\log \sum_i \exp(s_i)<br>$$<br>$s_i$是某一条可能的路径概率，是log域的概率；计算路径概率和一般用前后向算法，到某个节点 $(t,u)$ 的路径log概率记为$\alpha(t,u)$ ，表示已经输出的token序列 $y_{0…u}$ 和已经输入的特征序列 $x_{0…t}$ ，计算公式可以递归地写为：<br>$$<br>\alpha(t, u)&#x3D;\log \operatorname{Add}(\alpha(t, u-1)+y(t, u-1),\quad \alpha(t-1, u)+\varnothing(t-1, u))<br>$$<br>其中 LogAdd 定义为：<br>$$<br>\log \operatorname{Add}(a, b)&#x3D;\log \left(e^a+e^b\right) .<br>$$<br>初始化 $\alpha(0,0)$ 为 0 . The total log-probabi over all alignments path $\mathcal{L}$ is:<br>$$<br>\mathcal{L}&#x3D;\alpha(T-1, U)+\varnothing(T-1, U)<br>$$<br>由于是所有路径和，流式模型会偏向于图1的蓝线情况，即由于当前看到的 <code>context</code> 有限，模型总是倾向于看到更多的 context 后再决定是否输出 <code>symbol</code>。</p>
 <p>随着训练步数增加（随着模型越训越好），时延会增加：</p>
-<img src="/2023/03/10/k2/Delay-penalized%20transducer%20for%20low-latency%20streaming%20ASR/image-20230310152857290.png" alt="image-20230310152857290" style="zoom: 67%;">
+<img src="/2023/03/12/k2/Delay-penalized%20transducer%20for%20low-latency%20streaming%20ASR/image-20230310152857290.png" alt="image-20230310152857290" style="zoom: 67%;">
 
 
 
 <h3 id="Delay-penalized-Transducer"><a href="#Delay-penalized-Transducer" class="headerlink" title="Delay-penalized Transducer"></a>Delay-penalized Transducer</h3><p>为了惩罚 RNN-T 模型的时延，我们的想法是在目标函数 $\mathcal{L}$ 上增加一个时延正则项 $\mathcal{L}<em>{\text {delay }}$ ，得到一个新的目标函数 $\mathcal{L}</em>{\text {aug }}$：<br>$$<br>\mathcal{L}<em>{\text {aug }}&#x3D;\mathcal{L}+\mathcal{L}</em>{\text {delay }}<br>$$<br>$\mathcal{L}<em>{\text {delay }}$ 表示 lattice 中所有路径的<strong>平均时延分数</strong>（值越大，代表时延越低）, 定义为:<br>$$<br>\mathcal{L}</em>{\text {delay }}&#x3D;\lambda \sum_i d_i w_i<br>$$<br>其中, <strong>$d_i$ 为路径 $i$ 的时延分数</strong>, $\lambda$ 是一个超参数, $w_i$ 为路径 $i$ 的分数 $s_i$ 在整个 lattice 中的比重：<br>$$<br>w_i&#x3D;\frac{\partial \mathcal{L}}{\partial s_i}&#x3D;\frac{\exp \left(s_i\right)}{\sum_j \exp \left(s_j\right)}<br>$$<br>原本每一条路径的权重都相同，都是1&#x2F;N，N是可能路径数，现在根据路径分数不同，权重也不同，所以路径分数大的，权重也大。</p>
+<p>注意这里，我们用前后向算法，是不需要把每条路径都各自有其统计值的，但是这个公式这样写，就变成每条路径都要记录其路径分数了。</p>
 <p>此处, $d_i$ 的值越大, 表示路径 $i$ 的时延越低。</p>
+<p>通过引入时延正则项 $\mathcal{L}_{\text {delay }}$ ，RNN-T 会被约束着去<strong>增强那些时延较低（ $d_i$ 较大）的路径 ，</strong>为他们赋予一个更高的分数 $s_i$ 。</p>
+<p>在优化 $\mathcal{L}$  的过程中，并没有显式计算各个路径 $i$ 的分数 $s_i$。那么问题来了，为了优化  $\mathcal{L}<em>{\text {aug }}$ ，难道我们还要去显示地求出各个路径 $i$ 的分数 $s_i$ ，来计算 $w_i$ 吗？这无疑是一种极其低效且不优雅的做法。下面给出数学公式，证明可以优雅地实现 $\mathcal{L}</em>{\text {aug }}$ 地优化。</p>
 <p>所有路径权重 $w_i$ 之和为1，即 $\large \sum_i w_i&#x3D;\sum_i \frac{\partial \mathcal{L}}{\partial s_i}&#x3D;\frac{\sum_i \exp \left(s_i\right)}{\sum_j \exp \left(s_j\right)}&#x3D;1$</p>
 <p>新目标函数 $\mathcal{L}<em>{\text {aug }}$ 对路径分数 $s_i$偏导为<br>$$<br>\frac{\partial \mathcal{L}</em>{\text {aug }}}{\partial s_i}&#x3D;\frac{\partial \mathcal{L}}{\partial s_i}+\frac{\partial \mathcal{L}_{\text {delay }}}{\partial s_i}<br>$$<br>根据上式可以写成：</p>
 <p>$$<br>\begin{aligned}<br>\frac{\partial \mathcal{L}_{\text {delay }}}{\partial s_i}&amp;&#x3D;\lambda \left( \sum_id_i\frac{\exp(s_i)}{\sum_j\exp(s_j)}\right)’\<br>&amp;&#x3D; \lambda\left(\frac{\sum_id_i \exp(s_i)}{\sum_j\exp(s_j)}\right)’\<br>&amp;&#x3D;\lambda\left(\frac{d_i \exp \left(s_i\right)}{\sum_j \exp \left(s_j\right)}-\frac{\sum_i d_i\left(\exp \left(s_i\right)\right)^2}{\left(\sum_j \exp \left(s_j\right)\right)^2}\right)<br>\end{aligned}<br>$$<br>第二行用除法求导展开得到第三行。</p>
@@ -15749,14 +15753,34 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <p>当 $\lambda$ 很小时，$\left(1+\lambda\left(d_i-d_{\mathrm{avg}}\right)\right)$ 近似于 $\exp \left(\lambda \left(d_i-d_{\mathrm{avg}}\right)\right)$ ，（$1&#x3D;e^0$） ， 因此可以将上式写为：<br>$$<br>\frac{\partial L_{\text {aug }}}{\partial s_i} \approx \frac{\exp \left(\lambda\left(d_i-d_{\text {avg }}\right)+s_i\right)}{\sum_i \exp \left(s_i\right)}<br>$$<br>时延loss的所有路径求和的偏导 $\large \sum_i\frac{\partial \mathcal{L}_{\text {delay }}}{\partial s_i}&#x3D;\lambda \frac{\left(\sum_i d_i-\sum_i d_i \sum_i w_i\right) \exp \left(s_i\right)}{\sum_j \exp \left(s_j\right)} &#x3D; 0$</p>
 <p>因此新的loss对所有路径求和的偏导：<br>$$<br>\sum_i \frac{\partial \mathcal{L}<em>{\mathrm{aug}}}{\partial s_i}&#x3D;\sum_i \frac{\partial \mathcal{L}}{\partial s_i}+\sum_i \frac{\partial \mathcal{L}</em>{\text {delay }}}{\partial s_i}&#x3D;1<br>$$<br>归一化为（当$\lambda$很小时）：<br>$$<br>\begin{aligned}<br>\frac{\partial \mathcal{L}<em>{\mathrm{aug}}}{\partial s_i} &amp;\approx \frac{\exp \left(\lambda\left(d_i-d</em>{\mathrm{avg}}\right)+s_i\right)}{\sum_i \exp \left(\lambda\left(d_i-d_{\mathrm{avg}}\right)+s_i\right)} \<br>&amp;\approx \frac{\exp(-\lambda d_{avg})\exp(\lambda d_i+s_i)}{\exp(-\lambda d_{avg})\sum_i\exp(\lambda d_i+s_i)} \<br>&amp;\approx  \frac{\exp(\lambda d_i+s_i)}{\sum_i\exp(\lambda d_i+s_i)}<br>\end{aligned}<br>$$</p>
 <p>原来的路径概率分数修改为：<br>$$<br>s_i’&#x3D;\lambda d_i+s_i<br>$$<br>加了一个时延分数（再乘一个常数系数），也就是在路径概率分数也考虑进去了时延的分数。</p>
-<p>这里的假设是，低时延要对应着大的时延分数d，因此把时延分数设置为：<br>$$<br>d_i&#x3D;\sum_u\left(\frac{T-1}{2}-\pi_u\right)<br>$$<br>其中，$u$ 是一句文本的某个字，token。$\pi$ 是这条路径下输出一句话的某个字对应音频的时刻。也就是这条可能路径认为的，一句话里某个字是什么时候读出的。时刻越前（小），表示越早读出，延迟越小。</p>
+<p>替换成 $s_i’$ 后，和原来的 loss $\mathcal{L}$ 对 $s_i$ 偏导的形式长得完全一样。</p>
+<p>从 $s_i’&#x3D;\lambda d_i+s_i$ 可以看出，新的路径分数和原来的路径分数就差一项 $\lambda d_i$ ，可以说很接近了，那么也可以自如的使用前后向算法了，只是把每个时刻的路径分数要替换一下就好，替换完还是正常的前后向算法公式。（不需要为了计算每条路径的分数，而不得不舍弃用前后向算法了。）</p>
+<p>这里提出的假设是，低时延要对应着大的时延分数d，因此把时延分数设置为：<br>$$<br>d_i&#x3D;\sum_u\left(\frac{T-1}{2}-\pi_u\right)<br>$$<br>其中，$u$ 是一句文本的某个字，token。$\pi_u$ 是这条路径下输出一句话的某个字 $u$ 对应音频的时刻，帧索引。也就是这条可能路径认为的，一句话里某个字是什么时候读出的。时刻越前（小），表示越早读出，延迟越小。</p>
 <p>对于每个可能路径$i$，都有输出token的时刻$\pi_u$，每个token都有距离中间帧的偏移量，一句话的所有token偏移量求和就是这个可能路径 $i$ 的时延分数 $d_i$ 。</p>
 <p>如果输出token对应的时刻越前（小），则 (T&#x2F;2 - t) 的值越大，就是距离中间帧越远，设定是这个值（偏移量）越大表示时延越小。如果比中间帧还晚出来，还会是负的。</p>
-<p>其实这里直接用 $\sum_u-\pi_u$ 也可以，加上 $\frac{T-1}{2}$ 是防止时延惩罚项改变loss的值太多、太过了。这个中间帧偏移 $\frac{T-1}{2}$ 是常数，不会影响偏导。</p>
-<h3 id="延迟惩罚具体实现"><a href="#延迟惩罚具体实现" class="headerlink" title="延迟惩罚具体实现"></a>延迟惩罚具体实现</h3><p>在token-time alignment是，对于输出symbol的token（非blank的token）的log概率加上一个值，修改后的symbol token概率值：<br>$$<br>y’(t,u)&#x3D;y(t,u)+\lambda \times \left(\frac{T-1}{2}-t\right)<br>$$<br>入图2所示。</p>
+<p>其实这里直接用 $\sum_u-\pi_u$ 也可以，加上 $\frac{T-1}{2}$ 是防止时延惩罚项改变loss的值太多、太过了。这个中间帧偏移 $\frac{T-1}{2}$ 是常数，不会影响偏导。是为了使得引入时延正则后，loss 函数的数值不会和原来相差太大。</p>
+<h3 id="延迟惩罚具体实现"><a href="#延迟惩罚具体实现" class="headerlink" title="延迟惩罚具体实现"></a>延迟惩罚具体实现</h3><p>在token-time alignment是，对于输出symbol的token（非blank的token）的log概率加上一个值，修改后的symbol token概率值：<br>$$<br>y’(t,u)&#x3D;y(t,u)+\lambda \times \left(\frac{T-1}{2}-t\right)<br>$$<br>如图2所示。</p>
 <p>给越早的t越大的鼓励，让它概率越高，最好在读了一半音频的时候就给我输出整条文本，这样添加的第二项还是正数。别人才读了一半就要输出整条识别文本吗，虽然这里的时刻不是真实的时刻，是下采样过的，因此条件可能是满足的，T&#x2F;2对应的已经是差不多读完的时刻了。保险起见所以最好还是有一个对齐groundtruth，只要比groundtruth早，就应该鼓励。</p>
+<p>&#x3D;&#x3D;因此，在执行 forward-backward 算法之前，我们只需要将 $y(t,u)$ 替换为 $y’(t,u)$ ，即可以一种简单高效的方式（不用计算每一条路径分数了），近似地优化带时延正则的目标函数 $ \mathcal{L}_{\mathrm{aug}}$。&#x3D;&#x3D;</p>
+<h3 id="Delay-penalty-for-CTC"><a href="#Delay-penalty-for-CTC" class="headerlink" title="Delay penalty for CTC"></a>Delay penalty for CTC</h3><blockquote>
+<p>k2 fsa 实现计算 CTC 目标函数：<a href="https://github.com/k2-fsa/next-gen-kaldi-wechat/blob/master/pdf/LF-MMI-training-and-decoding-in-k2-Part-I.pdf">https://github.com/k2-fsa/next-gen-kaldi-wechat/blob/master/pdf/LF-MMI-training-and-decoding-in-k2-Part-I.pdf</a></p>
+</blockquote>
+<p><img src="/2023/03/12/k2/Delay-penalized%20transducer%20for%20low-latency%20streaming%20ASR/image-20230312184510889.png" alt="image-20230312184510889"></p>
+<p>假设特征序列的长度为5，标签序列为 $Z,O,O$。利用 k2 fsa 我们可以得到对应的 CTC lattice。在上图所示，在 CTC lattice 中，每条从起点到终点的路径为：特征序列和标签序列之间的合法对齐路径。每条边上有三个属性：（1）输入标签（label）；（2）输出标签（ aux_label）；（3）分数，即 <code>log_softmax(encoder_output)</code>。</p>
+<p>例如，以下三条对齐路径对应着不同的输入标签序列，他们的输出标签序列经过去除 $\epsilon$ 后，都可以得到 $Z,O,O$：<br>$$<br>\begin{aligned}<br>&amp; Z, O, \varnothing, O, \varnothing \rightarrow Z, O, \epsilon, O, \epsilon \<br>&amp; Z, Z, O, \varnothing, O \rightarrow Z, \epsilon, O, \epsilon, O \<br>&amp; Z, \varnothing, O, \varnothing, O \rightarrow Z, \epsilon, O, \epsilon, O<br>\end{aligned}<br>$$<br>每条对齐路径的时延, 取决于那些首次输出 symbol 的边的帧索引 $\pi&#x3D;\left{\pi_u\right}_0^{U-1}$, 如下面加粗 的 symbol:<br>$$<br>\begin{aligned}<br>&amp; \mathbf{Z}, \mathbf{O}, \varnothing, \mathbf{O}, \varnothing \rightarrow Z, O, \epsilon, O, \epsilon \<br>&amp; \mathbf{Z}, Z, \mathbf{O}, \varnothing, \mathbf{O} \rightarrow Z, \epsilon, O, \epsilon, O \<br>&amp; \mathbf{Z}, \varnothing, \mathbf{O}, \varnothing, \mathbf{O} \rightarrow Z, \epsilon, O, \epsilon, O<br>\end{aligned}<br>$$<br>每条路径中, 那些<strong>首次</strong>输出 symbol 的边的数量是相同的, 为标签序列的长度 $U$ 。我们可以像 上文 RNN-T一样, 定义每个路径 $i$ 的时延分数 $d_i$ 为：这些帧索引 $\pi_u$ 相对于句子中间帧的 offset</p>
+<p><img src="/2023/03/12/k2/Delay-penalized%20transducer%20for%20low-latency%20streaming%20ASR/640.png" alt="640"></p>
+<p>如上图所示, 为了在 CTC 中实现 $s_i^{\prime}$, 我们只需要修改 lattice 中首次输出 symbol 的边 (标记为 红色）上的分数 $y_t$, 加上与帧索引（相对于中间帧）的 offset:<br>$$<br>y_t^{\prime}&#x3D;y_t+\lambda \times\left(\frac{T-1}{2}-t\right)<br>$$<br>因此, 在执行动态规划算法求 CTC lattice 中所有路径总分数之前, 我们只需要将 $y_t$ 替换为 $y_t^{\prime}$ , 即可以一种简单高效的方式, 近似地优化带时延正则的目标函数 $\mathcal{L}_{\text {aug }}$ 。</p>
+<blockquote>
+<p>在 k2-fsa CTC 实现过程中，利用 <code>k2.Fsa.get_total_scores()</code> 求得 lattice 所有路径总分数。</p>
+</blockquote>
+<p>具体地，如何修改 lattice 上那些<strong>首次</strong>输出 symbol 的边的分数，可以参考 k2 的 PR <a href="https://github.com/k2-fsa/k2/pull/1086%EF%BC%8C%E5%92%8C">https://github.com/k2-fsa/k2/pull/1086，和</a> icefall 的 PR <a href="https://github.com/k2-fsa/icefall/pull/669%EF%BC%8C%E9%87%8C%E9%9D%A2%E6%9C%89%E8%AF%A6%E7%BB%86%E7%9A%84%E6%B3%A8%E9%87%8A%E3%80%82">https://github.com/k2-fsa/icefall/pull/669，里面有详细的注释。</a></p>
 <h2 id="实验及结果"><a href="#实验及结果" class="headerlink" title="实验及结果"></a>实验及结果</h2><p>目前 <strong><a href="https://github.com/k2-fsa/k2">k2</a></strong> 和 <strong><a href="https://github.com/danpovey/fast_rnnt">fast_rnnt</a></strong> 两个仓库都已经合并了 <code>delay-penalty</code> 的实现(见 <strong><a href="https://github.com/k2-fsa/k2/pull/976">delay-penalty</a></strong>)，只需要在使用 <code>pruned rnnt</code> 损失函数时多传入一个 <code>delay_penalty</code> 参数就可以实现低延时的 <code>RNN-T</code> 训练（注意：<code>rnnt_loss_smoothed</code> 和 <code>rnnt_loss_pruned</code> 两个地方都要加）。我们在 Streaming Conformer 和 LSTM 上都做了一些实验，结果证明我们提出的时延正则方法很有效果，并且能简单的通过调整超参数来平衡准确率和时延。结果中的 <code>MAD</code> 表示 token 的平均时延，<code>MED</code> 表示最后一个 token 的平均时延，时延都是根据 <strong><a href="https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner">Montreal-Forced-Aligner</a></strong> 对齐结果来计算的。</p>
-<h3 id="Latency-metrics"><a href="#Latency-metrics" class="headerlink" title="Latency metrics"></a>Latency metrics</h3><h2 id="相似工作"><a href="#相似工作" class="headerlink" title="相似工作"></a>相似工作</h2><h3 id="FastEmit"><a href="#FastEmit" class="headerlink" title="FastEmit"></a>FastEmit</h3><p>Google 提出的 <strong>FastEmit</strong>：<a href="https://arxiv.org/pdf/2010.11148.pdf">https://arxiv.org/pdf/2010.11148.pdf</a> 。本文工作与fastemit进行了对比，结果不相上下，有时略好。</p>
+<h3 id="Latency-metrics"><a href="#Latency-metrics" class="headerlink" title="Latency metrics"></a>Latency metrics</h3><p>用两种方法来度量流式模型的时延：(1)   Mean Alignment Delay  (MAD) ，(2) Mean End Delay (MED)  ；这里不是训练过程的时延，测试的是识别结果的时延。而识别结果可能会识别错，这种情况要怎么判断时延？</p>
+<p>groudtruth word-time alignments  通过强制对齐工具 Montreal Forced Aligner tool 获得。是把识别结果和音频对应上，<strong>这里只考虑识别结果是正确的词的时延</strong>。</p>
+<h4 id="Mean-Alignment-Delay-MAD"><a href="#Mean-Alignment-Delay-MAD" class="headerlink" title="Mean Alignment Delay  (MAD)"></a>Mean Alignment Delay  (MAD)</h4><p>预测对齐与groundtruth之间的word时间差的平均值，定义为：<br>$$<br>\text { MAD }:&#x3D;\frac{1}{\sum_{n&#x3D;0}^{N-1} S_n} \sum_{n&#x3D;0}^{N-1} \sum_{s&#x3D;0}^{S_n-1}\left(\hat{t}_s^n-t_s^n\right)<br>$$<br>其中，$\hat{t}_s^n$  是prediction 的第 $s$ 个词的 timestamp， $t_s^n$ 是ground truth 的第 $s$ 个词的timestamp。 $N$ 是句子数。 $S_n$ 是第 $n$ 句话里预测和参考之间匹配的单词数。</p>
+<h4 id="Mean-End-Delay-MED"><a href="#Mean-End-Delay-MED" class="headerlink" title="Mean End Delay (MED)"></a>Mean End Delay (MED)</h4><p>MED只考虑句子中最后一个词的发出时间，定义为：<br>$$<br>\text { MED }:&#x3D;\frac{1}{N} \sum_{n&#x3D;0}^{N-1}\left(\hat{t}<em>{e n d}^n-t</em>{e n d}^n\right),<br>$$<br>其中，$\hat{t}<em>{e n d}^n$ 是prediction 最后一个词的发出时间戳timestamp，$t</em>{e n d}^n$  是 ground truth 最后一个词的发出timestamp。</p>
+<h3 id="Experimental-Setup"><a href="#Experimental-Setup" class="headerlink" title="Experimental Setup"></a>Experimental Setup</h3><p>todo</p>
+<h2 id="相似工作"><a href="#相似工作" class="headerlink" title="相似工作"></a>相似工作</h2><h3 id="FastEmit"><a href="#FastEmit" class="headerlink" title="FastEmit"></a>FastEmit</h3><p>Google 提出的 <strong>FastEmit</strong>：<a href="https://arxiv.org/pdf/2010.11148.pdf">https://arxiv.org/pdf/2010.11148.pdf</a> 。本文工作与fastemit进行了对比，结果不相上下，有时略好。</p>
 <p>K2也实现了fastemit：<a href="https://github.com/k2-fsa/k2/pull/1069">https://github.com/k2-fsa/k2/pull/1069</a></p>
 <p>fastemit思路：把非blank的参数的反向传播的值弄大一点，让这个误差更大点，表示这个路径起更大的作用？</p>
 <h3 id="Self-alignment"><a href="#Self-alignment" class="headerlink" title="Self alignment"></a>Self alignment</h3><blockquote>
@@ -15765,7 +15789,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <p>思路：提高维特比强制对齐左侧一帧对齐的对数概率，维特比对齐的时间复杂度是 $O(T\times U)$，因为要考虑左侧一帧的对齐情况，还需要多 $O(T\times U)$ 的时间复杂度。</p>
 ]]></content>
       <categories>
-        <category>python</category>
+        <category>k2</category>
       </categories>
       <tags>
         <tag>语音识别</tag>
