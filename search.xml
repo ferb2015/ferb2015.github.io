@@ -16069,11 +16069,27 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 
 
 <p>刚才我们将文本处理完了，现在处理神经网络。神经网络会转成这么一个dense_fsa，它和文本token对应的图结构（左上）去做intersect之后，输出左下角这个图。我们大概走一下这个图，比如0到1、1到3，它输出0 1，那么0是一个blank我们不要，相当于输出一个token 1。边上的概率就是从神经网络里拿到的，此时得到这个lattice，可以看到确实只有两个时刻（最后-1对应的边可以忽略）。各个边上的概率就是从神经网络上获取的概率，然后输出的label刚好就是我们文本要求的一个1。</p>
-<p>![640 (6)](640 (6).png)</p>
+<img src="/2023/03/14/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E6%96%B0%E4%B8%80%E4%BB%A3kaldi%E9%A1%B9%E7%9B%AE%E7%9A%84%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B-%E9%83%AD%E7%90%86%E5%8B%87%20%E5%B0%8F%E7%B1%B3/640 (6).png" alt="640 (6)" style="zoom:80%;">
+
+
+
+
+
+
+
+
+
 <p>那再对这个lattice做一个tot_score，得到5.0157。这个基于k2的CTC的损失函数结果有三个注意的点，首先它也等于5.0157（和前面torch.Function.ctc_loss结果完全一致）。第二点是，它是一个torch的tensor，这个的意义在于，神经网络的tensor转换为fsa&#x2F;fst后经过k2的一番操作它还是一个tensor。从这个角度上我们可以说k2和Pytorch是无缝融合的。第三个点在于它有一个grad_fn，如果熟悉Pytorch就知道任何一个tensor只要它有grad_fn，它就可以做backward。</p>
-<p>![640 (7)](640 (7).png)</p>
+<img src="/2023/03/14/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E6%96%B0%E4%B8%80%E4%BB%A3kaldi%E9%A1%B9%E7%9B%AE%E7%9A%84%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B-%E9%83%AD%E7%90%86%E5%8B%87%20%E5%B0%8F%E7%B1%B3/640 (7).png" alt="640 (7)" style="zoom:80%;">
+
+
+
+
+
 <p>目前位置，我们以基于k2的CTC损失函数为例，解释了一下什么是Pytorch与k2的无缝融合。</p>
-<p>![640 (8)](640 (8).png)</p>
+<img src="/2023/03/14/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E6%96%B0%E4%B8%80%E4%BB%A3kaldi%E9%A1%B9%E7%9B%AE%E7%9A%84%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B-%E9%83%AD%E7%90%86%E5%8B%87%20%E5%B0%8F%E7%B1%B3/640 (8).png" alt="640 (8)" style="zoom:80%;">
+
+
 <p>明明Pytorch一行就能实现的东西，k2搞得这么复杂化简为繁是不是吃饱了没事干。其实不是，前面的几页PPT都是为接下来的两篇论文做铺垫。</p>
 <p>第一篇是英伟达最近被Interspeech接收的一篇论文。</p>
 <img src="/2023/03/14/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E6%96%B0%E4%B8%80%E4%BB%A3kaldi%E9%A1%B9%E7%9B%AE%E7%9A%84%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B-%E9%83%AD%E7%90%86%E5%8B%87%20%E5%B0%8F%E7%B1%B3/640 (9).png" alt="640 (9)" style="zoom:80%;">
@@ -16088,9 +16104,19 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 
 
 <p>看一下论文中的截图，常见的ctc_graph图是图a，论文里提出将这个图改为更简单一点的c、d。总体上来说，改了之后别的流程都不需要动，只需要把绿色这块儿的结构改了，就可以调用k2完成后续的计算。</p>
-<p>![640 (11)](640 (11).png)</p>
+<img src="/2023/03/14/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E6%96%B0%E4%B8%80%E4%BB%A3kaldi%E9%A1%B9%E7%9B%AE%E7%9A%84%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B-%E9%83%AD%E7%90%86%E5%8B%87%20%E5%B0%8F%E7%B1%B3/640 (11).png" alt="640 (11)" style="zoom:80%;">
+
+
+
+
+
 <p>它最终获得的效果是，如果去裁剪一下这个图，不按标准做法去做，去画一个特别小的图，准确率会有一定的损失，但是图的大小和内存占用可以小2到4倍。看到这里，我们就想这篇论文的工作，没有k2也是可以实现的。但是肯定会复杂一点，而且Pytorch CTC也不支持这样的操作。那k2究竟为这项工作带来多大的便利性呢。</p>
-<p>![640 (12)](640 (12).png)</p>
+<img src="/2023/03/14/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E6%96%B0%E4%B8%80%E4%BB%A3kaldi%E9%A1%B9%E7%9B%AE%E7%9A%84%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B-%E9%83%AD%E7%90%86%E5%8B%87%20%E5%B0%8F%E7%B1%B3/640 (12).png" alt="640 (12)" style="zoom:80%;">
+
+
+
+
+
 <p>我们看一下它的代码实现。这个代码是真实的代码，我直接从英伟达开源项目NVIDIA NeMo里截取出来的。看一下它是如何实现的，为什么说使用k2会给这个论文带来极大的便利性。他们最核心的函数就是我画红框和绿框的这两个，它调用的接口是<strong>k2.Fsa.from_str</strong>。我们只需要把边的信息写成一行一行的文本文件或者写成string类型。它前面这个构图实际上就写了一个for循环，构建了一个Python的代码。然后再写一个字符串的处理函数，就把这个图构出来了。构出来以后呢，直接就使用k2.Fsa.from_str导入进来。右边这个也是写一个字符串的处理函数去构一个图。构图之后，用k2.Fsa.from_str就把这个图导进来了。<strong>导进来之后，对k2来说，无论是标准的CTC拓扑图，还是改进后的拓扑图，或者还是你自己特地设计出来的别的图，只要合法，都能用k2.Fsa.from_str导进来，后续都可以用compose、intersect操作计算出来损失函数。</strong>所以说k2的便利性做的特别好。总体上来讲，<strong>用户只需要用python 字符串处理程序生成图，后续的操作都可以交给k2来探索不同结构的fst 的效果。</strong></p>
 <img src="/2023/03/14/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E6%96%B0%E4%B8%80%E4%BB%A3kaldi%E9%A1%B9%E7%9B%AE%E7%9A%84%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B-%E9%83%AD%E7%90%86%E5%8B%87%20%E5%B0%8F%E7%B1%B3/640 (13).png" alt="640 (13)" style="zoom:80%;">
 
