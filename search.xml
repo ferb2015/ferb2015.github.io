@@ -17452,4 +17452,98 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>深度学习</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Multi-Task Learning as Multi-Objective Optimization</title>
+    <url>/2023/04/11/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/</url>
+    <content><![CDATA[<h1 id="Multi-Task-Learning-as-Multi-Objective-Optimization"><a href="#Multi-Task-Learning-as-Multi-Objective-Optimization" class="headerlink" title="Multi-Task Learning as Multi-Objective Optimization"></a>Multi-Task Learning as Multi-Objective Optimization</h1><blockquote>
+<p>Sener, Ozan, and Vladlen Koltun. “Multi-task learning as multi-objective optimization.” <em>Advances in neural information processing systems</em> 31 (2018).</p>
+<p>github：<a href="https://github.com/isl-org/MultiObjectiveOptimization">https://github.com/isl-org/MultiObjectiveOptimization</a></p>
+</blockquote>
+<h3 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h3><p>多任务学习loss用线性加权的话，对于存在竞争关系的任务的多任务学习来说，并不有效。要找一个多任务loss方程，能让存在或不存在竞争关系的多任务都能有效学习、优化。</p>
+<h3 id="提出什么方法"><a href="#提出什么方法" class="headerlink" title="提出什么方法"></a>提出什么方法</h3><p>提出在<strong>多任务学习</strong>中的<strong>基于梯度</strong>的<strong>多目标优化方法</strong>。</p>
+<p>找Pareto optimal solutions最优解。提出基于frank-wolfe的优化器，可以将MGDA多目标优化算法扩展到能求高维梯度。</p>
+<p>提出MGDA优化目标的上界，可以通过单一的向后传递计算，而没有显式的任务特定梯度。</p>
+<p>相当于解决了MGDA多目标优化算法的两个问题，使得该优化方法能</p>
+<h3 id="本文贡献"><a href="#本文贡献" class="headerlink" title="本文贡献"></a>本文贡献</h3><p>提出基于frank-wolfe、基于梯度的优化器，可以将MGDA多目标优化算法扩展到能求高维梯度。</p>
+<p>提出MGDA优化目标的上界，可以通过单一的向后传递计算，而没有显式的任务特定梯度。</p>
+<p>证明使用提出的这个上界，能产生Pareto 最优解。</p>
+<h3 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h3><p>本文的应用场景是：用MultiMNIST数据集分类不同数字。用CelebA数据集分类不同label。用Cityscapes数据集做semantic segmentation、instance segmentation 和 depth estimation。任务数量2-40个，都明显优于baseline。</p>
+<h3 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h3><h2 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h2><p>multi-objective optimization  多目标优化：在多个条件下求Pareto 最优解的问题 The problem of finding Pareto optimal solutions given multiple criteria；   </p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>之前人们提出了的多目标优化算法：</p>
+<ul>
+<li>multiple-gradient descent algorithm (MGDA)  它使用基于梯度的优化，并可证明收敛到帕累托集中的一点(Désidéri, 2012)  MGDA非常适合用于深度网络的多任务学习。它可以使用每个任务的梯度，并解决优化问题，以决定共享参数的更新。但MGDA存在两个问题：<ul>
+<li>高维梯度不好求。</li>
+<li>该算法需要显式计算每个任务的梯度，这导致向后传递的数量呈线性缩放，并将训练时间大致乘以任务数量。</li>
+</ul>
+</li>
+</ul>
+<p>多任务学习通常通过硬参数共享或软参数共享来实现。在硬参数共享中，一部分参数在任务之间共享，而另一部分参数属于特定任务。在软参数共享中，所有参数都是任务特定的，但它们都通过贝叶斯先验进行联合约束，或者一个联合dictionary。本文关注硬参数共享。</p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>多任务学习之所以比单任务学习效果好，作者认为是多个任务共享了“inductive bias”归纳偏置。</p>
+<p>提出基于frank - wolfe的优化器，可以扩展到高维问题。</p>
+<p>此外，我们为MGDA优化目标提供了一个上界，并表明它可以通过单一的向后传递计算，而没有显式的任务特定梯度，从而使该方法的计算开销可以忽略不计。</p>
+<h3 id="Multi-Task-Learning-as-Multi-Objective-Optimization-1"><a href="#Multi-Task-Learning-as-Multi-Objective-Optimization-1" class="headerlink" title="Multi-Task Learning as Multi-Objective Optimization"></a>Multi-Task Learning as Multi-Objective Optimization</h3><p>经验风险最小化公式：<br>$$<br>\min <em>{\substack{\boldsymbol{\theta}^{s h} \ \boldsymbol{\theta}^1, \ldots, \boldsymbol{\theta}^T}} \sum</em>{t&#x3D;1}^T c^t \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)<br>$$<br>其中，$c^t$是不同任务的权重（ static or dynamically），$\boldsymbol{\theta}^{s h}$ 是共享权重，$\boldsymbol{\theta}^t$ 是任务特定的权重。</p>
+<p>$\hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)$ 是任务 $t$ 的 empirical loss，表达式为：$\hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right) \triangleq \frac{1}{N} \sum_i \mathcal{L}\left(f^t\left(\mathbf{x}_i ; \boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right), y_i^t\right)$。</p>
+<p>（这个定义可以通过用null标签扩展 $y^t$ 来扩展到只有部分标记的情况。）</p>
+<p>但是！训练过程中会出现这么一种情况：共享参数在更新时，某一个参数值下，会变得更适合任务1，而在另一个参数值下，会更适合任务2。某个参数下，在一个任务loss降、另一个任务loss上升。所以要先知道任务之间的重要度（pairwise importance of tasks，两两重要性）</p>
+<p>怎么优化呢？多任务学习可以表述为这样的多目标优化：优化一组可能相互冲突的目标（conflicting objectives）。</p>
+<p>本文也是用这个思路，用向量值损失 $\mathbf{L}$（vector-valued loss）来表示MTL的多目标优化公式：<br>$$<br>\min _{\substack{\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1, \ldots, \boldsymbol{\theta}^T}} \mathbf{L}\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1, \ldots, \boldsymbol{\theta}^T\right)&#x3D;\min _{\substack{\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1, \ldots, \boldsymbol{\theta}^T}}\left(\hat{\mathcal{L}}^1\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1\right), \ldots, \hat{\mathcal{L}}^T\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^T\right)\right)^{\boldsymbol{\top}}<br>$$<br>多目标优化的目标是实现 Pareto 最优。</p>
+<ul>
+<li><strong>定义1</strong> (Pareto optimality for MTL)<ul>
+<li>(a) 如果有解 $\boldsymbol{\theta}$ 优于 $\overline{\boldsymbol{\theta}}$ ，是使得对于所有任务 $t$ ，都有 $\hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right) \leq \hat{\mathcal{L}}^t\left(\overline{\boldsymbol{\theta}}^{\text {sh }}, \overline{\boldsymbol{\theta}}^t\right)$ ，并且 $\mathbf{L}\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1, \ldots, \boldsymbol{\theta}^T\right) \neq \mathbf{L}\left(\overline{\boldsymbol{\theta}}^{s h}, \overline{\boldsymbol{\theta}}^1, \ldots, \overline{\boldsymbol{\theta}}^T\right)$</li>
+<li>(b) 如果没有解 $\boldsymbol{\theta}$ 能优于 $\boldsymbol{\theta}^{\star}$ ，则 $\boldsymbol{\theta}^{\star}$ 称为Pareto 最优。</li>
+</ul>
+</li>
+</ul>
+<p>Pareto 最优解的集合称为Pareto 集合 $\left(\mathcal{P}<em>\theta\right)$ ，image  称为 Pareto front $\left(\mathcal{P}</em>{\mathbf{L}}&#x3D;{\mathbf{L}(\boldsymbol{\theta})}_{\boldsymbol{\theta} \in \mathcal{P}_\theta}\right)$ 。</p>
+<p>本文关注基于梯度的多目标优化，因为它与基于梯度的MTL直接相关。</p>
+<p>在第3.1节中总结如何使用梯度下降来执行多目标优化。然后，我们在第3.2节中建议在非常大的参数空间上执行多目标优化的实用算法。最后，在第3.3节中，我们提出了直接为大容量深度网络设计的多目标优化的有效解决方案。</p>
+<p>我们的方法适用于非常大的模型和大量的任务，开销可以忽略不计。</p>
+<h4 id="Multiple-Gradient-Descent-Algorithm-总结如何使用梯度下降来执行多目标优化"><a href="#Multiple-Gradient-Descent-Algorithm-总结如何使用梯度下降来执行多目标优化" class="headerlink" title="Multiple Gradient Descent Algorithm  总结如何使用梯度下降来执行多目标优化"></a>Multiple Gradient Descent Algorithm  总结如何使用梯度下降来执行多目标优化</h4><p>multiple gradient descent algorithm (MGDA)  利用了 Karush-Kuhn-Tucker (KKT)  条件来优化。</p>
+<p>为任务特定参数和共享参数声明KKT条件：</p>
+<ul>
+<li><p>存在 $\alpha^1, \ldots, \alpha^T \geq 0$ 使得 $\sum_{t&#x3D;1}^T \alpha^t&#x3D;1$ 并且 $\sum_{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)&#x3D;0$</p>
+</li>
+<li><p>对于所有任务 $t, \nabla_{\boldsymbol{\theta}^t} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)&#x3D;0$</p>
+</li>
+</ul>
+<p>任何满足这些条件的解都被称为Pareto 不动点。虽然每一个Pareto 最优点都是Pareto不动点，但反过来可能就不是这样了。</p>
+<p>优化问题：<br>$$<br>\min <em>{\alpha^1, \ldots, \alpha^T}\left{\left|\sum</em>{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|<em>2^2 \mid \sum</em>{t&#x3D;1}^T \alpha^t&#x3D;1, \alpha^t \geq 0 \quad \forall t\right}<br>$$<br>要么 该优化问题的解为0，并且得到的点满足KKT条件；要么 解是能给出一个下降方向，可以改善所有任务的。</p>
+<p>因此，由此产生的MTL算法将对特定任务参数进行梯度下降，然后求解(3)，并将解 $\left(\sum_{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}}\right)$作为共享参数的梯度更新。</p>
+<h4 id="Solving-the-Optimization-Problem-建议在非常大的参数空间上执行多目标优化的实用算法"><a href="#Solving-the-Optimization-Problem-建议在非常大的参数空间上执行多目标优化的实用算法" class="headerlink" title="Solving the Optimization Problem   建议在非常大的参数空间上执行多目标优化的实用算法"></a>Solving the Optimization Problem   建议在非常大的参数空间上执行多目标优化的实用算法</h4><p>这里非常大的参数空间指的是共享参数的维度。</p>
+<p>以两个任务为例，最优化问题可以写成：$\min <em>{\alpha \in[0,1]}\left|\alpha \nabla</em>{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^1\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1\right)+(1-\alpha) \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)\right|_2^2$ 。</p>
+<p>$\alpha$ 有解析解，是一元二次函数：<br>$$<br>\hat{\alpha}&#x3D;\left[\frac{\left(\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)-\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^1\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1\right)\right)^{\top} \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)}{\left|\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^1\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1\right)-\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)\right|<em>2^2}\right]</em>{+, \underset{T}{1}}<br>$$<br>这里的 $\alpha$ 理解成 $\alpha^1$ ，所以是更新 $\alpha^1$ 。</p>
+<p>其中，$[\cdot]<em>{+,{^1_T}}$ 表示剪裁到 $[0,1] ， 当 $$[\alpha]</em>{+,{^1_T}}&#x3D; \max(min(a; 1); 0)  $ 。这里用了 Frank-Wolfe 算法，因为line search有解析解。使用Frank-Wolfe来解决约束优化问题，使用(4)作为line search的一部分（两个任务）。给出了算法2中Frank-Wolfe求解器的所有更新方程：</p>
+<img src="/2023/04/11/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230411213106374.png" alt="image-20230411213106374" style="zoom: 67%;">
+
+
+
+
+
+
+
+<img src="/2023/04/11/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230411213051491.png" alt="image-20230411213051491" style="zoom:80%;">
+
+
+
+
+
+
+
+
+
+
+
+<h4 id="Efficient-Optimization-for-Encoder-Decoder-Architectures-提出了直接为大容量深度网络设计的多目标优化的有效解决方案。"><a href="#Efficient-Optimization-for-Encoder-Decoder-Architectures-提出了直接为大容量深度网络设计的多目标优化的有效解决方案。" class="headerlink" title="Efficient Optimization for Encoder-Decoder Architectures  提出了直接为大容量深度网络设计的多目标优化的有效解决方案。"></a>Efficient Optimization for Encoder-Decoder Architectures  提出了直接为大容量深度网络设计的多目标优化的有效解决方案。</h4><p>$$<br>f^t\left(\mathbf{x} ; \boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)&#x3D;\left(f^t\left(\cdot ; \boldsymbol{\theta}^t\right) \circ g\left(\cdot ; \boldsymbol{\theta}^{s h}\right)\right)(\mathbf{x})&#x3D;f^t\left(g\left(\mathbf{x} ; \boldsymbol{\theta}^{s h}\right) ; \boldsymbol{\theta}^t\right)<br>$$<br>where $g$ is the representation function shared by all tasks and $f^t$ are the task-specific functions that take this representation as input. If we denote the representations as $\mathbf{Z}&#x3D;\left(\mathbf{z}_1, \ldots, \mathbf{z}_N\right)$, where $\mathbf{z}<em>i&#x3D;g\left(\mathbf{x}<em>i ; \boldsymbol{\theta}^{\text {sh }}\right)$, we can state the following upper bound as a direct consequence of the chain rule:<br>$$<br>\left|\sum</em>{t&#x3D;1}^T \alpha^t \nabla</em>{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|<em>2^2 \leq\left|\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}\right|<em>2^2\left|\sum</em>{t&#x3D;1}^T \alpha^t \nabla</em>{\mathbf{Z}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|_2^2<br>$$<br>where $\left|\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}\right|<em>2$ is the matrix norm of the Jacobian of $\mathbf{Z}$ with respect to $\boldsymbol{\theta}^{s h}$. Two desirable properties of this upper bound are that (i) $\nabla</em>{\mathbf{Z}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)$ can be computed in a single backward pass for all</p>
+<ul>
+<li><input disabled type="checkbox"> TODO……………..</li>
+</ul>
+<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2><p>用多目标优化来做多任务学习，模型里有共享特征和各个任务所独自的特征。通过多目标最优化目标函数转换为求Pareto最优</p>
+]]></content>
+      <categories>
+        <category>深度学习</category>
+      </categories>
+      <tags>
+        <tag>深度学习</tag>
+      </tags>
+  </entry>
 </search>
