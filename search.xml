@@ -17454,10 +17454,11 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
   </entry>
   <entry>
     <title>Multi-Task Learning as Multi-Objective Optimization</title>
-    <url>/2023/04/11/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/</url>
+    <url>/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/</url>
     <content><![CDATA[<h1 id="Multi-Task-Learning-as-Multi-Objective-Optimization"><a href="#Multi-Task-Learning-as-Multi-Objective-Optimization" class="headerlink" title="Multi-Task Learning as Multi-Objective Optimization"></a>Multi-Task Learning as Multi-Objective Optimization</h1><blockquote>
 <p>Sener, Ozan, and Vladlen Koltun. “Multi-task learning as multi-objective optimization.” <em>Advances in neural information processing systems</em> 31 (2018).</p>
 <p>github：<a href="https://github.com/isl-org/MultiObjectiveOptimization">https://github.com/isl-org/MultiObjectiveOptimization</a></p>
+<p>知乎：<a href="https://zhuanlan.zhihu.com/p/68846373">NIPS2018 - 用多目标优化解决多任务学习</a></p>
 </blockquote>
 <h3 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h3><p>多任务学习loss用线性加权的话，对于存在竞争关系的任务的多任务学习来说，并不有效。要找一个多任务loss方程，能让存在或不存在竞争关系的多任务都能有效学习、优化。</p>
 <h3 id="提出什么方法"><a href="#提出什么方法" class="headerlink" title="提出什么方法"></a>提出什么方法</h3><p>提出在<strong>多任务学习</strong>中的<strong>基于梯度</strong>的<strong>多目标优化方法</strong>。</p>
@@ -17511,9 +17512,12 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <p>因此，由此产生的MTL算法将对特定任务参数进行梯度下降，然后求解(3)，并将解 $\left(\sum_{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}}\right)$作为共享参数的梯度更新。</p>
 <h4 id="Solving-the-Optimization-Problem-建议在非常大的参数空间上执行多目标优化的实用算法"><a href="#Solving-the-Optimization-Problem-建议在非常大的参数空间上执行多目标优化的实用算法" class="headerlink" title="Solving the Optimization Problem   建议在非常大的参数空间上执行多目标优化的实用算法"></a>Solving the Optimization Problem   建议在非常大的参数空间上执行多目标优化的实用算法</h4><p>这里非常大的参数空间指的是共享参数的维度。</p>
 <p>以两个任务为例，最优化问题可以写成：$\min <em>{\alpha \in[0,1]}\left|\alpha \nabla</em>{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^1\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1\right)+(1-\alpha) \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)\right|_2^2$ 。</p>
-<p>$\alpha$ 有解析解，是一元二次函数：<br>$$<br>\hat{\alpha}&#x3D;\left[\frac{\left(\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)-\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^1\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1\right)\right)^{\top} \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)}{\left|\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^1\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1\right)-\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)\right|<em>2^2}\right]</em>{+, \underset{T}{1}}<br>$$<br>这里的 $\alpha$ 理解成 $\alpha^1$ ，所以是更新 $\alpha^1$ 。</p>
+<p>$\alpha$ 有解析解，是一元二次函数。</p>
+<p>也就是上面这个最小化公式对 $\alpha$ 求导等于0，得到 $\alpha$的解析，（其中 $\nabla_{\boldsymbol{\theta}^{s h}} L^1$ 和 $\nabla_{\boldsymbol{\theta}^{s h}} L^2$ 与 $\alpha$ 无关）：<br>$$<br>\hat{\alpha}&#x3D;\left[\frac{\left(\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)-\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^1\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1\right)\right)^{\top} \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)}{\left|\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^1\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1\right)-\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)\right|<em>2^2}\right]</em>{+, \underset{T}{1}}<br>$$<br>（验证是对的）</p>
+<p>这里的 $\alpha$ 理解成 $\alpha^1$ ，所以是更新 $\alpha^1$ 。</p>
 <p>其中，$[\cdot]<em>{+,{^1_T}}$ 表示剪裁到 $[0,1] ， 当 $$[\alpha]</em>{+,{^1_T}}&#x3D; \max(min(a; 1); 0)  $ 。这里用了 Frank-Wolfe 算法，因为line search有解析解。使用Frank-Wolfe来解决约束优化问题，使用(4)作为line search的一部分（两个任务）。给出了算法2中Frank-Wolfe求解器的所有更新方程：</p>
-<img src="/2023/04/11/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230411213106374.png" alt="image-20230411213106374" style="zoom: 67%;">
+<p>$\theta_t$ 的梯度和 $\alpha_t$ 无关， $\alpha_t$ 只作用在 $\theta_{sh}$ 的梯度上。 </p>
+<img src="/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230412100413392.png" alt="image-20230412100413392" style="zoom:67%;">
 
 
 
@@ -17521,7 +17525,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 
 
 
-<img src="/2023/04/11/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230411213051491.png" alt="image-20230411213051491" style="zoom:80%;">
+<img src="/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230411213051491.png" alt="image-20230411213051491" style="zoom:80%;">
 
 
 
@@ -17533,11 +17537,37 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 
 
 
-<h4 id="Efficient-Optimization-for-Encoder-Decoder-Architectures-提出了直接为大容量深度网络设计的多目标优化的有效解决方案。"><a href="#Efficient-Optimization-for-Encoder-Decoder-Architectures-提出了直接为大容量深度网络设计的多目标优化的有效解决方案。" class="headerlink" title="Efficient Optimization for Encoder-Decoder Architectures  提出了直接为大容量深度网络设计的多目标优化的有效解决方案。"></a>Efficient Optimization for Encoder-Decoder Architectures  提出了直接为大容量深度网络设计的多目标优化的有效解决方案。</h4><p>$$<br>f^t\left(\mathbf{x} ; \boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)&#x3D;\left(f^t\left(\cdot ; \boldsymbol{\theta}^t\right) \circ g\left(\cdot ; \boldsymbol{\theta}^{s h}\right)\right)(\mathbf{x})&#x3D;f^t\left(g\left(\mathbf{x} ; \boldsymbol{\theta}^{s h}\right) ; \boldsymbol{\theta}^t\right)<br>$$<br>where $g$ is the representation function shared by all tasks and $f^t$ are the task-specific functions that take this representation as input. If we denote the representations as $\mathbf{Z}&#x3D;\left(\mathbf{z}_1, \ldots, \mathbf{z}_N\right)$, where $\mathbf{z}<em>i&#x3D;g\left(\mathbf{x}<em>i ; \boldsymbol{\theta}^{\text {sh }}\right)$, we can state the following upper bound as a direct consequence of the chain rule:<br>$$<br>\left|\sum</em>{t&#x3D;1}^T \alpha^t \nabla</em>{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|<em>2^2 \leq\left|\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}\right|<em>2^2\left|\sum</em>{t&#x3D;1}^T \alpha^t \nabla</em>{\mathbf{Z}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|_2^2<br>$$<br>where $\left|\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}\right|<em>2$ is the matrix norm of the Jacobian of $\mathbf{Z}$ with respect to $\boldsymbol{\theta}^{s h}$. Two desirable properties of this upper bound are that (i) $\nabla</em>{\mathbf{Z}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)$ can be computed in a single backward pass for all</p>
-<ul>
-<li><input disabled type="checkbox"> TODO……………..</li>
-</ul>
-<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2><p>用多目标优化来做多任务学习，模型里有共享特征和各个任务所独自的特征。通过多目标最优化目标函数转换为求Pareto最优</p>
+<h4 id="Efficient-Optimization-for-Encoder-Decoder-Architectures-提出了直接为大容量深度网络设计的多目标优化的有效解决方案。"><a href="#Efficient-Optimization-for-Encoder-Decoder-Architectures-提出了直接为大容量深度网络设计的多目标优化的有效解决方案。" class="headerlink" title="Efficient Optimization for Encoder-Decoder Architectures  提出了直接为大容量深度网络设计的多目标优化的有效解决方案。"></a>Efficient Optimization for Encoder-Decoder Architectures  提出了直接为大容量深度网络设计的多目标优化的有效解决方案。</h4><p>上面方法有一个比较耗时的地方：$\nabla_{\boldsymbol{\theta}^{s h}}\hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)$ 是通过反向传播计算得到的，一直要计算到对共享参数求导，每个任务都要计算，这样就很耗时了。</p>
+<p>作者提出一种只要反向计算一次的方法，就是把优化的公式改了，变成求目标的上界了。</p>
+<p>假设模型表达式为：<br>$$<br>f^t\left(\mathbf{x} ; \boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)&#x3D;\left(f^t\left(\cdot ; \boldsymbol{\theta}^t\right) \circ g\left(\cdot ; \boldsymbol{\theta}^{s h}\right)\right)(\mathbf{x})&#x3D;f^t\left(g\left(\mathbf{x} ; \boldsymbol{\theta}^{s h}\right) ; \boldsymbol{\theta}^t\right)<br>$$<br>其中 $g$ 是共享参数函数，  $f^t$ 是任务特定函数。 表示为 $\mathbf{Z}&#x3D;\left(\mathbf{z}_1, \ldots, \mathbf{z}_N\right)$, 其中 $\mathbf{z}_i&#x3D;g\left(\mathbf{x}_i ; \boldsymbol{\theta}^{\text {sh }}\right)$, 也就是经过共享参数函数的输出向量。</p>
+<p>用链式法则直接推导出下面的上界：<br>$$<br>\left|\sum_{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|<em>2^2 \leq\left|\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}\right|<em>2^2\left|\sum</em>{t&#x3D;1}^T \alpha^t \nabla</em>{\mathbf{Z}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|_2^2<br>$$<br>其中 $\left|\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}\right|_2$ 是 $\mathbf{Z}$ 的雅可比矩阵的矩阵范数。</p>
+<p>这个上界的两个理想性质是：</p>
+<ol>
+<li>$\nabla_{\mathbf{Z}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)$ 只需计算一次后向传播？</li>
+<li>$\left|\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}\right|_2^2$ 不是关于 $\alpha^1, \ldots, \alpha^T$ 的函数，因此当用作优化目标时，可以删除。</li>
+</ol>
+<p>把公式里的 $\left|\sum_{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|_2^2$ 项替换成上界，并且删掉 $\left|\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}\right|_2^2$ 项（因为它不影响优化）</p>
+<p>优化问题变成：<br>$$<br>\min <em>{\alpha^1, \ldots, \alpha^T}\left{\left|\sum</em>{t&#x3D;1}^T \alpha^t \nabla_{\mathbf{Z}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|<em>2^2 \mid \sum</em>{t&#x3D;1}^T \alpha^t&#x3D;1, \alpha^t \geq 0 \quad \forall t\right}<br>$$<br>作者把这个问题称为MGDA-UB（(Multiple Gradient Descent Algorithm – Upper Bound）（多重梯度下降算法-上界）。</p>
+<p>具体使用起来，就是把上面的算法2（Algorithm 2）流程中计算对共享参数的梯度改成计算对$Z$的梯度，然后 $Z$ 对 $\theta^{sh}$ 的梯度只需要求一次。</p>
+<p>作者还证明了一下，这个上界的写法，也是能得到Pareto最优解的（让人们用着放心）：</p>
+<p>定理1 ：假设 $\frac{\partial \mathbf{Z}}{\partial \theta^{\text {sh }}}$ 是满秩的。如果 $\alpha^{1, \ldots, T}$ 是 MGDA-UB 的解，下列情况之一是正确的：</p>
+<ol>
+<li>$\sum_{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)&#x3D;0$ 并且当前参数是 Pareto stationary 不动点。</li>
+<li>$\sum_{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)$ 是能减小所有目标的下降方向。</li>
+</ol>
+<p>只要 $\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}$ 是满秩的，优化上界对应于使用定义的Mahalonobis范数最小化梯度凸组合的范数。非奇点假设是合理的，因为奇点意味着任务是线性相关的，没有必要进行权衡。</p>
+<p>总之，本文方法可以证明，可以用可以忽略不计的计算开销找到一个帕累托不动点，并且可以应用于任何具有encoder-decoder模型的深度多目标问题。</p>
+<p>证明如下：</p>
+<img src="/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230412103646281.png" alt="image-20230412103646281" style="zoom: 67%;">
+
+
+
+<img src="/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230412103704067.png" alt="image-20230412103704067" style="zoom: 67%;">
+
+
+
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>TODO</p>
+<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2><p>用多目标优化来做多任务学习，模型里有共享特征和各个任务所独自的特征。通过多目标最优化目标函数转换为求Pareto最优，要找能使得多个目标都能最小化的权重分配，通过不同任务之间参数梯度的关系，来更新权重。但这样还不够简单，因为目标函数每个任务都要反向传播很长，就是计算量很多，根据链式法则有一些可以优化，复用的地方，也是本文的创新点，通过优化目标变成优化上界，来减少反向传播的计算量（复用了）。</p>
 ]]></content>
       <categories>
         <category>深度学习</category>
