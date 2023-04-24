@@ -18165,4 +18165,203 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>深度学习</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Network Pruning 视频 李宏毅助教</title>
+    <url>/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/</url>
+    <content><![CDATA[<h1 id="Network-Pruning-视频-李宏毅助教"><a href="#Network-Pruning-视频-李宏毅助教" class="headerlink" title="Network Pruning 视频 李宏毅助教"></a>Network Pruning 视频 李宏毅助教</h1><blockquote>
+<p>PPT：<a href="https://slides.com/arvinliu/model-compression">https://slides.com/arvinliu/model-compression</a> 、 <a href="https://slides.com/arvinliu/model-compression/fullscreen?print-pdf=true#/0/1">https://slides.com/arvinliu/model-compression/fullscreen?print-pdf=true#/0/1</a> 、 <a href="https://slides.com/arvinliu/model-compression/fullscreen?print-pptx=true#/0/2">https://slides.com/arvinliu/model-compression/fullscreen?print-pptx=true#/0/2</a></p>
+<p>视频：<a href="https://www.bilibili.com/video/BV1JE411g7XF?p=50">P50 Network Compression (2_2) - Network Pruning (选学)39:33</a></p>
+</blockquote>
+<p>对于dense全连接来说，少1个参数，总参数量（矩阵参数）从 $a * b + b * c &#x3D; (a + c) * b$，变为  $(a + c) * (b -1)$ 个weight.</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230421174655789.png" alt="image-20230421174655789" style="zoom:80%;">
+
+
+
+<p>对于CNN来说，kernel size $k<em>k$，参数原本是 $(a+c)<em>b</em>k</em>k$ ，少一个参数，变为 $(a+c)*(b-1)<em>k</em>k$ 个 weight。</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230421174715246.png" alt="image-20230421174715246" style="zoom:80%;">
+
+
+
+
+
+<h2 id="Network-Pruning"><a href="#Network-Pruning" class="headerlink" title="Network Pruning"></a>Network Pruning</h2><h3 id="Main-Question-Prune-what-要对“不重要的”剪枝"><a href="#Main-Question-Prune-what-要对“不重要的”剪枝" class="headerlink" title="Main Question: Prune what? 要对“不重要的”剪枝"></a>Main Question: Prune what? 要对“不重要的”剪枝</h3><h4 id="Which-is-most-important"><a href="#Which-is-most-important" class="headerlink" title="Which is most important?"></a>Which is most important?</h4><h5 id="How-to-evaluate-importance-如何评估重要性"><a href="#How-to-evaluate-importance-如何评估重要性" class="headerlink" title="How to evaluate importance? 如何评估重要性"></a>How to evaluate importance? 如何评估重要性</h5><ul>
+<li>Evaluate by Weight 通过weight大小来衡量重不重要</li>
+<li>Evaluate by Activation 通过neuron经过激活函数是不是为0来评估重要性</li>
+<li>Evaluate by Gradient 通过梯度值来评估重要性 对neuron算梯度，值很大说明更重要</li>
+</ul>
+<h3 id="After-Evalutaion-要prune多少呢"><a href="#After-Evalutaion-要prune多少呢" class="headerlink" title="After Evalutaion? 要prune多少呢"></a>After Evalutaion? 要prune多少呢</h3><ul>
+<li>Sort by importance and prune by rank. 按重要性排序</li>
+<li>prune by handcrafted threshold. 按一个阈值手动prune</li>
+<li>prune by generated threshold 自动生成阈值prune</li>
+</ul>
+<p>1）每一层都prune固定比例 x%（这个方式不太实用，因为model一般是金字塔型，顶层参数少，因为prune要多一些）</p>
+<p>2） 每一层prune的比例不同。（autoML）</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230421174844154.png" alt="image-20230421174844154" style="zoom:80%;">
+
+
+
+<h1 id="Evaluate-Importance-衡量基准"><a href="#Evaluate-Importance-衡量基准" class="headerlink" title="Evaluate Importance 衡量基准"></a>Evaluate Importance 衡量基准</h1><ol>
+<li><strong>sum of L1 norm</strong> （这里的对象是weight，prune weight）</li>
+</ol>
+<p>卷积过程，得到输出neuron，输入是feature map，kernel size $k*k$，所以第一个橙色的weight，计算sum，第二个蓝色的weight计算后的的sum。所以根据sum的L1或L2大小，来决定要prune掉谁。</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230421174910562.png" alt="image-20230421174910562" style="zoom:80%;">
+
+
+
+<ol start="2">
+<li><strong>Filter pruning via geometric media</strong> 几何中心上prune</li>
+</ol>
+<p>根据输出的分布，把分布边缘的weight prune掉</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233426616.png" alt="image-20230422233426616" style="zoom:80%;">
+
+
+
+<p>但是这样存在一定危险：</p>
+<ol>
+<li>当分布的方差很小时，砍掉会很影响效果，不能轻易砍（prune）；</li>
+<li>norm要接近0才能砍，当发现不接近0，就是说这些都对结果很有贡献，就不能轻易砍。</li>
+</ol>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233448565.png" alt="image-20230422233448565" style="zoom:80%;">
+
+<p>改进方法：<strong>FPGM</strong>：出发点是“小的norm对model一定没用吗？大的norm对model一定有用吗”</p>
+<p>找出对model都有贡献，并且彼此都不太一样的filter。如果很像的filter（比如norm值很接近），这种filter可以删掉其中一个。</p>
+<p>就是虽然filter 的norm值大或小，也许都对model有贡献。但是如果重复的filter，这种filter才是对model没有贡献，要被prune掉的。</p>
+<p>怎么找重复filter ：通过几何中心。</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233505323.png" alt="image-20230422233505323" style="zoom:80%;">
+
+
+
+<p>找几何中心，把不是几何中心的prune掉。？？？</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233526366.png" alt="image-20230422233526366" style="zoom:80%;">
+
+
+
+<h3 id="Other-parameters-we-can-use-上面讲的是prune-conv的weight，下面讲prune其他weight："><a href="#Other-parameters-we-can-use-上面讲的是prune-conv的weight，下面讲prune其他weight：" class="headerlink" title="Other parameters we can use? 上面讲的是prune conv的weight，下面讲prune其他weight："></a>Other parameters we can use? 上面讲的是prune conv的weight，下面讲prune其他weight：</h3><ul>
+<li><strong>Network Slimming</strong><ul>
+<li>BN层中，$\gamma$ is a learnable vector. $\gamma$ 是一个可学习向量，因此可以根据$\gamma$向量里每个元素的值大小，从而评估weight的重要性，因为weight重要一点，$\gamma$对应值也会大一点。</li>
+<li>We can just use this parameters to evaluate importance.</li>
+<li><a href="https://colab.research.google.com/drive/1CIn-Qqn9LBz-0f71Skm4vmdTDnE17uwy?authuser=2#scrollTo=bdUtCxBBcH0B">colab tutorial</a> (only pruned by gamma)</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233556827.png" alt="image-20230422233556827" style="zoom:80%;">
+
+
+
+<p>但是如果$\gamma$的值都不接近零，这样强行根据$\gamma$值去prune会造成精度下降。因此要做归一化一下。对$\gamma$做L1-penalty。（？）</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233621537.png" alt="image-20230422233621537" style="zoom:80%;">
+
+
+
+<ul>
+<li><strong>average percentage of zeros （APoZ）</strong></li>
+</ul>
+<p>经过relu激活函数后很多值是0，prune按照0的比例来做决定。把非零的值sum起来（是数量sum还是数值sum？）？然后根据0的比例来决定prune多少。比如0的比例很高，则可以prune的也可以多一些。</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233637790.png" alt="image-20230422233637790" style="zoom:80%;">
+
+
+
+<p>0的比例还挺高的：</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233651602.png" alt="image-20230422233651602" style="zoom:80%;">
+
+
+
+<h1 id="More-About-Lottery-Ticket-Hypothesis"><a href="#More-About-Lottery-Ticket-Hypothesis" class="headerlink" title="More About Lottery Ticket Hypothesis"></a>More About Lottery Ticket Hypothesis</h1><img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233724553.png" alt="image-20230422233724553" style="zoom:80%;">
+
+<p>作者用L1 norm的值（其实就是weight值取绝对值）大小来决定prune哪些weight。</p>
+<p>问题1：会不会有这么一种可能：最后train完大数值的那些weight，也许是因为它们的初始值就大？那么初始值小的weight，最后如果train完也变成大weight，那么这类weight（初始小、train完大）是否会更有意义呢？</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233812747.png" alt="image-20230422233812747" style="zoom:80%;">
+
+<p>实验对比</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233829593.png" alt="image-20230422233829593" style="zoom:80%;">
+
+<p>实验结果</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233849055.png" alt="image-20230422233849055" style="zoom:80%;">
+
+
+
+<p>问题2：什么影响了winning ticket参数</p>
+<p><strong>Question</strong>: Why winning tickets can perform better accuracy?</p>
+<p><strong>Experiment:</strong> 做了如下实验</p>
+<ul>
+<li>sign: 改变sign函数<ul>
+<li>rewind init sign 把sign函数rewind（颠倒）</li>
+<li>random 随机把sign正负值颠倒</li>
+</ul>
+</li>
+<li>value:<ul>
+<li>rewind init value	把值颠倒</li>
+<li>reshuffle weight in same layer</li>
+<li>constant α (std of initializer)</li>
+<li>random</li>
+</ul>
+</li>
+</ul>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233913423.png" alt="image-20230422233913423" style="zoom:80%;">
+
+<p>实验结果：</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233938836.png" alt="image-20230422233938836" style="zoom:80%;">
+
+<h3 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h3><h3 id="Experiment-1-Choose-Which-Mask"><a href="#Experiment-1-Choose-Which-Mask" class="headerlink" title="Experiment 1: Choose Which Mask"></a>Experiment 1: Choose Which Mask</h3><ul>
+<li>Usual L1-norm pruning :</li>
+</ul>
+<h3 id="Experiment-2-Remain-what-properties-in-w"><a href="#Experiment-2-Remain-what-properties-in-w" class="headerlink" title="Experiment 2: Remain what properties in $w$"></a>Experiment 2: Remain what properties in $w$</h3><ul>
+<li>Under same architecture, <strong>init sign</strong> is important. 用sign函数更重要，sign函数曲线不要轻易改变长相</li>
+</ul>
+<h3 id="Based-on-Experiment-1-amp-2-we-can-construct-a-“supermask”"><a href="#Based-on-Experiment-1-amp-2-we-can-construct-a-“supermask”" class="headerlink" title="Based on Experiment 1 &amp; 2, we can construct a “supermask”."></a>Based on Experiment 1 &amp; 2, we can construct a “supermask”.</h3><img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233958304.png" alt="image-20230422233958304" style="zoom:80%;">
+
+<blockquote>
+<p>详情见：Deconstructing Lottery Tickets: Zeros, Signs, and the Supermask (ICML 2019)</p>
+</blockquote>
+<h1 id="Rethink-vs-Lottery"><a href="#Rethink-vs-Lottery" class="headerlink" title="Rethink vs Lottery"></a>Rethink vs Lottery</h1><p>Recap 它的观点和上述相反，它认为weight和neuron不重要，重要的是架构、构造（structure、architecture），经过prune后再finetune的结果，可能没有在这个架构下（和prune后相同的架构）随机初始化来的好。</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422234017228.png" alt="image-20230422234017228" style="zoom:80%;">
+
+<ul>
+<li>Rethink val：架构更重要，random init好</li>
+<li>Lottery Ticket：weight更重要，random init不好</li>
+</ul>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422234033439.png" alt="image-20230422234033439" style="zoom:80%;">
+
+
+
+<p>？？？</p>
+<p>对于Lottery Ticket来说：<strong>学习率lr要小</strong>，weight和train后的weight要接近</p>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422234049299.png" alt="image-20230422234049299" style="zoom:80%;">
+
+<ul>
+<li>Rethink val：prune的是neuron&#x2F;feature map</li>
+<li>Lottery Ticket：prune的是weight</li>
+</ul>
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230423092000001.png" alt="image-20230423092000001" style="zoom:80%;">
+
+
+
+
+
+<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230423092023886.png" alt="image-20230423092023886" style="zoom:80%;">
+
+
+
+
+
+<h2 id="Paper-Reference"><a href="#Paper-Reference" class="headerlink" title="Paper Reference"></a>Paper Reference</h2><ul>
+<li>Network Pruning<ul>
+<li>Pruning Filters for Efficient ConvNets (ICLR 2017)</li>
+<li>Learning Efficient Convolutional Networks Through Network Slimming (ICCV 2017)</li>
+<li>Filter Pruning via Geometric Median for Deep Convolutional Neural Networks Acceleration (CVPR 2019)</li>
+<li>Network Trimming: A Data-Driven Neuron Pruning Approach towards Efficient Deep Architectures</li>
+<li>The Lottery Ticket Hypothesis: Finding Sparse, Trainable Neural Networks (ICLR 2019)</li>
+<li>Rethinking the value of network pruning (ICLR 2019)</li>
+<li>Deconstructing Lottery Tickets: Zeros, Signs, and the Supermask (ICML 2019)</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>深度学习</category>
+      </categories>
+      <tags>
+        <tag>深度学习</tag>
+      </tags>
+  </entry>
 </search>
