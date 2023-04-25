@@ -18500,7 +18500,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
   <entry>
     <title>Deep Compression Compressing Deep Neural Networks with Pruning Trained Quantization and Huffman Coding</title>
     <url>/2023/04/25/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/</url>
-    <content><![CDATA[<h1 id="Deep-Compression-Compressing-Deep-Neural-Networks-with-Pruning-Trained-Quantization-and-Huffman-Coding"><a href="#Deep-Compression-Compressing-Deep-Neural-Networks-with-Pruning-Trained-Quantization-and-Huffman-Coding" class="headerlink" title="Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding"></a>Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding</h1><blockquote>
+    <content><![CDATA[<h1 id="Deep-Compression-Compressing-Deep-Neural-Networks-with-Pruning-Trained-Quantization-and-Huffman-Coding"><a href="#Deep-Compression-Compressing-Deep-Neural-Networks-with-Pruning-Trained-Quantization-and-Huffman-Coding" class="headerlink" title="Deep Compression Compressing Deep Neural Networks with Pruning Trained Quantization and Huffman Coding"></a>Deep Compression Compressing Deep Neural Networks with Pruning Trained Quantization and Huffman Coding</h1><blockquote>
 <p>Han, Song, Huizi Mao, and William J. Dally. “Deep compression: Compressing deep neural networks with pruning, trained quantization and huffman coding.” <em>arXiv preprint arXiv:1510.00149</em> (2015). 作者 韩松；citations：8368；ICLR2016 best paper</p>
 <p>github：<a href="https://github.com/songhan/Deep-Compression-AlexNet">https://github.com/songhan/Deep-Compression-AlexNet</a></p>
 </blockquote>
@@ -18548,8 +18548,16 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <img src="/2023/04/25/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/image-20230425162552540.png" alt="image-20230425162552540" style="zoom:80%;">
 
 <p>对于AlexNet，卷积层quantization到8bits（256个共享权值），而全连接层quantization到5bits（32个共享权值），并且这样压缩之后的网络没有降低准确率。</p>
-<p><strong>压缩率compression rate的计算</strong>：假设有$k$ 类，则只需要 $\log_2(k)$ bit来表示。网络有$n$个神经元，每个神经元用$b$个bit表示，限制只有$k$个共享weight，则压缩率为：<br>$$<br>r&#x3D;\frac{nb}{n\log_2(k)+kb}<br>$$<br>TODO</p>
-]]></content>
+<p><strong>压缩率compression rate的计算</strong>：假设有$k$ 类，则只需要 $\log_2(k)$ bit来表示。网络有$n$个神经元，每个神经元用$b$个bit表示，限制只有$k$个共享weight，则压缩率为：<br>$$<br>r&#x3D;\frac{nb}{n\log_2(k)+kb}<br>$$<br>分子：量化前所需的bit：原本的n个神经元b个bit，需要 $nb$ 个bit来保存；</p>
+<p>分母：量化后所需的bit：cluster index表所需要的bit（$n\log_2(k)$）加上centroids表所需要的bit（$kb$）</p>
+<h4 id="WEIGHT-SHARING"><a href="#WEIGHT-SHARING" class="headerlink" title="WEIGHT SHARING"></a>WEIGHT SHARING</h4><p>每个神经元所属哪类，是通过kmeans确定的，离哪个类中心就属于哪类，然后类中心是参数更新确定的。kmeans的目标函数是最小化within-cluster sum of squares (WCSS)，簇内L2距离：<br>$$<br>\arg\min\sum_{i&#x3D;1}^k\sum_{w\in c_i}|w-c_i|^2<br>$$</p>
+<h4 id="INITIALIZATION-OF-SHARED-WEIGHTS"><a href="#INITIALIZATION-OF-SHARED-WEIGHTS" class="headerlink" title="INITIALIZATION OF SHARED WEIGHTS"></a>INITIALIZATION OF SHARED WEIGHTS</h4><img src="/2023/04/25/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/image-20230425222128767.png" alt="image-20230425222128767" style="zoom: 67%;">
+
+
+
+
+
+<img src="/2023/04/25/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/image-20230425222153365.png" alt="image-20230425222153365" style="zoom:67%;">]]></content>
       <categories>
         <category>深度学习</category>
       </categories>
