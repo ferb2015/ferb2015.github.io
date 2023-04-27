@@ -17930,16 +17930,100 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 
 
 ]]></content>
+  </entry>
+  <entry>
+    <title>Deep Compression Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding</title>
+    <url>/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/</url>
+    <content><![CDATA[<h1 id="Deep-Compression-Compressing-Deep-Neural-Networks-with-Pruning-Trained-Quantization-and-Huffman-Coding"><a href="#Deep-Compression-Compressing-Deep-Neural-Networks-with-Pruning-Trained-Quantization-and-Huffman-Coding" class="headerlink" title="Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding"></a>Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding</h1><blockquote>
+<p>Han, Song, Huizi Mao, and William J. Dally. “Deep compression: Compressing deep neural networks with pruning, trained quantization and huffman coding.” <em>arXiv preprint arXiv:1510.00149</em> (2015). 作者 韩松；citations：8368；ICLR2016 best paper</p>
+<p>github：<a href="https://github.com/songhan/Deep-Compression-AlexNet">https://github.com/songhan/Deep-Compression-AlexNet</a></p>
+</blockquote>
+<h3 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h3><p>模型量化可以缓解现有神经网络参数量大、计算量大、内存占用多、无法用在端侧等问题。本文提出一种量化方法，能减小、压缩模型参数。</p>
+<h3 id="提出什么方法"><a href="#提出什么方法" class="headerlink" title="提出什么方法"></a>提出什么方法</h3><p>使用k-mean聚类，让相近的数值聚类到同一个聚类中心，复用同一个数值，从而达到用更少的数值表示更多的数。</p>
+<p>提出三步走的pipeline：1. pruning；2. trained quantization；3. Huffman coding；</p>
+<h3 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h3><p>神经网络storage减少到35倍到49倍。（不用存那么大参数量了）。其中，剪枝可以将参数大小减少9倍到13倍；量化把表示每个connection所需要的bit从32降到5，参数大小减少到27倍到31倍（包含剪枝）；再引入哈夫曼编码，将参数大小减少到35倍到49倍。</p>
+<p>图像数据集ImageNet dataset来说，AlexNet模型的storage减少了35倍，从240MB到6.9MB，并且acc保持不变。VGG-16模型的storage减少了49倍，从552MB到11.3MB，acc保持不变。因此可以把模型放进片上SRAM  cache了，不需要只能放在片外DRAM memory了。</p>
+<p>能有3到4倍的<strong>加速</strong>、3到7倍的功耗节省。</p>
+<h3 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h3><h2 id="名词"><a href="#名词" class="headerlink" title="名词"></a>名词</h2><ul>
+<li>codebook：量化后的effective weights</li>
+<li>connections：其实就是神经元neuron</li>
+</ul>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>分析不压缩模型的问题：</p>
+<ul>
+<li><strong>功耗 Energy consumption</strong>：造成功耗最主要的是来自“向内存访问数据”memory access，读数据是最造成功耗的，比如32bit 浮点计算一个加法花费0.9p焦耳，在32bit SRAM cache里读数据要花费5pJ，但是在32bit DRAM  memory里读数据要花费640pJ！可以看出数据如果能存在cache里好处多多。比如模型的fps（每秒处理帧数，衡量模型实时性）为20，模型连接数为1百万个，如果数据是放在memory上，则每秒的功耗为 $20<em>1G</em>640pJ&#x3D;12.8W$ ，功耗12.8瓦，手机上带不起来。</li>
+</ul>
+<p>第一步：模型剪枝 prune，只保留重要的connections；</p>
+<p>第二步：量化quantize weight，量化后权重可以共享（只保留质心quantized centroids）。</p>
+<p>第三步：重训、finetune模型，然后用哈夫曼编码Huffman coding，压缩。</p>
+<img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/image-20230425155847547.png" alt="image-20230425155847547" style="zoom: 67%;">
+
+
+
+<h3 id="NETWORK-PRUNING"><a href="#NETWORK-PRUNING" class="headerlink" title="NETWORK PRUNING"></a>NETWORK PRUNING</h3><p>从上图的左边的pruning阶段可以看出，其过程是：</p>
+<ol>
+<li>正常的训练一个网络；</li>
+<li>把一些权值很小的连接进行剪枝：通过一个阈值来剪枝；</li>
+<li>retrain 这个剪完枝的稀疏连接的网络；</li>
+</ol>
+<p>剪枝后的稀疏结构，用compressed sparse row (CSR) 或compressed sparse column (CSC)  来保存。requires 2a + n + 1 numbers, where a is the number of non-zero elements and n is the number of rows or columns.  </p>
+<p>为了进一步压缩，对于weight的index（用index保存的话index的长度就是weight数组prune前实际的长度），不再存储绝对位置的index，而是<strong>存储跟上一个有效weight的相对位置</strong>，这样index的字节数就可以被压缩了。</p>
+<p>论文中，对于卷积层用 8bits 来保存这个相对位置的index，在全连接层中用 5bits 来保存；</p>
+<p>下图是以用3bits保存相对位置为例子，当相对位置超过8（3bits）的时候，需要在相对位置为8的地方填充一个0，防止溢出；</p>
+<img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/image-20230425162535032.png" alt="image-20230425162535032" style="zoom: 80%;">
+
+
+
+
+
+<h3 id="TRAINED-QUANTIZATION-AND-WEIGHT-SHARING"><a href="#TRAINED-QUANTIZATION-AND-WEIGHT-SHARING" class="headerlink" title="TRAINED QUANTIZATION AND WEIGHT SHARING"></a>TRAINED QUANTIZATION AND WEIGHT SHARING</h3><p>通过让多个连接共享相同的weight来限制需要存储的有效weight的数量，然后对这些共享的weight进行finetune训练。</p>
+<p>Weight sharing ：</p>
+<p>假设有4个input neuron，4个output neuron，weight是 4 * 4的矩阵。左下角是weight数值，左下角是梯度矩阵（loss对当前weight的梯度），weight量化成4类（bin）（用4种颜色表示），处在相同类的weight共享、使用同一个值，因此对于weight矩阵来说，就不用存这个weight矩阵，而是存类别矩阵（a small <strong>index</strong> into a table of shared weights），然后再存一个类中心值的table。</p>
+<p>做参数更新时，做法是把同一类的所有梯度加起来，乘以学习率，然后对应类的类中心值减去该值，得到新一轮的类中心。</p>
+<img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/image-20230425162552540.png" alt="image-20230425162552540" style="zoom:80%;">
+
+<p>对于AlexNet，卷积层quantization到8bits（256个共享权值），而全连接层quantization到5bits（32个共享权值），并且这样压缩之后的网络没有降低准确率。</p>
+<p><strong>压缩率compression rate的计算</strong>：假设有$k$ 类，则只需要 $\log_2(k)$ bit来表示。网络有$n$个神经元，每个神经元用$b$个bit表示，限制只有$k$个共享weight，则压缩率为：<br>$$<br>r&#x3D;\frac{nb}{n\log_2(k)+kb}<br>$$<br>分子：量化前所需的bit：原本的n个神经元b个bit，需要 $nb$ 个bit来保存；</p>
+<p>分母：量化后所需的bit：cluster index表所需要的bit（$n\log_2(k)$）加上centroids表所需要的bit（$kb$）</p>
+<h4 id="WEIGHT-SHARING"><a href="#WEIGHT-SHARING" class="headerlink" title="WEIGHT SHARING"></a>WEIGHT SHARING</h4><p>每个神经元所属哪类，是通过kmeans确定的，离哪个类中心就属于哪类，然后类中心是参数更新确定的。kmeans的目标函数是最小化within-cluster sum of squares (WCSS)，簇内L2距离：<br>$$<br>\arg\min\sum_{i&#x3D;1}^k\sum_{w\in c_i}|w-c_i|^2<br>$$</p>
+<h4 id="INITIALIZATION-OF-SHARED-WEIGHTS"><a href="#INITIALIZATION-OF-SHARED-WEIGHTS" class="headerlink" title="INITIALIZATION OF SHARED WEIGHTS"></a>INITIALIZATION OF SHARED WEIGHTS</h4><p>kmeans的类中心的初始化值会影响聚类结果，从而影响网络预测精度，作者测试了三种初始化方法：</p>
+<ol>
+<li>**Forgy(random)**：从数据集weight随机选k个观测值，作为初始类中心。</li>
+<li><strong>density-based</strong>：将weight的分布函数在y轴上线性间隔，这种方法使两个峰周围的类中心密度更大，但比Forgy方法更分散</li>
+<li><strong>linear initialization</strong>：在原始weight的[min, max]之间线性间隔类中心。与前两种初始化方法相比，该初始化方法对权值的分布是不变的，并且是最分散的。</li>
+</ol>
+<p>CDF：原始的weight的累积分布函数；PDF：原始的weight的概率密度函数；三种不同初始化类中心weight分布情况。如下图所示。</p>
+<img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/image-20230425222128767.png" alt="image-20230425222128767" style="zoom: 67%;">
+
+<p>之前的文献中有这样的结论：数值大的weight比数值小的weight更重要，但是数量更少，因此从概率密度函数来看，分布得多的那些weight，都是不重要的weight。因此从这样的概率密度分布中采样，很容易采样出不重要的weight（Forgy、density-based初始化方法）。</p>
+<p>因此，最好的初始化方式是 <strong>linear initialization</strong>！</p>
+<h4 id="FEED-FORWARD-AND-BACK-PROPAGATION"><a href="#FEED-FORWARD-AND-BACK-PROPAGATION" class="headerlink" title="FEED-FORWARD AND BACK-PROPAGATION"></a>FEED-FORWARD AND BACK-PROPAGATION</h4><p>在前向和反向传播阶段有间接的weight查找表（looking up the weight table），每个神经元放的是共享权重表的index。</p>
+<p>反向传播时，对每个共享权重计算梯度，然后梯度更新，更新这个共享权重值。</p>
+<p>梯度计算，属于同一类的梯度求和，公式为：<br>$$<br>\frac{\partial \mathcal{L}}{\partial C_k}&#x3D;\sum_{i, j} \frac{\partial \mathcal{L}}{\partial W_{i j}} \frac{\partial W_{i j}}{\partial C_k}&#x3D;\sum_{i, j} \frac{\partial \mathcal{L}}{\partial W_{i j}} \mathbb{1}\left(I_{i j}&#x3D;k\right)<br>$$</p>
+<h4 id="HUFFMAN-CODING"><a href="#HUFFMAN-CODING" class="headerlink" title="HUFFMAN CODING"></a>HUFFMAN CODING</h4><p>哈夫曼编码是一种最优前缀码prefix code的方法，无损压缩。它使用可变长codeword码字对源符号进行编码。该表来自每个符号的出现概率不同。更常见的符号用更少的比特表示。</p>
+<p>下图是 AlexNet模型中，最后一个全连接层的量化weight的概率分布和稀疏矩阵index。</p>
+<p>下图有32个类中心weight，大多数量化的weight分布在两个峰周围，出现频率不是很均匀，不同类中心的频率差距很大，因此可以根据出现频率用哈夫曼编码。</p>
+<p>稀疏矩阵index的diff很少大于20。不同index的出现频率也是差距很大，也可以用哈夫曼编码。</p>
+<p>实验表明，哈夫曼编码这些非均匀分布的值节省了20% ~ 30%的模型存储。</p>
+<img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/image-20230425222153365.png" alt="image-20230425222153365" style="zoom:67%;">
+
+
+
+
+
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>TODO</p>
+<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2><p>模型参数量、存储空间压缩的流程为：剪枝、retrain更新迭代 –&gt; kmeans共享权重 量化、更新迭代、存储weight的index结构采用index的diff来存储 –&gt;  哈夫曼编码非均匀分布的weight和index，进一步压缩存储。能够压缩模型所需的存储空间，还能加速，因为模型小了，能放在cache了（模型大的话只能放在memory上），因此相当于减少了功耗。</p>
+]]></content>
       <categories>
-        <category>深度学习</category>
+        <category>模型压缩</category>
       </categories>
       <tags>
         <tag>深度学习</tag>
+        <tag>模型压缩</tag>
       </tags>
   </entry>
   <entry>
     <title>Knowledge Distillation 视频 李宏毅助教</title>
-    <url>/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/</url>
+    <url>/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/</url>
     <content><![CDATA[<h1 id="Knowledge-Distillation-视频-李宏毅助教"><a href="#Knowledge-Distillation-视频-李宏毅助教" class="headerlink" title="Knowledge Distillation 视频 李宏毅助教"></a>Knowledge Distillation 视频 李宏毅助教</h1><blockquote>
 <p>PPT：<a href="https://slides.com/arvinliu/model-compression">https://slides.com/arvinliu/model-compression</a></p>
 <p>视频：<a href="https://www.bilibili.com/video/BV1JE411g7XF?p=49">P49 Network Compression (1_2) - Knowledge Distillation (选学)1:07:53</a> </p>
@@ -17957,7 +18041,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <p>原因：对NN来说，LSB可能不是那么重要。（* LSB: Least-Significant Bit, 在这里指小数点的后面其含义。）</p>
 <p>应用：对所有已经train好的model使用，或者边train边引诱model去quantize。</p>
 <h3 id="Why-Learn’em-all"><a href="#Why-Learn’em-all" class="headerlink" title="Why Learn’em all?"></a>Why Learn’em all?</h3><h3 id="Mixed-it-把这些方法混合"><a href="#Mixed-it-把这些方法混合" class="headerlink" title="Mixed it !把这些方法混合"></a>Mixed it !把这些方法混合</h3><p>例如这样混合：</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421150506780.png" alt="image-20230421150506780" style="zoom: 80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421150506780.png" alt="image-20230421150506780" style="zoom: 80%;">
 
 <h2 id="Knowledge-Distillation-1"><a href="#Knowledge-Distillation-1" class="headerlink" title="Knowledge Distillation"></a>Knowledge Distillation</h2><h3 id="Main-Question-Distill-what"><a href="#Main-Question-Distill-what" class="headerlink" title="Main Question: Distill what?"></a><strong>Main Question: Distill what?</strong></h3><ul>
 <li>Logits（输出值）<ul>
@@ -17974,13 +18058,13 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 </li>
 </ul>
 <h3 id="Before-Logits-KD…"><a href="#Before-Logits-KD…" class="headerlink" title="Before Logits KD…"></a>Before Logits KD…</h3><p>You need to know the magic power of soften label. 为什么知识蒸馏在logit上是有用的</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421150704117.png" alt="image-20230421150704117" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421150704117.png" alt="image-20230421150704117" style="zoom:80%;">
 
 
 
 <p>下图的训练标签是“猫”，但这是“incompleteness”的，不完整的，因为还有球、牛仔裤等，是不完全的label。然后可能训练出来的概率是0.7是猫，0.2是球，0.1是牛仔裤，这是很好的，但是模型用的one-hot，认为猫概率要更高，就变成造成“overfit”。</p>
 <p>crop是一种augment方法，是取出图片中的一个小片段。举例来说，取出一个矩形，刚好是下图的球，但是label却还是猫，这样就会让model很confuse，造成“inconsistency” 不一致。</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165548774.png" alt="image-20230421165548774" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165548774.png" alt="image-20230421165548774" style="zoom:80%;">
 
 
 
@@ -17993,7 +18077,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 </ol>
 <p><strong>label refinery可以学到label间的关系</strong></p>
 <p>注意看这里，每次train的model是一样的，精度却会提高。联想到知识蒸馏，<strong>student model的上界并不是teacher model！！student model的accuracy是有机会超过teacher model的！</strong></p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165607986.png" alt="image-20230421165607986" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165607986.png" alt="image-20230421165607986" style="zoom:80%;">
 
 
 
@@ -18001,16 +18085,16 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li><strong>baseline Knowledge Distillation</strong></li>
 </ol>
 <p>除以一个T，让logit不要那么激进，不要和 one-hot一样。</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165645594.png" alt="image-20230421165645594" style="zoom: 80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165645594.png" alt="image-20230421165645594" style="zoom: 80%;">
 
 <ol start="2">
 <li><strong>mutual learning</strong></li>
 </ol>
 <p>train两个model，互相学习logit，当然也要学习真实label。</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165726920.png" alt="image-20230421165726920" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165726920.png" alt="image-20230421165726920" style="zoom:80%;">
 
 <p>第1步：先选其中一个net进行参数更新，比如net1，计算y2（teacher）对y1（student）的kl散度，计算y1和真实y的交叉熵。</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165742474.png" alt="image-20230421165742474" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165742474.png" alt="image-20230421165742474" style="zoom:80%;">
 
 <p>第2步：选第二个net，net2，计算y1（teacher）对y2（student）的kl散度，以及y2和真实y的交叉熵。</p>
 <p>第3步：重复上述两步。</p>
@@ -18022,7 +18106,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <blockquote>
 <p>More Details: <a href="https://slides.com/arvinliu/kd_mutual">https://slides.com/arvinliu/kd_mutual</a></p>
 </blockquote>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165804386.png" alt="image-20230421165804386" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165804386.png" alt="image-20230421165804386" style="zoom:80%;">
 
 
 
@@ -18035,7 +18119,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li>born again迭代使用Cross Entropy，而label refinery使用的是kl散度。</li>
 <li>最后Ensemble 所有Student Model。</li>
 </ul>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165944076.png" alt="image-20230421165944076" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165944076.png" alt="image-20230421165944076" style="zoom:80%;">
 
 
 
@@ -18043,14 +18127,14 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <ul>
 <li>teacher模型参数、架构远大于student模型，student学不来teacher</li>
 </ul>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170023167.png" alt="image-20230421170023167" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170023167.png" alt="image-20230421170023167" style="zoom:80%;">
 
 
 
 <ul>
 <li>解决student学不来teacher的方法：用一个参数量介于Teacher&amp;Student的TA（teacher assistant）做中间人来帮助Student学习，以此避免model差距过大学不好。</li>
 </ul>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170043641.png" alt="image-20230421170043641" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170043641.png" alt="image-20230421170043641" style="zoom:80%;">
 
 
 
@@ -18061,45 +18145,45 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 
 
 <h2 id="Feature-Distillation"><a href="#Feature-Distillation" class="headerlink" title="Feature Distillation"></a>Feature Distillation</h2><p>直接让student看teacher的输出，student可能无法理解，于是让student看teacher中间feature 到底在想什么。</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170244286.png" alt="image-20230421170244286" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170244286.png" alt="image-20230421170244286" style="zoom:80%;">
 
 <ol>
 <li><strong>FitNet</strong></li>
 </ol>
 <p>先让Student学习如何产生Teacher的中间Feature，之后再使用Baseline KD。</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170306412.png" alt="image-20230421170306412" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170306412.png" alt="image-20230421170306412" style="zoom:80%;">
 
 <p>具体步骤：</p>
 <p>步骤1：fit feature：选出student net前几层的输出，经过一个仿射变换（目的是变换shape），然后与teacher前几层的输出之间做MSE。</p>
 <p>因此student和teacher中间的feature就有了一定关联。</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171514027.png" alt="image-20230421171514027" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171514027.png" alt="image-20230421171514027" style="zoom:80%;">
 
 <p>步骤2：fit logit：使用baseline kd，就是让student y学习teacher y。</p>
 <p>实验小结论：teacher和student的结构越接近，效果越好。</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171540203.png" alt="image-20230421171540203" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171540203.png" alt="image-20230421171540203" style="zoom:80%;">
 
 <p>fitnet存在的问题：</p>
 <ol>
 <li>Model capacity is different 模型的性能不同，student学中间feature真的能学得会吗？（一般来说feature维度比log高，认为会更难学）</li>
 <li>There’s lots of redundancy in Teacher Net. teacher模型有很多冗余。</li>
 </ol>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230423133246941.png" alt="image-20230423133246941" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230423133246941.png" alt="image-20230423133246941" style="zoom:80%;">
 
 
 
 <p>解决方法：把teacher net的中间feature相成一个3维的feature map，如果有方法能做knowledge compression，压缩得更小。就能减少冗余，学到更精实的东西、并且好学一点（feature维度少一些）。</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230423133319106.png" alt="image-20230423133319106" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230423133319106.png" alt="image-20230423133319106" style="zoom:80%;">
 
 <p>knowledge compression压缩方法：用<strong>attention map</strong>当作是压缩后的中间feature。</p>
 <p>让teacher不同的中间层输出attention map，比如输出3张attention map，让student也输出3张attention map，让两两的attention map彼此接近。</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171705047.png" alt="image-20230421171705047" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171705047.png" alt="image-20230421171705047" style="zoom:80%;">
 
 <p>但是模型里面可能没有attention 层的，那么要怎么获得attention map呢：</p>
 <ul>
 <li>将(W, H, C)的weight各自平方后加成(W, H)的矩阵 T。（？）</li>
 <li>Attention map &#x3D;T&#x2F;norm(M)。归一化一下。</li>
 </ul>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171721784.png" alt="image-20230421171721784" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171721784.png" alt="image-20230421171721784" style="zoom:80%;">
 
 
 
@@ -18109,10 +18193,10 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li>Individual KD : 以每个sample为单位做知识蒸馏。</li>
 <li>Relational KD: 以sample之间的关系做知识蒸馏。</li>
 </ul>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171804675.png" alt="image-20230421171804675" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171804675.png" alt="image-20230421171804675" style="zoom:80%;">
 
 <p>样本和样本之间的关系是某种“知识”。</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173108988.png" alt="image-20230421173108988" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173108988.png" alt="image-20230421173108988" style="zoom:80%;">
 
 
 
@@ -18122,20 +18206,20 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li>Angle-wise KD。以角度为取样去蒸馏。s1到si与sj的角度要接近t1到ti于tj的角度。（t13向量与t23向量的cos值，与s13向量与s23向量的cos值之间的huber损失函数）</li>
 </ul>
 <p>达到整个结构性的蒸馏。</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173210990.png" alt="image-20230421173210990" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173210990.png" alt="image-20230421173210990" style="zoom:80%;">
 
 <h3 id="Why-not-distill-relational-information-between-feature-所以feature蒸馏也同理，可以对不同样本之间feature的关系蒸馏"><a href="#Why-not-distill-relational-information-between-feature-所以feature蒸馏也同理，可以对不同样本之间feature的关系蒸馏" class="headerlink" title="Why not distill relational information between feature? 所以feature蒸馏也同理，可以对不同样本之间feature的关系蒸馏"></a>Why not distill relational information between feature? 所以feature蒸馏也同理，可以对不同样本之间feature的关系蒸馏</h3><p>Of course you can.</p>
 <p>假设model中有两个feature，分别是circle和vertical line数量。feature当作是向量，计算不同样本的feature向量之间的<strong>余弦相似度</strong>。</p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173335629.png" alt="image-20230421173335629" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173335629.png" alt="image-20230421173335629" style="zoom:80%;">
 
 <p>student学习teacher的<strong>cosine similarity table</strong> </p>
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173401192.png" alt="image-20230421173401192" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173401192.png" alt="image-20230421173401192" style="zoom:80%;">
 
 
 
 
 
-<img src="/2023/04/23/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421174538615.png" alt="image-20230421174538615" style="zoom:80%;">
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421174538615.png" alt="image-20230421174538615" style="zoom:80%;">
 
 
 
@@ -18159,26 +18243,98 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 </ul>
 ]]></content>
       <categories>
-        <category>深度学习</category>
+        <category>模型压缩</category>
       </categories>
       <tags>
         <tag>深度学习</tag>
+        <tag>模型压缩</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>模型量化(quantization)——模型压缩方法之一瞥 视频</title>
+    <url>/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/</url>
+    <content><![CDATA[<h1 id="模型量化-quantization-——模型压缩方法之一瞥-视频"><a href="#模型量化-quantization-——模型压缩方法之一瞥-视频" class="headerlink" title="模型量化(quantization)——模型压缩方法之一瞥 视频"></a>模型量化(quantization)——模型压缩方法之一瞥 视频</h1><p>2023.4.27</p>
+<blockquote>
+<p>b站：一了梁 <a href="https://www.bilibili.com/video/BV15t4y197Dj/?spm_id_from=333.788.recommend_more_video.-1&vd_source=5e9891722f2b62adca440a5e92121b5b">模型量化(quantization)——模型压缩方法之一瞥</a> 2020.7</p>
+</blockquote>
+<p>量化对weight的值离散化，用更少的bit去保存weight，模型大小下降了，计算量“可能会变少”，这里用的可能，是因为由于实际计算时，有一个反量化回浮点型的过程（减去零点，乘以缩放因子）因此多了一些运算，所以计算量是可能会变少（变少是因为整型与浮点型计算相比好运算一点？）。</p>
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427143357597.png" alt="image-20230427143357597" style="zoom:50%;">
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427143427881.png" alt="image-20230427143427881" style="zoom:50%;">
+
+
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427144436962.png" alt="image-20230427144436962" style="zoom:50%;">
+
+
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427145149292.png" alt="image-20230427145149292" style="zoom: 67%;">
+
+
+
+
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427150333852.png" alt="image-20230427150333852" style="zoom:50%;">
+
+
+
+
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427152222073.png" alt="image-20230427152222073" style="zoom:50%;">
+
+
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427153056151.png" alt="image-20230427153056151" style="zoom: 50%;">
+
+
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427153130277.png" alt="image-20230427153130277" style="zoom: 67%;">
+
+
+
+
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427153305246.png" alt="image-20230427153305246" style="zoom:67%;">
+
+]]></content>
+      <categories>
+        <category>模型压缩</category>
+      </categories>
+      <tags>
+        <tag>深度学习</tag>
+        <tag>模型压缩</tag>
       </tags>
   </entry>
   <entry>
     <title>Network Pruning 视频 李宏毅助教</title>
-    <url>/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/</url>
+    <url>/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/</url>
     <content><![CDATA[<h1 id="Network-Pruning-视频-李宏毅助教"><a href="#Network-Pruning-视频-李宏毅助教" class="headerlink" title="Network Pruning 视频 李宏毅助教"></a>Network Pruning 视频 李宏毅助教</h1><blockquote>
 <p>PPT：<a href="https://slides.com/arvinliu/model-compression">https://slides.com/arvinliu/model-compression</a> 、 <a href="https://slides.com/arvinliu/model-compression/fullscreen?print-pdf=true#/0/1">https://slides.com/arvinliu/model-compression/fullscreen?print-pdf=true#/0/1</a> 、 <a href="https://slides.com/arvinliu/model-compression/fullscreen?print-pptx=true#/0/2">https://slides.com/arvinliu/model-compression/fullscreen?print-pptx=true#/0/2</a></p>
 <p>视频：<a href="https://www.bilibili.com/video/BV1JE411g7XF?p=50">P50 Network Compression (2_2) - Network Pruning (选学)39:33</a></p>
 </blockquote>
 <p>对于dense全连接来说，少1个参数，总参数量（矩阵参数）从 $a * b + b * c &#x3D; (a + c) * b$，变为  $(a + c) * (b -1)$ 个weight.</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230421174655789.png" alt="image-20230421174655789" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230421174655789.png" alt="image-20230421174655789" style="zoom:80%;">
 
 
 
 <p>对于CNN来说，kernel size $k<em>k$，参数原本是 $(a+c)<em>b</em>k</em>k$ ，少一个参数，变为 $(a+c)*(b-1)<em>k</em>k$ 个 weight。</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230421174715246.png" alt="image-20230421174715246" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230421174715246.png" alt="image-20230421174715246" style="zoom:80%;">
 
 
 
@@ -18196,7 +18352,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 </ul>
 <p>1）每一层都prune固定比例 x%（这个方式不太实用，因为model一般是金字塔型，顶层参数少，因为prune要多一些）</p>
 <p>2） 每一层prune的比例不同。（autoML）</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230421174844154.png" alt="image-20230421174844154" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230421174844154.png" alt="image-20230421174844154" style="zoom:80%;">
 
 
 
@@ -18204,7 +18360,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li><strong>sum of L1 norm</strong> （这里的对象是weight，prune weight）</li>
 </ol>
 <p>卷积过程，得到输出neuron，输入是feature map，kernel size $k*k$，所以第一个橙色的weight，计算sum，第二个蓝色的weight计算后的的sum。所以根据sum的L1或L2大小，来决定要prune掉谁。</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230421174910562.png" alt="image-20230421174910562" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230421174910562.png" alt="image-20230421174910562" style="zoom:80%;">
 
 
 
@@ -18212,7 +18368,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li><strong>Filter pruning via geometric media</strong> 几何中心上prune</li>
 </ol>
 <p>根据输出的分布，把分布边缘的weight prune掉</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233426616.png" alt="image-20230422233426616" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233426616.png" alt="image-20230422233426616" style="zoom:80%;">
 
 
 
@@ -18221,18 +18377,18 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li>当分布的方差很小时，砍掉会很影响效果，不能轻易砍（prune）；</li>
 <li>norm要接近0才能砍，当发现不接近0，就是说这些都对结果很有贡献，就不能轻易砍。</li>
 </ol>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233448565.png" alt="image-20230422233448565" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233448565.png" alt="image-20230422233448565" style="zoom:80%;">
 
 <p>改进方法：<strong>FPGM</strong>：出发点是“小的norm对model一定没用吗？大的norm对model一定有用吗”</p>
 <p>找出对model都有贡献，并且彼此都不太一样的filter。如果很像的filter（比如norm值很接近），这种filter可以删掉其中一个。</p>
 <p>就是虽然filter 的norm值大或小，也许都对model有贡献。但是如果重复的filter，这种filter才是对model没有贡献，要被prune掉的。</p>
 <p>怎么找重复filter ：通过几何中心。</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233505323.png" alt="image-20230422233505323" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233505323.png" alt="image-20230422233505323" style="zoom:80%;">
 
 
 
 <p>找几何中心，把不是几何中心的prune掉。？？？</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233526366.png" alt="image-20230422233526366" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233526366.png" alt="image-20230422233526366" style="zoom:80%;">
 
 
 
@@ -18244,12 +18400,12 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 </ul>
 </li>
 </ul>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233556827.png" alt="image-20230422233556827" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233556827.png" alt="image-20230422233556827" style="zoom:80%;">
 
 
 
 <p>但是如果$\gamma$的值都不接近零，这样强行根据$\gamma$值去prune会造成精度下降。因此要做归一化一下。对$\gamma$做L1-penalty。（？）</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233621537.png" alt="image-20230422233621537" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233621537.png" alt="image-20230422233621537" style="zoom:80%;">
 
 
 
@@ -18257,26 +18413,26 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li><strong>average percentage of zeros （APoZ）</strong></li>
 </ul>
 <p>经过relu激活函数后很多值是0，prune按照0的比例来做决定。把非零的值sum起来（是数量sum还是数值sum？）？然后根据0的比例来决定prune多少。比如0的比例很高，则可以prune的也可以多一些。</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233637790.png" alt="image-20230422233637790" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233637790.png" alt="image-20230422233637790" style="zoom:80%;">
 
 
 
 <p>0的比例还挺高的：</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233651602.png" alt="image-20230422233651602" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233651602.png" alt="image-20230422233651602" style="zoom:80%;">
 
 
 
-<h1 id="More-About-Lottery-Ticket-Hypothesis"><a href="#More-About-Lottery-Ticket-Hypothesis" class="headerlink" title="More About Lottery Ticket Hypothesis"></a>More About Lottery Ticket Hypothesis</h1><img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233724553.png" alt="image-20230422233724553" style="zoom:80%;">
+<h1 id="More-About-Lottery-Ticket-Hypothesis"><a href="#More-About-Lottery-Ticket-Hypothesis" class="headerlink" title="More About Lottery Ticket Hypothesis"></a>More About Lottery Ticket Hypothesis</h1><img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233724553.png" alt="image-20230422233724553" style="zoom:80%;">
 
 <p>作者用L1 norm的值（其实就是weight值取绝对值）大小来决定prune哪些weight。</p>
 <p>问题1：会不会有这么一种可能：最后train完大数值的那些weight，也许是因为它们的初始值就大？那么初始值小的weight，最后如果train完也变成大weight，那么这类weight（初始小、train完大）是否会更有意义呢？</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233812747.png" alt="image-20230422233812747" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233812747.png" alt="image-20230422233812747" style="zoom:80%;">
 
 <p>实验对比</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233829593.png" alt="image-20230422233829593" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233829593.png" alt="image-20230422233829593" style="zoom:80%;">
 
 <p>实验结果</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233849055.png" alt="image-20230422233849055" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233849055.png" alt="image-20230422233849055" style="zoom:80%;">
 
 
 
@@ -18297,10 +18453,10 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 </ul>
 </li>
 </ul>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233913423.png" alt="image-20230422233913423" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233913423.png" alt="image-20230422233913423" style="zoom:80%;">
 
 <p>实验结果：</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233938836.png" alt="image-20230422233938836" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233938836.png" alt="image-20230422233938836" style="zoom:80%;">
 
 <h3 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h3><h3 id="Experiment-1-Choose-Which-Mask"><a href="#Experiment-1-Choose-Which-Mask" class="headerlink" title="Experiment 1: Choose Which Mask"></a>Experiment 1: Choose Which Mask</h3><ul>
 <li>Usual L1-norm pruning :</li>
@@ -18308,37 +18464,37 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <h3 id="Experiment-2-Remain-what-properties-in-w"><a href="#Experiment-2-Remain-what-properties-in-w" class="headerlink" title="Experiment 2: Remain what properties in $w$"></a>Experiment 2: Remain what properties in $w$</h3><ul>
 <li>Under same architecture, <strong>init sign</strong> is important. 用sign函数更重要，sign函数曲线不要轻易改变长相</li>
 </ul>
-<h3 id="Based-on-Experiment-1-amp-2-we-can-construct-a-“supermask”"><a href="#Based-on-Experiment-1-amp-2-we-can-construct-a-“supermask”" class="headerlink" title="Based on Experiment 1 &amp; 2, we can construct a “supermask”."></a>Based on Experiment 1 &amp; 2, we can construct a “supermask”.</h3><img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233958304.png" alt="image-20230422233958304" style="zoom:80%;">
+<h3 id="Based-on-Experiment-1-amp-2-we-can-construct-a-“supermask”"><a href="#Based-on-Experiment-1-amp-2-we-can-construct-a-“supermask”" class="headerlink" title="Based on Experiment 1 &amp; 2, we can construct a “supermask”."></a>Based on Experiment 1 &amp; 2, we can construct a “supermask”.</h3><img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422233958304.png" alt="image-20230422233958304" style="zoom:80%;">
 
 <blockquote>
 <p>详情见：Deconstructing Lottery Tickets: Zeros, Signs, and the Supermask (ICML 2019)</p>
 </blockquote>
 <h1 id="Rethink-vs-Lottery"><a href="#Rethink-vs-Lottery" class="headerlink" title="Rethink vs Lottery"></a>Rethink vs Lottery</h1><p>Recap 它的观点和上述相反，它认为weight和neuron不重要，重要的是架构、构造（structure、architecture），经过prune后再finetune的结果，可能没有在这个架构下（和prune后相同的架构）随机初始化来的好。</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422234017228.png" alt="image-20230422234017228" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422234017228.png" alt="image-20230422234017228" style="zoom:80%;">
 
 <ul>
 <li>Rethink val：架构更重要，random init好</li>
 <li>Lottery Ticket：weight更重要，random init不好</li>
 </ul>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422234033439.png" alt="image-20230422234033439" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422234033439.png" alt="image-20230422234033439" style="zoom:80%;">
 
 
 
 <p>？？？</p>
 <p>对于Lottery Ticket来说：<strong>学习率lr要小</strong>，weight和train后的weight要接近</p>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422234049299.png" alt="image-20230422234049299" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230422234049299.png" alt="image-20230422234049299" style="zoom:80%;">
 
 <ul>
 <li>Rethink val：prune的是neuron&#x2F;feature map</li>
 <li>Lottery Ticket：prune的是weight</li>
 </ul>
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230423092000001.png" alt="image-20230423092000001" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230423092000001.png" alt="image-20230423092000001" style="zoom:80%;">
 
 
 
 
 
-<img src="/2023/04/24/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230423092023886.png" alt="image-20230423092023886" style="zoom:80%;">
+<img src="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/image-20230423092023886.png" alt="image-20230423092023886" style="zoom:80%;">
 
 
 
@@ -18358,15 +18514,16 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 </ul>
 ]]></content>
       <categories>
-        <category>深度学习</category>
+        <category>模型压缩</category>
       </categories>
       <tags>
         <tag>深度学习</tag>
+        <tag>模型压缩</tag>
       </tags>
   </entry>
   <entry>
     <title>模型量化 商汤 视频</title>
-    <url>/2023/04/25/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/</url>
+    <url>/2023/04/25/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/</url>
     <content><![CDATA[<h1 id="模型量化-商汤-视频"><a href="#模型量化-商汤-视频" class="headerlink" title="模型量化 商汤 视频"></a>模型量化 商汤 视频</h1><p>2023.4.25</p>
 <blockquote>
 <p>b站：<a href="https://www.bilibili.com/video/BV1t54y1d777/?from=search&seid=8380176989930547254&vd_source=5e9891722f2b62adca440a5e92121b5b">【商汤泰坦公开课】模型量化的那些事</a> 2020.4.9</p>
@@ -18378,7 +18535,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <p>3、如何用量化技术来加速模型训练 </p>
 <p>4、模型量化在实际场景的落地 </p>
 <p>5、模型量化与网络结构搜索结合</p>
-<img src="/2023/04/25/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/image-20230425112749497.png" alt="image-20230425112749497" style="zoom: 50%;">
+<img src="/2023/04/25/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/image-20230425112749497.png" alt="image-20230425112749497" style="zoom: 50%;">
 
 
 
@@ -18390,7 +18547,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li>是什么阻碍了量化模型的落地？</li>
 </ul>
 <p>量化与反量化</p>
-<img src="/2023/04/25/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/v2-52618ac0bf3518080b77f7fc49f7323e_r.jpg" alt="img" style="zoom:80%;">
+<img src="/2023/04/25/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/v2-52618ac0bf3518080b77f7fc49f7323e_r.jpg" alt="img" style="zoom:80%;">
 
 
 
@@ -18404,7 +18561,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <p>1、<strong>二值化</strong>，其可以用简单的位运算来同时计算大量的数。对比从nvdia gpu到x86平台，1bit计算分别有5到128倍的理论性能提升。且其只会引入一个额外的量化操作，该操作可以享受到SIMD（单指令多数据流）的加速收益。</p>
 <p>2、<strong>线性量化</strong>，又可细分为非对称，对称和ristretto几种。在nvdia gpu，x86和arm平台上，均支持8bit的计算，效率提升从1倍到16倍不等，其中tensor core甚至支持4bit计算，这也是非常有潜力的方向。由于线性量化引入的额外量化&#x2F;反量化计算都是标准的向量操作，也可以使用SIMD进行加速，带来的额外计算耗时不大。</p>
 <p>3、<strong>对数量化</strong>，一个比较特殊的量化方法。可以想象一下，两个同底的幂指数进行相乘，那么等价于其指数相加，降低了计算强度。同时加法也被转变为索引计算。但没有看到有在三大平台上实现对数量化的加速库，可能其实现的加速效果不明显。只有一些专用芯片上使用了对数量化。</p>
-<img src="/2023/04/25/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/v2-2a4223b3022be115bb8b7e5ccca8acde_r.jpg" alt="img" style="zoom:80%;">
+<img src="/2023/04/25/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/v2-2a4223b3022be115bb8b7e5ccca8acde_r.jpg" alt="img" style="zoom:80%;">
 
 
 
@@ -18418,7 +18575,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <p>2、在部署平台上使用经过深度优化的量化计算库（必要的时候，可能需要撸起袖子自己上）。</p>
 <p>首先保证你实现的低比特计算效率超过原先浮点计算，否则为何要承担精度损失的风险而使用并不加速的量化模型呢。但低比特计算效率超过浮点计算其实并不容易，因为大家在浮点的计算库上已经做了非常多细致的优化比如winograd，间接卷积等等。</p>
 <p>为了最大限度保证实用性，后面的论文所有工作都是基于二值化、线性量化两种前提来做的，并且绝大部分工作都报告最终实际的加速效果。这也是链接与编译团队做研究的一个风格。</p>
-<img src="/2023/04/25/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/v2-a4f481df63477b7af50dcf571d3121ad_r.jpg" alt="img" style="zoom:80%;">
+<img src="/2023/04/25/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/v2-a4f481df63477b7af50dcf571d3121ad_r.jpg" alt="img" style="zoom:80%;">
 
 
 
@@ -18444,7 +18601,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li>在这个方向上之前商汤的一位实习生李润东也有一个工作，做了除了卷积之外更多层的量化。Fully Quantized Network for Object Detection, Li Rundong, CVPR2019</li>
 <li>但是这样做会带来更多的精度损失，这可能也是大家需要关心的。</li>
 </ul>
-<img src="/2023/04/25/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/v2-637b9153cfc3465aecc066343c98a02f_r.jpg" alt="img" style="zoom:80%;">
+<img src="/2023/04/25/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/v2-637b9153cfc3465aecc066343c98a02f_r.jpg" alt="img" style="zoom:80%;">
 
 <p><strong>生产量化模型</strong></p>
 <p>生产一个量化模型的有以下几种方法，借鉴了ICCV2019上一篇data-free量化论文的定义。</p>
@@ -18456,7 +18613,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <blockquote>
 <p>data-free quantization through weight equlization and bias correction, Qualcomm, ICCV2019</p>
 </blockquote>
-<img src="/2023/04/25/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/v2-ff854c348a7fb09ac5c3424395c2fcfd_r.jpg" alt="img" style="zoom:80%;">
+<img src="/2023/04/25/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/v2-ff854c348a7fb09ac5c3424395c2fcfd_r.jpg" alt="img" style="zoom:80%;">
 
 
 
@@ -18476,7 +18633,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li>除了硬件之外，不同软件库实现的量化方案和细节也不一样，量化细节里包括量化位置、是否支持perchannel、是否混合精度等等。即使硬件支持了量化，但你会发现不是所有硬件可以在低比特上提供更好的速度提升， 造成这个状况的主要原因有多个，一方面是指令集峰值提升可能本身就并不多，而要引入较多的额外计算，另一方面也取决于软件工程师优化指令的水平，同时由于网络结构灵活多样，不一定能在不同网络结构上达到同样好的加速比，需要优化足够多的的corner case才可以解决。</li>
 </ul>
 <p>相信大家对模型量化的概念和落地难点有了一个系统性的认识。我的部分就到这里结束了，下面是大家最期待的论文解读时间。</p>
-<img src="/2023/04/25/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/v2-cc80dbe2114757d0d93d551d0d90cebf_r.jpg" alt="img">
+<img src="/2023/04/25/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/v2-cc80dbe2114757d0d93d551d0d90cebf_r.jpg" alt="img">
 
 
 
@@ -18490,106 +18647,327 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <p>。。。。TODO</p>
 ]]></content>
       <categories>
-        <category>深度学习</category>
+        <category>模型压缩</category>
       </categories>
       <tags>
         <tag>深度学习</tag>
-        <tag>模型量化</tag>
+        <tag>模型压缩</tag>
       </tags>
   </entry>
   <entry>
-    <title>Deep Compression Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding</title>
-    <url>/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/</url>
-    <content><![CDATA[<h1 id="Deep-Compression-Compressing-Deep-Neural-Networks-with-Pruning-Trained-Quantization-and-Huffman-Coding"><a href="#Deep-Compression-Compressing-Deep-Neural-Networks-with-Pruning-Trained-Quantization-and-Huffman-Coding" class="headerlink" title="Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding"></a>Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding</h1><blockquote>
-<p>Han, Song, Huizi Mao, and William J. Dally. “Deep compression: Compressing deep neural networks with pruning, trained quantization and huffman coding.” <em>arXiv preprint arXiv:1510.00149</em> (2015). 作者 韩松；citations：8368；ICLR2016 best paper</p>
-<p>github：<a href="https://github.com/songhan/Deep-Compression-AlexNet">https://github.com/songhan/Deep-Compression-AlexNet</a></p>
+    <title>Network Compression 视频 李宏毅</title>
+    <url>/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/</url>
+    <content><![CDATA[<h1 id="Network-Compression-视频-李宏毅"><a href="#Network-Compression-视频-李宏毅" class="headerlink" title="Network Compression 视频 李宏毅"></a>Network Compression 视频 李宏毅</h1><blockquote>
+<p>课程视频(B站)：<a href="https://www.bilibili.com/video/BV1JE411g7XF">李宏毅2020机器学习深度学习(完整版)国语</a> P43-P50</p>
+<p>课程官网：<a href="http://speech.ee.ntu.edu.tw/~tlkagk/courses_ML20.html">http://speech.ee.ntu.edu.tw/~tlkagk/courses_ML20.html</a></p>
+<p>课程笔记(知乎)：<a href="https://www.zhihu.com/column/c_1325525429269671936">https://www.zhihu.com/column/c_1325525429269671936</a></p>
+<p>网友github代码：<a href="https://github.com/chouxianyu/LHY_ML2020_Codes">https://github.com/chouxianyu/LHY_ML2020_Codes</a></p>
+<p>github：<a href="https://github.com/jacobgil/pytorch-pruning">https://github.com/jacobgil/pytorch-pruning</a> 待看！！！</p>
 </blockquote>
-<h3 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h3><p>模型量化可以缓解现有神经网络参数量大、计算量大、内存占用多、无法用在端侧等问题。本文提出一种量化方法，能减小、压缩模型参数。</p>
-<h3 id="提出什么方法"><a href="#提出什么方法" class="headerlink" title="提出什么方法"></a>提出什么方法</h3><p>使用k-mean聚类，让相近的数值聚类到同一个聚类中心，复用同一个数值，从而达到用更少的数值表示更多的数。</p>
-<p>提出三步走的pipeline：1. pruning；2. trained quantization；3. Huffman coding；</p>
-<h3 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h3><p>神经网络storage减少到35倍到49倍。（不用存那么大参数量了）。其中，剪枝可以将参数大小减少9倍到13倍；量化把表示每个connection所需要的bit从32降到5，参数大小减少到27倍到31倍（包含剪枝）；再引入哈夫曼编码，将参数大小减少到35倍到49倍。</p>
-<p>图像数据集ImageNet dataset来说，AlexNet模型的storage减少了35倍，从240MB到6.9MB，并且acc保持不变。VGG-16模型的storage减少了49倍，从552MB到11.3MB，acc保持不变。因此可以把模型放进片上SRAM  cache了，不需要只能放在片外DRAM memory了。</p>
-<p>能有3到4倍的<strong>加速</strong>、3到7倍的功耗节省。</p>
-<h3 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h3><h2 id="名词"><a href="#名词" class="headerlink" title="名词"></a>名词</h2><ul>
-<li>codebook：量化后的effective weights</li>
-<li>connections：其实就是神经元neuron</li>
+<h2 id="Outline"><a href="#Outline" class="headerlink" title="Outline"></a>Outline</h2><ul>
+<li>Network Pruning</li>
+<li>Knowledge Distillation</li>
+<li>Parameter Quantization</li>
+<li>Architecture Design</li>
+<li>Dynamic Computation</li>
 </ul>
-<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>分析不压缩模型的问题：</p>
+<h2 id="Network-Pruning-剪枝"><a href="#Network-Pruning-剪枝" class="headerlink" title="Network Pruning 剪枝"></a>Network Pruning 剪枝</h2><blockquote>
+<p><a href="https://www.bilibili.com/video/BV1JE411g7XF?p=43">P43 Network Compression (1_6)08:24</a></p>
+</blockquote>
+<h3 id="Network-can-be-pruned"><a href="#Network-can-be-pruned" class="headerlink" title="Network can be pruned"></a>Network can be pruned</h3><ul>
+<li><p>网络一般都是“over-parameterized”，对于任务来说训练太多参数。 看一些neuron的output总是0，或者一些weight很接近0，对output无影响</p>
+</li>
+<li><p>剪掉的weight、neuron是没意义的解空间，不影响最优解（和最优解的距离不变）。</p>
+</li>
+<li><p>neuron理解为上一层经过某些连接的输出；weight是连接的值，就是神经元之间连接上的权重。</p>
+</li>
+</ul>
+<h3 id="剪枝流程"><a href="#剪枝流程" class="headerlink" title="剪枝流程"></a>剪枝流程</h3><ol>
+<li>有一个训好的大network</li>
+<li>评估neuron或weight的重要性（直接看weight的数值，接近0不重要，很正或很负重要；neuron的output总是0不重要）</li>
+<li>把pruned后的network再去训练集finetue一下（recover）（因为pruned会使得模型精度下降，要finetune补回来、恢复回来）</li>
+</ol>
+<p>迭代地进行，一次pruned一点点参数，再finetune，再pruned，再finetune，直到模型参数符合要求（因为一次pruned太多，recover不回来）。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419110903497.png" alt="image-20230419110903497" style="zoom:80%;">
+
+
+
+<blockquote>
+<p><a href="https://www.bilibili.com/video/BV1JE411g7XF?p=44">P44 Network Compression (2_6)12:44</a></p>
+</blockquote>
+<h3 id="Why-Pruning"><a href="#Why-Pruning" class="headerlink" title="Why Pruning?"></a>Why Pruning?</h3><p>为什么不直接train一个小network：因为小network比较难train，有文章理论上证明只要network够大，能找到global optimize全局最优。</p>
 <ul>
-<li><strong>功耗 Energy consumption</strong>：造成功耗最主要的是来自“向内存访问数据”memory access，读数据是最造成功耗的，比如32bit 浮点计算一个加法花费0.9p焦耳，在32bit SRAM cache里读数据要花费5pJ，但是在32bit DRAM  memory里读数据要花费640pJ！可以看出数据如果能存在cache里好处多多。比如模型的fps（每秒处理帧数，衡量模型实时性）为20，模型连接数为1百万个，如果数据是放在memory上，则每秒的功耗为 $20<em>1G</em>640pJ&#x3D;12.8W$ ，功耗12.8瓦，手机上带不起来。</li>
+<li>How about simply train a smaller network?</li>
+<li>It is widely known that smaller network is more difficult to learn successfully.<ul>
+<li>Larger network is easier to optimize?<br><a href="https://www.youtube.com/watch?v=_VuWvQUMQVk">https://www.youtube.com/watch?v=_VuWvQUMQVk</a></li>
+<li>Lottery Ticket Hypothesis 大乐透假设<br><a href="https://arxiv.org/abs/1803.03635">https://arxiv.org/abs/1803.03635</a></li>
 </ul>
-<p>第一步：模型剪枝 prune，只保留重要的connections；</p>
-<p>第二步：量化quantize weight，量化后权重可以共享（只保留质心quantized centroids）。</p>
-<p>第三步：重训、finetune模型，然后用哈夫曼编码Huffman coding，压缩。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/image-20230425155847547.png" alt="image-20230425155847547" style="zoom: 67%;">
+</li>
+</ul>
+<p>Lottery Ticket Hypothesis 大乐透假设：</p>
+<p>不同随机初始化有时候train得起来，有时候train不起来。一个巨大的network想象成由很多小的network所组成，每一个是sub network，每一个小network就是一种可能的初始化，这些小network有的train得起来，有的train不起来，而大的network之所以能够train得起来，是因为大的network里面只要有某一个小的network能够train起来，整个network就train起来，然后把大network做pruned，取出小network。</p>
+<p>这解释了下图右下，取大network的初始化一样的参数的小network初始化能够train起来。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419110936001.png" alt="image-20230419110936001" style="zoom:80%;">
 
 
 
-<h3 id="NETWORK-PRUNING"><a href="#NETWORK-PRUNING" class="headerlink" title="NETWORK PRUNING"></a>NETWORK PRUNING</h3><p>从上图的左边的pruning阶段可以看出，其过程是：</p>
+
+
+<p>不需要大乐透假说？直接train能train起来：</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419110949757.png" alt="image-20230419110949757" style="zoom:80%;">
+
+
+
+<h3 id="Weight-pruning"><a href="#Weight-pruning" class="headerlink" title="Weight pruning"></a>Weight pruning</h3><p>直接把pruned的weight挖空，不利于gpu加速计算（gpu对象是矩阵），所以做法是把要pruned的weight<strong>置0</strong>。但是补0后的network模型大小没有变化。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419111007726.png" alt="image-20230419111007726" style="zoom:80%;">
+
+
+
+<p>pruning得即使很多（95%都pruned掉了），精度也没怎么掉，但是加速变慢了（小于1）有些pruning了结果还更慢了。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419111034391.png" alt="image-20230419111034391" style="zoom:80%;">
+
+
+
+<h3 id="Neuron-pruning"><a href="#Neuron-pruning" class="headerlink" title="Neuron pruning"></a>Neuron pruning</h3><p>相比于weight pruning，neuron pruning是一种更好的方式，把neuron前面和后面连接的weight拿掉，直接拿掉某一个hidden neuron。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419111054816.png" alt="image-20230419111054816" style="zoom:80%;">
+
+
+
+
+
+
+
+<h2 id="Knowledge-Distillation"><a href="#Knowledge-Distillation" class="headerlink" title="Knowledge Distillation"></a>Knowledge Distillation</h2><blockquote>
+<p><a href="https://www.bilibili.com/video/BV1JE411g7XF?p=45">P45 Network Compression (3_6)08:33</a></p>
+</blockquote>
+<p>Knowledge Distillation：<a href="https://arxiv.org/pdf/1503.02531.pdf">https://arxiv.org/pdf/1503.02531.pdf</a></p>
+<p>Do Deep Nets Really Need to be Deep?<a href="https://arxiv.org/pdf/1312.6184.pdf">https://arxiv.org/pdf/1312.6184.pdf</a>  </p>
+<p>能学会1长得和7很像，1也长得像9</p>
+<p>论文里做了一个有趣的实验：训练集里没给student看过7的数据，但是蒸馏后，student也可能能分类出7，因为student知道7和1、7和9挺像。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419111117580.png" alt="image-20230419111117580" style="zoom:80%;">
+
+
+
+
+
+<p>打比赛通常是ensemble很多，用集成方法组合多个模型。</p>
+<p>知识蒸馏的teacher model把ensemble的模型<strong>并起来</strong>，比如输出是多个模型的平均，这个输出让student model去学习，最后student就能学到接近ensemble的结果。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419111135634.png" alt="image-20230419111135634" style="zoom:80%;">
+
+
+
+<p>temperature</p>
+<p>通常 $T&gt;1$ ，提出temperature的目的就是不希望因为teacher model输出概率很“确定”，比如接近1或0，这样就很像label，这样和直接让student学习数据，学习label（0、1） 没区别，就失去了用teacher model的意义，于是用一个temperature缓解一下。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419111153649.png" alt="image-20230419111153649" style="zoom:80%;">
+
+
+
+<p>李宏毅实践发现Knowledge Distillation<strong>没有</strong>特别有用。</p>
+<h2 id="Parameter-Quantization"><a href="#Parameter-Quantization" class="headerlink" title="Parameter Quantization"></a>Parameter Quantization</h2><blockquote>
+<p><a href="https://www.bilibili.com/video/BV1JE411g7XF?p=46">P46 Network Compression (4_6)06:37</a></p>
+</blockquote>
 <ol>
-<li>正常的训练一个网络；</li>
-<li>把一些权值很小的连接进行剪枝：通过一个阈值来剪枝；</li>
-<li>retrain 这个剪完枝的稀疏连接的网络；</li>
+<li>Using less bits to represent a value  </li>
+<li>Weight clustering</li>
 </ol>
-<p>剪枝后的稀疏结构，用compressed sparse row (CSR) 或compressed sparse column (CSC)  来保存。requires 2a + n + 1 numbers, where a is the number of non-zero elements and n is the number of rows or columns.  </p>
-<p>为了进一步压缩，对于weight的index（用index保存的话index的长度就是weight数组prune前实际的长度），不再存储绝对位置的index，而是<strong>存储跟上一个有效weight的相对位置</strong>，这样index的字节数就可以被压缩了。</p>
-<p>论文中，对于卷积层用 8bits 来保存这个相对位置的index，在全连接层中用 5bits 来保存；</p>
-<p>下图是以用3bits保存相对位置为例子，当相对位置超过8（3bits）的时候，需要在相对位置为8的地方填充一个0，防止溢出；</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/image-20230425162535032.png" alt="image-20230425162535032" style="zoom: 80%;">
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419111215941.png" alt="image-20230419111215941" style="zoom:80%;">
+
+<p>聚类，比如聚成4类，就用2个bit就能表示4个类，然后每个类的值（table）用所属类的值的平均值表示。</p>
+<p>这样可能不够精准</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419111236504.png" alt="image-20230419111236504" style="zoom:80%;">
+
+<ol start="3">
+<li>Represent frequent clusters by less bits, represent rare clusters by more bits<ul>
+<li>e.g. Huffman encoding  哈夫曼编码，把比较常出现的token用较少的bit表示，比较少出现的token用较多的bit表示</li>
+</ul>
+</li>
+</ol>
+<h3 id="Binary-Weights"><a href="#Binary-Weights" class="headerlink" title="Binary Weights"></a>Binary Weights</h3><blockquote>
+<p>Binary Connect: <a href="https://arxiv.org/abs/1511.00363">https://arxiv.org/abs/1511.00363</a></p>
+<p>Binary Network: <a href="https://arxiv.org/abs/1602.02830">https://arxiv.org/abs/1602.02830</a></p>
+<p>XNOR-net: <a href="https://arxiv.org/abs/1603.05279">https://arxiv.org/abs/1603.05279</a>  </p>
+</blockquote>
+<p>Your weights are always +1 or -1  </p>
+<ul>
+<li>Binary Connect</li>
+</ul>
+<p>流程：随机初始化参数，然后找到参数<strong>最接近</strong>的二值化参数，计算该二值化参数的梯度，认为是原参数的梯度（非二值化），然后用这个梯度作为原参数的更新方向，更新后的参数值，再去找最接近的二值化参数，再去计算该二值化参数的梯度，再用这个梯度更新real value 参数。直到迭代完了，最后这个最接近real value的二值化参数，作为最终的参数使用。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419111323712.png" alt="image-20230419111323712" style="zoom:80%;">
 
 
 
 
 
-<h3 id="TRAINED-QUANTIZATION-AND-WEIGHT-SHARING"><a href="#TRAINED-QUANTIZATION-AND-WEIGHT-SHARING" class="headerlink" title="TRAINED QUANTIZATION AND WEIGHT SHARING"></a>TRAINED QUANTIZATION AND WEIGHT SHARING</h3><p>通过让多个连接共享相同的weight来限制需要存储的有效weight的数量，然后对这些共享的weight进行finetune训练。</p>
-<p>Weight sharing ：</p>
-<p>假设有4个input neuron，4个output neuron，weight是 4 * 4的矩阵。左下角是weight数值，左下角是梯度矩阵（loss对当前weight的梯度），weight量化成4类（bin）（用4种颜色表示），处在相同类的weight共享、使用同一个值，因此对于weight矩阵来说，就不用存这个weight矩阵，而是存类别矩阵（a small <strong>index</strong> into a table of shared weights），然后再存一个类中心值的table。</p>
-<p>做参数更新时，做法是把同一类的所有梯度加起来，乘以学习率，然后对应类的类中心值减去该值，得到新一轮的类中心。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/image-20230425162552540.png" alt="image-20230425162552540" style="zoom:80%;">
+<h3 id="binary-connect-结果"><a href="#binary-connect-结果" class="headerlink" title="binary connect 结果"></a>binary connect 结果</h3><blockquote>
+<p><a href="https://arxiv.org/abs/1511.00363">https://arxiv.org/abs/1511.00363</a>  </p>
+</blockquote>
+<p>论文发现用binary connect结果居然还变好了，一开始认为参数二值化可能会更差，没想到更好，分析是binary connect有点像<strong>正则</strong>，起到正则作用，二值化。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419111341304.png" alt="image-20230419111341304" style="zoom:80%;">
 
-<p>对于AlexNet，卷积层quantization到8bits（256个共享权值），而全连接层quantization到5bits（32个共享权值），并且这样压缩之后的网络没有降低准确率。</p>
-<p><strong>压缩率compression rate的计算</strong>：假设有$k$ 类，则只需要 $\log_2(k)$ bit来表示。网络有$n$个神经元，每个神经元用$b$个bit表示，限制只有$k$个共享weight，则压缩率为：<br>$$<br>r&#x3D;\frac{nb}{n\log_2(k)+kb}<br>$$<br>分子：量化前所需的bit：原本的n个神经元b个bit，需要 $nb$ 个bit来保存；</p>
-<p>分母：量化后所需的bit：cluster index表所需要的bit（$n\log_2(k)$）加上centroids表所需要的bit（$kb$）</p>
-<h4 id="WEIGHT-SHARING"><a href="#WEIGHT-SHARING" class="headerlink" title="WEIGHT SHARING"></a>WEIGHT SHARING</h4><p>每个神经元所属哪类，是通过kmeans确定的，离哪个类中心就属于哪类，然后类中心是参数更新确定的。kmeans的目标函数是最小化within-cluster sum of squares (WCSS)，簇内L2距离：<br>$$<br>\arg\min\sum_{i&#x3D;1}^k\sum_{w\in c_i}|w-c_i|^2<br>$$</p>
-<h4 id="INITIALIZATION-OF-SHARED-WEIGHTS"><a href="#INITIALIZATION-OF-SHARED-WEIGHTS" class="headerlink" title="INITIALIZATION OF SHARED WEIGHTS"></a>INITIALIZATION OF SHARED WEIGHTS</h4><p>kmeans的类中心的初始化值会影响聚类结果，从而影响网络预测精度，作者测试了三种初始化方法：</p>
+
+
+
+
+
+
+
+
+
+
+<h2 id="Architecture-Design"><a href="#Architecture-Design" class="headerlink" title="Architecture Design"></a>Architecture Design</h2><blockquote>
+<p><a href="https://www.bilibili.com/video/BV1JE411g7XF?p=47">P47 Network Compression (5_6)11:53</a></p>
+</blockquote>
+<p>应该是实践中最有效的做法</p>
+<h3 id="Low-rank-approximation"><a href="#Low-rank-approximation" class="headerlink" title="Low rank approximation"></a>Low rank approximation</h3><p>fully connect：</p>
+<p>中间插入一层（没有激活函数，纯linear），是做SVD奇异值分解。</p>
+<p>参数大小来说 $W&gt;U+V$ ，因此减少了参数量；</p>
+<p>但是 $W$ 能做到 $U<em>V$ 所做不到的事（解空间），因为 $K\ge rank(U</em>V)$ 也就是 $U*V$的秩小于等于K，但 W没有限制。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419111357322.png" alt="image-20230419111357322" style="zoom: 80%;">
+
+
+
+<h3 id="Review-Standard-CNN"><a href="#Review-Standard-CNN" class="headerlink" title="Review: Standard CNN"></a>Review: Standard CNN</h3><p>feature的channel有几个，filter的channel就要有几个，然后根据filter的数量，得到output的数量</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419111414978.png" alt="image-20230419111414978" style="zoom:80%;">
+
+
+
+<h3 id="Depthwise-Separable-Convolution"><a href="#Depthwise-Separable-Convolution" class="headerlink" title="Depthwise Separable Convolution"></a>Depthwise Separable Convolution</h3><h4 id="1-Depthwise-Convolution"><a href="#1-Depthwise-Convolution" class="headerlink" title="1. Depthwise Convolution"></a>1. Depthwise Convolution</h4><p>每个filter负责一个channel的input（之前每个filter负责所有channel的input，所以每个filter是三维的（有channel通道））现在没有channel通道了，二维的。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419111437116.png" alt="image-20230419111437116" style="zoom:80%;">
+
+
+
+<ul>
+<li>Filter number &#x3D; Input channel number  </li>
+<li>Each filter only considers one channel.  </li>
+<li>The filters are $k\times k$ matrices</li>
+<li>There is no interaction between channels</li>
+</ul>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419110529312.png" alt="image-20230419110529312" style="zoom:80%;">
+
+
+
+<h4 id="2-Pointwise-Convolution"><a href="#2-Pointwise-Convolution" class="headerlink" title="2. Pointwise Convolution"></a>2. Pointwise Convolution</h4><p>前一个步骤（Depthwise Convolution）得到的feature map，用1 * 1 filter去扫，卷积核是1 * 1，channel和feature map的channel数量一样。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230419110507038.png" alt="image-20230419110507038" style="zoom: 80%;">
+
+<p>总共用了18+8&#x3D;26个参数。</p>
+<blockquote>
+<p><a href="https://www.bilibili.com/video/BV1JE411g7XF?p=48">P48 Network Compression (6_6)13:09</a></p>
+</blockquote>
+<ul>
+<li><p>普通卷积：比如要得到（右上图形）橙色的左上角的值，是由（左上图形）左上18个值和filter做dot product再求和得到的。</p>
+</li>
+<li><p>ds卷积：（左下图形）feature map 被第二层filler作用时，feature map的参数是“<strong>共用的</strong>”，既给橙色filler用、又给黄色filler用。因此参数量少了。</p>
+<p>不同filler间，共用同样的参数。</p>
+</li>
+</ul>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230421133120061.png" alt="image-20230421133120061" style="zoom: 80%;">
+
+
+
+<p>参数计算：</p>
+<ul>
+<li>普通cnn：有几个output channel，就有几个filler</li>
+</ul>
+<p>一般O是512、128等，1&#x2F;O可忽略，因此可以缩小到1&#x2F;K^2，比如1&#x2F;9。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230421133140058.png" alt="image-20230421133140058" style="zoom: 80%;">
+
+<p>待看的论文：</p>
+<ul>
+<li>SqueezeNet：<a href="https://arxiv.org/abs/1602.07360">https://arxiv.org/abs/1602.07360</a></li>
+<li>MobileNet：<a href="https://arxiv.org/abs/1704.04861">https://arxiv.org/abs/1704.04861</a> 用在手机上</li>
+<li>ShuffleNet：<a href="https://arxiv.org/abs/1707.01083">https://arxiv.org/abs/1707.01083</a></li>
+<li>Xception：<a href="https://arxiv.org/abs/1610.02357">https://arxiv.org/abs/1610.02357</a></li>
+</ul>
+<h2 id="Dynamic-Computation"><a href="#Dynamic-Computation" class="headerlink" title="Dynamic Computation"></a>Dynamic Computation</h2><p>要想在设备上用，但是每个设备的资源不一样，要怎么样在不同设备上都能用一个好的模型呢</p>
+<blockquote>
+<p><a href="https://arxiv.org/abs/1703.09844">https://arxiv.org/abs/1703.09844</a></p>
+</blockquote>
 <ol>
-<li>**Forgy(random)**：从数据集weight随机选k个观测值，作为初始类中心。</li>
-<li><strong>density-based</strong>：将weight的分布函数在y轴上线性间隔，这种方法使两个峰周围的类中心密度更大，但比Forgy方法更分散</li>
-<li><strong>linear initialization</strong>：在原始weight的[min, max]之间线性间隔类中心。与前两种初始化方法相比，该初始化方法对权值的分布是不变的，并且是最分散的。</li>
+<li>Train multiple classifiers 训练一批网络模型，根据设备资源的不同，选择其中某个模型。</li>
+<li>Classifiers at the intermedia layer 取模型的不同中间层输出，看输出的分类器是否满足效果需求，看中间层就输出是否满足设备资源的需求。（虽然比如模型是20层，这样功耗比较高，但如果不拿完，就是比如只做前面15层，拿15层的输出做分类，可能功耗没那么高，并且效果也还行）</li>
 </ol>
-<p>CDF：原始的weight的累积分布函数；PDF：原始的weight的概率密度函数；三种不同初始化类中心weight分布情况。如下图所示。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/image-20230425222128767.png" alt="image-20230425222128767" style="zoom: 67%;">
+<p>左下图的意思是，拿初始几层（接近input特征）的输出做分类的结果，不太好，越往后面层拿，效果会越好。因为初始几层input，CNN抽出来的pattern比较简单。</p>
+<p>右下图的意思是：本来的模型是只有最后一层有分类器，现在中间好多层都接了分类器，这样多个分类器训练出来的模型效果是不好的。尤其是初始几层就接分类器，会更影响模型效果。（后面几层接分类器，不是很影响效果），这是因为中间层接分类器，会影响到原来整个模型的布局，比如一开始模型就是希望初始几层是抽取初级特征，现在初始几层就接分类器了，相当于让初级特征强行学习高级特征，就会破坏原来布局。</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230421141557284.png" alt="image-20230421141557284" style="zoom:80%;">
 
-<p>之前的文献中有这样的结论：数值大的weight比数值小的weight更重要，但是数量更少，因此从概率密度函数来看，分布得多的那些weight，都是不重要的weight。因此从这样的概率密度分布中采样，很容易采样出不重要的weight（Forgy、density-based初始化方法）。</p>
-<p>因此，最好的初始化方式是 <strong>linear initialization</strong>！</p>
-<h4 id="FEED-FORWARD-AND-BACK-PROPAGATION"><a href="#FEED-FORWARD-AND-BACK-PROPAGATION" class="headerlink" title="FEED-FORWARD AND BACK-PROPAGATION"></a>FEED-FORWARD AND BACK-PROPAGATION</h4><p>在前向和反向传播阶段有间接的weight查找表（looking up the weight table），每个神经元放的是共享权重表的index。</p>
-<p>反向传播时，对每个共享权重计算梯度，然后梯度更新，更新这个共享权重值。</p>
-<p>梯度计算，属于同一类的梯度求和，公式为：<br>$$<br>\frac{\partial \mathcal{L}}{\partial C_k}&#x3D;\sum_{i, j} \frac{\partial \mathcal{L}}{\partial W_{i j}} \frac{\partial W_{i j}}{\partial C_k}&#x3D;\sum_{i, j} \frac{\partial \mathcal{L}}{\partial W_{i j}} \mathbb{1}\left(I_{i j}&#x3D;k\right)<br>$$</p>
-<h4 id="HUFFMAN-CODING"><a href="#HUFFMAN-CODING" class="headerlink" title="HUFFMAN CODING"></a>HUFFMAN CODING</h4><p>哈夫曼编码是一种最优前缀码prefix code的方法，无损压缩。它使用可变长codeword码字对源符号进行编码。该表来自每个符号的出现概率不同。更常见的符号用更少的比特表示。</p>
-<p>下图是 AlexNet模型中，最后一个全连接层的量化weight的概率分布和稀疏矩阵index。</p>
-<p>下图有32个类中心weight，大多数量化的weight分布在两个峰周围，出现频率不是很均匀，不同类中心的频率差距很大，因此可以根据出现频率用哈夫曼编码。</p>
-<p>稀疏矩阵index的diff很少大于20。不同index的出现频率也是差距很大，也可以用哈夫曼编码。</p>
-<p>实验表明，哈夫曼编码这些非均匀分布的值节省了20% ~ 30%的模型存储。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/image-20230425222153365.png" alt="image-20230425222153365" style="zoom:67%;">
+<blockquote>
+<p><a href="https://arxiv.org/abs/1703.09844">https://arxiv.org/abs/1703.09844</a></p>
+</blockquote>
+<p>MSD net</p>
+<img src="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20230421141611270.png" alt="image-20230421141611270" style="zoom:80%;">
 
 
 
 
 
-<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>TODO</p>
-<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2><p>模型参数量、存储空间压缩的流程为：剪枝、retrain更新迭代 –&gt; kmeans共享权重 量化、更新迭代、存储weight的index结构采用index的diff来存储 –&gt;  哈夫曼编码非均匀分布的weight和index，进一步压缩存储。能够压缩模型所需的存储空间，还能加速，因为模型小了，能放在cache了（模型大的话只能放在memory上），因此相当于减少了功耗。</p>
+
+
+
+
 ]]></content>
       <categories>
-        <category>深度学习</category>
+        <category>模型压缩</category>
       </categories>
       <tags>
         <tag>深度学习</tag>
-        <tag>模型量化</tag>
+        <tag>模型压缩</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深度学习模型压缩概述</title>
+    <url>/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%A6%82%E8%BF%B0%20%E8%A7%86%E9%A2%91/</url>
+    <content><![CDATA[<h1 id="深度学习模型压缩概述"><a href="#深度学习模型压缩概述" class="headerlink" title="深度学习模型压缩概述"></a>深度学习模型压缩概述</h1><p>2023.4.27</p>
+<blockquote>
+<p>b站：先进编译实验室 <a href="https://www.bilibili.com/video/BV1ht4y1P73i/?spm_id_from=333.788&vd_source=5e9891722f2b62adca440a5e92121b5b">深度学习模型压缩概述</a> 魏铭康</p>
+</blockquote>
+<p>模型压缩方法：</p>
+<ul>
+<li>剪枝：修建不重要的网络连接</li>
+<li>量化：将连续型数据量化为低位宽离散数据</li>
+<li>知识蒸馏：大模型指导小模型学习</li>
+<li>低秩分解：通过低秩矩阵近似原矩阵</li>
+<li>轻量化网络：使用轻量化卷积核代替传统卷积</li>
+<li>网络结构搜索：自动化地设计优异网络模型</li>
+</ul>
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%A6%82%E8%BF%B0%20%E8%A7%86%E9%A2%91/image-20230427113852965.png" alt="image-20230427113852965" style="zoom:50%;">
+
+
+
+<h3 id="低秩分解"><a href="#低秩分解" class="headerlink" title="低秩分解"></a>低秩分解</h3><p>分解方法：</p>
+<ul>
+<li>SVD分解</li>
+<li>CP分解：把n维张量分解成r个2维张量（r是矩阵的秩）</li>
+<li>Tucker分解</li>
+<li>Tensor Train分解</li>
+</ul>
+<p>CP分解：</p>
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%A6%82%E8%BF%B0%20%E8%A7%86%E9%A2%91/image-20230427121107496.png" alt="image-20230427121107496" style="zoom:50%;">
+
+<p>CP分解：</p>
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%A6%82%E8%BF%B0%20%E8%A7%86%E9%A2%91/image-20230427121052117.png" alt="image-20230427121052117" style="zoom:50%;">
+
+
+
+
+
+<h3 id="轻量化网络"><a href="#轻量化网络" class="headerlink" title="轻量化网络"></a>轻量化网络</h3><img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%A6%82%E8%BF%B0%20%E8%A7%86%E9%A2%91/image-20230427121300243.png" alt="image-20230427121300243" style="zoom:50%;">
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%A6%82%E8%BF%B0%20%E8%A7%86%E9%A2%91/image-20230427121834452.png" alt="image-20230427121834452" style="zoom:50%;">
+
+]]></content>
+      <categories>
+        <category>模型压缩</category>
+      </categories>
+      <tags>
+        <tag>深度学习</tag>
+        <tag>模型压缩</tag>
       </tags>
   </entry>
   <entry>
     <title>深度学习模型压缩方法（三）：量化 视频</title>
-    <url>/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/</url>
+    <url>/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/</url>
     <content><![CDATA[<h1 id="深度学习模型压缩方法（三）：量化-视频"><a href="#深度学习模型压缩方法（三）：量化-视频" class="headerlink" title="深度学习模型压缩方法（三）：量化 视频"></a>深度学习模型压缩方法（三）：量化 视频</h1><p>2023.4.26</p>
 <blockquote>
 <p>b站：<a href="https://www.bilibili.com/video/BV1bL411U747/?spm_id_from=333.788.recommend_more_video.0&vd_source=5e9891722f2b62adca440a5e92121b5b">深度学习模型压缩方法（三）：量化</a> </p>
@@ -18600,7 +18978,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li>量化方法</li>
 <li>校准方法</li>
 </ul>
-<h2 id="量化概念"><a href="#量化概念" class="headerlink" title="量化概念"></a>量化概念</h2><img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426150720366.png" alt="image-20230426150720366" style="zoom: 50%;">
+<h2 id="量化概念"><a href="#量化概念" class="headerlink" title="量化概念"></a>量化概念</h2><img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426150720366.png" alt="image-20230426150720366" style="zoom: 50%;">
 
 <p>量化过程：浮点值除以缩放因子，再做四舍五入，再做clamp操作</p>
 <h3 id="量化分类"><a href="#量化分类" class="headerlink" title="量化分类"></a>量化分类</h3><ul>
@@ -18608,14 +18986,14 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li>非线性量化：量化值之间的间隔不固定。网络中值的分布往往不均匀（分布会类似高斯分布），因此非线性量化可以更好的捕获分布相关的信息。数据多的地方，量化间隔小，量化精度高。因此非线性量化的效果理论上比线性量化更好。</li>
 </ul>
 <p>非线性量化的通用硬件加速比较困难，而且实现更加复杂，因此线性量化更加常用。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426150841073.png" alt="image-20230426150841073" style="zoom: 50%;">
+<img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426150841073.png" alt="image-20230426150841073" style="zoom: 50%;">
 
 
 
 <h3 id="对称量化与非对称量化"><a href="#对称量化与非对称量化" class="headerlink" title="对称量化与非对称量化"></a>对称量化与非对称量化</h3><p>根据浮点值的零点是否映射到量化值的零点，可以将量化分为对称量化和非对称量化。</p>
 <p><strong>对称量化</strong>：对称量化中浮点值的零点直接映射到量化值的零点，因此不需要其他参数来调整零点的映射的位置，与量化相关的参数只有缩放因子s。<strong>对于有符号数的量化（int8），对称量化表示的浮点值范围是关于原点对称的（左图）。对于无符号数量化（uint8），对称量化可以表示的大于等于0的浮点范围。</strong></p>
 <p><strong>非对称量化</strong>：非对称量化有一个额外的参数Z调整零点的映射，<strong>这个参数通常称为零点</strong>。非对称量化表示的范围没有严格的限制，可以根据浮点值的范围，选取任意的想要表示的范围。因此非对称量化的效果通常比对称量化好，但是需要额外存储以及推理时计算零点相关的内容。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426172440830.png" alt="image-20230426172440830" style="zoom:50%;">
+<img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426172440830.png" alt="image-20230426172440830" style="zoom:50%;">
 
 
 
@@ -18626,7 +19004,7 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <h4 id="精度选择"><a href="#精度选择" class="headerlink" title="精度选择"></a>精度选择</h4><p>根据网络中量化位宽的不同，可以将量化分为统一精度量化和混合精度量化。</p>
 <p><strong>统一精度</strong>：在统一精度量化中，所有量化的网络层均采用相同的位宽（相同的整型类型）。这是一种比较简单的精度选择方法，不需要考虑不同层对量化的敏感度。但是采用这种方法，在对网络进行量化或量化到较低精度时，可能会引起网络准确率的显著下降。</p>
 <p><strong>混合精度</strong>：在混合精度量化中，不同的网络层可以量化到不同的位宽。核心思想是将<strong>不适合量化的层保留在较高精度（比如int16、int32），适合量化的层进行更加激进的量化</strong>。使网络整体处于较低位宽，并尽量缓解网络准确率的下降。混合精度量化中需要解决的问题与统一精度类似。但是混合精度量化需要额外关注一点，就是如何决定不同网络层的量化位宽。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426172910660.png" alt="image-20230426172910660" style="zoom: 50%;">
+<img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426172910660.png" alt="image-20230426172910660" style="zoom: 50%;">
 
 
 
@@ -18642,20 +19020,20 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <li><strong>静态量化</strong>：静态量化中离线计算好模型权重和激活的量化参数，推理的时候不再调整直接使用。对激活值量化需要获取激活值的分布信息，因此，静态量化中需要提供一定的数据来推理网络，收集网络的激活值信息，确定相关的量化参数。</li>
 <li><strong>动态量化</strong>：在动态量化中，激活值相关的量化参数是在推理阶段实时计算的。虽然效果更好，但是会给推理带来额外的开销。</li>
 </ul>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426173313067.png" alt="image-20230426173313067" style="zoom:50%;">
+<img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426173313067.png" alt="image-20230426173313067" style="zoom:50%;">
 
 
 
 <h3 id="量化感知训练"><a href="#量化感知训练" class="headerlink" title="量化感知训练"></a>量化感知训练</h3><p>伪量化算子：对数值量化然后反量化得到的输出</p>
 <p>量化感知训练在训练好的模型上插入<strong>伪量化算子（对数值量化然后反量化）</strong>，<strong>模拟量化产生的误差</strong>。然后在训练数据集更新权重并调整对应的量化参数，或者直接将量化参数作为可学习的参数在反向传播中更新。这种方法得到的量化模型精度较高，但是<strong>因为需要训练过程，因此开销较大，而且对于数据的要求相对于训练后量化也更高。</strong></p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426173946136.png" alt="image-20230426173946136" style="zoom:50%;">
+<img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426173946136.png" alt="image-20230426173946136" style="zoom:50%;">
 
 
 
 
 
 <p>在这种方法中主要考虑的一个问题在<strong>计算梯度时如何处理量化操作中的不可微分的部分（round操作）</strong>。一种传统的方法是使用staright through estimator（STE）将伪量化算子的梯度设置为1，也就是输入的梯度等于输出的梯度。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426174304410.png" alt="image-20230426174304410" style="zoom:60%;">
+<img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426174304410.png" alt="image-20230426174304410" style="zoom:60%;">
 
 
 
@@ -18664,21 +19042,21 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
 <h2 id="校准方法"><a href="#校准方法" class="headerlink" title="校准方法"></a>校准方法</h2><p>校准是调整与确定量化参数的过程。以有符号数对称量化为例，缩放因子 $\large s&#x3D;\frac{threshold}{2^{b-1}-1}$ ，其中b是整型类型的位宽。因为是对称量化，因此这里只是用正半轴上的值计算缩放因子，以INT8为例，我们利用的整型范围是[-127,127]，表示的原始值范围为[-threshold,threshold]。因为量化位宽往往是提前确定好的，因此确定缩放因子就是确定我们想要表示的浮点值的范围。</p>
 <p><strong>global</strong>：最简单的阈值选择方法，直接<strong>指定一个全局的值，作为所有网络层的量化阈值</strong>。但是每层之间值的范围多少有差距，因此这种方法很难找到适合所有层的量化阈值。</p>
 <p><strong>max</strong>：也是相对简单阈值选择方法，将浮点值的最大绝对值作为量化阈值，这种方法能够表示整个浮点值的范围，但是可能无法充分利用整型值的范围。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426174844803.png" alt="image-20230426174844803" style="zoom:50%;">
+<img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426174844803.png" alt="image-20230426174844803" style="zoom:50%;">
 
 <p><strong>percentile</strong>：通过分位数确定量化阈值。网络中的值往往不是均匀分布的，大部分是中间多两边少的“钟”型分布，此外还可能存在一些离群点，如果量化要表示所有的浮点值，反而可能会降低量化的精度。因此通过分位数确定阈值，虽然损失了部分数值的信息，但量化效果可能会更好。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426174915674.png" alt="image-20230426174915674" style="zoom:50%;">
+<img src="/2023/04/26/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426174915674.png" alt="image-20230426174915674" style="zoom:50%;">
 
 <p><strong>mse</strong>：这种方法的目标是最小化量化前后数值之间的差距。通过选择多个候选阈值，记录不同阈值下对浮点值模拟量化的结果，并计算结果与原始的浮点值之间的均方误差，选择使均方误差最小的值作为最终的threshold。</p>
 <p><strong>KL-divergence</strong>：这种方法的目标是最小化量化前后数值分布之间的差距。和均方误差类似，通过选择多个候选阈值，记录不同阈值下模拟量化值的分布信息，并计算与原始分布之间的KL散度，选择使KL散度最小的值作为最终的threshold。</p>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>[1] Gholami A, Kim S, Dong Z, et al. A survey of quantization methods for efficient neural network inference[J]. arXiv preprint arXiv:2103.13630, 2021.<br>[2] Nagel M, Fournarakis M, Amjad R A, et al. A white paper on neural network quantization[J]. arXiv preprint arXiv:2106.08295, 2021.<br>[3] Krishnamoorthi R. Quantizing deep convolutional networks for efficient inference: A whitepaper[J]. arXiv preprint arXiv:1806.08342, 2018.<br>[4] Jacob B, Kligys S, Chen B, et al. Quantization and training of neural networks for efficient integer-arithmetic-only inference[C]&#x2F;&#x2F;Proceedings of the IEEE conference on computer vision and pattern recognition. 2018: 2704-2713.<br>[5] <a href="https://link.zhihu.com/?target=https://on-demand.gputechconf.com/gtc/2017/presentation/s7310-8-bit-inference-with-tensorrt.pdf">https://on-demand.gputechconf.com/gtc/2017/presentation/s7310-8-bit-inference-with-tensorrt.pdf</a><br>[6] <a href="https://zhuanlan.zhihu.com/p/548174416">https://zhuanlan.zhihu.com/p/548174416</a><br>[7] <a href="https://www.bilibili.com/video/BV1fB4y1m7fJ/">https://www.bilibili.com/video/BV1fB4y1m7fJ/</a></p>
 ]]></content>
       <categories>
-        <category>深度学习</category>
+        <category>模型压缩</category>
       </categories>
       <tags>
         <tag>深度学习</tag>
-        <tag>模型量化</tag>
+        <tag>模型压缩</tag>
       </tags>
   </entry>
 </search>

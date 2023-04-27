@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="深度学习,模型量化," />
+  <meta name="keywords" content="深度学习,模型压缩," />
 
 
 
@@ -79,29 +79,29 @@
 
 
 
-<meta name="description" content="深度学习模型压缩方法（三）：量化 视频2023.4.26  b站：深度学习模型压缩方法（三）：量化  知乎：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;619914824  目录 量化概念 量化方法 校准方法  量化概念  量化过程：浮点值除以缩放因子，再做四舍五入，再做clamp操作 量化分类 线性量化：也称为均匀量化，相邻两个量化值之间的差距是固定的。 非线性量化：量化值之间的间">
+<meta name="description" content="模型量化(quantization)——模型压缩方法之一瞥 视频2023.4.27  b站：一了梁 模型量化(quantization)——模型压缩方法之一瞥 2020.7  量化对weight的值离散化，用更少的bit去保存weight，模型大小下降了，计算量“可能会变少”，这里用的可能，是因为由于实际计算时，有一个反量化回浮点型的过程（减去零点，乘以缩放因子）因此多了一些运算，所以计算量是可能">
 <meta property="og:type" content="article">
-<meta property="og:title" content="深度学习模型压缩方法（三）：量化 视频">
-<meta property="og:url" content="http://example.com/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/index.html">
+<meta property="og:title" content="模型量化(quantization)——模型压缩方法之一瞥 视频">
+<meta property="og:url" content="http://example.com/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/index.html">
 <meta property="og:site_name" content="yelong的博客">
-<meta property="og:description" content="深度学习模型压缩方法（三）：量化 视频2023.4.26  b站：深度学习模型压缩方法（三）：量化  知乎：https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;619914824  目录 量化概念 量化方法 校准方法  量化概念  量化过程：浮点值除以缩放因子，再做四舍五入，再做clamp操作 量化分类 线性量化：也称为均匀量化，相邻两个量化值之间的差距是固定的。 非线性量化：量化值之间的间">
+<meta property="og:description" content="模型量化(quantization)——模型压缩方法之一瞥 视频2023.4.27  b站：一了梁 模型量化(quantization)——模型压缩方法之一瞥 2020.7  量化对weight的值离散化，用更少的bit去保存weight，模型大小下降了，计算量“可能会变少”，这里用的可能，是因为由于实际计算时，有一个反量化回浮点型的过程（减去零点，乘以缩放因子）因此多了一些运算，所以计算量是可能">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426150720366.png">
-<meta property="og:image" content="http://example.com/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426150841073.png">
-<meta property="og:image" content="http://example.com/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426172440830.png">
-<meta property="og:image" content="http://example.com/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426172910660.png">
-<meta property="og:image" content="http://example.com/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426173313067.png">
-<meta property="og:image" content="http://example.com/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426173946136.png">
-<meta property="og:image" content="http://example.com/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426174304410.png">
-<meta property="og:image" content="http://example.com/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426174844803.png">
-<meta property="og:image" content="http://example.com/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426174915674.png">
-<meta property="article:published_time" content="2023-04-25T16:00:00.000Z">
-<meta property="article:modified_time" content="2023-04-26T09:54:35.881Z">
+<meta property="og:image" content="http://example.com/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427143357597.png">
+<meta property="og:image" content="http://example.com/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427143427881.png">
+<meta property="og:image" content="http://example.com/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427144436962.png">
+<meta property="og:image" content="http://example.com/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427145149292.png">
+<meta property="og:image" content="http://example.com/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427150333852.png">
+<meta property="og:image" content="http://example.com/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427152222073.png">
+<meta property="og:image" content="http://example.com/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427153056151.png">
+<meta property="og:image" content="http://example.com/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427153130277.png">
+<meta property="og:image" content="http://example.com/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427153305246.png">
+<meta property="article:published_time" content="2023-04-26T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-04-27T10:07:03.503Z">
 <meta property="article:author" content="Long Ye">
 <meta property="article:tag" content="深度学习">
-<meta property="article:tag" content="模型量化">
+<meta property="article:tag" content="模型压缩">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426150720366.png">
+<meta name="twitter:image" content="http://example.com/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427143357597.png">
 
 
 
@@ -131,13 +131,13 @@
 
 
 
-  <link rel="canonical" href="http://example.com/2023/04/26/深度学习/深度学习模型压缩方法（三）：量化 视频/"/>
+  <link rel="canonical" href="http://example.com/2023/04/27/模型压缩/模型量化(quantization)——模型压缩方法之一瞥 视频/"/>
 
 
 
 
 
-  <title>深度学习模型压缩方法（三）：量化 视频 | yelong的博客</title>
+  <title>模型量化(quantization)——模型压缩方法之一瞥 视频 | yelong的博客</title>
   
 
 
@@ -303,7 +303,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -320,7 +320,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">深度学习模型压缩方法（三）：量化 视频</h1>
+          <h1 class="post-title" itemprop="name headline">模型量化(quantization)——模型压缩方法之一瞥 视频</h1>
         
 
         <div class="post-meta">
@@ -332,8 +332,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-04-26T00:00:00+08:00">
-                2023-04-26
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-04-27T00:00:00+08:00">
+                2023-04-27
               </time>
             
 
@@ -355,8 +355,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
-                    <span itemprop="name">深度学习</span>
+                  <a href="/categories/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/" itemprop="url" rel="index">
+                    <span itemprop="name">模型压缩</span>
                   </a>
                 </span>
 
@@ -373,9 +373,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/#comments" itemprop="discussionUrl">
+                <a href="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2023/04/26/深度学习/深度学习模型压缩方法（三）：量化 视频/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2023/04/27/模型压缩/模型量化(quantization)——模型压缩方法之一瞥 视频/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -408,88 +408,65 @@
       
 
       
-        <h1 id="深度学习模型压缩方法（三）：量化-视频"><a href="#深度学习模型压缩方法（三）：量化-视频" class="headerlink" title="深度学习模型压缩方法（三）：量化 视频"></a>深度学习模型压缩方法（三）：量化 视频</h1><p>2023.4.26</p>
+        <h1 id="模型量化-quantization-——模型压缩方法之一瞥-视频"><a href="#模型量化-quantization-——模型压缩方法之一瞥-视频" class="headerlink" title="模型量化(quantization)——模型压缩方法之一瞥 视频"></a>模型量化(quantization)——模型压缩方法之一瞥 视频</h1><p>2023.4.27</p>
 <blockquote>
-<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1bL411U747/?spm_id_from=333.788.recommend_more_video.0&vd_source=5e9891722f2b62adca440a5e92121b5b">深度学习模型压缩方法（三）：量化</a> </p>
-<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/619914824">https://zhuanlan.zhihu.com/p/619914824</a></p>
+<p>b站：一了梁 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV15t4y197Dj/?spm_id_from=333.788.recommend_more_video.-1&vd_source=5e9891722f2b62adca440a5e92121b5b">模型量化(quantization)——模型压缩方法之一瞥</a> 2020.7</p>
 </blockquote>
-<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
-<li>量化概念</li>
-<li>量化方法</li>
-<li>校准方法</li>
-</ul>
-<h2 id="量化概念"><a href="#量化概念" class="headerlink" title="量化概念"></a>量化概念</h2><img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426150720366.png" alt="image-20230426150720366" style="zoom: 50%;">
-
-<p>量化过程：浮点值除以缩放因子，再做四舍五入，再做clamp操作</p>
-<h3 id="量化分类"><a href="#量化分类" class="headerlink" title="量化分类"></a>量化分类</h3><ul>
-<li>线性量化：也称为均匀量化，相邻两个量化值之间的差距是固定的。</li>
-<li>非线性量化：量化值之间的间隔不固定。网络中值的分布往往不均匀（分布会类似高斯分布），因此非线性量化可以更好的捕获分布相关的信息。数据多的地方，量化间隔小，量化精度高。因此非线性量化的效果理论上比线性量化更好。</li>
-</ul>
-<p>非线性量化的通用硬件加速比较困难，而且实现更加复杂，因此线性量化更加常用。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426150841073.png" alt="image-20230426150841073" style="zoom: 50%;">
+<p>量化对weight的值离散化，用更少的bit去保存weight，模型大小下降了，计算量“可能会变少”，这里用的可能，是因为由于实际计算时，有一个反量化回浮点型的过程（减去零点，乘以缩放因子）因此多了一些运算，所以计算量是可能会变少（变少是因为整型与浮点型计算相比好运算一点？）。</p>
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427143357597.png" alt="image-20230427143357597" style="zoom:50%;">
 
 
 
-<h3 id="对称量化与非对称量化"><a href="#对称量化与非对称量化" class="headerlink" title="对称量化与非对称量化"></a>对称量化与非对称量化</h3><p>根据浮点值的零点是否映射到量化值的零点，可以将量化分为对称量化和非对称量化。</p>
-<p><strong>对称量化</strong>：对称量化中浮点值的零点直接映射到量化值的零点，因此不需要其他参数来调整零点的映射的位置，与量化相关的参数只有缩放因子s。<strong>对于有符号数的量化（int8），对称量化表示的浮点值范围是关于原点对称的（左图）。对于无符号数量化（uint8），对称量化可以表示的大于等于0的浮点范围。</strong></p>
-<p><strong>非对称量化</strong>：非对称量化有一个额外的参数Z调整零点的映射，<strong>这个参数通常称为零点</strong>。非对称量化表示的范围没有严格的限制，可以根据浮点值的范围，选取任意的想要表示的范围。因此非对称量化的效果通常比对称量化好，但是需要额外存储以及推理时计算零点相关的内容。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426172440830.png" alt="image-20230426172440830" style="zoom:50%;">
-
-
-
-<h3 id="量化分类-1"><a href="#量化分类-1" class="headerlink" title="量化分类"></a>量化分类</h3><p>量化参数：就是缩放因子s，零点z！</p>
-<h3 id="量化粒度"><a href="#量化粒度" class="headerlink" title="量化粒度"></a>量化粒度</h3><p>根据<strong>量化参数（缩放因子s，零点z）</strong>的共享范围，可以将量化分为逐层量化和逐通道量化。</p>
-<p><strong>逐层量化</strong>：在逐层量化中，<strong>每个网络层中的所有filter共享相同的量化参数</strong>。所要表示的浮点值范围的选择需要考虑当前层所有的filter来确定。对每层中所有的filter采用相同的范围，对应的缩放因子和零点也是相同的（缩放因子和零点是根据所要表示的浮点值范围和整型值位宽计算得到）。这种方法的实现比较简单，但是它的效果并不是很好，因为不同filter的范围可能会有很大差异。对于范围较小的filter可能会因为同层中存在范围较大的filter而使得其量化效果较差。</p>
-<p><strong>逐通道量化</strong>：逐通道量化是一种更细粒度的量化方法。在这种方法中，为每层的各个filter单独地计算需要表示的范围以及量化参数。这种方法能够更好的保留每个filter的信息，产生的量化效果也较好。</p>
-<h4 id="精度选择"><a href="#精度选择" class="headerlink" title="精度选择"></a>精度选择</h4><p>根据网络中量化位宽的不同，可以将量化分为统一精度量化和混合精度量化。</p>
-<p><strong>统一精度</strong>：在统一精度量化中，所有量化的网络层均采用相同的位宽（相同的整型类型）。这是一种比较简单的精度选择方法，不需要考虑不同层对量化的敏感度。但是采用这种方法，在对网络进行量化或量化到较低精度时，可能会引起网络准确率的显著下降。</p>
-<p><strong>混合精度</strong>：在混合精度量化中，不同的网络层可以量化到不同的位宽。核心思想是将<strong>不适合量化的层保留在较高精度（比如int16、int32），适合量化的层进行更加激进的量化</strong>。使网络整体处于较低位宽，并尽量缓解网络准确率的下降。混合精度量化中需要解决的问题与统一精度类似。但是混合精度量化需要额外关注一点，就是如何决定不同网络层的量化位宽。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426172910660.png" alt="image-20230426172910660" style="zoom: 50%;">
-
-
-
-<h2 id="量化方式"><a href="#量化方式" class="headerlink" title="量化方式"></a>量化方式</h2><p>分为两大类：</p>
-<ol>
-<li>训练后量化</li>
-<li>量化感知</li>
-</ol>
-<h3 id="训练后量化"><a href="#训练后量化" class="headerlink" title="训练后量化"></a>训练后量化</h3><p>训练后量化直接对已训练完成的模型进行量化，无需复杂的fine-tuning或训练过程，因此训练后量化的开销较小。训练后量化无需或只需要一小部分数据驱动量化，因此能很好地应用于数据敏感的场景。但是训练后量化的模型精度下降可能要高于量化感知训练。训练后量化可以分为权重量化和全量化两种。</p>
-<p><strong>权重量化</strong>：在权重量化中，仅对模型的权重进行量化操作，以整型形式存储模型权重，可以压缩模型的大小。在推理阶段首先将量化的权重反量化为浮点形式，推理过程仍然为浮点计算，无法加速推理过程。</p>
-<p><strong>全量化</strong>：在全量化中对模型权重和激活值进行量化，不仅可以压缩模型大小，减少推理过程的内存占用，而且因为激活值和权重都为整型数据，因此可以使用高效的整型运算单元加速推理过程。全量化可以分为两种形式：静态量化和动态量化。</p>
-<ul>
-<li><strong>静态量化</strong>：静态量化中离线计算好模型权重和激活的量化参数，推理的时候不再调整直接使用。对激活值量化需要获取激活值的分布信息，因此，静态量化中需要提供一定的数据来推理网络，收集网络的激活值信息，确定相关的量化参数。</li>
-<li><strong>动态量化</strong>：在动态量化中，激活值相关的量化参数是在推理阶段实时计算的。虽然效果更好，但是会给推理带来额外的开销。</li>
-</ul>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426173313067.png" alt="image-20230426173313067" style="zoom:50%;">
-
-
-
-<h3 id="量化感知训练"><a href="#量化感知训练" class="headerlink" title="量化感知训练"></a>量化感知训练</h3><p>伪量化算子：对数值量化然后反量化得到的输出</p>
-<p>量化感知训练在训练好的模型上插入<strong>伪量化算子（对数值量化然后反量化）</strong>，<strong>模拟量化产生的误差</strong>。然后在训练数据集更新权重并调整对应的量化参数，或者直接将量化参数作为可学习的参数在反向传播中更新。这种方法得到的量化模型精度较高，但是<strong>因为需要训练过程，因此开销较大，而且对于数据的要求相对于训练后量化也更高。</strong></p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426173946136.png" alt="image-20230426173946136" style="zoom:50%;">
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427143427881.png" alt="image-20230427143427881" style="zoom:50%;">
 
 
 
 
 
-<p>在这种方法中主要考虑的一个问题在<strong>计算梯度时如何处理量化操作中的不可微分的部分（round操作）</strong>。一种传统的方法是使用staright through estimator（STE）将伪量化算子的梯度设置为1，也就是输入的梯度等于输出的梯度。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426174304410.png" alt="image-20230426174304410" style="zoom:60%;">
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427144436962.png" alt="image-20230427144436962" style="zoom:50%;">
 
 
 
 
 
-<h2 id="校准方法"><a href="#校准方法" class="headerlink" title="校准方法"></a>校准方法</h2><p>校准是调整与确定量化参数的过程。以有符号数对称量化为例，缩放因子 $\large s&#x3D;\frac{threshold}{2^{b-1}-1}$ ，其中b是整型类型的位宽。因为是对称量化，因此这里只是用正半轴上的值计算缩放因子，以INT8为例，我们利用的整型范围是[-127,127]，表示的原始值范围为[-threshold,threshold]。因为量化位宽往往是提前确定好的，因此确定缩放因子就是确定我们想要表示的浮点值的范围。</p>
-<p><strong>global</strong>：最简单的阈值选择方法，直接<strong>指定一个全局的值，作为所有网络层的量化阈值</strong>。但是每层之间值的范围多少有差距，因此这种方法很难找到适合所有层的量化阈值。</p>
-<p><strong>max</strong>：也是相对简单阈值选择方法，将浮点值的最大绝对值作为量化阈值，这种方法能够表示整个浮点值的范围，但是可能无法充分利用整型值的范围。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426174844803.png" alt="image-20230426174844803" style="zoom:50%;">
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427145149292.png" alt="image-20230427145149292" style="zoom: 67%;">
 
-<p><strong>percentile</strong>：通过分位数确定量化阈值。网络中的值往往不是均匀分布的，大部分是中间多两边少的“钟”型分布，此外还可能存在一些离群点，如果量化要表示所有的浮点值，反而可能会降低量化的精度。因此通过分位数确定阈值，虽然损失了部分数值的信息，但量化效果可能会更好。</p>
-<img src="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/image-20230426174915674.png" alt="image-20230426174915674" style="zoom:50%;">
 
-<p><strong>mse</strong>：这种方法的目标是最小化量化前后数值之间的差距。通过选择多个候选阈值，记录不同阈值下对浮点值模拟量化的结果，并计算结果与原始的浮点值之间的均方误差，选择使均方误差最小的值作为最终的threshold。</p>
-<p><strong>KL-divergence</strong>：这种方法的目标是最小化量化前后数值分布之间的差距。和均方误差类似，通过选择多个候选阈值，记录不同阈值下模拟量化值的分布信息，并计算与原始分布之间的KL散度，选择使KL散度最小的值作为最终的threshold。</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>[1] Gholami A, Kim S, Dong Z, et al. A survey of quantization methods for efficient neural network inference[J]. arXiv preprint arXiv:2103.13630, 2021.<br>[2] Nagel M, Fournarakis M, Amjad R A, et al. A white paper on neural network quantization[J]. arXiv preprint arXiv:2106.08295, 2021.<br>[3] Krishnamoorthi R. Quantizing deep convolutional networks for efficient inference: A whitepaper[J]. arXiv preprint arXiv:1806.08342, 2018.<br>[4] Jacob B, Kligys S, Chen B, et al. Quantization and training of neural networks for efficient integer-arithmetic-only inference[C]&#x2F;&#x2F;Proceedings of the IEEE conference on computer vision and pattern recognition. 2018: 2704-2713.<br>[5] <a href="https://link.zhihu.com/?target=https://on-demand.gputechconf.com/gtc/2017/presentation/s7310-8-bit-inference-with-tensorrt.pdf">https://on-demand.gputechconf.com/gtc/2017/presentation/s7310-8-bit-inference-with-tensorrt.pdf</a><br>[6] <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/548174416">https://zhuanlan.zhihu.com/p/548174416</a><br>[7] <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1fB4y1m7fJ/">https://www.bilibili.com/video/BV1fB4y1m7fJ/</a></p>
+
+
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427150333852.png" alt="image-20230427150333852" style="zoom:50%;">
+
+
+
+
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427152222073.png" alt="image-20230427152222073" style="zoom:50%;">
+
+
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427153056151.png" alt="image-20230427153056151" style="zoom: 50%;">
+
+
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427153130277.png" alt="image-20230427153130277" style="zoom: 67%;">
+
+
+
+
+
+
+
+<img src="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/image-20230427153305246.png" alt="image-20230427153305246" style="zoom:67%;">
+
 
       
     </div>
@@ -509,7 +486,7 @@
           
             <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
           
-            <a href="/tags/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96/" rel="tag"># 模型量化</a>
+            <a href="/tags/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/" rel="tag"># 模型压缩</a>
           
         </div>
       
@@ -522,8 +499,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2023/04/25/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96%20%E5%95%86%E6%B1%A4%20%E8%A7%86%E9%A2%91/" rel="next" title="模型量化 商汤 视频">
-                <i class="fa fa-chevron-left"></i> 模型量化 商汤 视频
+              <a href="/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%A6%82%E8%BF%B0%20%E8%A7%86%E9%A2%91/" rel="next" title="深度学习模型压缩概述">
+                <i class="fa fa-chevron-left"></i> 深度学习模型压缩概述
               </a>
             
           </div>
@@ -531,10 +508,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Deep%20Compression%20Compressing%20Deep%20Neural%20Networks%20with%20Pruning,%20Trained%20Quantization%20and%20Huffman%20Coding/" rel="prev" title="Deep Compression Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding">
-                Deep Compression Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -621,7 +594,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">188</span>
+                  <span class="site-state-item-count">191</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -632,7 +605,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-count">18</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -676,7 +649,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96-%E8%A7%86%E9%A2%91"><span class="nav-number">1.</span> <span class="nav-text">深度学习模型压缩方法（三）：量化 视频</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.1.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8F%E5%8C%96%E6%A6%82%E5%BF%B5"><span class="nav-number">1.2.</span> <span class="nav-text">量化概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8F%E5%8C%96%E5%88%86%E7%B1%BB"><span class="nav-number">1.2.1.</span> <span class="nav-text">量化分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E7%A7%B0%E9%87%8F%E5%8C%96%E4%B8%8E%E9%9D%9E%E5%AF%B9%E7%A7%B0%E9%87%8F%E5%8C%96"><span class="nav-number">1.2.2.</span> <span class="nav-text">对称量化与非对称量化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8F%E5%8C%96%E5%88%86%E7%B1%BB-1"><span class="nav-number">1.2.3.</span> <span class="nav-text">量化分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8F%E5%8C%96%E7%B2%92%E5%BA%A6"><span class="nav-number">1.2.4.</span> <span class="nav-text">量化粒度</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B2%BE%E5%BA%A6%E9%80%89%E6%8B%A9"><span class="nav-number">1.2.4.1.</span> <span class="nav-text">精度选择</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8F%E5%8C%96%E6%96%B9%E5%BC%8F"><span class="nav-number">1.3.</span> <span class="nav-text">量化方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83%E5%90%8E%E9%87%8F%E5%8C%96"><span class="nav-number">1.3.1.</span> <span class="nav-text">训练后量化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8F%E5%8C%96%E6%84%9F%E7%9F%A5%E8%AE%AD%E7%BB%83"><span class="nav-number">1.3.2.</span> <span class="nav-text">量化感知训练</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%A1%E5%87%86%E6%96%B9%E6%B3%95"><span class="nav-number">1.4.</span> <span class="nav-text">校准方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">1.5.</span> <span class="nav-text">参考文献</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96-quantization-%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5-%E8%A7%86%E9%A2%91"><span class="nav-number">1.</span> <span class="nav-text">模型量化(quantization)——模型压缩方法之一瞥 视频</span></a></li></ol></div>
             
 
           </div>
@@ -859,9 +832,9 @@
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'http://example.com/2023/04/26/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E9%87%8F%E5%8C%96%20%E8%A7%86%E9%A2%91/';
-          this.page.identifier = '2023/04/26/深度学习/深度学习模型压缩方法（三）：量化 视频/';
-          this.page.title = '深度学习模型压缩方法（三）：量化 视频';
+          this.page.url = 'http://example.com/2023/04/27/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96(quantization)%E2%80%94%E2%80%94%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%E6%96%B9%E6%B3%95%E4%B9%8B%E4%B8%80%E7%9E%A5%20%E8%A7%86%E9%A2%91/';
+          this.page.identifier = '2023/04/27/模型压缩/模型量化(quantization)——模型压缩方法之一瞥 视频/';
+          this.page.title = '模型量化(quantization)——模型压缩方法之一瞥 视频';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://yelong.disqus.com/embed.js';
