@@ -18893,4 +18893,65 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>语音识别</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Predicting Multi-Codebook Vector Quantization Indexes for Knowledge Distillation 视频</title>
+    <url>/2023/04/28/k2/Predicting%20Multi-Codebook%20Vector%20Quantization%20Indexes%20for%20Knowledge%20Distillation/</url>
+    <content><![CDATA[<h1 id="Predicting-Multi-Codebook-Vector-Quantization-Indexes-for-Knowledge-Distillation-多码本向量量化索引的知识蒸馏"><a href="#Predicting-Multi-Codebook-Vector-Quantization-Indexes-for-Knowledge-Distillation-多码本向量量化索引的知识蒸馏" class="headerlink" title="Predicting Multi-Codebook Vector Quantization Indexes for Knowledge Distillation. 多码本向量量化索引的知识蒸馏"></a>Predicting Multi-Codebook Vector Quantization Indexes for Knowledge Distillation. 多码本向量量化索引的知识蒸馏</h1><blockquote>
+<p>Guo, Liyong, et al. “Predicting Multi-Codebook Vector Quantization Indexes for Knowledge Distillation.” <em>arXiv preprint arXiv:2211.00508</em> (2022). 郭理勇</p>
+<p>微信公众号 新一代Kaldi： <a href="https://mp.weixin.qq.com/s/XIg8cY82KtoZ6rW-FdVqEQ">新一代 Kaldi 中基于量化的蒸馏实验</a></p>
+<p>相关代码：<a href="https://github.com/k2-fsa/multi_quantization.git">https://github.com/k2-fsa/multi_quantization.git</a> </p>
+<p>相关代码：<a href="https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR/pruned_transducer_stateless6">https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR/pruned_transducer_stateless6</a></p>
+<p>b站视频：姚增伟 <a href="https://www.bilibili.com/video/BV1xV4y1T7f9/?spm_id_from=333.788.recommend_more_video.13&vd_source=5e9891722f2b62adca440a5e92121b5b">【语音之家】AI产业沙龙—如何应用k2开发语音识别系统</a>  或  <a href="https://xjw.h5.xeknow.com/sl/2yOtKa">https://xjw.h5.xeknow.com/sl/2yOtKa</a> 22分钟起</p>
+<p>D:\typora\typora笔记\语音\k2\视频 基于多码本向量量化的蒸馏方案.md</p>
+</blockquote>
+<p>Traning overhead 几乎可以忽略不计的新型蒸馏框架</p>
+<img src="/2023/04/28/k2/Predicting%20Multi-Codebook%20Vector%20Quantization%20Indexes%20for%20Knowledge%20Distillation/image-20230315121747110.png" alt="image-20230315121747110" style="zoom: 80%;">
+
+<p>量化过程：</p>
+<p>embedding vector里面的值不再是浮点数，而是码本的index，然后用的是8个码本的index来表示一个1280维的embedding vector，，因此有8个index，然后根据是哪个index，从codebook table里把index对应的值取出来，然后把值求和。</p>
+<img src="/2023/04/28/k2/Predicting%20Multi-Codebook%20Vector%20Quantization%20Indexes%20for%20Knowledge%20Distillation/image-20230428173731483.png" alt="image-20230428173731483" style="zoom:80%;">
+
+
+
+<p>分治，现在每个码本是独立的，然后固定后3个码本（2、3、4），选出能让重建误差最小的第1个码本的其中两个index（重建误差最小和次小，top2），然后固定1，3，4码本，选出能让重建误差最小的第2个码本的top2的index；然后固定1，2，4码本，选出能让重建误差最小的第3个码本的top2的index；然后固定1，2，3码本，选出能让重建误差最小的第4个码本的top2的index。于是每个码本都留下了2个index。</p>
+<img src="/2023/04/28/k2/Predicting%20Multi-Codebook%20Vector%20Quantization%20Indexes%20for%20Knowledge%20Distillation/image-20230428174644333.png" alt="image-20230428174644333" style="zoom:80%;">
+
+
+
+<p>分治，合并子问题。</p>
+<p>固定3，4码本，选出能让重建误差最小的第1、2个码本的top2的index（index连接有4种可能）；然后固定1，2码本，选出能让重建误差最小的第3、4个码本的top2的index（index连接有4种可能）</p>
+<img src="/2023/04/28/k2/Predicting%20Multi-Codebook%20Vector%20Quantization%20Indexes%20for%20Knowledge%20Distillation/image-20230428175213781.png" alt="image-20230428175213781" style="zoom:80%;">
+
+
+
+<p>分治，再次合并子问题，固定1，2，3，4码本??，选出能让重建误差最小的top1的index（index连接有4种可能）</p>
+<img src="/2023/04/28/k2/Predicting%20Multi-Codebook%20Vector%20Quantization%20Indexes%20for%20Knowledge%20Distillation/image-20230428175200323.png" alt="image-20230428175200323" style="zoom:80%;">
+
+
+
+<p>上面这个例子迭代了3次。</p>
+<img src="/2023/04/28/k2/Predicting%20Multi-Codebook%20Vector%20Quantization%20Indexes%20for%20Knowledge%20Distillation/image-20230428180015256.png" alt="image-20230428180015256" style="zoom:80%;">
+
+
+
+
+
+<img src="/2023/04/28/k2/Predicting%20Multi-Codebook%20Vector%20Quantization%20Indexes%20for%20Knowledge%20Distillation/image-20230428180030399.png" alt="image-20230428180030399" style="zoom:80%;">
+
+
+
+<img src="/2023/04/28/k2/Predicting%20Multi-Codebook%20Vector%20Quantization%20Indexes%20for%20Knowledge%20Distillation/image-20230428180226270.png" alt="image-20230428180226270" style="zoom:80%;">
+
+
+
+<img src="/2023/04/28/k2/Predicting%20Multi-Codebook%20Vector%20Quantization%20Indexes%20for%20Knowledge%20Distillation/image-20230428180427125.png" alt="image-20230428180427125" style="zoom:80%;">
+]]></content>
+      <categories>
+        <category>k2</category>
+      </categories>
+      <tags>
+        <tag>k2</tag>
+        <tag>语音识别</tag>
+      </tags>
+  </entry>
 </search>
