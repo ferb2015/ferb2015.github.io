@@ -19240,4 +19240,73 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>深度学习</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference</title>
+    <url>/2023/05/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Quantization%20and%20Training%20of%20Neural%20Networks%20for%20Efficient%20Integer-Arithmetic-Only%20Inference/</url>
+    <content><![CDATA[<h1 id="Quantization-and-Training-of-Neural-Networks-for-Efficient-Integer-Arithmetic-Only-Inference"><a href="#Quantization-and-Training-of-Neural-Networks-for-Efficient-Integer-Arithmetic-Only-Inference" class="headerlink" title="Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference"></a>Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference</h1><p>量化感知论文</p>
+<blockquote>
+<p>Jacob, Benoit, et al. “Quantization and training of neural networks for efficient integer-arithmetic-only inference.” <em>Proceedings of the IEEE conference on computer vision and pattern recognition</em>. 2018. citations:2302</p>
+</blockquote>
+<h3 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h3><p>解决在精度和端侧延迟要求的前提下，如何进行模型压缩、模型量化的问题，使之能用在端侧。</p>
+<h3 id="提出什么方法"><a href="#提出什么方法" class="headerlink" title="提出什么方法"></a>提出什么方法</h3><p>提出一种量化方案，能实现推理过程是全整数计算的。</p>
+<p>同时提出一种训练流程，以保持端到端模型量化后的准确性。</p>
+<h3 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h3><p>improving the latency-vs-accuracy tradeoffs of MobileNets on common mobile hardware ，端侧用的手机，即使在mobilenet这种实时率很高的小模型上也是有改进的。实验用CPU运行imagenet分类和coco目标检测证明了。</p>
+<h3 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h3><p>。</p>
+<h3 id="贡献"><a href="#贡献" class="headerlink" title="贡献"></a>贡献</h3><ul>
+<li>提供了一种量化方案，将权重和激活量化为8位整数，仅将几个参数(偏差向量)量化为32位整数；</li>
+<li>提供了一个量化的推理框架，它可以有效地在只有整数运算的硬件上实现，比如高通的Hexagon，在ARM NEON上展示了高效、准确的实现。</li>
+<li>提供一个量化的训练框架，共同设计了一个量化推理过程，以最大限度地减少量化对实际模型的精度损失。</li>
+<li>将我们的框架应用于基于MobileNets的高效分类和检测系统，并在流行的ARM cpu上提供基准测试结果。在最先进的MobileNet架构中，延迟与精度之间的权衡有了显著的改善，在ImageNet分类、COCO目标检测等任务中得到了证明。</li>
+<li>提出的量化方案侧重于提高移动cpu上的推理速度和准确性的权衡。</li>
+</ul>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在最小精度损失的情况下减少cnn的模型大小和推理时间，大致分为两类：</p>
+<ol>
+<li>第一类，修改模型结构：代表为MobileNetb、SqueezeNet、ShuffleNet和DenseNet设计了利用计算的新颖网络架构&#x2F;内存高效操作。</li>
+<li>第二类，将模型中的weight从fp32量化为更小的bit-depth 表示。 代表为Ternary weight networks (TWN)、Binary Neural Networks<br>(BNN)、XNOR-net</li>
+</ol>
+<p>这两类量化方法在权衡延迟和准确性方面缺乏两个方面：</p>
+<ol>
+<li><p>之前的方法没有在合理的基线架构上进行评估。之前实验里对象是, AlexNet、VGG、GoogleNet这种本身就过度参数化、很多冗余的大模型，因此量化很容易就能压缩很多。</p>
+<p>一个更有意义的挑战将是量化模型架构，这些架构在权衡延迟和准确性方面已经很有效，例如MobileNets。</p>
+</li>
+<li><p>许多量化方法不能在实际硬件上提供可验证的效率改进。一些方法只关注如何减少设备上的存储空间大小，而较少关注计算效率。一些方法可以将乘法和加法都通过有效的位移位和位计数操作来实现，但是精度会掉很多。</p>
+</li>
+</ol>
+<h2 id="Quantized-Inference"><a href="#Quantized-Inference" class="headerlink" title="Quantized Inference"></a>Quantized Inference</h2><h3 id="Quantization-scheme"><a href="#Quantization-scheme" class="headerlink" title="Quantization scheme"></a>Quantization scheme</h3><p>提出的量化方案在推理过程中使用纯整数运算实现，在训练过程中使用浮点运算实现，两种实现彼此保持高度对应。</p>
+<p>首先通过提供量化方案的数学上严格的定义来实现这一点，并分别将该方案用于整数算术推理和浮点训练。</p>
+<p>其中：$r$ 为数学实数（浮点数），$q$ 为量化值。量化方法是整数q到实数r的仿射映射：<br>$$<br>r&#x3D;S(q-Z)<br>$$<br>$S$ 是scale缩放因子，一般也是浮点型，和 $r$ 类型一样；</p>
+<p>$Z$ 是zero point，和 $q$ 类型一致，含义是当实值 $r&#x3D;0$ 时，对应的 $q$ 取多少。这一要求的动机是神经网络运算符的有效实现通常需要在边界周围对数组进行0 padding？是不是设置一个实值阈值，阈值外的实值映射的量化值是0？</p>
+<p>对每个激活数组和每个权重数组中的所有值使用一组量化参数；</p>
+<p>上述可以用一种数据结构来表示，称为quantized buffer。在TensorFlow Lite的 Converter的实际数据结构是这个<a href="https://github.com/tensorflow/tensorflow/blob/4952f981be07b8bf508f8226f83c10cdafa3f0c4/tensorflow/contrib/lite/toco/model.h">头文件</a>中的QuantizationParams和Array。（这个仍然包含浮点数的数据结构不会出现在实际的量化设备上推理代码中）</p>
+<p>在神经网络中，每个激活数组和权重数组都有一个这样的缓冲区实例，C++表示为（使用c++语法是因为它允许明确的类型传递）：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> QType&gt; <span class="comment">// e.g. QType=uint8</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">QuantizedBuffer</span> &#123;</span><br><span class="line">vector&lt;QType&gt; q; <span class="comment">// the quantized values</span></span><br><span class="line"><span class="type">float</span> S; <span class="comment">// the scale</span></span><br><span class="line">QType Z; <span class="comment">// the zero-point</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Integer-arithmetic-only-matrix-multiplication"><a href="#Integer-arithmetic-only-matrix-multiplication" class="headerlink" title="Integer-arithmetic-only matrix multiplication"></a>Integer-arithmetic-only matrix multiplication</h3><p>如何<strong>仅使用整数运算运行推理过程</strong>？因为公式1里有浮点数$S$，怎么变为纯整数运算呢？这里考虑两个$N\times N$ 的实值矩阵 $r_1$ 和 $r_2$，乘积表示为 $r_3&#x3D;r_1r_2$，里面元素记为 $r_\alpha^{(i,j)}$ （$\alpha&#x3D;1,2,3$ ，$1\le i,j\le N$），每个矩阵的量化参数记为 $(S_\alpha , Z_\alpha)$ ，量化值记为 $q_\alpha^{(i,j)}$ 。上式变为：<br>$$<br>r_\alpha^{(i, j)}&#x3D;S_\alpha\left(q_\alpha^{(i, j)}-Z_\alpha\right)<br>$$<br>根据矩阵乘法的定义，我们有：<br>$$<br>S_3\left(q_3^{(i, k)}-Z_3\right)&#x3D;\sum_{j&#x3D;1}^N S_1\left(q_1^{(i, j)}-Z_1\right) S_2\left(q_2^{(j, k)}-Z_2\right)<br>$$<br>可以写成：<br>$$<br>q_3^{(i, k)}&#x3D;Z_3+M \sum_{j&#x3D;1}^N\left(q_1^{(i, j)}-Z_1\right)\left(q_2^{(j, k)}-Z_2\right)<br>$$<br>其中乘数 $M$ 定义为：<br>$$<br>M:&#x3D;\frac{S_1 S_2}{S_3}<br>$$<br>也就是说，计算过程是：计算两个实数矩阵的乘积 $r_1r_2$，它对应的乘积后的量化结果 $q_3$，然后根据上述公式(4)，可以看到里面只有一个浮点数$M$，其他都是整数，而这个浮点数M是可以<strong>离线计算、事先计算好的</strong>（因为$S_1$、$S_2$、$S_3$ 是常数），因此这个乘积量化结果很容易计算。经验地发现$M$总是在区间 $(0,1)$ 内，因此可以用标准化形式表示它：<br>$$<br>M&#x3D;2^{-n}M_0<br>$$<br>其中，$M_0$ 在区间 $ [0.5,1]$ 内，$n$ 为非负整数。规范化乘数$M_0$现在可以很好地表示为定点乘数（例如int16或int32，具体取决于硬件能力）。？？？</p>
+<p>例如，如果使用int32，则表示$M_0$的整数是最接近 $2^{31}M_0$ 的int32值。由于$M_0 \ge 0.5$，该值始终至少为$2^{30}$，因此将始终具有至少30位的相对精度。</p>
+<p>因此，乘以 $M_0$ 可以实现为定点乘法。？？？</p>
+<p>同时，乘$2^{−n}$可以通过有效的位移实现（尽管需要有正确的四舍五入行为）。</p>
+<p>本节中讨论的计算是在TensorFlow Lite<a href="https://github.com/tensorflow/tensorflow/blob/4952f981be07b8bf508f8226f83c10cdafa3f0c4/tensorflow/contrib/lite/kernels/internal/reference/reference_ops.h#L493-L534">参考代码</a>中实现的，用于全连接层。</p>
+<p>因此这种方法是“仅使用整数运算运行推理过程”。</p>
+<ul>
+<li><input disabled type="checkbox"> TODO 没看懂</li>
+</ul>
+<h3 id="Efficient-handling-of-zero-points"><a href="#Efficient-handling-of-zero-points" class="headerlink" title="Efficient handling of zero-points"></a>Efficient handling of zero-points</h3><p>为了有效地实现对公式(4)的求值，而不必执行$2N^3$次减法（$\sum_j$是2N次，外部遍历i、k，因此是$2N<em>N</em>N&#x3D;2N^3$次），也无需将乘法的操作数展开为16位整数。公式(4)展开为：<br>$$<br>q_3^{(i, k)}&#x3D; Z_3+M\left(N Z_1 Z_2-Z_1 a_2^{(k)}\right.  \left.-Z_2 \bar{a}<em>1^{(i)}+\sum</em>{j&#x3D;1}^N q_1^{(i, j)} q_2^{(j, k)}\right)<br>$$<br>where<br>$$<br>a_2^{(k)}:&#x3D;\sum_{j&#x3D;1}^N q_2^{(j, k)}, \quad \bar{a}<em>1^{(i)}:&#x3D;\sum</em>{j&#x3D;1}^N q_1^{(i, j)} .<br>$$<br>每一个 $a_2^{(k)}$ 或 $\bar{a}_1^{(i)}$ 只需要$N$次加法来计算，所以总共只加了$2 N^2$次（分开看，每个N次加法，$a_2^{(k)}$遍历k，一共$N^2$次；$\bar{a}<em>1^{(i)}$ 遍历i，一共$N^2$次；因此一共$2N^2$次）。  (7)求值的其余cost几乎全部集中在核心整数矩阵乘法累加上：<br>$$<br>\sum</em>{j&#x3D;1}^N q_1^{(i, j)} q_2^{(j, k)}<br>$$</p>
+<p>上式进行了$2N^3$次运算，实际上，公式(7)中的其他项都是$O(N^2)$在$O$中有一个小常数。</p>
+<p>与zero point $Z$ 有关的项的计算量都很小，因此将问题减少到其实只要算与其他无零点量化方案中必须计算的相同的核心整数矩阵乘法累积（公式(9)）。</p>
+<h3 id="Implementation-of-a-typical-fused-layer"><a href="#Implementation-of-a-typical-fused-layer" class="headerlink" title="Implementation of a typical fused layer"></a>Implementation of a typical fused layer</h3><p>推理代码中融合运算符的粒度(接受8位量化输入并产生8位量化输出)必须与训练图中“伪量化 fake quantization”运算符的位置匹配。</p>
+<p>对于在ARM和x86 CPU架构上的实现，使用gemmlowp库。GemmWithOutputPipeline 入口点提供了对现在描述的融合操作的支持。（这里用TensorFlow Lite中实现）例如卷积运算符(<a href="https://github.com/tensorflow/tensorflow/blob/4952f981be07b8bf508f8226f83c10cdafa3f0c4/tensorflow/contrib/lite/kernels/internal/reference/reference_ops.h#L248-L314">参考代码</a>是自带的，优化代码调用gemmlowp)。</p>
+<p>在神经网络里，上面的 $q_1$ 矩阵可以用来对应的weight、$q_2$对应activations，累积uint8值的乘积需要一个32位的累加器，我们选择一个有符号类型的累加器。(9)式可以写为：<br>$$<br>\mathbf{int}32 +&#x3D; \mathbf{uint}8 * \mathbf{uint}8<br>$$</p>
+<p>（uint8范围0-255，相乘范围0-65535，为什么不用uint16？？）</p>
+<p>scale参数$S_{bias}$也是用乘法表示<br>$$<br>S_{bias}&#x3D;S_1S_2, Z_{bias}&#x3D;0<br>$$<br>…TODO</p>
+]]></content>
+      <categories>
+        <category>模型压缩</category>
+      </categories>
+      <tags>
+        <tag>深度学习</tag>
+        <tag>模型压缩</tag>
+      </tags>
+  </entry>
 </search>
