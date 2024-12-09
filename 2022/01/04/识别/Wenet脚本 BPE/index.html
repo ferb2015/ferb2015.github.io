@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="语音识别," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Wenet脚本 BPE multi_cn构建dict：把英文词用▁连起，得到▁英文词串，▁英文词串过一遍（不带▁英文文本训练的）bpe.model得子词，去重得dict librispeech构建dict：用不带▁的英文词串过一遍（不带▁英文文本训练的）bpe.model得子词，去重得dict  二者的区别在于，一个bpe.model encode的对象是单词，一个是▁连起的单词串，然后再分开再e">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Wenet脚本 BPE">
+<meta property="og:url" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20BPE/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="Wenet脚本 BPE multi_cn构建dict：把英文词用▁连起，得到▁英文词串，▁英文词串过一遍（不带▁英文文本训练的）bpe.model得子词，去重得dict librispeech构建dict：用不带▁的英文词串过一遍（不带▁英文文本训练的）bpe.model得子词，去重得dict  二者的区别在于，一个bpe.model encode的对象是单词，一个是▁连起的单词串，然后再分开再e">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-01-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T08:31:52.286Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="语音识别">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/01/04/识别/Wenet脚本 BPE/"/>
+
+
+
+
+
+  <title>Wenet脚本 BPE | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20BPE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Wenet脚本 BPE</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20BPE/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/Wenet脚本 BPE/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Wenet脚本-BPE"><a href="#Wenet脚本-BPE" class="headerlink" title="Wenet脚本 BPE"></a>Wenet脚本 BPE</h1><ul>
+<li>multi_cn构建dict：把英文词用▁连起，得到▁英文词串，▁英文词串过一遍（不带▁英文文本训练的）bpe.model得子词，去重得dict</li>
+<li>librispeech构建dict：用不带▁的英文词串过一遍（不带▁英文文本训练的）bpe.model得子词，去重得dict</li>
+</ul>
+<p>二者的区别在于，一个bpe.model encode的对象是单词，一个是▁连起的单词串，然后再分开再encode，应该都可以？</p>
+<p>先训练好一个bpe model，英文的，然后把这些词放进中文字典中，扩充字典（字典里的英文是bpe格式的词）</p>
+<p>然后使用时，把正常英文encoder编码成bpe格式，然后训练；推理的时候bpe decoder解码成原来的英文单词；</p>
+<p>中英混时，用的5000词的bpe model，但是对训练集编码，发现没有用到整个5000词，可能只用了500个子词，因此只把500个英文子词，联合着中文一起，添加到词典中，因此词典可能是6、7千字的样子（最后softmax输出的大小）</p>
+<p>统计每个英文词出现的次数，估摸着够不够样本训练；</p>
+<h3 id="统计："><a href="#统计：" class="headerlink" title="统计："></a>统计：</h3><h4 id="法一：统计英文单词的样本数【没采用，因为我们时bpe建模，没有用真正的英文单词，因此该统计无意义】"><a href="#法一：统计英文单词的样本数【没采用，因为我们时bpe建模，没有用真正的英文单词，因此该统计无意义】" class="headerlink" title="法一：统计英文单词的样本数【没采用，因为我们时bpe建模，没有用真正的英文单词，因此该统计无意义】"></a>法一：统计英文单词的样本数【没采用，因为我们时bpe建模，没有用真正的英文单词，因此该统计无意义】</h4><ol>
+<li>一共有多少个词</li>
+<li>每个词的数量</li>
+<li>每个词在不在bpe_model中，若不在，则添加进bpe.model中；（至少bpe.model要能够表示它）</li>
+</ol>
+<h4 id="法二：统计英文子词的样本数【采用】"><a href="#法二：统计英文子词的样本数【采用】" class="headerlink" title="法二：统计英文子词的样本数【采用】"></a>法二：统计英文子词的样本数【采用】</h4><ol>
+<li>确保每个词在bpe.model中；</li>
+<li>看用了哪些子词，一共有多少个子词；</li>
+<li>统计每个子词的样本数量；</li>
+</ol>
+<p>将有空格的词分成没空格的字（汉字），将英文转成bpe格式的词：</p>
+<ul>
+<li>text2token.py：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Copyright 2017 Johns Hopkins University (Shinji Watanabe)</span></span><br><span class="line"><span class="comment"># Copyright 2021 JD AI Lab. All Rights Reserved. (authors: Lu Fan)</span></span><br><span class="line"><span class="comment"># Copyright 2021 Mobvoi Inc. All Rights Reserved. (Di Wu)</span></span><br><span class="line"><span class="comment">#  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> unicode_literals</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">is_python2 = sys.version_info[<span class="number">0</span>] == <span class="number">2</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">exist_or_not</span>(<span class="params">i, match_pos</span>):</span><br><span class="line">    start_pos = <span class="literal">None</span></span><br><span class="line">    end_pos = <span class="literal">None</span></span><br><span class="line">    <span class="keyword">for</span> pos <span class="keyword">in</span> match_pos:</span><br><span class="line">        <span class="keyword">if</span> pos[<span class="number">0</span>] &lt;= i &lt; pos[<span class="number">1</span>]:</span><br><span class="line">            start_pos = pos[<span class="number">0</span>]</span><br><span class="line">            end_pos = pos[<span class="number">1</span>]</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> start_pos, end_pos</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">seg_char</span>(<span class="params">sent</span>):</span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;([\u4e00-\u9fa5])&#x27;</span>)</span><br><span class="line">    chars = pattern.split(sent)</span><br><span class="line">    chars = [w <span class="keyword">for</span> w <span class="keyword">in</span> chars <span class="keyword">if</span> <span class="built_in">len</span>(w.strip()) &gt; <span class="number">0</span>]</span><br><span class="line">    <span class="keyword">return</span> chars</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_parser</span>():</span><br><span class="line">    parser = argparse.ArgumentParser(</span><br><span class="line">        description=<span class="string">&#x27;convert raw text to tokenized text&#x27;</span>,</span><br><span class="line">        formatter_class=argparse.ArgumentDefaultsHelpFormatter)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--nchar&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-n&#x27;</span>,</span><br><span class="line">                        default=<span class="number">1</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">int</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;number of characters to split, i.e., \</span></span><br><span class="line"><span class="string">                        aabb -&gt; a a b b with -n 1 and aa bb with -n 2&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--skip-ncols&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-s&#x27;</span>,</span><br><span class="line">                        default=<span class="number">1</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">int</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;skip first n columns&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--space&#x27;</span>,</span><br><span class="line">                        default=<span class="string">&#x27;&lt;space&gt;&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;space symbol&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--bpe-model&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-m&#x27;</span>,</span><br><span class="line">                        default=<span class="string">&#x27;conf/train_960_unigram5000.model&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;bpe model for english part&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--non-lang-syms&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-l&#x27;</span>,</span><br><span class="line">                        default=<span class="literal">None</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;list of non-linguistic symobles,&#x27;</span></span><br><span class="line">                        <span class="string">&#x27; e.g., &lt;NOISE&gt; etc.&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;text&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        default=<span class="string">&#x27;data_bpe/train/text&#x27;</span>,</span><br><span class="line">                        nargs=<span class="string">&#x27;?&#x27;</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;input text&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--trans_type&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-t&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        default=<span class="string">&quot;cn_char_en_bpe&quot;</span>,</span><br><span class="line">                        choices=[<span class="string">&quot;char&quot;</span>, <span class="string">&quot;phn&quot;</span>, <span class="string">&quot;cn_char_en_bpe&quot;</span>],</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&quot;&quot;&quot;Transcript type. char/phn. e.g., for TIMIT</span></span><br><span class="line"><span class="string">                             FADG0_SI1279 -</span></span><br><span class="line"><span class="string">                             If trans_type is char, read from</span></span><br><span class="line"><span class="string">                             SI1279.WRD file -&gt; &quot;bricks are an alternative&quot;</span></span><br><span class="line"><span class="string">                             Else if trans_type is phn,</span></span><br><span class="line"><span class="string">                             read from SI1279.PHN file -&gt;</span></span><br><span class="line"><span class="string">                             &quot;sil b r ih sil k s aa r er n aa l</span></span><br><span class="line"><span class="string">                             sil t er n ih sil t ih v sil&quot; &quot;&quot;&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> parser</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    parser = get_parser()</span><br><span class="line">    args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">    rs = []</span><br><span class="line">    <span class="keyword">if</span> args.non_lang_syms <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">with</span> codecs.<span class="built_in">open</span>(args.non_lang_syms, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&quot;utf-8&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            nls = [x.rstrip() <span class="keyword">for</span> x <span class="keyword">in</span> f.readlines()]</span><br><span class="line">            rs = [re.<span class="built_in">compile</span>(re.escape(x)) <span class="keyword">for</span> x <span class="keyword">in</span> nls]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> args.bpe_model <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">import</span> sentencepiece <span class="keyword">as</span> spm</span><br><span class="line">        sp = spm.SentencePieceProcessor()</span><br><span class="line">        sp.load(args.bpe_model)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> args.text:</span><br><span class="line">        f = codecs.<span class="built_in">open</span>(args.text, encoding=<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        f = codecs.getreader(<span class="string">&quot;utf-8&quot;</span>)(</span><br><span class="line">            sys.stdin <span class="keyword">if</span> is_python2 <span class="keyword">else</span> sys.stdin.buffer)</span><br><span class="line"></span><br><span class="line">    sys.stdout = codecs.getwriter(<span class="string">&quot;utf-8&quot;</span>)(</span><br><span class="line">        sys.stdout <span class="keyword">if</span> is_python2 <span class="keyword">else</span> sys.stdout.buffer)</span><br><span class="line">    line = f.readline()</span><br><span class="line">    n = args.nchar</span><br><span class="line">    <span class="keyword">while</span> line:</span><br><span class="line">        x = line.split()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27; &#x27;</span>.join(x[:args.skip_ncols]), end=<span class="string">&quot; &quot;</span>)</span><br><span class="line">        a = <span class="string">&#x27; &#x27;</span>.join(x[args.skip_ncols:])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># get all matched positions</span></span><br><span class="line">        match_pos = []</span><br><span class="line">        <span class="keyword">for</span> r <span class="keyword">in</span> rs:</span><br><span class="line">            i = <span class="number">0</span></span><br><span class="line">            <span class="keyword">while</span> i &gt;= <span class="number">0</span>:</span><br><span class="line">                m = r.search(a, i)</span><br><span class="line">                <span class="keyword">if</span> m:</span><br><span class="line">                    match_pos.append([m.start(), m.end()])</span><br><span class="line">                    i = m.end()</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(match_pos) &gt; <span class="number">0</span>:</span><br><span class="line">            chars = []</span><br><span class="line">            i = <span class="number">0</span></span><br><span class="line">            <span class="keyword">while</span> i &lt; <span class="built_in">len</span>(a):</span><br><span class="line">                start_pos, end_pos = exist_or_not(i, match_pos)</span><br><span class="line">                <span class="keyword">if</span> start_pos <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                    chars.append(a[start_pos:end_pos])</span><br><span class="line">                    i = end_pos</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    chars.append(a[i])</span><br><span class="line">                    i += <span class="number">1</span></span><br><span class="line">            a = chars</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (args.trans_type == <span class="string">&quot;phn&quot;</span>):</span><br><span class="line">            a = a.split(<span class="string">&quot; &quot;</span>)</span><br><span class="line">        <span class="keyword">elif</span> args.trans_type == <span class="string">&quot;cn_char_en_bpe&quot;</span>:</span><br><span class="line">            b = seg_char(a)</span><br><span class="line">            a = []</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> b:</span><br><span class="line">                <span class="comment"># we use &quot;▁&quot; to instead of blanks among english words</span></span><br><span class="line">                <span class="comment"># warning: here is &quot;▁&quot;, not &quot;_&quot;</span></span><br><span class="line">                <span class="keyword">for</span> l <span class="keyword">in</span> j.strip().split(<span class="string">&quot;▁&quot;</span>):</span><br><span class="line">                    <span class="keyword">if</span> <span class="keyword">not</span> l.encode(<span class="string">&#x27;UTF-8&#x27;</span>).isalpha(): <span class="comment">#是不是英文字母</span></span><br><span class="line">                        a.append(l)</span><br><span class="line">                    <span class="keyword">else</span>:</span><br><span class="line">                        <span class="keyword">for</span> k <span class="keyword">in</span> sp.encode_as_pieces(l):</span><br><span class="line">                            <span class="keyword">if</span> k == <span class="string">&quot;▁&quot;</span>:</span><br><span class="line">                                <span class="built_in">print</span>(<span class="string">&quot;yelong&quot;</span>,end=<span class="string">&#x27; &#x27;</span>) <span class="comment"># 如果不在bpe.model里，这里报错来的</span></span><br><span class="line">                            a.append(k)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            a = [a[j:j + n] <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(a), n)]</span><br><span class="line"></span><br><span class="line">        a_flat = []</span><br><span class="line">        <span class="keyword">for</span> z <span class="keyword">in</span> a:</span><br><span class="line">            a_flat.append(<span class="string">&quot;&quot;</span>.join(z))</span><br><span class="line"></span><br><span class="line">        a_chars = [z.replace(<span class="string">&#x27; &#x27;</span>, args.space) <span class="keyword">for</span> z <span class="keyword">in</span> a_flat]</span><br><span class="line">        <span class="keyword">if</span> (args.trans_type == <span class="string">&quot;phn&quot;</span>):</span><br><span class="line">            a_chars = [z.replace(<span class="string">&quot;sil&quot;</span>, args.space) <span class="keyword">for</span> z <span class="keyword">in</span> a_chars]</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27; &#x27;</span>.join(a_chars))</span><br><span class="line">        line = f.readline()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>发现很多单词不在bpe中【用原来的bpe.model后，词典的英文词有 4719 个词】，因此要做<strong>清洗</strong>，具体操作：</p>
+<h3 id="清洗"><a href="#清洗" class="headerlink" title="清洗"></a>清洗</h3><h4 id="重新训练bpe-model"><a href="#重新训练bpe-model" class="headerlink" title="重新训练bpe.model"></a>重新训练bpe.model</h4><ol start="0">
+<li><p>删除text的标点符号</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i &#x27;s/MOTHER`/MOTHER&#x27;\&#x27;&#x27;/g&#x27; text.org</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">等等 将，。、！：替换成空格</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>只挑选训练集中英文部分；[英文中间夹着中文，去掉中文后，其实并没有语序关系，这里就不管这种情况了]： </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cut -d &#x27; &#x27; -f 2- text | grep &quot;[a-zA-Z]&quot; &gt; text_chi_eng</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>将英文文本token化，变成带有▁符号</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat text_chi_eng | tr &#x27;a-z&#x27; &#x27;A-Z&#x27; | sed &#x27;s/\([A-Z]\) \([A-Z]\)/\1▁\2/g&#x27; | sed &#x27;s/\([A-Z]\) \([A-Z]\)/\1▁\2/g&#x27; | tr -d &quot; &quot; &gt;  text_token_chi_eng</span><br></pre></td></tr></table></figure>
+
+
+
+<p>自己写了一个去掉中文的脚本：delete_chi.py【旧】，这里的输入是带有“▁”的英文，因为后面查看有没有英文unk时，是用的带▁的英文文本，因此这里先处理</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># python delete_chi.py &gt; text_token_eng</span></span><br><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Copyright 2017 Johns Hopkins University (Shinji Watanabe)</span></span><br><span class="line"><span class="comment"># Copyright 2021 JD AI Lab. All Rights Reserved. (authors: Lu Fan)</span></span><br><span class="line"><span class="comment"># Copyright 2021 Mobvoi Inc. All Rights Reserved. (Di Wu)</span></span><br><span class="line"><span class="comment">#  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> unicode_literals</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">is_python2 = sys.version_info[<span class="number">0</span>] == <span class="number">2</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">exist_or_not</span>(<span class="params">i, match_pos</span>):</span><br><span class="line">    start_pos = <span class="literal">None</span></span><br><span class="line">    end_pos = <span class="literal">None</span></span><br><span class="line">    <span class="keyword">for</span> pos <span class="keyword">in</span> match_pos:</span><br><span class="line">        <span class="keyword">if</span> pos[<span class="number">0</span>] &lt;= i &lt; pos[<span class="number">1</span>]:</span><br><span class="line">            start_pos = pos[<span class="number">0</span>]</span><br><span class="line">            end_pos = pos[<span class="number">1</span>]</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> start_pos, end_pos</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">seg_char</span>(<span class="params">sent</span>):</span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;([\u4e00-\u9fa5])&#x27;</span>)</span><br><span class="line">    chars = pattern.split(sent)</span><br><span class="line">    chars = [w <span class="keyword">for</span> w <span class="keyword">in</span> chars <span class="keyword">if</span> <span class="built_in">len</span>(w.strip()) &gt; <span class="number">0</span>]</span><br><span class="line">    <span class="keyword">return</span> chars</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_parser</span>():</span><br><span class="line">    parser = argparse.ArgumentParser(</span><br><span class="line">        description=<span class="string">&#x27;convert raw text to tokenized text&#x27;</span>,</span><br><span class="line">        formatter_class=argparse.ArgumentDefaultsHelpFormatter)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--nchar&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-n&#x27;</span>,</span><br><span class="line">                        default=<span class="number">1</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">int</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;number of characters to split, i.e., \</span></span><br><span class="line"><span class="string">                        aabb -&gt; a a b b with -n 1 and aa bb with -n 2&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--skip-ncols&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-s&#x27;</span>,</span><br><span class="line">                        default=<span class="number">0</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">int</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;skip first n columns&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--space&#x27;</span>,</span><br><span class="line">                        default=<span class="string">&#x27;&lt;space&gt;&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;space symbol&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--bpe-model&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-m&#x27;</span>,</span><br><span class="line">                        default=<span class="string">&#x27;data/lang_char/train_unigram5000.model&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;bpe model for english part&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--non-lang-syms&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-l&#x27;</span>,</span><br><span class="line">                        default=<span class="literal">None</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;list of non-linguistic symobles,&#x27;</span></span><br><span class="line">                        <span class="string">&#x27; e.g., &lt;NOISE&gt; etc.&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;text&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        default=<span class="string">&#x27;/home/yelong/data/wenet/examples/multi_cn/s0/data_4000_add_we/train/text_token_chi_eng&#x27;</span>,</span><br><span class="line">                        <span class="comment"># default=&#x27;/home/yelong/data/wenet/examples/multi_cn/s0/data_4000_add_we/test_1.4w/text_token_chi_eng&#x27;,</span></span><br><span class="line">                        <span class="comment"># default=&#x27;/home/yelong/data/wenet/examples/multi_cn/s0/data_4000_add_we/lang_char/2&#x27;,</span></span><br><span class="line">                        nargs=<span class="string">&#x27;?&#x27;</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;input text&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--trans_type&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-t&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        default=<span class="string">&quot;cn_char_en_bpe&quot;</span>,</span><br><span class="line">                        choices=[<span class="string">&quot;char&quot;</span>, <span class="string">&quot;phn&quot;</span>, <span class="string">&quot;cn_char_en_bpe&quot;</span>],</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&quot;&quot;&quot;Transcript type. char/phn. e.g., for TIMIT</span></span><br><span class="line"><span class="string">                             FADG0_SI1279 -</span></span><br><span class="line"><span class="string">                             If trans_type is char, read from</span></span><br><span class="line"><span class="string">                             SI1279.WRD file -&gt; &quot;bricks are an alternative&quot;</span></span><br><span class="line"><span class="string">                             Else if trans_type is phn,</span></span><br><span class="line"><span class="string">                             read from SI1279.PHN file -&gt;</span></span><br><span class="line"><span class="string">                             &quot;sil b r ih sil k s aa r er n aa l</span></span><br><span class="line"><span class="string">                             sil t er n ih sil t ih v sil&quot; &quot;&quot;&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> parser</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    parser = get_parser()</span><br><span class="line">    args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">    rs = []</span><br><span class="line">    <span class="keyword">if</span> args.non_lang_syms <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">with</span> codecs.<span class="built_in">open</span>(args.non_lang_syms, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&quot;utf-8&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            nls = [x.rstrip() <span class="keyword">for</span> x <span class="keyword">in</span> f.readlines()]</span><br><span class="line">            rs = [re.<span class="built_in">compile</span>(re.escape(x)) <span class="keyword">for</span> x <span class="keyword">in</span> nls]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> args.bpe_model <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">import</span> sentencepiece <span class="keyword">as</span> spm</span><br><span class="line">        sp = spm.SentencePieceProcessor()</span><br><span class="line">        sp.load(args.bpe_model)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> args.text:</span><br><span class="line">        f = codecs.<span class="built_in">open</span>(args.text, encoding=<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        f = codecs.getreader(<span class="string">&quot;utf-8&quot;</span>)(</span><br><span class="line">            sys.stdin <span class="keyword">if</span> is_python2 <span class="keyword">else</span> sys.stdin.buffer)</span><br><span class="line"></span><br><span class="line">    sys.stdout = codecs.getwriter(<span class="string">&quot;utf-8&quot;</span>)(</span><br><span class="line">        sys.stdout <span class="keyword">if</span> is_python2 <span class="keyword">else</span> sys.stdout.buffer)</span><br><span class="line">    line = f.readline()</span><br><span class="line">    n = args.nchar</span><br><span class="line">    <span class="keyword">while</span> line:</span><br><span class="line">        x = line.split()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27; &#x27;</span>.join(x[:args.skip_ncols]), end=<span class="string">&quot; &quot;</span>)</span><br><span class="line">        a = <span class="string">&#x27; &#x27;</span>.join(x[args.skip_ncols:])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># get all matched positions</span></span><br><span class="line">        match_pos = []</span><br><span class="line">        <span class="keyword">for</span> r <span class="keyword">in</span> rs:</span><br><span class="line">            i = <span class="number">0</span></span><br><span class="line">            <span class="keyword">while</span> i &gt;= <span class="number">0</span>:</span><br><span class="line">                m = r.search(a, i)</span><br><span class="line">                <span class="keyword">if</span> m:</span><br><span class="line">                    match_pos.append([m.start(), m.end()])</span><br><span class="line">                    i = m.end()</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(match_pos) &gt; <span class="number">0</span>:</span><br><span class="line">            chars = []</span><br><span class="line">            i = <span class="number">0</span></span><br><span class="line">            <span class="keyword">while</span> i &lt; <span class="built_in">len</span>(a):</span><br><span class="line">                start_pos, end_pos = exist_or_not(i, match_pos)</span><br><span class="line">                <span class="keyword">if</span> start_pos <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                    chars.append(a[start_pos:end_pos])</span><br><span class="line">                    i = end_pos</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    chars.append(a[i])</span><br><span class="line">                    i += <span class="number">1</span></span><br><span class="line">            a = chars</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (args.trans_type == <span class="string">&quot;phn&quot;</span>):</span><br><span class="line">            a = a.split(<span class="string">&quot; &quot;</span>)</span><br><span class="line">        <span class="keyword">elif</span> args.trans_type == <span class="string">&quot;cn_char_en_bpe&quot;</span>:</span><br><span class="line">            b = seg_char(a)</span><br><span class="line">            a = []</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> b:</span><br><span class="line">                <span class="comment"># we use &quot;▁&quot; to instead of blanks among english words</span></span><br><span class="line">                <span class="comment"># warning: here is &quot;▁&quot;, not &quot;_&quot;</span></span><br><span class="line">                <span class="comment"># for l in j.strip().split(&quot; &quot;):</span></span><br><span class="line">                <span class="comment"># count = len(j.strip().split(&quot;▁&quot;)) -1 </span></span><br><span class="line">                <span class="keyword">for</span> l <span class="keyword">in</span> j.strip().split(<span class="string">&#x27;▁&#x27;</span>):</span><br><span class="line">                    <span class="keyword">if</span> l.encode(<span class="string">&#x27;UTF-8&#x27;</span>).isalpha(): <span class="comment">#是不是英文字母 #T-shirt这种就会没有掉  TODO MACY&#x27;S</span></span><br><span class="line">                        a.append(l)</span><br><span class="line">                        a.append(<span class="string">&#x27;▁&#x27;</span>)</span><br><span class="line">                        <span class="comment"># if count:</span></span><br><span class="line">                        <span class="comment">#     a.append(&#x27;▁&#x27;)</span></span><br><span class="line">                        <span class="comment">#     count = count - 1</span></span><br><span class="line"></span><br><span class="line">                        </span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            a = [a[j:j + n] <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(a), n)]</span><br><span class="line"></span><br><span class="line">        a_flat = []</span><br><span class="line">        <span class="keyword">for</span> z <span class="keyword">in</span> a:</span><br><span class="line">            a_flat.append(<span class="string">&quot;&quot;</span>.join(z))</span><br><span class="line"></span><br><span class="line">        a_chars = [z.replace(<span class="string">&#x27; &#x27;</span>, args.space) <span class="keyword">for</span> z <span class="keyword">in</span> a_flat]</span><br><span class="line">        <span class="keyword">if</span> (args.trans_type == <span class="string">&quot;phn&quot;</span>):</span><br><span class="line">            a_chars = [z.replace(<span class="string">&quot;sil&quot;</span>, args.space) <span class="keyword">for</span> z <span class="keyword">in</span> a_chars]</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(a_chars) &gt; <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">if</span> a_chars[-<span class="number">1</span>] == <span class="string">&#x27;▁&#x27;</span>:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&#x27;&#x27;</span>.join(a_chars[:-<span class="number">1</span>]))</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&#x27;&#x27;</span>.join(a_chars))</span><br><span class="line">        line = f.readline()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<p>上面的delete_chi.py比较慢，新删除一些行，新写了delete_chi.py：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Copyright 2017 Johns Hopkins University (Shinji Watanabe)</span></span><br><span class="line"><span class="comment"># Copyright 2021 JD AI Lab. All Rights Reserved. (authors: Lu Fan)</span></span><br><span class="line"><span class="comment"># Copyright 2021 Mobvoi Inc. All Rights Reserved. (Di Wu)</span></span><br><span class="line"><span class="comment">#  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> unicode_literals</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">is_python2 = sys.version_info[<span class="number">0</span>] == <span class="number">2</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">exist_or_not</span>(<span class="params">i, match_pos</span>):</span><br><span class="line">    start_pos = <span class="literal">None</span></span><br><span class="line">    end_pos = <span class="literal">None</span></span><br><span class="line">    <span class="keyword">for</span> pos <span class="keyword">in</span> match_pos:</span><br><span class="line">        <span class="keyword">if</span> pos[<span class="number">0</span>] &lt;= i &lt; pos[<span class="number">1</span>]:</span><br><span class="line">            start_pos = pos[<span class="number">0</span>]</span><br><span class="line">            end_pos = pos[<span class="number">1</span>]</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> start_pos, end_pos</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">seg_char</span>(<span class="params">sent</span>):</span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;([\u4e00-\u9fa5])&#x27;</span>)</span><br><span class="line">    chars = pattern.split(sent)</span><br><span class="line">    chars = [w <span class="keyword">for</span> w <span class="keyword">in</span> chars <span class="keyword">if</span> <span class="built_in">len</span>(w.strip()) &gt; <span class="number">0</span>]</span><br><span class="line">    <span class="keyword">return</span> chars</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_parser</span>():</span><br><span class="line">    parser = argparse.ArgumentParser(</span><br><span class="line">        description=<span class="string">&#x27;convert raw text to tokenized text&#x27;</span>,</span><br><span class="line">        formatter_class=argparse.ArgumentDefaultsHelpFormatter)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--nchar&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-n&#x27;</span>,</span><br><span class="line">                        default=<span class="number">1</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">int</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;number of characters to split, i.e., \</span></span><br><span class="line"><span class="string">                        aabb -&gt; a a b b with -n 1 and aa bb with -n 2&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--skip-ncols&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-s&#x27;</span>,</span><br><span class="line">                        default=<span class="number">0</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">int</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;skip first n columns&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--space&#x27;</span>,</span><br><span class="line">                        default=<span class="string">&#x27;&lt;space&gt;&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;space symbol&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--bpe-model&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-m&#x27;</span>,</span><br><span class="line">                        default=<span class="string">&#x27;data/lang_char/train_unigram5000.model&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;bpe model for english part&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--non-lang-syms&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-l&#x27;</span>,</span><br><span class="line">                        default=<span class="literal">None</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;list of non-linguistic symobles,&#x27;</span></span><br><span class="line">                        <span class="string">&#x27; e.g., &lt;NOISE&gt; etc.&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;text&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        default=<span class="string">&#x27;/home/yelong/data/wenet/examples/multi_cn/s0/data_4000_add_we/test/text_token_chi_eng&#x27;</span>,</span><br><span class="line">                        <span class="comment"># default=&#x27;/home/yelong/data/wenet/examples/multi_cn/s0/data_4000_add_we/test_1.4w/text_token_chi_eng&#x27;,</span></span><br><span class="line">                        <span class="comment"># default=&#x27;/home/yelong/data/wenet/examples/multi_cn/s0/data_4000_add_we/lang_char/2&#x27;,</span></span><br><span class="line">                        nargs=<span class="string">&#x27;?&#x27;</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;input text&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--trans_type&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;-t&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        default=<span class="string">&quot;cn_char_en_bpe&quot;</span>,</span><br><span class="line">                        choices=[<span class="string">&quot;char&quot;</span>, <span class="string">&quot;phn&quot;</span>, <span class="string">&quot;cn_char_en_bpe&quot;</span>],</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&quot;&quot;&quot;Transcript type. char/phn. e.g., for TIMIT</span></span><br><span class="line"><span class="string">                             FADG0_SI1279 -</span></span><br><span class="line"><span class="string">                             If trans_type is char, read from</span></span><br><span class="line"><span class="string">                             SI1279.WRD file -&gt; &quot;bricks are an alternative&quot;</span></span><br><span class="line"><span class="string">                             Else if trans_type is phn,</span></span><br><span class="line"><span class="string">                             read from SI1279.PHN file -&gt;</span></span><br><span class="line"><span class="string">                             &quot;sil b r ih sil k s aa r er n aa l</span></span><br><span class="line"><span class="string">                             sil t er n ih sil t ih v sil&quot; &quot;&quot;&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> parser</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    parser = get_parser()</span><br><span class="line">    args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">    rs = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> args.bpe_model <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">import</span> sentencepiece <span class="keyword">as</span> spm</span><br><span class="line">        sp = spm.SentencePieceProcessor()</span><br><span class="line">        sp.load(args.bpe_model)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> args.text:</span><br><span class="line">        f = codecs.<span class="built_in">open</span>(args.text, encoding=<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        f = codecs.getreader(<span class="string">&quot;utf-8&quot;</span>)(</span><br><span class="line">            sys.stdin <span class="keyword">if</span> is_python2 <span class="keyword">else</span> sys.stdin.buffer)</span><br><span class="line"></span><br><span class="line">    sys.stdout = codecs.getwriter(<span class="string">&quot;utf-8&quot;</span>)(</span><br><span class="line">        sys.stdout <span class="keyword">if</span> is_python2 <span class="keyword">else</span> sys.stdout.buffer)</span><br><span class="line">    line = f.readline()</span><br><span class="line">    n = args.nchar</span><br><span class="line">    <span class="keyword">while</span> line:</span><br><span class="line">        <span class="comment"># x = line.split()</span></span><br><span class="line">        <span class="comment"># print(&#x27; &#x27;.join(x[:args.skip_ncols]), end=&quot; &quot;)</span></span><br><span class="line">        <span class="comment"># a = &#x27; &#x27;.join(x[args.skip_ncols:])</span></span><br><span class="line">        a = line.strip()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># get all matched positions</span></span><br><span class="line">        b = seg_char(a)</span><br><span class="line">        a = []</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> b:</span><br><span class="line">            <span class="comment"># we use &quot;▁&quot; to instead of blanks among english words</span></span><br><span class="line">            <span class="comment"># warning: here is &quot;▁&quot;, not &quot;_&quot;</span></span><br><span class="line">            <span class="comment"># for l in j.strip().split(&quot; &quot;):</span></span><br><span class="line">            <span class="comment"># count = len(j.strip().split(&quot;▁&quot;)) -1 </span></span><br><span class="line">            <span class="keyword">for</span> l <span class="keyword">in</span> j.strip().split(<span class="string">&#x27;▁&#x27;</span>):</span><br><span class="line">                <span class="keyword">if</span> l.encode(<span class="string">&#x27;UTF-8&#x27;</span>).isalpha() <span class="keyword">or</span> <span class="string">&quot;&#x27;&quot;</span> <span class="keyword">in</span> l: <span class="comment">#是不是英文字母 #T-shirt这种就会没有掉  TODO MACY&#x27;S</span></span><br><span class="line">                    a.append(l)</span><br><span class="line">                    a.append(<span class="string">&#x27;▁&#x27;</span>)</span><br><span class="line">                    <span class="comment"># if count:</span></span><br><span class="line">                    <span class="comment">#     a.append(&#x27;▁&#x27;)</span></span><br><span class="line">                    <span class="comment">#     count = count - 1</span></span><br><span class="line"></span><br><span class="line">        a_flat = []</span><br><span class="line">        <span class="keyword">for</span> z <span class="keyword">in</span> a:</span><br><span class="line">            a_flat.append(<span class="string">&quot;&quot;</span>.join(z))</span><br><span class="line"></span><br><span class="line">        a_chars = [z.replace(<span class="string">&#x27; &#x27;</span>, args.space) <span class="keyword">for</span> z <span class="keyword">in</span> a_flat]</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(a_chars) &gt; <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">if</span> a_chars[-<span class="number">1</span>] == <span class="string">&#x27;▁&#x27;</span>:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&#x27;&#x27;</span>.join(a_chars[:-<span class="number">1</span>]))</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&#x27;&#x27;</span>.join(a_chars))</span><br><span class="line">        line = f.readline()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<p>对text_token_eng过一遍英文的token_fast_eng.py，看看有没有<unk>或 ▁ ，注意，这里的text_token_eng不是data_4000_add_we_bpe&#x2F;train里的text_token_eng；</unk></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sed -i &#x27;s/ *$//&#x27; text_token_eng</span><br><span class="line">sed -i &#x27;s/^ *//&#x27; text_token_eng</span><br><span class="line">python token_fast_eng.py &gt; i</span><br><span class="line">grep &quot;&lt;unk&gt;&quot; i</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">grep <span class="string">&quot;▁ &quot;</span> i</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>其中，token_fast_eng.py：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> unicode_literals</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">is_python2 = sys.version_info[<span class="number">0</span>] == <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">__tokenize_by_bpe_model</span>(<span class="params">sp, txt</span>):</span><br><span class="line">    tokens = []</span><br><span class="line">    <span class="comment"># CJK(China Japan Korea) unicode range is [U+4E00, U+9FFF], ref:</span></span><br><span class="line">    <span class="comment"># https://en.wikipedia.org/wiki/CJK_Unified_Ideographs_(Unicode_block)</span></span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;([\u4e00-\u9fff])&#x27;</span>)</span><br><span class="line">    <span class="comment"># Example:</span></span><br><span class="line">    <span class="comment">#   txt   = &quot;你好 ITS&#x27;S OKAY 的&quot;</span></span><br><span class="line">    <span class="comment">#   chars = [&quot;你&quot;, &quot;好&quot;, &quot; ITS&#x27;S OKAY &quot;, &quot;的&quot;]</span></span><br><span class="line">    chars = pattern.split(txt.upper())</span><br><span class="line">    mix_chars = [w <span class="keyword">for</span> w <span class="keyword">in</span> chars <span class="keyword">if</span> <span class="built_in">len</span>(w.strip()) &gt; <span class="number">0</span>]</span><br><span class="line">    <span class="keyword">for</span> ch_or_w <span class="keyword">in</span> mix_chars:</span><br><span class="line">        <span class="comment"># ch_or_w is a single CJK charater(i.e., &quot;你&quot;), do nothing.</span></span><br><span class="line">        <span class="keyword">if</span> pattern.fullmatch(ch_or_w) <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            tokens.append(ch_or_w)</span><br><span class="line">        <span class="comment"># ch_or_w contains non-CJK charaters(i.e., &quot; IT&#x27;S OKAY &quot;),</span></span><br><span class="line">        <span class="comment"># encode ch_or_w using bpe_model.</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">for</span> p <span class="keyword">in</span> sp.encode_as_pieces(ch_or_w):</span><br><span class="line">                tokens.append(p)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> tokens</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">tokenize</span>(<span class="params">sample,sp,</span></span><br><span class="line"><span class="params">             symbol_table</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot; Decode text to chars or BPE</span></span><br><span class="line"><span class="string">        Inplace operation</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Args:</span></span><br><span class="line"><span class="string">            data: Iterable[&#123;key, wav, txt, sample_rate&#125;]</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns:</span></span><br><span class="line"><span class="string">            Iterable[&#123;key, wav, txt, tokens, label, sample_rate&#125;]</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    txt = sample[<span class="string">&#x27;txt&#x27;</span>].strip()</span><br><span class="line">    parts = [txt]</span><br><span class="line">    tokens = []</span><br><span class="line">    <span class="keyword">for</span> part <span class="keyword">in</span> parts:</span><br><span class="line">        tokens.extend(__tokenize_by_bpe_model(sp, part))</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(tokens)):</span><br><span class="line">        ch = tokens[i]</span><br><span class="line">        <span class="keyword">if</span> ch <span class="keyword">not</span> <span class="keyword">in</span> symbol_table:</span><br><span class="line">            tokens[i]  = <span class="string">&#x27;&lt;unk&gt;&#x27;</span></span><br><span class="line">        <span class="comment"># elif &#x27;&lt;unk&gt;&#x27; in symbol_table:</span></span><br><span class="line">            <span class="comment"># label.append(symbol_table[&#x27;&lt;unk&gt;&#x27;])</span></span><br><span class="line">            </span><br><span class="line"></span><br><span class="line">    sample[<span class="string">&#x27;tokens&#x27;</span>] = tokens</span><br><span class="line">    <span class="comment"># sample[&#x27;label&#x27;] = label</span></span><br><span class="line">    <span class="keyword">return</span> sample</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_symbol_table</span>(<span class="params">symbol_table_file</span>):</span><br><span class="line">    symbol_table = &#123;&#125;</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(symbol_table_file, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf8&#x27;</span>) <span class="keyword">as</span> fin:</span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> fin:</span><br><span class="line">            arr = line.strip().split()</span><br><span class="line">            <span class="keyword">assert</span> <span class="built_in">len</span>(arr) == <span class="number">2</span></span><br><span class="line">            symbol_table[arr[<span class="number">0</span>]] = <span class="built_in">int</span>(arr[<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">return</span> symbol_table</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line"></span><br><span class="line">    <span class="keyword">import</span> sentencepiece <span class="keyword">as</span> spm</span><br><span class="line">    sp = spm.SentencePieceProcessor()</span><br><span class="line">    sp.load(<span class="string">&#x27;data_4000_add_we/lang_char/train_unigram100.model&#x27;</span>)</span><br><span class="line">    <span class="comment"># sp.load(&#x27;data_4000_add_we/lang_char/train_unigram500.model&#x27;)</span></span><br><span class="line">    <span class="comment"># sp.load(&#x27;data_4000_add_we/lang_char/train_unigram1000.model&#x27;)</span></span><br><span class="line">    symbol_table = read_symbol_table(<span class="string">&#x27;data_4000_add_we/dict_bpe/lang_char.txt.bpe_100_eng600_chi4700_all5300&#x27;</span>)</span><br><span class="line">    <span class="comment"># symbol_table = read_symbol_table(&#x27;data_4000_add_we/dict_bpe/lang_char.txt.bpe_500_eng1000_chi4700_all5700&#x27;)</span></span><br><span class="line">    <span class="comment"># symbol_table = read_symbol_table(&#x27;data_4000_add_we/dict_bpe/lang_char.txt.bpe_1000_eng1400_chi4700_all6000&#x27;)</span></span><br><span class="line">    f = codecs.<span class="built_in">open</span>(<span class="string">&#x27;data_4000_add_we/test/text_token_eng1&#x27;</span>, encoding=<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">    <span class="comment"># f = codecs.open(&#x27;data_4000_add_we/train/text_token_eng&#x27;, encoding=&quot;utf-8&quot;)</span></span><br><span class="line">    <span class="comment"># f = codecs.open(&#x27;data_4000_add_we/test_1.4w/text_token_eng&#x27;, encoding=&quot;utf-8&quot;)</span></span><br><span class="line">    sys.stdout = codecs.getwriter(<span class="string">&quot;utf-8&quot;</span>)(</span><br><span class="line">            sys.stdout <span class="keyword">if</span> is_python2 <span class="keyword">else</span> sys.stdout.buffer)</span><br><span class="line">    line = f.readline()</span><br><span class="line">    <span class="keyword">while</span> line:</span><br><span class="line">        <span class="comment"># if len(line.strip().split()) &gt; 1:</span></span><br><span class="line">        data=&#123;&#125;</span><br><span class="line">        <span class="comment"># data[&#x27;key&#x27;]=line.strip().split()[0]</span></span><br><span class="line">        data[<span class="string">&#x27;txt&#x27;</span>]=<span class="string">&#x27;&#x27;</span>.join(line.strip().split())</span><br><span class="line">        sample = tokenize(data,sp,</span><br><span class="line">                symbol_table)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;&#x27;</span>.join(sample[<span class="string">&#x27;tokens&#x27;</span>]))</span><br><span class="line">        <span class="comment"># print(&#x27; &#x27;.join(sample[&#x27;tokens&#x27;]))</span></span><br><span class="line">        <span class="comment"># print(sample[&#x27;key&#x27;], sample[&#x27;tokens&#x27;])</span></span><br><span class="line">        line = f.readline()</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">cut -d &#x27; &#x27; -f 2- data/train/text | grep &quot;[a-zA-Z]&quot;  &gt; input.txt</span><br><span class="line">/home/yelong/data/wenet/examples/multi_cn/s0/delete_chi.py input.txt &gt; text_for_bpe_model</span><br><span class="line">sed -i &#x27;s/SIL//g&#x27; text_for_bpe_model	# 不要SIL符号（bpe模型训练里不需要）</span><br><span class="line">sed -i &#x27;/^\s*$/d&#x27; text_for_bpe_model	#删除空行</span><br><span class="line">sed -i &#x27;s/ \+/ /g&#x27; text_for_bpe_model 	# 删除连续空格</span><br><span class="line">sed -i &#x27;s/ *$//&#x27; text_for_bpe_model		# 删除行尾空格</span><br><span class="line">sed -i &#x27;s/^ *//&#x27; text_for_bpe_model		# 删除行首空格</span><br><span class="line">sed -i &#x27;/^\s*$/d&#x27; text_for_bpe_model	#删除空行</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>训练集中把SIL换成blank；不参与bpe.model的训练；（先暂时删掉）</p>
+</li>
+<li><p>看看有多少个词：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cat text_for_bpe_model | tr &#x27;\t&#x27; &#x27; &#x27; | awk &#x27;&#123;if(NF&gt;1)print$0&#125;&#x27; | cut -d &#x27; &#x27; -f 2- | tr &#x27; &#x27; &#x27;\n&#x27;  | sort -u | wc -l</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">24062 (2万个词)</span></span><br></pre></td></tr></table></figure>
+
+<p>其实这里可以简单统计一下词频，（带英文的文本共204万条（2041819）），但是没啥意义，因为最后也没用词频来放进词典；</p>
+</li>
+<li><p>把一些词拆开，像合在一起的QQ啊，这种，这种词来源于train_960_unigram5000.model里不存在的词（上面text2token输出yelong）【未做】</p>
+</li>
+</ol>
+<p><code>sed -i &#39;s/▁/ /g&#39; qq </code></p>
+<ol start="5">
+<li>新训练bpe.model</li>
+</ol>
+<h3 id="生成dict"><a href="#生成dict" class="headerlink" title="生成dict"></a>生成dict</h3><p>数据集用的101、100（4000h）</p>
+<ol>
+<li><p>用新训练的bpe.model过一遍训练集，得到训练集对应的子词格式，注意，这里的训练集，英文单词时间用▁连接；text2token.py；</p>
+</li>
+<li><ol>
+<li>去重得到dict，注意，用新的bpe.model（5000子词）发现最后字典里，英文有5300个字，这比用不匹配的librispeech训练（4700个）出来的还要多；</li>
+<li>去重得到dict，用新的bpe.model（1000子词）发现最后字典里，英文有1300个字；</li>
+<li>去重得到dict，用新的bpe.model（100子词）发现最后字典里，英文有500个字；</li>
+</ol>
+</li>
+</ol>
+<h3 id="添加wenetspeech文本数据（也有中英混合）"><a href="#添加wenetspeech文本数据（也有中英混合）" class="headerlink" title="添加wenetspeech文本数据（也有中英混合）"></a>添加wenetspeech文本数据（也有中英混合）</h3><p>上述都用的雷博的4000小时中英混合数据的文本，现添加wenetspeech文本数据；</p>
+<p>bpe.model（1000个子词），字典里有1480 个字；</p>
+<h3 id="统计每个子词的样本数"><a href="#统计每个子词的样本数" class="headerlink" title="统计每个子词的样本数"></a>统计每个子词的样本数</h3><p>这里text_token是变成子词模式的文本（这里只认为一个词在一条文本只出现一次）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">tools/text2token.py -s 0 -n 1 -m $&#123;bpecode&#125; \</span><br><span class="line">    data_4000_add_we_$&#123;en_modeling_unit&#125;/$&#123;train_set&#125;/text_chi_eng $&#123;trans_type_ops&#125;  &gt; data_4000_add_we_bpe/train/text_token</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">法一：</span></span><br><span class="line">awk &#x27;&#123;print&quot;grep -w \&quot;&quot;$1&quot;\&quot; text_token | wc -l &quot;&#125;&#x27; ../../data_4000_add_we/dict_bpe/lang_char.txt &gt; 1</span><br><span class="line">. ./1</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">后来觉得 这样遍历的次数是 文本集行数*查询词数，很慢，全摆在一块儿，再遍历文本，会快一点；</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">法二：[后来发现这样不行]</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"> <span class="built_in">cut</span> -d <span class="string">&#x27; &#x27;</span> -f 1 ../../data_4000_add_we/dict_bpe/lang_char.txt | <span class="built_in">tr</span> <span class="string">&#x27;\n&#x27;</span> <span class="string">&#x27;|&#x27;</span> | awk <span class="string">&#x27;&#123;print&quot;grep -E \&quot;&quot;$1&quot;\&quot; text_token &quot;&#125;&#x27;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>bpe.model（1000子词）字典里，</p>
+<ul>
+<li>英文有1480 个字：</li>
+</ul>
+<p>字典中，词频小于500的有468个词，这种感觉样本数太少，就应该训练不好，应该把这些样本扩充或者把这些词看怎么分解一下</p>
+<p>在500-2000个词，样本数尚可，该类型在字典中有476，不清楚该样本数能否训练好建模单元；</p>
+<p>在大于2000个词，样本数认为足够建模型，该类型在字典中有533；</p>
+<p>后两者占70%左右；前者占30%，说明词频小于500的也是非常多了，多达英文的30%；</p>
+<ul>
+<li>中文有7200个字：</li>
+</ul>
+<p>字典中，词频小于500的有3363个词，这种感觉样本数太少，就应该训练不好，应该把这些样本扩充或者把这些词删掉，因为现在中文字典字数偏多，保持在5000个左右会比较合适，而且很多生僻字可以去掉；</p>
+<p>在500-2000个词，样本数尚可，该类型在字典中有987，不清楚该样本数能否训练好建模单元；</p>
+<p>在大于2000个词，样本数认为足够建模型，该类型在字典中有2859；</p>
+<p>后两者占54%左右；前者占46%，说明词频小于500的也是非常多了，多达中文的46%！！</p>
+<p>（平均训练集总字数为2.7亿，7200个字，平均每个字分到3.7w次）</p>
+<ul>
+<li>超过100万次的字：44个</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">一 上 下 不 个 为 么 也 了 人 什 他 以 们 会 你 到 去 可 后 吗 啊 在 大 天 好 子 就 得 我 时 是 有 来 没 的 看 能 要 说 还 这 那 都</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>小于100次的字：2512个（若除去，则中文字典剩下4700个字）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">○ 㖏 丌 丟 両 丨 丶 乂 乗 乜 乩 亊 亍 亓 亶 亹 仂 仝 仞 仟 仡 仮 仵 伃 伉 伋 伛 伝 伥 伧 伱 伲 伷 佉 佚 佢 佥 佧 佶 佺 佻 佾 侂 來 侉 侑 侔 侩 侪 俅 俎 俚 俛 俜 俟 俣 俤 俦 俳 俵 俶 俾 倅 個 倌 們 倢 倥 倧 倨 倬 倮 偁 偈 偓 偪 偲 偾 傈 傧 傩 傺 僆 僕 僖 僢 僬 僭 僮 僳 僶 儋 儍 兒 兕 內 円 冇 冏 冔 冨 冫 凃 凇 凕 凖 凪 凫 凼 刈 刖 別 刭 刳 刼 刿 剀 剋 剌 剛 剜 剞 剡 剣 劂 劢 劬 劭 効 劻 劼 勍 勐 動 勖 勣 勧 勰 勷 匄 匏 匦 匼 卅 単 卟 卣 卬 卮 卲 卺 卻 厍 厓 厔 厖 厙 厝 厣 厩 厶 叁 叄 叆 収 叻 吋 吔 吡 吲 吶 吿 呋 呎 呒 呓 呔 呖 呙 呣 呤 咁 咘 咝 咲 咴 咵 咾 哂 哌 哓 哕 哚 哜 哞 唑 唗 唛 唪 唳 唷 唻 唿 啁 啉 啐 啖 啫 啭 啮 啲 啶 啻 喁 喈 喑 喒 喙 喟 喭 喯 喰 営 喹 喾 嗄 嗉 嗌 嗍 嗎 嗐 嗙 嗞 嗥 嗪 嗬 嗮 嗳 嗵 嗾 嘁 嘅 嘌 嘏 嘢 嘤 嘧 嘬 嘭 噃 噏 噘 噙 噤 噫 嚅 嚆 嚒 嚟 嚭 嚯 嚲 囍 囗 囝 囟 団 囫 図 囵 囹 囿 圄 圉 圜 圧 圪 圬 圮 圯 圴 圹 圻 坌 坒 坜 坩 坫 坭 坶 坻 坼 垆 垉 垌 垍 垓 垕 垚 垟 垡 垤 垧 垩 垭 垱 垲 垴 垸 垿 埇 埈 埏 埒 埕 埗 埘 埙 埚 埜 埝 埤 埭 埴 埵 埸 埼 埽 堀 堃 堇 堋 堌 堍 堙 堞 堠 堨 堺 塄 塍 塡 塩 塬 塱 塽 墀 墁 墉 墋 墎 墒 墘 墡 墪 壅 壥 売 壴 壵 壸 壻 夌 夔 夤 夼 奁 奝 奫 奭 妁 妗 妣 妤 妧 妪 妫 妯 妱 妳 姌 姍 姒 姘 姞 姹 娈 娉 娌 娵 婄 婖 媖 媞 媪 媵 媾 嫒 嫘 嫚 嫝 嫠 嫫 嫯 嫱 嫲 嬅 嬖 嬗 嬜 嬲 孀 孑 孓 孛 孥 孱 孳 學 宍 実 寔 寘 寛 寤 實 尅 對 尓 尜 尟 尥 屃 屄 屐 屙 屣 屮 屺 岀 岈 岍 岘 岙 岜 岢 岣 岫 岬 岵 岽 岿 峁 峄 峇 峋 峤 峯 崀 崃 崆 崐 崒 崞 崤 崦 崧 崮 嵂 嵊 嵎 嵒 嵖 嵛 嵝 嵨 嵫 嵬 嵯 嵴 嶂 嶃 嶋 嶓 嶙 嶝 嶷 巯 巳 巻 巽 巿 帀 帏 帑 帔 帙 帱 帶 帻 幛 幞 幹 庋 庑 庠 庥 庹 廑 廕 廛 廨 廪 廻 廼 廾 廿 弁 弇 弐 弭 弶 彀 彊 彖 彘 彟 彧 彳 彿 徂 徉 後 徕 徜 徭 徳 徵 徼 忄 忖 忝 忪 忭 忸 忾 忿 怃 怊 怍 怏 怙 怛 怩 怿 恂 恚 恧 恫 恵 恸 恹 恽 悃 悆 悌 悒 悕 悛 悝 悫 悭 悱 悳 惇 惎 惡 惢 惲 惴 愀 愆 愍 愎 愔 愘 愛 愠 慉 慊 慒 慜 慝 慥 憀 憍 憙 憷 懑 懔 懶 戆 戋 戕 戗 戡 戢 戥 戦 戸 戽 扃 扞 扥 扦 扽 抔 抟 拊 拶 挈 挢 挲 挹 捌 捘 捜 捭 捯 捱 捴 掊 掎 掞 掭 掮 掴 掼 掾 揄 揆 揠 揩 揶 揸 揺 揾 揿 搠 搢 搦 搧 搴 搵 搽 摅 摈 摛 摭 摺 摽 撃 撄 撘 撙 撷 撺 擗 擘 擢 擤 攉 攫 攮 攴 敕 斫 斱 旃 旄 旆 旎 旒 旖 旰 旴 旸 旻 旼 昃 昇 昉 昝 昫 昶 昺 時 晊 晙 晞 晡 晳 晷 晻 暌 暕 暝 暦 暹 暾 曈 曛 曩 曷 朊 朐 杈 杓 杝 杪 杬 杲 杼 枋 枘 枞 枥 枧 枨 枰 枱 枲 枳 枹 柁 柃 柈 柊 柒 柘 柙 柝 柞 柟 柢 柤 柰 柷 柸 柽 栄 栊 栌 栎 栝 栱 栲 栳 栻 桁 桄 桅 桉 桎 桕 桜 桠 桡 桤 桫 桯 桴 桷 桼 梃 梏 梶 棂 棨 棰 棹 棻 棼 椁 椋 椐 椟 椤 椪 椴 椵 椹 椽 楀 楗 楙 楝 楢 楦 楫 楮 楯 楱 楸 楹 楽 榇 榉 榑 榖 榘 榧 榫 榼 槁 槊 槎 槔 様 槩 槭 槲 槻 樉 樋 樓 樗 樘 樨 権 樯 樽 樾 橐 橛 橥 橹 橼 檄 檎 檗 檦 檩 檫 檵 櫾 權 欤 欷 欸 欹 欻 歃 歐 歔 歘 歙 歩 歯 歳 歴 殁 殂 殄 殍 殚 殛 殪 殭 毐 毖 毘 毳 毹 氅 氆 氇 氍 氐 氕 氖 気 氘 氙 氚 氡 氣 氤 氩 氲 氽 氾 汆 汊 汎 汏 汔 汜 汨 汩 沄 沆 沇 沒 沔 沢 沤 沩 況 泅 泆 泐 泖 泘 泚 泠 泫 泬 泮 泺 洄 洇 洌 洎 洑 洣 洧 洨 洮 洳 洸 洹 洺 浃 浈 浉 浍 浐 浗 浞 浠 浥 浯 浼 涑 涔 涖 涘 涙 涠 涫 涬 涼 淖 淙 淛 淝 淠 淯 渀 済 渌 渑 渫 湉 湎 湓 湔 湜 湝 湟 湣 湫 満 溆 溍 溏 溘 溦 溱 溻 溽 滂 滏 滓 滗 滘 滠 滢 滹 滺 漭 漼 潆 潋 潟 潩 潲 潴 澉 澌 澍 澚 澧 澪 澴 澶 澹 濉 濛 濞 濩 濬 濯 瀍 瀣 瀬 灣 炁 炆 炔 炘 炝 炟 炴 烀 烃 烔 烜 焐 焓 焗 焘 無 煅 煊 煨 煳 煺 熘 熳 熵 燊 燚 燠 燧 燮 燹 爝 爨 爰 爿 牁 牂 牍 牖 牝 牤 牯 牾 犍 犰 犲 犴 犸 狃 狍 狎 狒 狝 狨 狯 狲 狳 狴 狷 狺 狻 猁 猇 猊 猗 猞 猡 猢 猱 猲 猷 猸 猹 獐 獠 獣 獬 玎 玑 玘 玚 玢 玦 玳 玹 珙 珜 珣 珥 珧 珪 珮 珰 珽 現 琇 琌 琍 琎 琚 琠 琬 琮 琯 琲 瑀 瑊 瑗 瑨 瑭 瑮 瑱 瑴 瑷 璁 璈 璘 璟 璠 璩 瓠 瓤 瓴 瓿 甑 甙 甯 甾 畀 畈 畊 畋 畎 畑 畚 畦 畯 畲 當 畹 畿 疃 疋 疎 疔 疖 疠 疥 疬 疰 疳 疴 疸 疽 痂 痈 痍 痖 痦 痩 痼 瘅 瘆 瘊 瘌 瘐 瘕 瘗 瘘 瘢 瘥 瘰 瘳 瘼 瘿 癀 癃 癍 癔 癯 癸 発 皁 皌 皕 皝 皤 皲 皴 盁 盂 盍 盤 盥 盩 眀 眄 眇 県 眍 眚 眛 眢 眦 眬 眭 睃 睇 睖 睚 睟 睥 睨 瞀 瞋 瞢 瞫 瞵 瞽 矅 矍 矐 矱 矸 矽 砀 砗 砜 砟 砢 砣 砦 砧 砩 砫 砬 砭 砲 砻 砼 硇 硎 硐 硖 硗 硚 硪 硭 硷 硼 碁 碇 碓 碚 碛 碥 碲 碶 磉 磔 磙 磡 磬 磲 磴 磻 磾 礅 礌 礓 礤 礻 礽 祆 祇 祊 祏 祐 祓 祕 祗 祚 祜 祢 祧 禊 禚 禛 禨 禩 禫 禳 秕 秣 秫 秭 稂 稔 稗 稙 稹 穀 穂 穑 穣 穰 穸 窀 窠 窣 窨 窭 窸 窾 竑 竚 竦 竲 竽 笄 笏 笕 笞 笪 笫 笮 笳 笸 笹 笺 筆 筇 筌 筘 筚 筭 筮 筲 箅 箐 箓 箜 箝 箦 箧 箪 箬 箸 箾 篁 篌 篙 篚 篥 篦 篪 篼 篾 簃 簋 簌 簏 簖 簟 簦 籀 籓 籴 籼 粜 粝 粞 粢 粲 粳 粼 粿 糁 糅 糇 糌 糍 糨 糬 糸 紘 紙 紡 経 結 絜 給 絺 継 綦 綮 綽 緊 総 緑 縠 縡 縯 縻 績 繇 纁 纔 纛 纡 纩 纮 纻 纾 绀 绂 绉 绋 绌 绐 绗 绠 绦 绨 绲 绶 绺 绻 缁 缂 缃 缑 缒 缗 缛 缟 缣 缦 缧 缫 缬 缯 缱 缲 缳 缵 缶 缾 罃 罅 罍 罘 罟 罨 罴 罾 羝 羟 羣 羧 羰 羱 羸 羼 翕 翙 翚 翥 翦 翮 耄 耆 耋 耒 耔 耖 耜 耧 耨 耪 耵 聃 聍 聒 聡 聩 聱 聴 聿 肄 肟 肣 肫 肭 肸 肼 胂 胄 胍 胗 胙 胛 胝 胨 胪 胬 胲 胴 胼 脁 脒 脔 脘 脞 脩 脰 脲 腈 腓 腘 腙 腠 腧 腭 腴 腽 膦 臁 臕 臜 臬 臺 臾 舁 舂 舄 舐 舛 舢 舣 舨 舯 舸 舾 艄 艉 艋 艏 艨 艮 艹 艿 芄 芎 芑 芔 芗 芘 芟 芤 芨 芩 芫 芰 芴 芵 芾 苁 苄 苈 苋 苌 苎 苒 苕 苜 苡 苤 苪 苫 苴 苻 苾 茀 茆 茇 茈 茌 茏 茑 茔 茕 茛 茝 茭 茺 茼 荅 荇 荏 荑 荛 荜 荠 荦 荩 荪 荭 荸 荽 莒 莙 莛 莜 莠 莦 莨 莩 莪 莳 莶 莸 莼 菀 菈 菔 菖 菘 菝 菟 菡 菪 菰 菽 萁 萆 萋 萏 萘 萜 萩 萬 萸 萼 葑 葙 葚 葜 葭 葳 葶 葺 蒌 蒑 蒗 蒡 蒨 蒯 蒴 蒹 蒺 蒽 蓁 蓊 蓍 蓖 蓠 蓣 蓥 蓼 蓿 蔟 蔣 蔸 蕈 蕐 蕖 蕞 蕤 蕲 蕹 蕺 蕻 薁 薜 薤 薨 薬 薮 薳 薷 薹 藁 藜 蘅 蘇 蘖 蘡 蘧 蘩 蘼 虓 虛 虢 虬 虮 虺 虻 虼 虿 蚋 蚍 蚜 蚡 蚧 蚨 蚬 蚰 蚴 蚵 蚶 蚺 蚿 蛄 蛉 蛏 蛞 蛩 蛭 蛱 蛲 蛸 蜃 蜇 蜉 蜊 蜍 蜛 蜞 蜢 蜩 蜮 蜱 蝓 蝣 蝤 蝥 蝮 蝰 蝲 蝻 蝽 蝾 螅 螈 螟 螫 螬 螭 螯 螵 螽 蟊 蟛 蟥 蟪 蟮 蟲 蠃 蠊 蠓 蠖 蠛 蠨 蠲 蠳 蠹 衄 衝 衮 衽 衾 衿 袆 袝 袢 裉 裒 裛 裡 裢 裥 裨 裼 裾 褊 褓 褔 褙 褡 褦 褫 褭 襀 襁 襃 襞 襦 襶 見 視 覩 親 観 觇 觌 觏 觚 觜 觥 觧 觯 觱 訇 訏 訚 許 訾 詃 詧 誊 說 調 謇 謦 謩 讃 變 讐 讠 讣 讦 讫 讵 诂 诌 诐 诒 诔 诖 诘 诜 诤 诨 诮 诰 诳 诹 诼 谂 谄 谆 谌 谔 谖 谘 谝 谠 谡 谫 谮 谯 谰 谲 谳 谵 谶 豇 豉 豊 豕 豝 豢 豨 豳 豷 豸 貅 貉 貊 貓 貔 貕 貘 負 買 貿 贲 贳 贶 贽 赀 赉 赍 赑 赓 赙 赜 赟 赧 赭 赳 趄 趔 趵 趸 趺 趼 趿 跏 跖 跗 跣 跩 跫 跬 跱 跶 跸 跹 跼 跽 踅 踔 踟 踬 踯 踺 踽 蹀 蹁 蹇 蹍 蹑 蹙 蹚 蹩 蹰 蹼 躅 躐 躞 車 転 輀 轫 轭 轳 轸 轹 轾 辂 辇 辊 辋 辎 辏 辔 辚 辺 込 迓 迤 迨 迩 迮 迳 逄 逋 逓 逖 這 逡 逦 逯 逶 遄 過 遑 遘 遠 適 遰 遽 還 邅 邕 邗 邘 邙 邛 邠 邨 邰 邳 邴 邶 邽 邾 郃 郄 郇 郈 郍 郏 郓 郕 郗 郛 郜 郢 郤 郧 郫 郯 郾 鄄 鄅 鄋 鄕 鄜 鄣 鄩 鄫 鄮 鄯 鄹 酃 酆 酇 酎 酐 酞 酡 酢 酤 酩 酹 酺 酽 醅 醌 醍 醐 醚 醢 醣 醥 醪 醮 醯 醲 醴 醵 釆 鉄 鉏 銀 銷 鋈 鋐 鋒 鋳 錒 録 錾 鍉 鍊 鍒 鎉 鎏 鎛 鏊 鏐 鏖 钆 钇 钋 钌 钍 钎 钒 钕 钚 钜 钡 钣 钤 钪 钫 钭 钯 钲 钴 钶 钸 钹 钺 钼 钽 钿 铄 铈 铊 铋 铌 铍 铑 铒 铕 铖 铗 铙 铚 铞 铟 铥 铨 铩 铪 铫 铯 铱 铳 铷 铼 锃 锆 锇 锉 锊 锑 锒 锓 锔 锕 锗 锘 锛 锜 锝 锟 锨 锫 锳 锴 锶 锷 锸 锺 镆 镊 镋 镌 镏 镒 镓 镔 镗 镘 镙 镚 镛 镝 镞 镠 镡 镢 镦 镧 镨 镩 镪 镫 镬 镮 镱 镲 長 開 閑 閟 関 閤 闇 闘 闩 闱 闳 闼 闿 阃 阆 阇 阈 阊 阋 阌 阍 阏 阒 阕 阗 阝 阬 阼 阽 陉 陔 陖 陟 陧 陬 陲 陳 陴 険 陽 隈 隗 隰 隳 隹 隻 雉 雒 雔 雠 離 雩 雫 雱 霈 霊 霑 霪 霰 靑 靛 靰 靺 靼 鞆 鞑 鞒 鞣 鞥 鞨 鞯 鞲 鞴 鞶 韪 韫 頔 頠 頫 顗 顸 顼 颀 颃 颉 颎 颏 颔 颙 颛 颞 颟 颡 颢 颧 飑 飗 飨 飮 飯 餮 饔 饧 饬 饯 饴 饸 饹 馐 馑 馓 馔 馕 馲 駃 駆 験 騕 騜 騠 騪 騴 驩 驵 驺 驽 骈 骎 骒 骓 骕 骖 骘 骝 骟 骠 骢 骧 骶 骹 骺 髀 髁 髂 髌 髑 髗 髙 髡 髪 髫 髭 髯 髹 髽 鬃 鬄 鬈 鬏 鬐 鬣 鬲 鬶 鬻 魃 魆 魉 魋 魍 魑 鮑 鲀 鲂 鲃 鲆 鲇 鲋 鲌 鲎 鲐 鲑 鲔 鲖 鲚 鲛 鲠 鲡 鲢 鲣 鲥 鲧 鲩 鲭 鲮 鲯 鲰 鲱 鲳 鲵 鲷 鲺 鲽 鳃 鳇 鳊 鳋 鳎 鳏 鳐 鳓 鳔 鳙 鳜 鳟 鳢 鳣 鳯 鳳 鴐 鴶 鵴 鶒 鶲 鷏 鷩 鷲 鸂 鸨 鸩 鸪 鸫 鸬 鸮 鸰 鸱 鸲 鸶 鸷 鸸 鸹 鸻 鹀 鹁 鹄 鹇 鹈 鹎 鹔 鹕 鹗 鹘 鹚 鹛 鹞 鹟 鹣 鹧 鹩 鹪 鹫 鹬 鹮 鹯 鹳 鹾 麂 麇 麈 麴 麸 麹 麼 麾 麿 黃 黉 黍 黒 點 黟 黠 黡 黢 黥 黧 黩 黻 鼋 鼐 鼙 鼩 鼯 鼱 鼷 鼽 齁 齉 齑 齮 龃 龅 龆 龇 龉 龠 龢 ！</span><br></pre></td></tr></table></figure>
+
+<p>低频次中文都去除，剩下高频4700个字，路径为：10.22.24.2：~&#x2F;data&#x2F;wenet&#x2F;examples&#x2F;multi_cn&#x2F;s0&#x2F;data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt</p>
+<p>去除：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat 2 | tr &#x27; &#x27; &#x27;\n&#x27; | awk &#x27;&#123;print&quot;sed -i -e &#x27;\&#x27;&#x27;/&quot;$0&quot;&#x27;\&#x27;&#x27;/d 1&quot;&#125;&#x27; &gt; 3</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="4700个字可能还是有点少，还要再添加一点进去："><a href="#4700个字可能还是有点少，还要再添加一点进去：" class="headerlink" title="4700个字可能还是有点少，还要再添加一点进去："></a>4700个字可能还是有点少，还要再添加一点进去：</h4><p>把测试集有的，词典里没有，并且原来8000个字的字典有的，找出来</p>
+<p>findout.py：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> unicode_literals</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">is_python2 = sys.version_info[<span class="number">0</span>] == <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># i_unk_ii</span></span><br><span class="line"><span class="comment"># 6792 草书千字文是宋徽宗赵1传世 6792 草书千字文是宋徽宗赵诘传世</span></span><br><span class="line"><span class="comment"># 10700 不用须1接上次 10700 不用须臾接上次</span></span><br><span class="line"><span class="comment"># 10813 是我国古代王室在龟甲或兽骨上1刻的文字 10813 是我国古代王室在龟甲或兽骨上镌刻的文字</span></span><br><span class="line"><span class="comment"># 21925 在澳大利亚的国徽上也有这样的动物左边的是袋鼠右边的是11 21925 在澳大利亚的国徽上也有这样的动物左边的是袋鼠右边的是鸸鹋</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_symbol_table</span>(<span class="params">symbol_table_file</span>):</span><br><span class="line">    symbol_table = &#123;&#125;</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(symbol_table_file, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf8&#x27;</span>) <span class="keyword">as</span> fin:</span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> fin:</span><br><span class="line">            arr = line.strip().split()</span><br><span class="line">            <span class="keyword">assert</span> <span class="built_in">len</span>(arr) == <span class="number">2</span></span><br><span class="line">            symbol_table[arr[<span class="number">0</span>]] = <span class="built_in">int</span>(arr[<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">return</span> symbol_table</span><br><span class="line"></span><br><span class="line">symbol_table = read_symbol_table(<span class="string">&#x27;data_4000_add_we/dict_bpe/lang_char.txt.8000&#x27;</span>)</span><br><span class="line">f = codecs.<span class="built_in">open</span>(<span class="string">&#x27;i_unk_ii&#x27;</span>, encoding=<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">sys.stdout = codecs.getwriter(<span class="string">&quot;utf-8&quot;</span>)(</span><br><span class="line">        sys.stdout <span class="keyword">if</span> is_python2 <span class="keyword">else</span> sys.stdout.buffer)</span><br><span class="line">line = f.readline()</span><br><span class="line"><span class="keyword">while</span> line:</span><br><span class="line">    unk = line.strip().split()[<span class="number">1</span>]</span><br><span class="line">    label = line.strip().split()[<span class="number">3</span>]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(unk)):</span><br><span class="line">        <span class="keyword">if</span> unk[i] != label[i] <span class="keyword">and</span> label[i] <span class="keyword">in</span> symbol_table:</span><br><span class="line">            <span class="built_in">print</span>(label[i])</span><br><span class="line">    line = f.readline()</span><br></pre></td></tr></table></figure>
+
+<p>一共有517个词，这里就先都添加进去，一共有5200个汉字，因此暂定词典大小为&#x3D;&#x3D;6691&#x3D;&#x3D;个字（1475个英文，6214个中文）</p>
+<h3 id="统计与测试集的覆盖程度"><a href="#统计与测试集的覆盖程度" class="headerlink" title="统计与测试集的覆盖程度"></a>统计与测试集的覆盖程度</h3><ol start="0">
+<li><p>先清洗测试集文本【训练时加上清洗脚本就行了，不需要把处理完的训练集文本给花哥】：</p>
+  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">sed -i -e &#x27;/�/d&#x27; text</span><br><span class="line">sed -i &#x27;s/:/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/%/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/+/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/-/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/,/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/，/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/。/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/、/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/·/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/~/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/？/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/…/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/“/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/”/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/@/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/！/ /g&#x27; text</span><br><span class="line">sed -i &#x27;s/\./ /g&#x27; text</span><br><span class="line">cut -d &#x27; &#x27; -f 2- text | sed &#x27;s/[0-9]/ /g&#x27; &gt; 1</span><br><span class="line">cut -d &#x27; &#x27; -f 1 text  | paste -d &#x27; &#x27; - 1 &gt; 2</span><br><span class="line">mv 2 text</span><br><span class="line">rm 1</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">sed -i <span class="string">&#x27;s/[0-9]/ /g&#x27;</span> text</span></span><br></pre></td></tr></table></figure>
+
+</li>
+<li><p>文本先转为token子词，然后查看是否在字典中（不在，就是unk），把wenet&#x2F;dataset&#x2F;processor.py的tokenize函数抠出；</p>
+</li>
+</ol>
+<p>自己写的token.py：当有unk时，说明测试集里有字典里没有的字；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> unicode_literals</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">is_python2 = sys.version_info[<span class="number">0</span>] == <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">__tokenize_by_bpe_model</span>(<span class="params">sp, txt</span>):</span><br><span class="line">    tokens = []</span><br><span class="line">    <span class="comment"># CJK(China Japan Korea) unicode range is [U+4E00, U+9FFF], ref:</span></span><br><span class="line">    <span class="comment"># https://en.wikipedia.org/wiki/CJK_Unified_Ideographs_(Unicode_block)</span></span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;([\u4e00-\u9fff])&#x27;</span>)</span><br><span class="line">    <span class="comment"># Example:</span></span><br><span class="line">    <span class="comment">#   txt   = &quot;你好 ITS&#x27;S OKAY 的&quot;</span></span><br><span class="line">    <span class="comment">#   chars = [&quot;你&quot;, &quot;好&quot;, &quot; ITS&#x27;S OKAY &quot;, &quot;的&quot;]</span></span><br><span class="line">    chars = pattern.split(txt.upper())</span><br><span class="line">    mix_chars = [w <span class="keyword">for</span> w <span class="keyword">in</span> chars <span class="keyword">if</span> <span class="built_in">len</span>(w.strip()) &gt; <span class="number">0</span>]</span><br><span class="line">    <span class="keyword">for</span> ch_or_w <span class="keyword">in</span> mix_chars:</span><br><span class="line">        <span class="comment"># ch_or_w is a single CJK charater(i.e., &quot;你&quot;), do nothing.</span></span><br><span class="line">        <span class="keyword">if</span> pattern.fullmatch(ch_or_w) <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            tokens.append(ch_or_w)</span><br><span class="line">        <span class="comment"># ch_or_w contains non-CJK charaters(i.e., &quot; IT&#x27;S OKAY &quot;),</span></span><br><span class="line">        <span class="comment"># encode ch_or_w using bpe_model.</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">for</span> p <span class="keyword">in</span> sp.encode_as_pieces(ch_or_w):</span><br><span class="line">                tokens.append(p)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> tokens</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">tokenize</span>(<span class="params">sample,sp,</span></span><br><span class="line"><span class="params">             symbol_table,</span></span><br><span class="line"><span class="params">             bpe_model=<span class="literal">None</span>,</span></span><br><span class="line"><span class="params">             non_lang_syms=<span class="literal">None</span>,</span></span><br><span class="line"><span class="params">             split_with_space=<span class="literal">False</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot; Decode text to chars or BPE</span></span><br><span class="line"><span class="string">        Inplace operation</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Args:</span></span><br><span class="line"><span class="string">            data: Iterable[&#123;key, wav, txt, sample_rate&#125;]</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns:</span></span><br><span class="line"><span class="string">            Iterable[&#123;key, wav, txt, tokens, label, sample_rate&#125;]</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> non_lang_syms <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        non_lang_syms_pattern = re.<span class="built_in">compile</span>(<span class="string">r&quot;(\[[^\[\]]+\]|&lt;[^&lt;&gt;]+&gt;|&#123;[^&#123;&#125;]+&#125;)&quot;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        non_lang_syms = &#123;&#125;</span><br><span class="line">        non_lang_syms_pattern = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> bpe_model <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        sp.load(bpe_model)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        sp = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">assert</span> <span class="string">&#x27;txt&#x27;</span> <span class="keyword">in</span> sample</span><br><span class="line">    txt = sample[<span class="string">&#x27;txt&#x27;</span>].strip()</span><br><span class="line">    <span class="keyword">if</span> non_lang_syms_pattern <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        parts = non_lang_syms_pattern.split(txt.upper())</span><br><span class="line">        parts = [w <span class="keyword">for</span> w <span class="keyword">in</span> parts <span class="keyword">if</span> <span class="built_in">len</span>(w.strip()) &gt; <span class="number">0</span>]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        parts = [txt]</span><br><span class="line"></span><br><span class="line">    label = []</span><br><span class="line">    tokens = []</span><br><span class="line">    <span class="keyword">for</span> part <span class="keyword">in</span> parts:</span><br><span class="line">        <span class="keyword">if</span> part <span class="keyword">in</span> non_lang_syms:</span><br><span class="line">            tokens.append(part)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">if</span> bpe_model <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">                tokens.extend(__tokenize_by_bpe_model(sp, part))</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">if</span> split_with_space:</span><br><span class="line">                    part = part.split(<span class="string">&quot; &quot;</span>)</span><br><span class="line">                <span class="keyword">for</span> ch <span class="keyword">in</span> part:</span><br><span class="line">                    <span class="keyword">if</span> ch == <span class="string">&#x27; &#x27;</span>:</span><br><span class="line">                        ch = <span class="string">&quot;▁&quot;</span></span><br><span class="line">                    tokens.append(ch)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(tokens)):</span><br><span class="line">        ch = tokens[i]</span><br><span class="line">        <span class="keyword">if</span> ch <span class="keyword">not</span> <span class="keyword">in</span> symbol_table:</span><br><span class="line">            tokens[i]  = <span class="string">&#x27;&lt;unk&gt;&#x27;</span></span><br><span class="line">        <span class="comment"># elif &#x27;&lt;unk&gt;&#x27; in symbol_table:</span></span><br><span class="line">            <span class="comment"># label.append(symbol_table[&#x27;&lt;unk&gt;&#x27;])</span></span><br><span class="line">            </span><br><span class="line"></span><br><span class="line">    sample[<span class="string">&#x27;tokens&#x27;</span>] = tokens</span><br><span class="line">    <span class="comment"># sample[&#x27;label&#x27;] = label</span></span><br><span class="line">    <span class="keyword">return</span> sample</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_symbol_table</span>(<span class="params">symbol_table_file</span>):</span><br><span class="line">    symbol_table = &#123;&#125;</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(symbol_table_file, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf8&#x27;</span>) <span class="keyword">as</span> fin:</span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> fin:</span><br><span class="line">            arr = line.strip().split()</span><br><span class="line">            <span class="keyword">assert</span> <span class="built_in">len</span>(arr) == <span class="number">2</span></span><br><span class="line">            symbol_table[arr[<span class="number">0</span>]] = <span class="built_in">int</span>(arr[<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">return</span> symbol_table</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    symbol_table = read_symbol_table(<span class="string">&#x27;data_4000_add_we/dict_bpe/lang_char.txt&#x27;</span>)</span><br><span class="line">    <span class="keyword">import</span> sentencepiece <span class="keyword">as</span> spm</span><br><span class="line">    sp = spm.SentencePieceProcessor()</span><br><span class="line">    f = codecs.<span class="built_in">open</span>(<span class="string">&#x27;data_4000_add_we/test/text1&#x27;</span>, encoding=<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">    sys.stdout = codecs.getwriter(<span class="string">&quot;utf-8&quot;</span>)(</span><br><span class="line">            sys.stdout <span class="keyword">if</span> is_python2 <span class="keyword">else</span> sys.stdout.buffer)</span><br><span class="line">    line = f.readline()</span><br><span class="line">    <span class="keyword">while</span> line:</span><br><span class="line">        data=&#123;&#125;</span><br><span class="line">        data[<span class="string">&#x27;key&#x27;</span>]=line.strip().split()[<span class="number">0</span>]</span><br><span class="line">        data[<span class="string">&#x27;txt&#x27;</span>]=<span class="string">&#x27;&#x27;</span>.join(line.strip().split()[<span class="number">1</span>:])</span><br><span class="line">        sample = tokenize(data,sp,</span><br><span class="line">                symbol_table,</span><br><span class="line">                bpe_model=<span class="string">&#x27;data_4000_add_we/lang_char/train_unigram1000.model&#x27;</span>,</span><br><span class="line">                non_lang_syms=<span class="literal">None</span>,</span><br><span class="line">                split_with_space=<span class="literal">False</span>)</span><br><span class="line">        <span class="built_in">print</span>(sample[<span class="string">&#x27;key&#x27;</span>], <span class="string">&#x27;&#x27;</span>.join(sample[<span class="string">&#x27;tokens&#x27;</span>]))</span><br><span class="line">        line = f.readline()</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+
+
+<p>后来又改写了一版token_fast.py：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> unicode_literals</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">is_python2 = sys.version_info[<span class="number">0</span>] == <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">__tokenize_by_bpe_model</span>(<span class="params">sp, txt</span>):</span><br><span class="line">    tokens = []</span><br><span class="line">    <span class="comment"># CJK(China Japan Korea) unicode range is [U+4E00, U+9FFF], ref:</span></span><br><span class="line">    <span class="comment"># https://en.wikipedia.org/wiki/CJK_Unified_Ideographs_(Unicode_block)</span></span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;([\u4e00-\u9fff])&#x27;</span>)</span><br><span class="line">    <span class="comment"># Example:</span></span><br><span class="line">    <span class="comment">#   txt   = &quot;你好 ITS&#x27;S OKAY 的&quot;</span></span><br><span class="line">    <span class="comment">#   chars = [&quot;你&quot;, &quot;好&quot;, &quot; ITS&#x27;S OKAY &quot;, &quot;的&quot;]</span></span><br><span class="line">    chars = pattern.split(txt.upper())</span><br><span class="line">    mix_chars = [w <span class="keyword">for</span> w <span class="keyword">in</span> chars <span class="keyword">if</span> <span class="built_in">len</span>(w.strip()) &gt; <span class="number">0</span>]</span><br><span class="line">    <span class="keyword">for</span> ch_or_w <span class="keyword">in</span> mix_chars:</span><br><span class="line">        <span class="comment"># ch_or_w is a single CJK charater(i.e., &quot;你&quot;), do nothing.</span></span><br><span class="line">        <span class="keyword">if</span> pattern.fullmatch(ch_or_w) <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            tokens.append(ch_or_w)</span><br><span class="line">        <span class="comment"># ch_or_w contains non-CJK charaters(i.e., &quot; IT&#x27;S OKAY &quot;),</span></span><br><span class="line">        <span class="comment"># encode ch_or_w using bpe_model.</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">for</span> p <span class="keyword">in</span> sp.encode_as_pieces(ch_or_w):</span><br><span class="line">                tokens.append(p)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> tokens</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">tokenize</span>(<span class="params">sample,sp,</span></span><br><span class="line"><span class="params">             symbol_table</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot; Decode text to chars or BPE</span></span><br><span class="line"><span class="string">        Inplace operation</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Args:</span></span><br><span class="line"><span class="string">            data: Iterable[&#123;key, wav, txt, sample_rate&#125;]</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns:</span></span><br><span class="line"><span class="string">            Iterable[&#123;key, wav, txt, tokens, label, sample_rate&#125;]</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    txt = sample[<span class="string">&#x27;txt&#x27;</span>].strip()</span><br><span class="line">    parts = [txt]</span><br><span class="line">    tokens = []</span><br><span class="line">    <span class="keyword">for</span> part <span class="keyword">in</span> parts:</span><br><span class="line">        tokens.extend(__tokenize_by_bpe_model(sp, part))</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(tokens)):</span><br><span class="line">        ch = tokens[i]</span><br><span class="line">        <span class="keyword">if</span> ch <span class="keyword">not</span> <span class="keyword">in</span> symbol_table:</span><br><span class="line">            tokens[i]  = <span class="string">&#x27;&lt;unk&gt;&#x27;</span></span><br><span class="line">        <span class="comment"># elif &#x27;&lt;unk&gt;&#x27; in symbol_table:</span></span><br><span class="line">            <span class="comment"># label.append(symbol_table[&#x27;&lt;unk&gt;&#x27;])</span></span><br><span class="line">            </span><br><span class="line"></span><br><span class="line">    sample[<span class="string">&#x27;tokens&#x27;</span>] = tokens</span><br><span class="line">    <span class="comment"># sample[&#x27;label&#x27;] = label</span></span><br><span class="line">    <span class="keyword">return</span> sample</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_symbol_table</span>(<span class="params">symbol_table_file</span>):</span><br><span class="line">    symbol_table = &#123;&#125;</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(symbol_table_file, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf8&#x27;</span>) <span class="keyword">as</span> fin:</span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> fin:</span><br><span class="line">            arr = line.strip().split()</span><br><span class="line">            <span class="keyword">assert</span> <span class="built_in">len</span>(arr) == <span class="number">2</span></span><br><span class="line">            symbol_table[arr[<span class="number">0</span>]] = <span class="built_in">int</span>(arr[<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">return</span> symbol_table</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    symbol_table = read_symbol_table(<span class="string">&#x27;data_4000_add_we/dict_bpe/lang_char.txt&#x27;</span>)</span><br><span class="line">    <span class="keyword">import</span> sentencepiece <span class="keyword">as</span> spm</span><br><span class="line">    sp = spm.SentencePieceProcessor()</span><br><span class="line">    sp.load(<span class="string">&#x27;data_4000_add_we/lang_char/train_unigram1000.model&#x27;</span>)</span><br><span class="line">    f = codecs.<span class="built_in">open</span>(<span class="string">&#x27;data_4000_add_we/test/text1&#x27;</span>, encoding=<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">    sys.stdout = codecs.getwriter(<span class="string">&quot;utf-8&quot;</span>)(</span><br><span class="line">            sys.stdout <span class="keyword">if</span> is_python2 <span class="keyword">else</span> sys.stdout.buffer)</span><br><span class="line">    line = f.readline()</span><br><span class="line">    <span class="keyword">while</span> line:</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(line.strip().split()) &gt; <span class="number">1</span>:</span><br><span class="line">            data=&#123;&#125;</span><br><span class="line">            data[<span class="string">&#x27;key&#x27;</span>]=line.strip().split()[<span class="number">0</span>]</span><br><span class="line">            data[<span class="string">&#x27;txt&#x27;</span>]=<span class="string">&#x27;&#x27;</span>.join(line.strip().split()[<span class="number">1</span>:])</span><br><span class="line">            sample = tokenize(data,sp,</span><br><span class="line">                    symbol_table)</span><br><span class="line">            <span class="built_in">print</span>(sample[<span class="string">&#x27;key&#x27;</span>], <span class="string">&#x27;&#x27;</span>.join(sample[<span class="string">&#x27;tokens&#x27;</span>]))</span><br><span class="line">        <span class="comment"># print(sample[&#x27;key&#x27;], sample[&#x27;tokens&#x27;])</span></span><br><span class="line">        line = f.readline()</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="汉字覆盖率"><a href="#汉字覆盖率" class="headerlink" title="汉字覆盖率"></a>汉字覆盖率</h3><p>要满足：覆盖99.9%以上，至少识别率上限是99.9%，不至于太低</p>
+<ul>
+<li><p>希望覆盖训练集99.9%（data_4000_add_we&#x2F;train&#x2F;text）：</p>
+<ul>
+<li>7200汉字能够覆盖为 99.99993%（203没覆盖&#x2F;290200677个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi7200_all8600）</li>
+<li>6000字汉字能够覆盖为；99.9976%（6873&#x2F;290200677个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi6000_all7500）</li>
+<li>5200字汉字能够覆盖为；99.9919%：（23469&#x2F;290200677个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi5200_all6700）</li>
+<li>4700字汉字能够覆盖为 99.984%：（45290 &#x2F;290200677个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi4700_all6000）</li>
+</ul>
+</li>
+<li><p>希望覆盖测试集99.9%（data_4000_add_we&#x2F;text_1.4w）：</p>
+<ul>
+<li>7200字汉字能够覆盖为：100%（0 unk&#x2F;587421个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi7200_all8600）</li>
+<li>6000字汉字能够覆盖为；100%（0 unk&#x2F;587421个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi6000_all7500）</li>
+<li>5200字汉字能够覆盖为；100%（0 unk&#x2F;587421个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi5200_all6700）</li>
+<li>4700字汉字能够覆盖为：99.9938%（36 unk&#x2F;587421个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi4700_all6000）</li>
+</ul>
+</li>
+<li><p>希望覆盖测试集99.9%（data_4000_add_we&#x2F;text_chushibiao）：</p>
+<ul>
+<li>7200字汉字能够覆盖为：100%（0 unk &#x2F;624个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi7200_all8600）</li>
+<li>6000字汉字能够覆盖为：100%（0 unk &#x2F;624个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi6000_all7500）</li>
+<li>5200字汉字能够覆盖为：100%（0 unk &#x2F;624个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi5200_all6700）</li>
+<li>4700字汉字能够覆盖为：100%（0 unk &#x2F;624个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi4700_all6000）</li>
+</ul>
+</li>
+<li><p>希望覆盖测试集99.9%（data_4000_add_we&#x2F;text）：7G数据</p>
+<ul>
+<li>7200字汉字能够覆盖为：99.9999%（1741 unk&#x2F;2117514045个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi7200_all8600）</li>
+<li>6000字汉字能够覆盖为；99.9999%（1741 unk&#x2F;2117514045个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi6000_all7500）（6000是又从7G测试集里加了一些）</li>
+<li>5200字汉字能够覆盖为；99.9975%（52398 unk&#x2F;2117514045个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi5200_all6700）</li>
+<li>4700字汉字能够覆盖为：99.9834%（350902 unk&#x2F;2117514045个字）（data_4000_add_we&#x2F;dict_bpe&#x2F;lang_char.txt.bpe_1000_eng1400_chi4700_all6000）</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" rel="tag"># 语音识别</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/01/04/%E8%AF%86%E5%88%AB/bpe/" rel="next" title="BPE编码 Byte Pair Encoding 字节对编码">
+                <i class="fa fa-chevron-left"></i> BPE编码 Byte Pair Encoding 字节对编码
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20LM/" rel="prev" title="Wenet脚本 LM">
+                Wenet脚本 LM <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Wenet%E8%84%9A%E6%9C%AC-BPE"><span class="nav-number">1.</span> <span class="nav-text">Wenet脚本 BPE</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%9F%E8%AE%A1%EF%BC%9A"><span class="nav-number">1.0.1.</span> <span class="nav-text">统计：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%95%E4%B8%80%EF%BC%9A%E7%BB%9F%E8%AE%A1%E8%8B%B1%E6%96%87%E5%8D%95%E8%AF%8D%E7%9A%84%E6%A0%B7%E6%9C%AC%E6%95%B0%E3%80%90%E6%B2%A1%E9%87%87%E7%94%A8%EF%BC%8C%E5%9B%A0%E4%B8%BA%E6%88%91%E4%BB%AC%E6%97%B6bpe%E5%BB%BA%E6%A8%A1%EF%BC%8C%E6%B2%A1%E6%9C%89%E7%94%A8%E7%9C%9F%E6%AD%A3%E7%9A%84%E8%8B%B1%E6%96%87%E5%8D%95%E8%AF%8D%EF%BC%8C%E5%9B%A0%E6%AD%A4%E8%AF%A5%E7%BB%9F%E8%AE%A1%E6%97%A0%E6%84%8F%E4%B9%89%E3%80%91"><span class="nav-number">1.0.1.1.</span> <span class="nav-text">法一：统计英文单词的样本数【没采用，因为我们时bpe建模，没有用真正的英文单词，因此该统计无意义】</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%95%E4%BA%8C%EF%BC%9A%E7%BB%9F%E8%AE%A1%E8%8B%B1%E6%96%87%E5%AD%90%E8%AF%8D%E7%9A%84%E6%A0%B7%E6%9C%AC%E6%95%B0%E3%80%90%E9%87%87%E7%94%A8%E3%80%91"><span class="nav-number">1.0.1.2.</span> <span class="nav-text">法二：统计英文子词的样本数【采用】</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%85%E6%B4%97"><span class="nav-number">1.0.2.</span> <span class="nav-text">清洗</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E6%96%B0%E8%AE%AD%E7%BB%83bpe-model"><span class="nav-number">1.0.2.1.</span> <span class="nav-text">重新训练bpe.model</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90dict"><span class="nav-number">1.0.3.</span> <span class="nav-text">生成dict</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0wenetspeech%E6%96%87%E6%9C%AC%E6%95%B0%E6%8D%AE%EF%BC%88%E4%B9%9F%E6%9C%89%E4%B8%AD%E8%8B%B1%E6%B7%B7%E5%90%88%EF%BC%89"><span class="nav-number">1.0.4.</span> <span class="nav-text">添加wenetspeech文本数据（也有中英混合）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%9F%E8%AE%A1%E6%AF%8F%E4%B8%AA%E5%AD%90%E8%AF%8D%E7%9A%84%E6%A0%B7%E6%9C%AC%E6%95%B0"><span class="nav-number">1.0.5.</span> <span class="nav-text">统计每个子词的样本数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4700%E4%B8%AA%E5%AD%97%E5%8F%AF%E8%83%BD%E8%BF%98%E6%98%AF%E6%9C%89%E7%82%B9%E5%B0%91%EF%BC%8C%E8%BF%98%E8%A6%81%E5%86%8D%E6%B7%BB%E5%8A%A0%E4%B8%80%E7%82%B9%E8%BF%9B%E5%8E%BB%EF%BC%9A"><span class="nav-number">1.0.5.1.</span> <span class="nav-text">4700个字可能还是有点少，还要再添加一点进去：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%9F%E8%AE%A1%E4%B8%8E%E6%B5%8B%E8%AF%95%E9%9B%86%E7%9A%84%E8%A6%86%E7%9B%96%E7%A8%8B%E5%BA%A6"><span class="nav-number">1.0.6.</span> <span class="nav-text">统计与测试集的覆盖程度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B1%89%E5%AD%97%E8%A6%86%E7%9B%96%E7%8E%87"><span class="nav-number">1.0.7.</span> <span class="nav-text">汉字覆盖率</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/Wenet%E8%84%9A%E6%9C%AC%20BPE/';
+          this.page.identifier = '2022/01/04/识别/Wenet脚本 BPE/';
+          this.page.title = 'Wenet脚本 BPE';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="深度学习," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="GLOW Kingma, Durk P., and Prafulla Dhariwal. “Glow: Generative flow with invertible 1x1 convolutions.” Advances in neural information processing systems 31 (2018). citations：1977  openai github：https:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GLOW论文">
+<meta property="og:url" content="http://example.com/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="GLOW Kingma, Durk P., and Prafulla Dhariwal. “Glow: Generative flow with invertible 1x1 convolutions.” Advances in neural information processing systems 31 (2018). citations：1977  openai github：https:">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221201161933655.png">
+<meta property="og:image" content="http://example.com/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202103230674.png">
+<meta property="og:image" content="http://example.com/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202095427969.png">
+<meta property="article:published_time" content="2022-12-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-12-02T02:34:34.057Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="深度学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221201161933655.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/12/02/深度学习/Glow论文/"/>
+
+
+
+
+
+  <title>GLOW论文 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">GLOW论文</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-02T00:00:00+08:00">
+                2022-12-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/12/02/深度学习/Glow论文/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="GLOW"><a href="#GLOW" class="headerlink" title="GLOW"></a>GLOW</h1><blockquote>
+<p>Kingma, Durk P., and Prafulla Dhariwal. “Glow: Generative flow with invertible 1x1 convolutions.” <em>Advances in neural information processing systems</em> 31 (2018). citations：1977  openai</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/openai/glow">https://github.com/openai/glow</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Gb411n7dE?p=59">【李宏毅深度学习】P59 Flow-based Generative Model </a></p>
+<p>csdn ：<a target="_blank" rel="noopener" href="https://blog.csdn.net/daydayjump/article/details/87924066?spm=1001.2101.3001.6650.12&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-12-87924066-blog-115493648.pc_relevant_3mothn_strategy_and_data_recovery&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-12-87924066-blog-115493648.pc_relevant_3mothn_strategy_and_data_recovery&utm_relevant_index=13">论文笔记（六）【Glow: Generative Flow with Invertible 1 x 1 Convolutions】</a></p>
+</blockquote>
+<h4 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h4><p>生成高分辨率自然图像，以及其他生成任务；</p>
+<h4 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h4><p>基于flow的生成方法，提出基于1×1卷积的flow方法，叫做glow；</p>
+<h4 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h4><p>第一个可以有效生成高分辨率自然图像的基于似然的模型。</p>
+<h4 id="存在什么问题"><a href="#存在什么问题" class="headerlink" title="存在什么问题"></a>存在什么问题</h4><p>生成质量不够高？</p>
+<h2 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h2><p>生成模型的方法统称为likelihood-based method，可以分为三类：</p>
+<ol>
+<li>Autoregressive models 自回归模型，优点是简单，缺点是不能并行处理，计算量和输入长度成正比，不适用于输入长度很高的任务；</li>
+<li>Variational autoencoders（VAEs），目标是lower bound on the log-likelihoood of the data，可以并行，优化比较麻烦；</li>
+<li>Flow-based generative models 相比于前两种，有几个优点：<ol>
+<li>Exact latent-variable inference and log-likelihood evaluation. 精确隐变量推断和对数似然估计。在VAE中，只能推断出与数据点对应的隐变量的近似值，而GAN没有encoder，不能进行latent的推断。由于flow-based model可逆，输出是一个精确值（而不是一个分布，再采样），优化目标也是数据的似然值，而不是lower bound。</li>
+<li>Efficient inference and efficient synthesis. 相比于自回归模型，flow在训练和生成过程都可以并行化。</li>
+<li>Useful latent space for downstream tasks.   </li>
+<li>Significant potential for memory savings.  计算梯度的计算量在不同深度是constant，而不是linear；</li>
+</ol>
+</li>
+</ol>
+<h2 id="背景：Flow-based-Generative-Models"><a href="#背景：Flow-based-Generative-Models" class="headerlink" title="背景：Flow-based Generative Models"></a>背景：Flow-based Generative Models</h2><p>对于一个不知道分布情况的数据，我们希望数据经过模型出来的概率值尽可能大，说明模型的输出分布接近数据分布。</p>
+<p>数据x，x是高维任意向量，服从某个未知分布，模型输出 $p_\theta (x)$，数据集 $D$ ，log似然目标函数等于最小化：</p>
+<ul>
+<li>对于离散变量 x：</li>
+</ul>
+<p>$$<br>\mathcal{L}(\mathcal{D})&#x3D;\frac{1}{N} \sum_{i&#x3D;1}^N-\log p_{\boldsymbol{\theta}}\left(\mathbf{x}^{(i)}\right)<br>$$</p>
+<ul>
+<li>对于连续变量 x：</li>
+</ul>
+<p>$$<br>\mathcal{L}(\mathcal{D}) \simeq \frac{1}{N} \sum_{i&#x3D;1}^N-\log p_{\boldsymbol{\theta}}\left(\tilde{\mathbf{x}}^{(i)}\right)+c<br>$$</p>
+<p>其中 $\tilde{\mathbf{x}}^{(i)}&#x3D;\mathbf{x}^{(i)}+u$ ，$u$ 是服从 $u \sim \mathcal{U}(0, a)$ 的均匀分布； $c&#x3D;-M \cdot \log a$，$a$ 取决于数据的离散程度；$M$ 是 $\mathbf{x}$ 的维度；</p>
+<p>对于大部分flow模型来说，生成过程可以定义为：<br>$$<br>\begin{array}{r}<br>\mathbf{z} \sim p_{\boldsymbol{\theta}}(\mathbf{z}) \<br>\end{array}<br>$$<br>$$<br>\mathbf{x}&#x3D;\mathbf{g}_{\boldsymbol{\theta}}(\mathbf{z})<br>$$</p>
+<p>其中，$\mathbf{z}$ 是latent variable，隐变量；$p_{\boldsymbol{\theta}}(\mathbf{z})$ 一个很简单、常见的密度函数，比如球形多高斯分布 $p_{\boldsymbol{\theta}}(\mathbf{z})&#x3D;\mathcal{N}(\mathbf{z} ; 0, \mathbf{I})$ ；$\mathbf{g}_{\boldsymbol{\theta}}(..)$ 是可逆的，也被称为 <strong>bijective</strong> 双射（？），因此给一个数据点 $\mathbf{x}$ ，就可以推断出 隐变量 $z$，通过 $\mathbf{z}&#x3D;\mathbf{f}<em>\theta(\mathbf{x})&#x3D;\mathbf{g}<em>\theta^{-1}(\mathbf{x})$ ；为了简化，下面 $\mathrm{f}</em>{\boldsymbol{\theta}}$ 和 $\mathbf{g}</em>{\boldsymbol{\theta}}$ 的公式都省略 $\theta$；</p>
+<p>$\mathbf{f}$ （$\mathbf{g}$ 也是）是由一系列transform组成的函数：$\mathbf{f}&#x3D;\mathbf{f}_1 \circ \mathbf{f}_2 \circ \cdots \circ \mathbf{f}_K$ ，因此 $\mathbf{x}$ 和 $\mathbf{z}$ 之间的关系可以写为：<br>$$<br>\mathbf{x} \stackrel{\mathbf{f}_1}{\longleftrightarrow} \mathbf{h}_1 \stackrel{\mathbf{f}_2}{\longleftrightarrow} \mathbf{h}_2 \cdots \stackrel{\mathbf{f}_K}{\longleftrightarrow} \mathbf{z}<br>$$<br>这样的可逆变换序列也称为（归一化）流 <strong>flow</strong>。</p>
+<p>通过变换下公式4，数据 $\mathbf{x}$ 的概率密度函数（pdf）可以写成：（参考李宏毅视频里的 $p_\theta (x)&#x3D;p_\theta (z)|det(dz&#x2F;dx)|$ ）<br>$$<br>\begin{aligned}<br>\log p_{\boldsymbol{\theta}}(\mathbf{x}) &amp;&#x3D;\log p_{\boldsymbol{\theta}}(\mathbf{z})+\log |\operatorname{det}(d \mathbf{z} &#x2F; d \mathbf{x})| \<br>&amp;&#x3D;\log p_{\boldsymbol{\theta}}(\mathbf{z})+\sum_{i&#x3D;1}^K \log \left|\operatorname{det}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|<br>\end{aligned}<br>$$</p>
+<p>其中，定义 $\mathbf{h}_0 \triangleq \mathbf{x}$ ， $\mathbf{h}_K \triangleq \mathbf{z}$ ， 标量值 $\log \left|\operatorname{det}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|$ 是 jacobian矩阵 $\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)$ 的行列式绝对值 取log，也叫 log-determinant；</p>
+<p>思路是只选择那些 jacobian $d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}$ 是三角阵的transform，对于这些transform来说，log-determinant 就会很简单，可以写作：<br>$$<br>\log \left|\operatorname{det}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|&#x3D;\operatorname{sum}\left(\log \left|\operatorname{diag}\left(d \mathbf{h}<em>i &#x2F; d \mathbf{h}</em>{i-1}\right)\right|\right)<br>$$<br>其中，sum() 是所有vector元素求和，log()是element-wise log，diag()是jacobian矩阵的对角阵；</p>
+<h2 id="Glow"><a href="#Glow" class="headerlink" title="Glow"></a>Glow</h2><p>基于flow-based的生成模型，它没用之前flow-based模型中的生成器排列方式，在排列方式做了改进，用的1×1卷积；</p>
+<p><img src="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221201161933655.png" alt="image-20221201161933655"></p>
+<p>multi-scale architecture，结构包含actnorm 👉 invertible 1 × 1 convolution  👉 coupling layer ；</p>
+<h3 id="Actnorm-scale-and-bias-layer-with-data-dependent-initialization"><a href="#Actnorm-scale-and-bias-layer-with-data-dependent-initialization" class="headerlink" title="Actnorm: scale and bias layer with data dependent initialization"></a>Actnorm: scale and bias layer with data dependent initialization</h3><p>作用是normalization，但是用batch norm会不可逆，因此用activation norm；对每个channel进行缩放和bias（缩放和bias通过仿射变换实现），和BN一样有参数，初始化0均值单位方差；</p>
+<p>an actnorm layer (for activation normalizaton), that performs an affine transformation of the activations using a scale and bias parameter per channel,  </p>
+<p>。。</p>
+<h3 id="Invertible-1-×-1-convolution"><a href="#Invertible-1-×-1-convolution" class="headerlink" title="Invertible 1 × 1 convolution"></a>Invertible 1 × 1 convolution</h3><p>之前生成器堆叠都是固定的排列、堆叠顺序，这里提出一个代替固定排列的方法，是用参数可更新的可逆1×1卷积实现排列，并且这个排列不是固定的，因为里头的参数是会变化、会更新、会学习的。这里1×1卷积起到的作用打乱channel各个维度数据；</p>
+<p>这里需要输入输出的channel数量一样。</p>
+<p>输入是 $h \times w \times c$ 的tensor，卷积权重矩阵 $\mathbf{W}$ 是 $c \times c$ 的，则 可逆的 $1 \times 1$ convolution 的 log-determinant计算公式为：<br>$$<br>\log \left|\operatorname{det}\left(\frac{d \operatorname{conv} 2 \mathrm{D}(\mathbf{h} ; \mathbf{W})}{d \mathbf{h}}\right)\right|&#x3D;h \cdot w \cdot \log |\operatorname{det}(\mathbf{W})|<br>$$<br>$\operatorname{det}(\mathbf{W})$ 的计算复杂度为 $\mathcal{O}\left(c^3\right)$， 而计算conv2D的复杂度为 $\mathcal{O}\left(h \cdot w \cdot c^2\right)$ ，初始化det为0？，收敛也是到0.</p>
+<h4 id="LU-Decomposition"><a href="#LU-Decomposition" class="headerlink" title="LU Decomposition"></a>LU Decomposition</h4><p>$\operatorname{det}(\mathbf{W})$ 的计算复杂度为 $\mathcal{O}\left(c^3\right)$ 可以通过LU分解减少到 $\mathcal{O}(c)$ ：<br>$$<br>\mathbf{W}&#x3D;\mathbf{P L}(\mathbf{U}+\operatorname{diag}(\mathbf{s}))<br>$$<br>其中 $\mathbf{P}$ is a permutation matrix, $\mathbf{L}$ 是对角线上有1的下三角矩阵， $\mathbf{U}$ 是一个对角线上为零的上三角矩阵，  $\mathbf{s}$  是一个 vector。</p>
+<p>log-determinant公式简化为：<br>$$<br>\log |\operatorname{det}(\mathbf{W})|&#x3D;\operatorname{sum}(\log |\mathbf{s}|)<br>$$</p>
+<h2 id="Affine-Coupling-Layers"><a href="#Affine-Coupling-Layers" class="headerlink" title="Affine Coupling Layers"></a>Affine Coupling Layers</h2><p>下表列出了三个component的函数关系、逆函数的表达式，以及行列式的计算公式；（可参考李宏毅flow视频）</p>
+<p>可以看出，行列式计算公式很简单，因此p(x)到p(z)关系很好求；</p>
+<p><img src="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202103230674.png" alt="image-20221202103230674"></p>
+<h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><p>基于IAF的MAF不能并行，自回归AR也不能并行，合成速度慢；GAN缺少latent-space encoders，输入不是特征x，并且优化困难；</p>
+<h2 id="Quantitative-Experiments"><a href="#Quantitative-Experiments" class="headerlink" title="Quantitative Experiments"></a>Quantitative Experiments</h2><p>评价指标是平均负log似然 the average negative log-likelihood (bits per dimension) on the CIFAR-10  （越小越好）</p>
+<p><img src="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/image-20221202095427969.png" alt="image-20221202095427969"></p>
+<h2 id="Qualitative-Experiments"><a href="#Qualitative-Experiments" class="headerlink" title="Qualitative Experiments"></a>Qualitative Experiments</h2><p>todo</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><h3 id="Simple-python-implementation-of-the-invertible-1-×-1-convolution"><a href="#Simple-python-implementation-of-the-invertible-1-×-1-convolution" class="headerlink" title="Simple python implementation of the invertible 1 × 1 convolution"></a>Simple python implementation of the invertible 1 × 1 convolution</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Invertible 1x1 conv</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">invertible_1x1_conv</span>(<span class="params">z, logdet, forward=<span class="literal">True</span></span>):</span><br><span class="line">    <span class="comment"># Shape</span></span><br><span class="line">    h, w, c = z.shape[<span class="number">1</span>:]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Sample a random orthogonal matrix to initialise weights</span></span><br><span class="line">    w_init = np.linalg.qr(np.random.randn(c, c))[<span class="number">0</span>]</span><br><span class="line">    w = tf.get_variable(<span class="string">&quot;W&quot;</span>, initializer=w_init)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Compute log determinant</span></span><br><span class="line">    dlogdet = h * w * tf.log(<span class="built_in">abs</span>(tf.matrix_determinant(w)))</span><br><span class="line">    <span class="keyword">if</span> forward:</span><br><span class="line">        <span class="comment"># Forward computation</span></span><br><span class="line">        _w = tf.reshape(w, [<span class="number">1</span>, <span class="number">1</span>, c, c])</span><br><span class="line">        z = tf.nn.conv2d(z, _w, [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], <span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line">        logdet += dlogdet</span><br><span class="line">        <span class="keyword">return</span> z, logdet</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># Reverse computation</span></span><br><span class="line">        _w = tf.matrix_inverse(w)</span><br><span class="line">        _w = tf.reshape(_w, [<span class="number">1</span>, <span class="number">1</span>, c, c])</span><br><span class="line">        z = tf.nn.conv2d(z, _w, [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>], <span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line">        logdet -= dlogdet</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> z, logdet</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/" rel="next" title="Flow 视频 李宏毅">
+                <i class="fa fa-chevron-left"></i> Flow 视频 李宏毅
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/" rel="prev" title="VAE 视频 李宏毅">
+                VAE 视频 李宏毅 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GLOW"><span class="nav-number">1.</span> <span class="nav-text">GLOW</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">解决什么问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E4%BA%86%E4%BB%80%E4%B9%88%E6%96%B9%E6%B3%95"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">用了什么方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%88%E6%9E%9C%E5%A6%82%E4%BD%95"><span class="nav-number">1.0.0.3.</span> <span class="nav-text">效果如何</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%98%E5%9C%A8%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.0.4.</span> <span class="nav-text">存在什么问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.1.</span> <span class="nav-text">相关工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF%EF%BC%9AFlow-based-Generative-Models"><span class="nav-number">1.2.</span> <span class="nav-text">背景：Flow-based Generative Models</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Glow"><span class="nav-number">1.3.</span> <span class="nav-text">Glow</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Actnorm-scale-and-bias-layer-with-data-dependent-initialization"><span class="nav-number">1.3.1.</span> <span class="nav-text">Actnorm: scale and bias layer with data dependent initialization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Invertible-1-%C3%97-1-convolution"><span class="nav-number">1.3.2.</span> <span class="nav-text">Invertible 1 × 1 convolution</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#LU-Decomposition"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">LU Decomposition</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Affine-Coupling-Layers"><span class="nav-number">1.4.</span> <span class="nav-text">Affine Coupling Layers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Related-Work"><span class="nav-number">1.5.</span> <span class="nav-text">Related Work</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Quantitative-Experiments"><span class="nav-number">1.6.</span> <span class="nav-text">Quantitative Experiments</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Qualitative-Experiments"><span class="nav-number">1.7.</span> <span class="nav-text">Qualitative Experiments</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="nav-number">1.8.</span> <span class="nav-text">代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Simple-python-implementation-of-the-invertible-1-%C3%97-1-convolution"><span class="nav-number">1.8.1.</span> <span class="nav-text">Simple python implementation of the invertible 1 × 1 convolution</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/';
+          this.page.identifier = '2022/12/02/深度学习/Glow论文/';
+          this.page.title = 'GLOW论文';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

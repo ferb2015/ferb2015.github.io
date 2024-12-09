@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="《语音识别原理与应用》,语言模型," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="语言模型平滑技术 《语音识别原理与技术》洪青阳  语言模型的概率需要通过大量的文本语料来估计，采用最大似然算法。但由于统计语料有限，所以会存在数据稀疏的情況，这可能导致零概率或估计不准的问题，因此对语料中未出现或少量出现的词序列，需要采用平滑技术进行间接预测。 概括起来，平滑技术主要有三种。  折扣法( Discounting)：从已有观察值概率调配一些给未观察值概率，例如 Good-Turing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《语音识别原理与应用》洪青阳 第8章 语言模型————平滑技术">
+<meta property="og:url" content="http://example.com/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="语言模型平滑技术 《语音识别原理与技术》洪青阳  语言模型的概率需要通过大量的文本语料来估计，采用最大似然算法。但由于统计语料有限，所以会存在数据稀疏的情況，这可能导致零概率或估计不准的问题，因此对语料中未出现或少量出现的词序列，需要采用平滑技术进行间接预测。 概括起来，平滑技术主要有三种。  折扣法( Discounting)：从已有观察值概率调配一些给未观察值概率，例如 Good-Turing">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-01-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-02-06T10:59:44.667Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="《语音识别原理与应用》">
+<meta property="article:tag" content="语言模型">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/01/10/语言模型/平滑技术/"/>
+
+
+
+
+
+  <title>《语音识别原理与应用》洪青阳 第8章 语言模型————平滑技术 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《语音识别原理与应用》洪青阳 第8章 语言模型————平滑技术</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
+                2023-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">语言模型</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/10/语言模型/平滑技术/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="语言模型平滑技术"><a href="#语言模型平滑技术" class="headerlink" title="语言模型平滑技术"></a>语言模型平滑技术</h1><blockquote>
+<p>《语音识别原理与技术》洪青阳</p>
+</blockquote>
+<p>语言模型的概率需要通过大量的文本语料来估计，采用最大似然算法。但由于统计语料有限，所以会存在数据稀疏的情況，这可能导致零概率或估计不准的问题，因此对语料中未出现或少量出现的词序列，需要采用平滑技术进行间接预测。</p>
+<p>概括起来，平滑技术主要有三种。</p>
+<ul>
+<li>折扣法( Discounting)：从已有观察值概率调配一些给未观察值概率，例如 Good-Turing（吉德-图灵）折扣法。</li>
+<li>插值法（Interpolation）：将高阶模型和低阶模型做线性组合，如Jelinek-Mercer 插值法，也可做非线性组合，如Kneser-Ney 插值法。</li>
+<li>回退法(Back-off）：基于低阶模型估计未观察到的高阶模型，例如Katz 回退法。</li>
+</ul>
+<h2 id="Good-Turing-折扣法"><a href="#Good-Turing-折扣法" class="headerlink" title="Good-Turing 折扣法"></a>Good-Turing 折扣法</h2><p>Good-Turing 折扣法是从已有观察值概率调配一些给未观察值概率。设总词数为 $N$，出现1次的词数为 $N_1$，出现 $c$ 次的词数为 $N$，因此有<br>$$<br>N&#x3D;\sum_ccN_c<br>$$<br>平滑后，出现次数 $c$ 被替换为 $c^*&#x3D;\frac{(c+1)N_{c+1}}{N_c}$，其对应的概率为<br>$$<br>P_{GT}&#x3D;\frac{c^*}{N}<br>$$</p>
+<p>例如，给定分词后的句子语料（假设只有两句)：</p>
+<ul>
+<li>“我们 明年 会 有全新 的 开始”</li>
+<li>“我们 彼此 祝福 着 等待 再见 那 一 天”</li>
+</ul>
+<p>统计词频数：“我们°出现2次，“明年”出现1次，……，“天” 出现1次，即</p>
+<p>折扣前：$N&#x3D;16$， $N_1&#x3D;14$, $N_2 &#x3D;1$</p>
+<p>折扣后：$P_0^*&#x3D;\frac{N_1}{N}&#x3D;\frac{14}{16}$ ，$P_1^*&#x3D;\frac{c_1^*}{N}&#x3D;\frac{2}{14*16}$</p>
+<p>由于Good-Turing 折扣法设有考虑高阶模型和低阶模型之间的关系，所以一般不单独使用，而是作为其他平滑技术的一个配套方法。</p>
+<h2 id="Jelinek-Mercer-插值法"><a href="#Jelinek-Mercer-插值法" class="headerlink" title="Jelinek-Mercer 插值法"></a>Jelinek-Mercer 插值法</h2><p>Jelinek-Mercer 是一种线性插值法。为了避免出现P(W)&#x3D;0或接近于零的情况，可以用三元模型、二元模型和一元模型的相对概率做插值。最简单的线性插值如下：<br>$$<br>\hat{P}\left(w_t \mid w_{t-2} w_{t-1}\right)&#x3D;\lambda_1 P\left(w_t \mid w_{t-2} w_{t-1}\right)+\lambda_2 P\left(w_t \mid w_{t-1}\right)+\lambda_3 P\left(w_t\right)<br>$$<br>其中, $\lambda_1+\lambda_2+\lambda_3&#x3D;1$ 。</p>
+<p>还有一种方法是基于上下文设置权重系数，高频的上下文通常会有高的权重系数。把语料库分为 training data held-out data 和 test data 三部分，固定好 training<br>data 的n-gram 概率，寻求以下式子的最大值：<br>$$<br>\begin{aligned}<br>\hat{P}\left(w_t \mid w_{t-2} w_{t-1}\right) &amp; &#x3D;\lambda_1\left(w_{t-2}^{t-1}\right) P\left(w_t \mid w_{t-2} w_{t-1}\right)+\lambda_2\left(w_{t-2}^{t-1}\right) P\left(w_t \mid w_{t-1}\right) \<br>&amp; +\lambda_3\left(w_{t-2}^{t-1}\right) P\left(w_t\right)<br>\end{aligned}<br>$$<br>其中, $\lambda_1\left(w_{t-2}^{t-1}\right) 、 \lambda_2\left(w_{t-2}^{t-1}\right)$ 和 $\lambda_3\left(w_{t-2}^{t-1}\right)$ 基于 held-out data 通过最大似然优化得到, 即保持 $n$-gram 概率不变, 寻求使得这批集外数据预测概率最高的权重系数。</p>
+<h2 id="Kneser-Ney-插值法"><a href="#Kneser-Ney-插值法" class="headerlink" title="Kneser-Ney 插值法"></a>Kneser-Ney 插值法</h2><p>在训练数据非常少的情况下，更适合采用 Kneser-Ney 插值法。Kneser-Ney是一种非线性插值法，它以 Absolote discounting（绝对折扣）插值方法该变而来。</p>
+<p>Absolute discounting 方法充分利用高阶和低阶语言模型，把高阶的概率信息分配给低阶的一元模型。例如，针对二元模型，Absolute discounting 平滑公式表示如下：<br>$$<br>P_{\mathrm{abs}}\left(w_t \mid w_{t-1}\right)&#x3D;\frac{\max \left(c\left(w_{t-1} w_t\right)-d, 0\right)}{\sum_{w^{\prime}} c\left(w_{t-1} w^{\prime}\right)}+\lambda P_{\mathrm{abs}}\left(w_t\right)<br>$$<br>其中, $c\left(w_{t-1} w^{\prime}\right)$ 表示 $w_{t-1} w^{\prime}$ 的组合次数, $w^{\prime}$ 是任意一个词, $d$ 是一个固定的折扣 值, $\lambda$ 是一个规整常量。</p>
+<p>$P_{abs}(w_t)$ 是一元模型，它按单词出 现次数进行统计，这样可能会存在出现次数异常偏大现象。比如“杯子〞 出现频次较高，因此单独的“杯子” 按出现次数统计可能会比 “茶” 出现次数多，即 $P_abs(杯子)&gt;P_{abs}(茶)$ ，这样会使 Absolote discounting平滑公式因 $P_{abs}(w)$ 值过大出现“喝杯子”比“喝茶”概率高的奇怪现象。</p>
+<p>Kneser-Ney 插值法对此做了改进，保留了 Absolute discounting 平滑公式的第一部分，但重写了第二部分。第二部分中的概率不是词单独出现的概率，而是与其他词组合的概率。Kneser-Ney 平滑公式如下：<br>$$<br>P_{\mathrm{KN}}\left(w_t \mid w_{t-1}\right)&#x3D;\frac{\max \left(c\left(w_{t-1} w_t\right)-d, 0\right)}{\sum_{w^{\prime}} c\left(w_{t-1} w^{\prime}\right)}+\lambda \frac{\left|\left{w_{t-1}: c\left(w_{t-1}, w_t\right)&gt;0\right}\right|}{\left|\left{w_{j-1}: c\left(w_{j-1}, w_j\right)&gt;0\right}\right|}<br>$$<br>其中, $\lambda$ 是规整的常量, $d$ 是一个固定的折扣值, $w_{j-1} w_j$ 是任意两个词的组合。第 一部分的分母可进一步表示为一元模型统计, 因此 Kneser-Ney 平滑公式还可简 化为<br>$$<br>P_{\mathrm{KN}}\left(w_t \mid w_{t-1}\right)&#x3D;\frac{\max \left(c\left(w_{t-1} w_t\right)-d, 0\right)}{c\left(w_{t-1}\right)}+\lambda \frac{\left|\left{w_{t-1}: c\left(w_{t-1}, w_t\right)&gt;0\right}\right|}{\left|\left{w_{j-1}: c\left(w_{j-1}, w_j\right)&gt;0\right}\right|}<br>$$<br>Kneser-Ney 平滑法还有一个改进版本，其分别针对一元、二元、三元和三元以上的组合，设定不同的折扣值d，这种配置会取得更佳的平滑效果。</p>
+<h2 id="Katz-回退法"><a href="#Katz-回退法" class="headerlink" title="Katz 回退法"></a>Katz 回退法</h2><p>Katz 在 1987 年发表的论文中, 在 Good-Turing 折扣法的基础上, 提出了蚥 进的平滑技术，其主要贡献是回退法。</p>
+<p>例如, 计算 $P\left(w_t \mid w_{t-2} w_{t-1}\right)$, 当出现的三元统计次数不是很多时, 可以采用 Good-Turing 折扣法进行平滑。当完全没有相关的三元统计时, 可以使用二元语法来估计, 如果没有相关的二元统计, 那么我们就用一元模型估计。</p>
+<p>综合起来, 采用 Katz 平滑技术的概率估计公式如下:<br>$$<br>P\left(w_t \mid w_{t-2} w_{t-1}\right)&#x3D;\left{\begin{array}{cl}<br>\frac{C\left(w_{t-2} w_{t-1} w_t\right)}{C\left(w_{t-2} w_{t-1}\right)}, &amp; \text { 当 } C&gt;C^{\prime} \text { 时 } \<br>d \frac{C\left(w_{t-2} w_{t-1} w_t\right)}{C\left(w_{t-2} w_{t-1}\right)}, &amp; \text { 当 } 0&lt;C&lt;C^{\prime} \text { 时 } \<br>\text { backoff }\left(w_{t-2} w_{t-1}\right) P\left(w_t \mid w_{t-1}\right) &amp;<br>\end{array}\right.<br>$$<br>其中, $C$ 是 $C\left(w_{t-2} w_{t-1} w_t\right)$ 的简写, 表示三个词同时出现的次数。 $C^{\prime}$ 是一个计数囯 值, 当 $C&gt;C^{\prime}$ 时, 直接采用最大似然法估计概率; 当 $0&lt;C&lt;C^{\prime}$ 时, 则采用 Good-Turing 折扣法。 $d$ 是折扣系数。backoff $\left(w_{t-2} w_{t-1}\right)$ 是回退权重, 计算回退权 重, 是先采用折扣法计算低阶统计概率, 然后得到<br>$$<br>\text { backoff }\left(w_{t-2} w_{t-1}\right)&#x3D;\frac{1-\sum P\left(w \mid w_{t-2} w_{t-1}\right)}{\sum P\left(w^{\prime} \mid w_{t-1}\right)}&#x3D;\frac{1-\sum P\left(w \mid w_{t-2} w_{t-1}\right)}{1-\sum P\left(w \mid w_{t-1}\right)}<br>$$<br>其中, $w$ 是在训练语料中 $w_{t-2} w_{t-1}$ 之后出现的词, $w^{\prime}$ 是在训练语料中 $w_{t-2} w_{t-1}$ 之后 末出现的词。</p>
+<p>采用 Katz 回退法, 训练好的语宆模型格式如下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">\data</span><br><span class="line">ngram 1=n1 # 一元语言模型</span><br><span class="line">ngram 2=n2二元语言模型 </span><br><span class="line">ngram 3=n3三元语言模型</span><br><span class="line"></span><br><span class="line">\1-grams :</span><br><span class="line">pro_1 wordl back_pro1</span><br><span class="line"></span><br><span class="line">\2-grams :</span><br><span class="line">pro_2 word1 word2 back_pro2</span><br><span class="line"></span><br><span class="line">\3-grams:</span><br><span class="line">pro_3 word1 word2 word3</span><br><span class="line"></span><br><span class="line">\end \</span><br></pre></td></tr></table></figure>
+
+
+
+<p>其中, pro_1 是一元模型 (1-grams) 单词的对数概率, pro_2 是二元模型 (2-grams 的对数概率, pro_3 是三元模型 (3-grams) 的对数概率。一元模型和二元模型后面分别带有回退权重 back_pro1 和 back_pro2。</p>
+<p>如果要得到三个词出现的概率 $P$ (word3&#x2F;word1,word2), 则根据以上语言模型, 其计算过程如下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">if (存在 (word1, word2, word3) 的三元模型) &#123; </span><br><span class="line">	return pro_ 3 (word1, word2, word3) ;</span><br><span class="line">&#125;else if (存在 (word1, word2) 二元模型) &#123;</span><br><span class="line">	return back_pro2 (word1, word2) *P (word3 / word2) ; </span><br><span class="line">&#125;else&#123;</span><br><span class="line">	return P(word3 | word2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if (存在 (word1, word2) 的二元模型) &#123;</span><br><span class="line">	return pro_ 2 (word1, word2);</span><br><span class="line">&#125;else&#123;</span><br><span class="line">	return back_pro2(word1)*pro_1 (word2) :</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>如果不存在(word 1,word 2 ,word 3 )的三元模型, 则采用回退法, 即结合回退权 重 back_pro2(word1,word2) 来计算: back_pro2(word1,word2) $* P($ word3&#x2F;word2)。如 “拨打 郑州 局” 这样的组合, 如果语料库中没有，即没有相应的三元模型, 则 查找 “拨打 郑州” 和 “郑州 局” 的组合概率和回退概率。注意, 概率均为对数 概率，假设值如下：</p>
+<p>$-3.220352$ 拨打 郑州 $-0.4072262$</p>
+<p>$-3.012735$ 郑州 局 $-0.3083073$</p>
+<p>则 $P($ “拨打 郑州 局” $)&#x3D;P($ “局 | 拨打 郑州” $)&#x3D;$ back_pro2(拨打,郑州)*P(局 郑州 $)&#x3D;\ln \left(\mathrm{e}^{-0.4072262 *} \mathrm{e}^{-3.012735}\right)&#x3D;-3.4199612$ 。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E3%80%8A%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%E3%80%8B/" rel="tag"># 《语音识别原理与应用》</a>
+          
+            <a href="/tags/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" rel="tag"># 语言模型</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/01/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CRF%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/" rel="next" title="CRF视频 李宏毅">
+                <i class="fa fa-chevron-left"></i> CRF视频 李宏毅
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/RNN%20LM/" rel="prev" title="《语音识别原理与应用》洪青阳 第8章 语言模型————RNN LM">
+                《语音识别原理与应用》洪青阳 第8章 语言模型————RNN LM <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF"><span class="nav-number">1.</span> <span class="nav-text">语言模型平滑技术</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Good-Turing-%E6%8A%98%E6%89%A3%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">Good-Turing 折扣法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jelinek-Mercer-%E6%8F%92%E5%80%BC%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">Jelinek-Mercer 插值法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kneser-Ney-%E6%8F%92%E5%80%BC%E6%B3%95"><span class="nav-number">1.3.</span> <span class="nav-text">Kneser-Ney 插值法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Katz-%E5%9B%9E%E9%80%80%E6%B3%95"><span class="nav-number">1.4.</span> <span class="nav-text">Katz 回退法</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/01/10/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%B9%B3%E6%BB%91%E6%8A%80%E6%9C%AF/';
+          this.page.identifier = '2023/01/10/语言模型/平滑技术/';
+          this.page.title = '《语音识别原理与应用》洪青阳 第8章 语言模型————平滑技术';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

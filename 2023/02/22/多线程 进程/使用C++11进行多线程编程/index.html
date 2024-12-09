@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="多线程,C语言中文网," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="使用C++11进行多线程编程 C语言中文网：使用C++11进行多线程编程     前面章节中，我们借助操作系统提供的接口实现了 C 语言多线程程序的编写。C++ 11 标准中新引入了与多线程编程相关的多个头文件，包括 、、、 和 。 当我们在 Linux 环境中编写 C++ 的多线程程序时，既可以借助 POSIX 标准提供的 &lt;pthread.h&gt; 实现，也可以借助 C++11 标准提">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用C++11进行多线程编程">
+<meta property="og:url" content="http://example.com/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8C++11%E8%BF%9B%E8%A1%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="使用C++11进行多线程编程 C语言中文网：使用C++11进行多线程编程     前面章节中，我们借助操作系统提供的接口实现了 C 语言多线程程序的编写。C++ 11 标准中新引入了与多线程编程相关的多个头文件，包括 、、、 和 。 当我们在 Linux 环境中编写 C++ 的多线程程序时，既可以借助 POSIX 标准提供的 &lt;pthread.h&gt; 实现，也可以借助 C++11 标准提">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-02-23T08:56:24.597Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="多线程">
+<meta property="article:tag" content="C语言中文网">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/02/22/多线程 进程/使用C++11进行多线程编程/"/>
+
+
+
+
+
+  <title>使用C++11进行多线程编程 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8C++11%E8%BF%9B%E8%A1%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用C++11进行多线程编程</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-02-22T00:00:00+08:00">
+                2023-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">多线程</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8C++11%E8%BF%9B%E8%A1%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/02/22/多线程 进程/使用C++11进行多线程编程/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="使用C-11进行多线程编程"><a href="#使用C-11进行多线程编程" class="headerlink" title="使用C++11进行多线程编程"></a>使用C++11进行多线程编程</h1><blockquote>
+<p>C语言中文网：<a target="_blank" rel="noopener" href="http://c.biancheng.net/thread/vip_8622.html">使用C++11进行多线程编程</a>   </p>
+</blockquote>
+<p>前面章节中，我们借助操作系统提供的接口实现了 C 语言多线程程序的编写。C++ 11 标准中新引入了与多线程编程相关的多个头文件，包括 <thread>、<mutex>、<future>、<condition_variable> 和 <atomic>。</atomic></condition_variable></future></mutex></thread></p>
+<p>当我们在 Linux 环境中编写 C++ 的多线程程序时，既可以借助 POSIX 标准提供的 &lt;pthread.h&gt; 实现，也可以借助 C++11 标准提供的头文件实现。本节，我们就给大家详细地讲解如何利用 C++11 标准编写多线程程序。</p>
+<h2 id="线程的创建和使用"><a href="#线程的创建和使用" class="headerlink" title="线程的创建和使用"></a>线程的创建和使用</h2><p>C++11 标准中，<code>&lt;thread&gt;</code>头文件提供了 thread 类（位于 std 命令空间中），专门用来完成线程的创建和使用。</p>
+<p><code>thread.h</code> 比 <code>pthread.h</code> 常用的多！</p>
+<h4 id="1-创建线程"><a href="#1-创建线程" class="headerlink" title="1) 创建线程"></a>1) 创建线程</h4><p>一个线程可以用 thread 类的对象来表示，thread类中重载了多种构造函数，最常用的有以下两个：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1、Fn 表示线程要执行的函数，args 表示向 Fn 传递的多个参数，此构造函数支持泛型</span></span><br><span class="line">template &lt;<span class="class"><span class="keyword">class</span> <span class="title">Fn</span>, <span class="title">class</span>... <span class="title">Args</span>&gt;</span></span><br><span class="line">explicit <span class="title function_">thread</span> <span class="params">(Fn&amp;&amp; fn, Args&amp;&amp;... args)</span>;</span><br><span class="line"><span class="comment">//2、移动构造函数</span></span><br><span class="line">thread (thread&amp;&amp; x) noexcept;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意，thread 类只提供了移动构造函数，未提供拷贝构造函数。这意味着，我们不能直接将一个事先定义好的 thread 对象赋值给另一个 thread 对象，但可以将临时的（匿名的）thread 对象赋值给另一个 thread 对象。有关移动构造函数，读者可阅读《<a target="_blank" rel="noopener" href="http://c.biancheng.net/view/7847.html">C++11移动构造函数详解</a>》一文做详细了解。</p>
+</blockquote>
+<p>POSIX 标准中，线程所执行函数的参数和返回值都必须为 void* 类型。而 thread 类创建的线程可以执行任意的函数，即不对函数的参数和返回值做具体限定。</p>
+<p>举个例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line">using namespace <span class="built_in">std</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">threadFun1</span><span class="params">(<span class="type">int</span> n)</span> &#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;---thread1 running\n&quot;</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;n=&quot;</span> &lt;&lt; n &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> <span class="title function_">threadFun2</span><span class="params">(<span class="type">const</span> <span class="type">char</span> * url)</span> &#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;---thread2 running\n&quot;</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;url=&quot;</span> &lt;&lt; url &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">//调用第 1 种构造函数</span></span><br><span class="line">    thread <span class="title function_">thread1</span><span class="params">(threadFun1,<span class="number">10</span>)</span>;</span><br><span class="line">    <span class="comment">//调用移动构造函数</span></span><br><span class="line">    thread thread2 = <span class="built_in">std</span>::thread(threadFun2,<span class="string">&quot;http://c.biancheng.net&quot;</span>);</span><br><span class="line">    <span class="comment">//阻塞主线程，等待 thread1 线程执行完毕</span></span><br><span class="line">    thread1.join();</span><br><span class="line">    <span class="comment">//阻塞主线程，等待 thread2 线程执行完毕</span></span><br><span class="line">    thread2.join();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>程序执行结果为（不唯一）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">---thread1 running</span><br><span class="line">n=10</span><br><span class="line">---thread2 running</span><br><span class="line">url=http://c.biancheng.net</span><br></pre></td></tr></table></figure>
+
+
+
+<p>程序中，我们分别调用两种构造函数创建了两个线程，它们分别执行 threadFun1() 和 threadFun2() 函数。我们在主线程（main() 函数）中调用了 thread 类提供的 join() 成员函数，以 thread1.join() 为例，它的功能是阻塞主线程，直至 thread1 线程执行完毕后，主线程才能继续执行。</p>
+<h4 id="2-线程的使用"><a href="#2-线程的使用" class="headerlink" title="2) 线程的使用"></a>2) 线程的使用</h4><p>除了 join() 成员函数外，thread 类还提供有很多实用的成员函数，表 1 给大家列出了几个最常用的函数：</p>
+<p>表 1 thread 类的常用成员函数：</p>
+<table>
+<thead>
+<tr>
+<th>成员函数</th>
+<th>功 能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>get_id()</td>
+<td>获取当前 thread 对象的线程 ID。</td>
+</tr>
+<tr>
+<td>joinable()</td>
+<td>判断当前线程是否支持调用 join() 成员函数。</td>
+</tr>
+<tr>
+<td>join()</td>
+<td>阻塞当前 thread 对象所在的线程，直至 thread 对象表示的线程执行完毕后，所在线程才能继续执行。</td>
+</tr>
+<tr>
+<td>detach()</td>
+<td>将当前线程从调用该函数的线程中分离出去，它们彼此独立执行。</td>
+</tr>
+<tr>
+<td>swap()</td>
+<td>交换两个线程的状态。</td>
+</tr>
+</tbody></table>
+<p>注意，每个thread 对象在调用析构函数销毁前，要么调用 join() 函数令主线程等待子线程执行完成，要么调用 detach() 函数将子线程和主线程分离，两者比选其一，否则程序可能存在以下两个问题：</p>
+<ul>
+<li>&#x3D;&#x3D;线程占用的资源将无法全部释放，造成内存泄漏；&#x3D;&#x3D;</li>
+<li>&#x3D;&#x3D;当主线程执行完成而子线程未执行完时，程序执行将引发异常。&#x3D;&#x3D;</li>
+</ul>
+<p>举个例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line">using namespace <span class="built_in">std</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">threadFun1</span><span class="params">(<span class="type">int</span> n)</span> &#123;</span><br><span class="line">    sleep(<span class="number">5</span>);</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;---thread1 running\n&quot;</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;n=&quot;</span> &lt;&lt; n &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> <span class="title function_">threadFun2</span><span class="params">(<span class="type">const</span> <span class="type">char</span> * url)</span> &#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;---thread2 running\n&quot;</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;url=&quot;</span> &lt;&lt; url &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">//调用第 1 种构造函数</span></span><br><span class="line">    thread <span class="title function_">thread1</span><span class="params">(threadFun1, <span class="number">10</span>)</span>;</span><br><span class="line">    <span class="comment">//输出 thread1 线程的 ID</span></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;thread1 ID:&quot;</span> &lt;&lt; thread1.get_id() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="comment">//调用移动构造函数</span></span><br><span class="line">    thread thread2 = <span class="built_in">std</span>::thread(threadFun2, <span class="string">&quot;http://c.biancheng.net&quot;</span>);</span><br><span class="line">    <span class="comment">//输出 thread2 线程的 ID</span></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;thread2 ID:&quot;</span> &lt;&lt; thread2.get_id() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="comment">//将 thread1 与主线程分离开，thread1 线程独立执行。</span></span><br><span class="line">    thread1.detach();</span><br><span class="line">    <span class="comment">//判断 thread2 线程是否可以调用 join() 函数</span></span><br><span class="line">    <span class="keyword">if</span> (thread2.joinable()) &#123;</span><br><span class="line">        <span class="comment">//阻塞主线程，直至 thread2 线程执行完毕。</span></span><br><span class="line">        thread2.join();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;main finished&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设程序编写在 thread.cpp 文件中，执行过程如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># g++ thread.cpp -o thread.exe -std=c++11 -lpthread</span></span><br><span class="line">[root@localhost ~]<span class="comment"># ./thread.exe</span></span><br><span class="line">thread1 ID:140278776624896</span><br><span class="line">thread2 ID:140278768232192</span><br><span class="line">---thread2 running</span><br><span class="line">url=http://c.biancheng.net</span><br><span class="line">main finished</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果在 Windows 环境中运行，将程序中引入的 &lt;unistd.h&gt; 头文件改为 &lt;Windows.h&gt;，将第 6 行的 sleep(5); 语句改为 Sleep(5); 语句即可。</p>
+</blockquote>
+<p>程序中创建了 2 个线程，通过调用 get_id() 成员函数分别获得了它们的线程 ID，其中 thread1 线程独立执行，thread2 线程先于主线程执行完成。通过执行结果可以看到，thread1 线程的执行结果并没有显示到屏幕上，这是因为 thread1 线程还未执行输出语句，主线程就已经执行结束（整个进程也执行结束），thread1 线程无法将执行结果输出到屏幕上。</p>
+<p><code>&lt;thread&gt;</code>头文件中不仅定义了 thread 类，还提供了一个名为 this_thread 的命名空间，此空间中包含一些功能实用的函数，如表 2 所示</p>
+<p>表 2 this_thread命名空间常用函数：</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>功 能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>get_id()</td>
+<td>获得当前线程的 ID。</td>
+</tr>
+<tr>
+<td>yield()</td>
+<td>阻塞当前线程，直至条件成熟。</td>
+</tr>
+<tr>
+<td>sleep_until()</td>
+<td>阻塞当前线程，直至某个时间点为止。</td>
+</tr>
+<tr>
+<td>sleep_for()</td>
+<td>阻塞当前线程指定的时间（例如阻塞 5 秒）。</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>有关表 2 中这些函数的用法，我们不再一一举例，感兴趣的读者可查阅 C++ 函数手册。</p>
+</blockquote>
+<h2 id="实现线程同步"><a href="#实现线程同步" class="headerlink" title="实现线程同步"></a>实现线程同步</h2><p>C++ 11 标准为解决“线程间抢夺公共资源”提供了多种方案，其中就包括我们前面讲到的互斥锁和条件变量。</p>
+<h4 id="1-互斥锁"><a href="#1-互斥锁" class="headerlink" title="1) 互斥锁"></a>1) 互斥锁</h4><blockquote>
+<p>有关互斥锁实现线程同步的原理，这里不再赘述，您可以阅读《<a target="_blank" rel="noopener" href="http://c.biancheng.net/thread/vip_8615.html">Linux互斥锁实现线程同步</a>》一文做详细了解。</p>
+</blockquote>
+<p>考虑到不同场景的需要，C++ 11 标准提供有多种互斥锁，比如递归互斥锁、定时互斥锁，自动“加锁”和“解锁”的互斥锁等。本节我们以普通的互斥锁为例，给大家讲解互斥锁的基本用法。</p>
+<p>C++11标准规定，互斥锁用 mutex 类（位于 std 命名空间中）的对象表示，该类定义在<code>&lt;mutex&gt;</code>头文件中。mutex 类提供有 lock() 和 unlock() 成员函数，分别完成“加锁”和“解锁”功能。</p>
+<p>举个例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;mutex&gt;</span>          <span class="comment">// std::mutex</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;chrono&gt;</span>         <span class="comment">// std::chrono::seconds()</span></span></span><br><span class="line">using namespace <span class="built_in">std</span>;</span><br><span class="line"><span class="type">int</span>  n = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">std</span>::mutex mtx;           <span class="comment">// 定义一个 mutex 类对象，创建一个互斥锁</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">threadFun</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">while</span>(n&lt;<span class="number">10</span>)&#123;</span><br><span class="line">        <span class="comment">//对互斥锁进行“加锁”</span></span><br><span class="line">        mtx.lock();</span><br><span class="line">        n++;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;ID&quot;</span> &lt;&lt; <span class="built_in">std</span>::this_thread::get_id() &lt;&lt; <span class="string">&quot; n = &quot;</span>&lt;&lt; n &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">        <span class="comment">//对互斥锁进行“解锁”</span></span><br><span class="line">        mtx.unlock();</span><br><span class="line">        <span class="comment">//暂停 1 秒</span></span><br><span class="line">        <span class="built_in">std</span>::this_thread::sleep_for(<span class="built_in">std</span>::chrono::seconds(<span class="number">1</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    thread <span class="title function_">th1</span><span class="params">(threadFun)</span>;</span><br><span class="line">    thread <span class="title function_">th2</span><span class="params">(threadFun)</span>;</span><br><span class="line">    th1.join();</span><br><span class="line">    th2.join();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>程序执行结果为（不唯一）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">ID16064 n = 1</span><br><span class="line">ID1956 n = 2</span><br><span class="line">ID16064 n = 3</span><br><span class="line">ID1956 n = 4</span><br><span class="line">ID16064 n = 5</span><br><span class="line">ID1956 n = 6</span><br><span class="line">ID16064 n = 7</span><br><span class="line">ID1956 n = 8</span><br><span class="line">ID16064 n = 9</span><br><span class="line">ID1956 n = 10</span><br></pre></td></tr></table></figure>
+
+
+
+<p>程序中，访问公共变量 n 的线程有 2 个，为了避免它们之间竞争资源，我们对 threadFun() 函数中访问 n 变量的过程引入了互斥锁机制。</p>
+<h4 id="2-条件变量"><a href="#2-条件变量" class="headerlink" title="2) 条件变量"></a>2) 条件变量</h4><p>有关条件变量实现线程同步的原理，这里不再赘述，您可以阅读《<a target="_blank" rel="noopener" href="http://c.biancheng.net/thread/vip_8617.html">Linux条件变量实现线程同步</a>》一文做详细了解。</p>
+<p>C++ 11标准提供了两种表示条件变量的类，分别是 condition_variable 和 condition_variable_any，它们都定义在<code>&lt;condition_variable&gt;</code>头文件中。我们知道，为了避免线程间抢夺资源，条件变量通常和互斥锁搭配使用，condition_variable 类表示的条件变量只能和 unique_lock 类表示的互斥锁（可自行加锁和解锁）搭配使用，而 condition_variable_any 类表示的条件变量可以和任意类型的互斥锁搭配使用（例如递归互斥锁、定时互斥锁等）。</p>
+<p>这里我们以 condition_variable_any 为例，给大家讲解 C++11 标准中条件变量的基本用法。每个 condition_variable_any 类的对象都表示一个条件变量，该类提供的成员函数如表 3 所示。</p>
+<p>表 3 条件变量常用函数：</p>
+<table>
+<thead>
+<tr>
+<th>成员函数</th>
+<th>功 能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>wait()</td>
+<td>阻塞当前线程，等待条件成立。</td>
+</tr>
+<tr>
+<td>wait_for()</td>
+<td>阻塞当前线程的过程中，该函数会自动调用 unlock() 函数解锁互斥锁，从而令其他线程使用公共资源。当条件成立或者超过了指定的等待时间（比如 3 秒），该函数会自动调用 lock() 函数对互斥锁加锁，同时令线程继续执行。</td>
+</tr>
+<tr>
+<td>wait_until()</td>
+<td>和 wait_for() 功能类似，不同之处在于，wait_until() 函数可以设定一个具体时间点（例如 2021年4月8日 的某个具体时间），当条件成立或者等待时间超过了指定的时间点，函数会自动对互斥锁加锁，同时线程继续执行。</td>
+</tr>
+<tr>
+<td>notify_one()</td>
+<td>向其中一个正在等待的线程发送“条件成立”的信号。</td>
+</tr>
+<tr>
+<td>notify_all()</td>
+<td>向所有等待的线程发送“条件成立”的信号。</td>
+</tr>
+</tbody></table>
+<p>举个例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;thread&gt;             // std::thread</span><br><span class="line">#include &lt;mutex&gt;              // std::mutex, std::unique_lock</span><br><span class="line">#include &lt;condition_variable&gt; // std::condition_variable_any</span><br><span class="line">#include &lt;chrono&gt;         // std::chrono::seconds()</span><br><span class="line">//创建一个互斥锁</span><br><span class="line">std::mutex mtx;</span><br><span class="line">//创建一个条件变量</span><br><span class="line">std::condition_variable_any cond;</span><br><span class="line">void print_id() &#123;</span><br><span class="line">    mtx.lock();</span><br><span class="line">    //阻塞线程，直至条件成立</span><br><span class="line">    cond.wait(mtx);</span><br><span class="line">    std::cout &lt;&lt; &quot;----threadID &quot; &lt;&lt; std::this_thread::get_id() &lt;&lt;&quot; run&quot; &lt;&lt; std::endl;</span><br><span class="line">    //等待 2 秒</span><br><span class="line">    std::this_thread::sleep_for(std::chrono::seconds(2));</span><br><span class="line">    mtx.unlock();</span><br><span class="line">&#125;</span><br><span class="line">void go() &#123;</span><br><span class="line">    std::cout &lt;&lt; &quot;go running\n&quot;;</span><br><span class="line">    //阻塞线程 2 秒钟</span><br><span class="line">    std::this_thread::sleep_for(std::chrono::seconds(2));</span><br><span class="line">    //通知所有等待的线程条件成立</span><br><span class="line">    cond.notify_all();</span><br><span class="line">&#125;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    //创建 4 个线程执行 print_id() 函数</span><br><span class="line">    std::thread threads[4];</span><br><span class="line">    for (int i = 0; i &lt; 4; ++i)</span><br><span class="line">        threads[i] = std::thread(print_id);</span><br><span class="line">    //创建 1 个线程执行 go() 函数</span><br><span class="line">    std::thread goThread(go);</span><br><span class="line">    //等待所有线程执行结果后，主线程才能继续执行</span><br><span class="line">    goThread.join();</span><br><span class="line">    for (auto&amp; th : threads) &#123;</span><br><span class="line">        th.join();</span><br><span class="line">    &#125;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">go running</span><br><span class="line">----threadID 11416 run</span><br><span class="line">----threadID 18696 run</span><br><span class="line">----threadID 11268 run</span><br><span class="line">----threadID 16824 run</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag"># 多线程</a>
+          
+            <a href="/tags/C%E8%AF%AD%E8%A8%80%E4%B8%AD%E6%96%87%E7%BD%91/" rel="tag"># C语言中文网</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B/" rel="next" title="创建线程 pthread_create()">
+                <i class="fa fa-chevron-left"></i> 创建线程 pthread_create()
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/02/23/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6/" rel="prev" title="线程同步机制">
+                线程同步机制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8C-11%E8%BF%9B%E8%A1%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">使用C++11进行多线程编程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%88%9B%E5%BB%BA%E5%92%8C%E4%BD%BF%E7%94%A8"><span class="nav-number">1.1.</span> <span class="nav-text">线程的创建和使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">1) 创建线程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E7%BA%BF%E7%A8%8B%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">2) 线程的使用</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5"><span class="nav-number">1.2.</span> <span class="nav-text">实现线程同步</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E4%BA%92%E6%96%A5%E9%94%81"><span class="nav-number">1.2.0.1.</span> <span class="nav-text">1) 互斥锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F"><span class="nav-number">1.2.0.2.</span> <span class="nav-text">2) 条件变量</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/02/22/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8C++11%E8%BF%9B%E8%A1%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B/';
+          this.page.identifier = '2023/02/22/多线程 进程/使用C++11进行多线程编程/';
+          this.page.title = '使用C++11进行多线程编程';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

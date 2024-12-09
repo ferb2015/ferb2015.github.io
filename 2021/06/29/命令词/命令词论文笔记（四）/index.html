@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="命令词," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Hey Siri: An On-device DNN-powered Voice Trigger for Apple’s Personal Assistant 2017.10 Hey Siri唤醒原理   DNN分数：路径分数（贪心）   三个阈值，一个阈值在small DNN中，两个阈值在large DNN中；  large DNN，一个正常阈值（normal），一个较低阈值（lower）；当">
+<meta property="og:type" content="article">
+<meta property="og:title" content="命令词论文笔记（四）">
+<meta property="og:url" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="Hey Siri: An On-device DNN-powered Voice Trigger for Apple’s Personal Assistant 2017.10 Hey Siri唤醒原理   DNN分数：路径分数（贪心）   三个阈值，一个阈值在small DNN中，两个阈值在large DNN中；  large DNN，一个正常阈值（normal），一个较低阈值（lower）；当">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/TwoPassDetector-1-5636f19f2c0346344c4e2efc78baf85c.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/GraphFRR-FAR-1-f52f46690c0472b709d9ef31a5073ee9-1629643646860.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20210822225055980.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20210822225109640.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20210822225127050.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20210822225143003.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20210623104150399.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20210623104157469.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/Ft88mbHJ7-Nm30q-DPyWMzy1o_2m">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/FiP7Vw6K1JvyVITOeTlpWaZzhypH">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/FgKK9cQFbJ9_24eQHYosjkSee-ky">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/Fkz5h--75RzuzGkz633x_hHv950c">
+<meta property="article:published_time" content="2021-06-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T07:50:52.167Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="命令词">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/TwoPassDetector-1-5636f19f2c0346344c4e2efc78baf85c.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2021/06/29/命令词/命令词论文笔记（四）/"/>
+
+
+
+
+
+  <title>命令词论文笔记（四） | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">命令词论文笔记（四）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
+                2021-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/06/29/命令词/命令词论文笔记（四）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p><a target="_blank" rel="noopener" href="https://machinelearning.apple.com/research/hey-siri">Hey Siri: An On-device DNN-powered Voice Trigger for Apple’s Personal Assistant</a> 2017.10</p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU4MTA0NDE5NQ==&mid=2247485151&idx=1&sn=289bc2112aa55bf7bb449b987b424e53&chksm=fd4cd453ca3b5d452c25e5e61b856bd9034d5609a3432673a884850770cd00942b6b81b3d21a&token=9133224&lang=zh_CN#rd">Hey Siri唤醒原理</a></p>
+</blockquote>
+<ul>
+<li><p>DNN分数：路径分数（贪心） </p>
+</li>
+<li><p>三个阈值，一个阈值在small DNN中，两个阈值在large DNN中；</p>
+</li>
+<li><p>large DNN，一个正常阈值（normal），一个较低阈值（lower）；当超过较低阈值时，但没有超过较高阈值，系统会进入一个更敏感的状态几秒钟，如果此时用户重复了命令词，就可以轻易唤醒。</p>
+</li>
+</ul>
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/TwoPassDetector-1-5636f19f2c0346344c4e2efc78baf85c.png" alt="TwoPassDetector-1-5636f19f2c0346344c4e2efc78baf85c" style="zoom:67%;">
+
+<ul>
+<li>Always On Processor (AOP) (a small, low-power auxiliary processor, that is, the embedded Motion Coprocessor) </li>
+<li>经过小的DNN的分数超过阈值（primary），则原信号再进入大DNN进行处理（没超过阈值，不会进入大DNN）When the score exceeds a threshold the motion coprocessor wakes up the main processor, which analyzes the signal using a larger DNN. </li>
+<li>小DNN：5层，32节点；大DNN：5层，192节点；In the first versions with AOP support, the first detector used a DNN with 5 layers of 32 hidden units and the second detector had 5 layers of 192 hidden units.           </li>
+<li>DNN分数：对关键词phrase做强制对齐，得到关键词边界，计算边界内的路径分数；</li>
+</ul>
+<h4 id="声学模型训练"><a href="#声学模型训练" class="headerlink" title="声学模型训练"></a>声学模型训练</h4><ul>
+<li>每个phone三个状态建模 phonetic symbol results in three speech sound classes (beginning, middle and end)</li>
+<li>训练的时候用了先验，这个先验会很不平均，要补偿（设置成一样？）</li>
+<li>调整阈值，把lower阈值设置为允许far大一点的位置，normal阈值设置为far小一点的位置</li>
+</ul>
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/GraphFRR-FAR-1-f52f46690c0472b709d9ef31a5073ee9-1629643646860.png" alt="GraphFRR-FAR-1-f52f46690c0472b709d9ef31a5073ee9" style="zoom:67%;">
+
+
+
+<hr>
+<blockquote>
+<p>语音识别基本法（清华） <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI2MzU4NDI4NA==&mid=2247484308&idx=1&sn=99a9d08fda9ca2ca321751e9334a5cc2&chksm=eab8ece7ddcf65f16601ca3ab3ab45ce73d1e50f9dd0480c13e37a68bd03adc81f639311731d&scene=178&cur_album_id=1472128841614753794#rd">语音识别实际问题：（九）关键词识别与嵌入式应用</a> 2020.8</p>
+</blockquote>
+<h4 id="滑动窗口"><a href="#滑动窗口" class="headerlink" title="滑动窗口"></a>滑动窗口</h4><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20210822225055980.png" alt="image-20210822225055980" style="zoom:67%;">
+
+<ul>
+<li>滑窗机制包含了一个无法覆盖的关键词语音（？），相邻的数个窗口之间可以并行计算，且窗口之间重叠部分的中间输出结果可以重复利用。</li>
+<li>假设窗长为<em>window</em>，窗口滑动步长为<em>step</em>，某个命令词语音时长为<em>cmd</em>，为了保证该命令词不会漏检，则需要保证<em>step+cmd &lt; window</em>；而为了该词不被重检，则需要在检出一个关键词时，直接丢弃该窗口内的语音，不再参与下一次识别。</li>
+</ul>
+<h3 id="Small-footprint"><a href="#Small-footprint" class="headerlink" title="Small-footprint"></a>Small-footprint</h3><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20210822225109640.png" alt="image-20210822225109640" style="zoom:67%;">
+
+
+
+<h4 id="模型压缩（Model-Compression）"><a href="#模型压缩（Model-Compression）" class="headerlink" title="模型压缩（Model Compression）"></a>模型压缩（Model Compression）</h4><p>训练大模型、网络修剪、网络微调（Fine-tuning）  </p>
+<ul>
+<li>点、边<ul>
+<li>损失函数对参数的海森矩阵（Hessian Matrix）[105,106]。我们常用的一阶范数（L1-norm）、二阶范数（L2-norm，Weight Decay）正则化方法本质上都是限制权重的值，使其尽可能趋近于0，从而自动学习到稀疏结构，然后可以将权重为0或极小的边直接剪掉，或者用于下一步的网络修剪。  </li>
+<li>彩票假设（The Lottery Ticket Hypothesis）[107]</li>
+</ul>
+</li>
+<li>权重<ul>
+<li>权重的等价存储或高效存储是模型压缩的重要手段。对权重的量化（Quantization）、二值化（Binarization）可以将原始网络中一个浮点数参数由更少的位数来表示，而不明显影响模型性能，也可以直接从头训练一个事先固定好参数位数的网络。  </li>
+<li>编码是数字存储中必须要考虑的问题，神经网络的所有权重就是一堆位置相关的数字，也直接决定着模型大小，对这些数字可以采用更加高效的组织形式或编码算法，如哈希桶（Hash Bucket）[108]、哈夫曼编码（Huffman Coding）[109] 等</li>
+</ul>
+</li>
+<li>子结构<ul>
+<li>卷积神经网络的卷积操作就使用了共享过滤器（及其参数）的机制；奇异值分解（Singular Value Decomposition，SVD）和低秩矩阵分解（Low-rank Matrix Factorization）等手段都是使得一个较大的权重矩阵可以由更小计算规模的矩阵表示；模型训练前便限制权重矩阵的格式，比如限制其为一个对称矩阵，缩减一半参数量；特定子结构的修剪，比如卷积神经网络以滤波器为单位进行修剪[110]。</li>
+</ul>
+</li>
+</ul>
+<h4 id="迁移学习（Transfer-Learning）"><a href="#迁移学习（Transfer-Learning）" class="headerlink" title="迁移学习（Transfer Learning）"></a>迁移学习（Transfer Learning）</h4><ul>
+<li>师傅带着徒弟学习（将一个网络的结构和参数用于另一个网络的初始化也属于迁移学习，但这样的迁移学习是同等规模的网络迁移）。</li>
+</ul>
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20210822225127050.png" alt="image-20210822225127050" style="zoom:67%;">
+
+<ul>
+<li>迁移学习中一个重要的问题是如何显性表征教师模型的知识，或者是学生模型要学习的目标，其中一个常用的手段则是知识萃取（Knowledge Distillation）[111]。考虑一个典型的深度神经网络分类器，网络经过Softmax后的最终输出本身已是一种知识表征，但为了增加Softmax输出的“柔韧”度，可以引入一个可调系数，记为温度（沿用了能量模型中的相关概念），并将知识拓展为暗知识（Dark Knowledge），该表征可以作为学生模型的学习目标。</li>
+</ul>
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20210822225143003.png" alt="image-20210822225143003" style="zoom:67%;">
+
+<h4 id="网络结构搜索与设计"><a href="#网络结构搜索与设计" class="headerlink" title="网络结构搜索与设计"></a>网络结构搜索与设计</h4><ul>
+<li>修剪一个模型，结构的重要性大于权重  。让机器自行进行神经网络结构搜索（Neural Architecture Search，NAS）[112]。  </li>
+<li>常见的精小人工设计网络结构都基于卷积神经网络，包括 MobileNet[113, 114]、ShuffleNet[115, 116]、 EfficientNet[117]等。</li>
+</ul>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Arik S O, Kliegl M, Child R, et al. Convolutional recurrent neural networks for small-footprint keyword spotting[J]. arXiv preprint arXiv:1703.05390, 2017.&#x3D;&#x3D;</p>
+</blockquote>
+<h4 id="思想"><a href="#思想" class="headerlink" title="思想"></a>思想</h4><ul>
+<li>用CRNN做分类，命令词</li>
+<li>适用于<strong>低信噪比</strong>环境</li>
+<li>输入特征perchannel energy normalized (PCEN) mel spectrograms，经过二维卷积提高维特征，送入双向GRU，因为用了双向，因此推理时需要等输入输完后（1.5s输入）才能进行计算，有1.5s延迟；</li>
+</ul>
+<h4 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h4><ul>
+<li>PCEN -&gt; CNN -&gt; BRNN -&gt; DNN -&gt; SoftMax</li>
+</ul>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20210623104150399.png" alt="image-20210623104150399"></p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/image-20210623104157469.png" alt="image-20210623104157469"></p>
+<ul>
+<li>伪代码看不是很懂？？</li>
+<li>使用CE loss，平滑分数</li>
+</ul>
+<h4 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h4><ul>
+<li>输入40*151（1.5s）PCEN特征</li>
+<li>网络结构：一层CNN层，两层RNN层(64个节点)</li>
+<li>在Deep Speech2上训练</li>
+<li>没有和其他文献中模型对比，模型对比，采用的是不同神经元节点&#x2F;gru&#x2F;lstm对比</li>
+<li>对比的是不同信噪比下、不同远场距离下的frr&#x2F;far曲线</li>
+<li>gru优于lstm</li>
+</ul>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Lengerich, Chris, and Awni Hannun. “An end-to-end architecture for keyword spotting and voice activity detection.” <em>arXiv preprint arXiv:1611.09405</em> (2016).&#x3D;&#x3D;</p>
+<p>开源代码：<a target="_blank" rel="noopener" href="https://github.com/mindorii/kws">https://github.com/mindorii/kws</a></p>
+</blockquote>
+<h4 id="思想-1"><a href="#思想-1" class="headerlink" title="思想"></a>思想</h4><ul>
+<li>用一个模型，解决KWS和VAD任务，但是这样，就等于一个网络要一直检测VAD，能耗就高了</li>
+<li>PS. 我们现在的做法：VAD没有用网络，降噪后的信号进入VAD检测，若触发，则把降噪前的信号送进KWS网络。</li>
+</ul>
+<h4 id="训练-1"><a href="#训练-1" class="headerlink" title="训练"></a>训练</h4><ul>
+<li>CRNN结构、ctc loss、输出字母、blank、空格</li>
+<li>VAD推理置信度分数：$\large{logp(speech|x_{t:t+\omega})&#x3D;1-\sum\limits_{i&#x3D;t}^{t+\omega}p_i(\epsilon|x_{t:t+\omega})}$</li>
+<li>KWS推理置信度分数：每100ms走命令词（包含建模单元间blank）文本路径，得到路径分数，累计800ms，得到一个置信度分数</li>
+</ul>
+<h4 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h4><ul>
+<li>kws baseline：<a target="_blank" rel="noopener" href="https://github.com/Kitt-AI/snowboy">https://github.com/Kitt-AI/snowboy</a>  </li>
+<li>vad baseline：<a target="_blank" rel="noopener" href="https://github.com/wiseman/py-webrtcvad">https://github.com/wiseman/py-webrtcvad</a>  </li>
+<li>结构：1 层 CNN（filter尺寸11*32，stride&#x3D;3，filter数量32）、3 层 RNN（256 hidden），1.5M参数量</li>
+<li>不带噪声数据集：正样本1544条，负样本526k；带噪声数据集：正样本1544*10条，负样本526k +57k.</li>
+<li>训练集组成 KW + KW-noise   &gt; KW + KW-noise + noise  &gt; KW，即“只对正样本里加噪声，负样本不加噪声”优于“额外加负样本噪声”</li>
+</ul>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Sigtia, Siddharth, et al. “Efficient Voice Trigger Detection for Low Resource Hardware.” <em>INTERSPEECH</em>. 2018. citation：20&#x3D;&#x3D; Apple</p>
+</blockquote>
+<h4 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h4><ul>
+<li>two stage 一个简易的网络，普通的阈值，超过阈值，才把原信号输入kws网络，类似vad、kws思路</li>
+<li>minimum duration constraint ：每个phone用一个状态建模，每个状态至少持续n帧，n为3、4时，效果好（我现在是每个状态至少持续1帧，可以尝试该方法），是改帧长 or 解码时添加约束？</li>
+<li>frame rate：帧移，因为hmm假设，所以帧与帧之间不要重叠？帧移为n，帧移60ms不错（我现在是帧移10ms，可以尝试该方法）</li>
+<li>实现每个phone至少持续n帧的方法：比如 小源小源对应的words是 x x x iao iao iao vv vv vv van van van这样？？【这种效果没有送进解码器进行下采样效果好，差一点点】</li>
+</ul>
+<h4 id="实测效果"><a href="#实测效果" class="headerlink" title="实测效果"></a>实测效果</h4><ul>
+<li>&#x3D;&#x3D;下采样确实会让far降低很多&#x3D;&#x3D;</li>
+</ul>
+<hr>
+<p>吴本谷：今天带来一篇模拟远场数据的论文用在唤醒上。论文题目：A study on more realistic room simulation for far-field keyword spotting，地址：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2006.02774.pdf">https://arxiv.org/pdf/2006.02774.pdf</a> 。这篇文章的主要思想就是生成RIR来提高远场唤醒的性能，使用image source method (ISM) 来生成，也提供了对应的工具箱。<a target="_blank" rel="noopener" href="https://github.com/LCAV/pyroomacoustics%EF%BC%9Bhttps://github.com/ebezzam/room-simulation%E3%80%82%E7%94%A8%E8%BF%99%E7%A7%8D%E7%94%9F%E6%88%90%E7%9A%84RIR%E5%9C%A8%E6%9C%AA%E7%9F%A5%E7%9A%84%E5%9C%BA%E6%99%AF%E4%B8%8B%E5%8F%AF%E4%BB%A5%E6%9C%89%E6%95%88%E7%9A%84%E6%8F%90%E9%AB%98%E5%94%A4%E9%86%92%E7%8E%87%E3%80%82%E5%9F%BA%E6%9C%AC%E8%BF%99%E7%A7%8D%E6%96%B9%E6%B3%95%E4%B9%9F%E6%98%AF%E9%80%9A%E7%94%A8%E5%8A%9E%E6%B3%95%E3%80%82%E5%A6%82%E6%9E%9C%E7%94%9F%E6%88%90%E5%A4%9A%E7%A7%8D%E5%A4%9A%E6%A0%B7%E7%9A%84RIR%EF%BC%8C%E4%BB%A5%E5%8F%8A%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%9A%84%E8%B7%91%E8%B5%B7%E6%9D%A5%E3%80%82kaldi%E9%87%8C%E7%9A%84wav-reverberate%E7%B1%BB%E4%BC%BC%EF%BC%8C%E4%BD%86kaldi%E9%87%8C%E7%9A%84rir%E6%98%AF%E5%AE%9E%E9%99%85%E5%9C%BA%E6%99%AF%E6%90%9E%E5%87%BA%E6%9D%A5%E7%9A%84%EF%BC%8C%E6%A8%A1%E6%8B%9F%E7%9A%84%E8%AF%9D%E5%8F%AF%E4%BB%A5%E7%94%9F%E6%88%90%E5%BE%88%E5%A4%9A%E7%A7%8D%E7%B1%BB%E3%80%82%E6%9C%89%E5%85%B4%E8%B6%A3%E7%9A%84%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%E8%AF%95%E8%AF%95%E3%80%82">https://github.com/LCAV/pyroomacoustics；https://github.com/ebezzam/room-simulation。用这种生成的RIR在未知的场景下可以有效的提高唤醒率。基本这种方法也是通用办法。如果生成多种多样的RIR，以及如何高效的跑起来。kaldi里的wav-reverberate类似，但kaldi里的rir是实际场景搞出来的，模拟的话可以生成很多种类。有兴趣的可以使用试试。</a></p>
+<p>之前还有一个版本的用GPU生成RIR的，地址：<a target="_blank" rel="noopener" href="https://github.com/DavidDiazGuerra/gpuRIR">https://github.com/DavidDiazGuerra/gpuRIR</a> .</p>
+<p>因为interspeech很多人收到接受的邮件，所以最近感觉arxiv上论文有点多。今天继续带来唤醒的论文，这些apple跟amazon的团队的两篇唤醒论文。</p>
+<p>1.<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2008.03405.pdf">Stacked 1D convolutional networks for end-to-end small footprint voice trigger detection</a></p>
+<p>2.<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2008.03790.pdf">Accurate Detection of Wake Word Start and End Using a CNN</a></p>
+<p>第一篇论文来自apple团队，跟<a target="_blank" rel="noopener" href="https://articles.zsxq.com/id_sowwcmj0407f.html">20200807那个每日分享的论文</a>基本两个思路，这个是在网络结构上动的功夫，把SVDF引入到唤醒，可以保证性能不怎么变的情况下，模型大小变小。SVDF又可以用CNN来弄，所以变成2个CNN层来弄就可以了。这个想法是借鉴谷歌论文的思想，地址：<a target="_blank" rel="noopener" href="http://150.162.46.34:8080/icassp2019/ICASSP2019/pdfs/0006336.pdf">http://150.162.46.34:8080/icassp2019/ICASSP2019/pdfs/0006336.pdf</a> 。</p>
+<p>同时，论文在DNN-HMM的框架下跟E2E下来验证性能：</p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/Ft88mbHJ7-Nm30q-DPyWMzy1o_2m" alt="img"></p>
+<p>做唤醒的标配做法吧，如果计算资源不够，可以尝试下。</p>
+<p>第二篇论文是亚马逊的唤醒做法</p>
+<p>我们之前在介绍亚马逊一直是基于二级模型做的，然后也是keyword-filler的方案。但这篇论文一改之前的方案，直接基于DNN-KWS的方法来。而且更直接，直接提取特征，训练了一个2分类的模型。</p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/FiP7Vw6K1JvyVITOeTlpWaZzhypH" alt="img"></p>
+<p>直接拿一段时间的频谱特征，输出就是是否是唤醒词。但这个方案没法有起点跟尾点的检测，那么就来个方案是：</p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/FgKK9cQFbJ9_24eQHYosjkSee-ky" alt="img"><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/Fkz5h--75RzuzGkz633x_hHv950c" alt="img"></p>
+<p>直接把之前唤醒词建模的网络freeze掉，然后来搞起点跟尾点的检测。此外，也尝试放在一起搞的方案，最终论文发出来了，效果当然也不错。这个思想其实挺好的，会抛弃原来建模的一些思想，但我理解就是比较难训练。</p>
+<p>做唤醒的同学可以认真看看这些论文，值得好好研究。基本唤醒就这么多做法。相信后面也不会突破这些基本的框架体系。</p>
+<p>好的，祝大家学习愉快。</p>
+<hr>
+<p>&#x3D;&#x3D;Sigtia, Siddharth, et al. “Multi-task learning for speaker verification and voice trigger detection.” <em>ICASSP 2020-2020 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)</em>. IEEE, 2020.&#x3D;&#x3D;</p>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%91%BD%E4%BB%A4%E8%AF%8D/" rel="tag"># 命令词</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E7%89%87%E6%AE%B5%E8%AF%AD%E9%9F%B3%E5%94%A4%E9%86%92/" rel="next" title="片段语音唤醒">
+                <i class="fa fa-chevron-left"></i> 片段语音唤醒
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%8D%81%EF%BC%89/" rel="prev" title="命令词论文笔记（十）端到端命令词识别">
+                命令词论文笔记（十）端到端命令词识别 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83"><span class="nav-number">1.</span> <span class="nav-text">声学模型训练</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3"><span class="nav-number">2.</span> <span class="nav-text">滑动窗口</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Small-footprint"><span class="nav-number"></span> <span class="nav-text">Small-footprint</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9%EF%BC%88Model-Compression%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">模型压缩（Model Compression）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0%EF%BC%88Transfer-Learning%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">迁移学习（Transfer Learning）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%BB%93%E6%9E%84%E6%90%9C%E7%B4%A2%E4%B8%8E%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">网络结构搜索与设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E6%83%B3"><span class="nav-number">4.</span> <span class="nav-text">思想</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83"><span class="nav-number">5.</span> <span class="nav-text">训练</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">6.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E6%83%B3-1"><span class="nav-number">7.</span> <span class="nav-text">思想</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83-1"><span class="nav-number">8.</span> <span class="nav-text">训练</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C-1"><span class="nav-number">9.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">10.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E6%B5%8B%E6%95%88%E6%9E%9C"><span class="nav-number">11.</span> <span class="nav-text">实测效果</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%9B%9B%EF%BC%89/';
+          this.page.identifier = '2021/06/29/命令词/命令词论文笔记（四）/';
+          this.page.title = '命令词论文笔记（四）';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

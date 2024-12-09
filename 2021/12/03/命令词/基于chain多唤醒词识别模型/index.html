@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="命令词," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="基于chain多唤醒词识别模型 参考袁有根NCMMSC会议分享   目标：训练更好的AM；如何将测试时的解码网络内的参数自动调整； 思路：一开始想要防止语言模型过拟合！！！其实根本没必要！！！，因为端到端模型中有语言模型部分，该部分参数会更新，因此越训练会越适配训练集，因此语言模型容易过拟合（而一般外部语言模型用的可不止训练数据，用的是很大文本统计得到的，可以做shallow fusion），而c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于chain多唤醒词识别模型">
+<meta property="og:url" content="http://example.com/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="基于chain多唤醒词识别模型 参考袁有根NCMMSC会议分享   目标：训练更好的AM；如何将测试时的解码网络内的参数自动调整； 思路：一开始想要防止语言模型过拟合！！！其实根本没必要！！！，因为端到端模型中有语言模型部分，该部分参数会更新，因此越训练会越适配训练集，因此语言模型容易过拟合（而一般外部语言模型用的可不止训练数据，用的是很大文本统计得到的，可以做shallow fusion），而c">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/image-20211021162722733.png">
+<meta property="og:image" content="http://example.com/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/image-20211220141423434.png">
+<meta property="og:image" content="http://example.com/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/image-20220104172646296.png">
+<meta property="article:published_time" content="2021-12-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T07:49:46.466Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="命令词">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/image-20211021162722733.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2021/12/03/命令词/基于chain多唤醒词识别模型/"/>
+
+
+
+
+
+  <title>基于chain多唤醒词识别模型 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">基于chain多唤醒词识别模型</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-12-03T00:00:00+08:00">
+                2021-12-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/12/03/命令词/基于chain多唤醒词识别模型/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="基于chain多唤醒词识别模型"><a href="#基于chain多唤醒词识别模型" class="headerlink" title="基于chain多唤醒词识别模型"></a>基于chain多唤醒词识别模型</h1><blockquote>
+<p>参考袁有根NCMMSC会议分享</p>
+</blockquote>
+<p><img src="/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/image-20211021162722733.png" alt="image-20211021162722733"></p>
+<p>目标：训练更好的AM；如何将测试时的解码网络内的参数自动调整；</p>
+<p>思路：一开始想要防止语言模型过拟合！！！其实根本没必要！！！，因为端到端模型中有语言模型部分，该部分参数会更新，因此越训练会越适配训练集，因此语言模型容易过拟合（而一般外部语言模型用的可不止训练数据，用的是很大文本统计得到的，可以做shallow fusion），而chain model里面参与计算loss的语言模型部分根本不会跟新，不用考虑过拟合问题！！！</p>
+<p>如果是只考虑有无必要把语言模型融入，按照人家拼命把语言模型拿掉的思路，是没有必要再引入语言模型的。</p>
+<p>但是希望测试时的解码网络的参数能调整，因此借鉴模型fusion的思路，1.shallow fusion cold fusion 外部语言模型参与，可使得模型倾向于</p>
+<p>用无调音节建模</p>
+<p>step1. 训练一个初始大一点的chain模型，分母网用训练数据得到的3gram phone ，记作chain model1，目的是后续的对齐；</p>
+<p>用tri3对齐lattice，训练大chain model</p>
+<p>用tri3对齐，训练tdnn，用tdnn进行后续对齐：local&#x2F;nnet3&#x2F;run_tdnn_bigmodel_for_align.sh</p>
+<p>step2. 对齐生成lattice，重新训练，注意，此时构建egs时不再下采样（frame-subsampling-factor&#x3D;1），分母网用训练数据得到的3gram phone loop，记作chain model2，目的是做finetune的初始模型</p>
+<p>step3. finetune：</p>
+<ul>
+<li>语言模型P(W)都是1，进行finetune，得到chain model2，这个想法是为了训练更好的声学模型，让声学模型受语言模型的帮助更小，更独立。花哥说，这有点类似em思路，固定语言模型，更新声学模型，再放开语言模型，更新声学模型，最后的结果可能和一开始就引入语言模型的结果差不多；</li>
+<li>用测试解码网络作为P(W)进行finetune，得到唤醒任务的chain model3，雷博尝试了该方法，并且把学习率调小，结果far会很高，可能由于解码网络的竞争路径太少，竞争路径的分数也很高？</li>
+<li>loss分母竞争路径分数-唤醒路径分数（如何挑选出唤醒路径？），参考专利《[重要]CN201710343427-基于鉴别性训练的定制语音唤醒优化方法及系统-审定授权.pdf》</li>
+<li>训练LM网络，LM网络的输入是测试解码网络概率，输出是新G概率，再用该概率去做分母，这个如何实现？？</li>
+</ul>
+<p>step4. 用step1的模型，用上下文无关音节建模，减少分类数，重新对齐生成lattice，再训练一个chain model</p>
+<p>先看一下language model fusion的论文《LANGUAGE MODEL FUSION FOR STREAMING END TO END SPEECH RECOGNITION  》，看一下如何容融合外部语言模型</p>
+<h2 id="赋予loss不同权重"><a href="#赋予loss不同权重" class="headerlink" title="赋予loss不同权重"></a>赋予loss不同权重</h2><h3 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h3><p>参考多任务学习的赋予权重思路：kaldi&#x2F;egs&#x2F;babel_multilang&#x2F;s5&#x2F;local&#x2F;nnet3&#x2F;run_tdnn_multilingual.sh</p>
+<p>修改多任务学习的脚本，使得loss不同权重，但是又只训练一个任务</p>
+<p>kaldi判断多任务的脚本：steps&#x2F;nnet3&#x2F;train_raw_dnn.py</p>
+<p>通过有没有valid_diagnostic.scp或valid_diagnostic.ark来判断use_multitask_egs&#x3D;True还是False，这个只在raw里有，因此要把mdl中的也增加多任务学习，然后作用到train_lib.common.train_one_iteration训练。</p>
+<p>train_one_iteration里决定存储的是mdl还是raw的符号：get_raw_nnet_from_am。</p>
+<h1 id="实验汇总"><a href="#实验汇总" class="headerlink" title="实验汇总"></a>实验汇总</h1><h3 id="topo区别实验"><a href="#topo区别实验" class="headerlink" title="topo区别实验"></a>topo区别实验</h3><p>比较四&#x2F;三&#x2F;二个字用四&#x2F;三&#x2F;二状态建模，与不管几个字都用四状态建模的区别。</p>
+<p>比较单音素（现在里面是单音素）与三音素的区别？需要比较吗</p>
+<h3 id="DNN对齐模型区别实验"><a href="#DNN对齐模型区别实验" class="headerlink" title="DNN对齐模型区别实验"></a>DNN对齐模型区别实验</h3><ul>
+<li>用tdnn大模型（69M）作为后续对齐模型：<ul>
+<li>路径：25.3：&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;exp_syll&#x2F;nnet3&#x2F;tdnn</li>
+<li>脚本：local&#x2F;nnet3&#x2F;run_tdnn_bigmodel_for_align.sh</li>
+<li>学习率：initial_effective_lrate&#x3D;0.008，final_effective_lrate&#x3D;0.00008，num_epochs&#x3D;6（这样学习率太大了会报LOG Per-component max-change active）</li>
+<li>训练集特征：train_set&#x3D;data&#x2F;plp&#x2F;train_12000</li>
+<li>对齐：ali_dir&#x3D;exp_syll&#x2F;tri3_ali</li>
+<li>模型：tdnn，6层，1024结点，左拼13右拼9</li>
+<li>分类数：8000类</li>
+<li>结果：loss&#x3D;-2，acc&#x3D;46%（可能因为分类数太多，调小学习率继续训练无改善）</li>
+</ul>
+</li>
+<li>用conv tdnnf的chain大模型（67M）作为后续对齐模型<ul>
+<li>路径24.4:&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;exp_syll&#x2F;chain&#x2F;tdnn_cnn_tdnnf</li>
+<li>脚本：run_2_chain_ddt1500h.sh</li>
+<li>lattice：&#x2F;home&#x2F;storage&#x2F;yelong&#x2F;lattice&#x2F;exp_syll&#x2F;tri3_lats</li>
+<li>tree：exp_syll&#x2F;chain&#x2F;tri4_cd_tree</li>
+<li>feat：data&#x2F;plp&#x2F;train_12000</li>
+<li>模型：cnn-tdnnf</li>
+</ul>
+</li>
+</ul>
+<h3 id="对齐大模型生成lattice"><a href="#对齐大模型生成lattice" class="headerlink" title="对齐大模型生成lattice"></a>对齐大模型生成lattice</h3><ul>
+<li>tdnn大模型生成lattice：<ul>
+<li>训练集：负样本12000小时（1111万条），正样本2000小时（380万条），data_multi&#x2F;merge_all_sub4_12000&#x2F;，正负样本1：6</li>
+<li>tdnn大模型路径：25.3：&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;exp_syll&#x2F;nnet3&#x2F;tdnn</li>
+<li>对齐lattice路径：exp_syll&#x2F;nnet3&#x2F;tdnn_12000n_2000p_lats&#x2F;（集群跑的）</li>
+</ul>
+</li>
+<li>chain大模型生成lattice<ul>
+<li>训练集：负样本12000小时（1111万条），正样本2000小时（380万条），data_multi&#x2F;merge_all_sub4_12000&#x2F;，正负样本1：6</li>
+<li>对齐lattice路径：exp_syll&#x2F;chain&#x2F;tdnn_cnn_tdnnf_12000n_2000p_lats&#x2F;（集群跑的）[没跑完]</li>
+<li>这次把命令词都放在词典中，作为整词，不分词【没必要，因为chain用1状态建模（2个pdf），不是三音素是单音素，和前后文无关】</li>
+<li>料想和tdnn对齐模型效果差不多，实验暂停。</li>
+</ul>
+</li>
+</ul>
+<h3 id="构建单音素（每个音素两个pdf）"><a href="#构建单音素（每个音素两个pdf）" class="headerlink" title="构建单音素（每个音素两个pdf）"></a>构建单音素（每个音素两个pdf）</h3><ul>
+<li><p>脚本：25.3：&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;run_2_chain_ddt1500h.sh</p>
+</li>
+<li><p>构建单音素build-tree时：–context-width&#x3D;1 –central-position&#x3D;0</p>
+</li>
+<li><p>得到pdf&#x3D;808（不是810，这是因为音节den和dia的forward-pdf和self-loop&#x3D;pdf相同，应该是因为训练样本里没有？）</p>
+</li>
+</ul>
+<h3 id="训练chain-model"><a href="#训练chain-model" class="headerlink" title="训练chain model"></a>训练chain model</h3><h2 id="Finetune"><a href="#Finetune" class="headerlink" title="Finetune"></a>Finetune</h2><ul>
+<li><p>根据chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm，解码训练集data_multi&#x2F;merge_all_sub4_12000，得到data_multi&#x2F;merge_all_sub4_12000_filter_false_rejection_alarm，其中，</p>
+<ul>
+<li>false alarm数量6k</li>
+<li>false rejection数量50w，其中，7w条是识别成其他唤醒词（也就是其他唤醒词的误唤醒），7w条中有6w条是上&#x2F;下一曲&#x2F;集的误唤醒，小源小源4w</li>
+<li>方法2重训后，再次解码false alarm和false rejection样本<ul>
+<li>false alarm：6k -&gt; 5k（下降19%）</li>
+<li>false rejection：50w -&gt; 48w（下降4.7%）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>根据chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch，解码训练集data_multi&#x2F;merge_all_sub4_12000，得到data_multi&#x2F;merge_all_sub4_12000_filter_false_rejection_alarm_tdnnf8，其中，</p>
+<ul>
+<li>false alarm数量1.8w</li>
+<li>false rejection数量66w，其中，小源小源4.8w</li>
+<li>测试集far会更低的，但是解码训练集，居然比chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm的更多！！！</li>
+<li>方法2重训后，再次解码false alarm和false rejection样本，和想象的不同的是，误唤醒和误拒绝并没有少很多，感觉还是没训练好<ul>
+<li>false alarm：1.8w -&gt; 1.5w （下降17.2%）</li>
+<li>false rejection：66w -&gt; 62w（下降5.6%）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="方法1："><a href="#方法1：" class="headerlink" title="方法1："></a>方法1：</h4><ul>
+<li>只对这些样本重新训练一轮（也要保证正负样本比例，小源正样本还不能少，否则唤醒率会略有下降）<ul>
+<li>随机shuf取出300w的负样本，与false alarm构成300w的负样本，正样本50w</li>
+<li>在exp_syll&#x2F;nnet3&#x2F;tdnn_12000n_2000p_lats&#x2F;中用</li>
+<li>脚本：25.3:&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;run_2_chain_ddt1500h.filter_far_frejection.sh</li>
+<li>模型：exp_syll&#x2F;chain&#x2F;chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_filter_false_reje_ala_small_learningrate</li>
+<li>input_model：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm&#x2F;final.mdl</li>
+<li>初始和结束的学习率都为&#x3D;&#x3D;0.000001&#x3D;&#x3D;</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">lattice-copy <span class="string">&quot;--include=cat data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/uttlist |&quot;</span> --ignore-missing <span class="string">&quot;ark:gunzip -c exp_syll/nnet3/tdnn_12000n_2000p_lats/lat.1.gz |&quot;</span> <span class="string">&quot;ark:| gzip -c &gt; exp_syll/nnet3/tdnn_12000n_2000p_filter_false_rejection_alarm_lats/lat.1.gz&quot;</span></span><br><span class="line"><span class="comment">#或者</span></span><br><span class="line">lattice-copy <span class="string">&quot;--include=cat data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/uttlist |&quot;</span> --ignore-missing <span class="string">&quot;ark:gunzip -c exp_syll/nnet3/tdnn_12000n_2000p_lats/lat.1.gz |&quot;</span> ark,t:exp_syll/nnet3/tdnn_12000n_2000p_filter_false_rejection_alarm_lats/lat.1.ark</span><br><span class="line"></span><br><span class="line"><span class="comment"># 脚本：</span></span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> $(<span class="built_in">seq</span> 1 120);<span class="keyword">do</span></span><br><span class="line">     <span class="comment">#lattice-copy &quot;--include=cat data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/uttlist |&quot; --ignore-missing &quot;ark:gunzip -c exp_syll/nnet3/tdnn_12000n_2000p_lats/lat.$n.gz |&quot; &quot;ark:| gzip -c &gt; exp_syll/nnet3/tdnn_12000n_2000p_filter_false_rejection_alarm_lats/lat.$n.gz&quot;</span></span><br><span class="line">    lattice-copy <span class="string">&quot;ark:gunzip -c exp_syll/nnet3/tdnn_12000n_2000p_filter_false_rejection_alarm_lats/lat.<span class="variable">$n</span>.gz |&quot;</span> ark,t:1</span><br><span class="line">    awk <span class="string">&#x27;&#123;if(NF==1)print$1,$1&#125;&#x27;</span> 1 | grep -E <span class="string">&quot;^0|^K|^Xiaoyuan|^SY|^sp&quot;</span> &gt; data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2spk</span><br><span class="line"><span class="built_in">cp</span> data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2spk data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/spk2utt</span><br><span class="line">    utils/filter_scp.pl data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2spk data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/feats.scp &gt; data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/feats.scp</span><br><span class="line">    utils/filter_scp.pl data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2spk data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/cmvn.scp &gt; data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/cmvn.scp</span><br><span class="line">    utils/filter_scp.pl data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2spk data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/text &gt; data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/text</span><br><span class="line">    utils/filter_scp.pl data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2spk data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/utt2dur &gt; data_multi/merge_all_sub4_12000_filter_false_rejection_alarm/split120/<span class="variable">$n</span>/utt2dur</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将筛选出的lattice放在exp_syll&#x2F;nnet3&#x2F;tdnn_12000n_2000p_filter_false_rejection_alarm_lats中<ul>
+<li>结果：如果学习率是0.00015开始训练的，学习率一开始设置得较大，<strong>效果不好，没有改善</strong>，误唤醒还增加了，但是&#x3D;&#x3D;调小学习率后，效果变好了&#x3D;&#x3D;</li>
+</ul>
+</li>
+<li>用同一批数据finetune tdnnf8试一试</li>
+</ul>
+<h4 id="方法2："><a href="#方法2：" class="headerlink" title="方法2："></a>方法2：</h4><ul>
+<li>对这些样本赋予高一点的权重，其他样本赋予低一点的权重，对所有样本finetune训练一轮</li>
+<li>脚本：25.3:&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;run_tdnn_multilingual.sh</li>
+<li>模型：exp_syll&#x2F;chain&#x2F;chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch_multitask_test_input_model&#x2F;<ul>
+<li><code>awk -F&#39;-&#39; &#39;&#123;$NF=null;print$0&#125;&#39; 1| sed &#39;s/ *$//&#39; | tr &#39; &#39; &#39;-&#39; | paste -d &#39; &#39; - 1</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> $(<span class="built_in">seq</span> 1 3430);<span class="keyword">do</span></span><br><span class="line">    nnet3-chain-copy-egs ark:exp_syll/chain/chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN/egs/cegs.<span class="variable">$&#123;n&#125;</span>.ark ark,scp:exp_syll/chain/chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN_multi_2/egs/cegs.<span class="variable">$&#123;n&#125;</span>.temp.ark,exp_syll/chain/chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN_multi_2/egs/cegs.<span class="variable">$&#123;n&#125;</span>.temp.scp</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">src=exp_syll/chain/chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN_multi_2/egs</span><br><span class="line"><span class="built_in">dir</span>=exp_syll/chain/chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch_multitask/egs</span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> $(<span class="built_in">seq</span> 1 3430);<span class="keyword">do</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="variable">$n</span></span><br><span class="line">  <span class="built_in">cp</span> <span class="variable">$src</span>/cegs.<span class="variable">$n</span>.temp.scp <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp</span><br><span class="line">  awk -F<span class="string">&#x27;-&#x27;</span> <span class="string">&#x27;&#123;$NF=null;print$0&#125;&#x27;</span> <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp| sed <span class="string">&#x27;s/ *$//&#x27;</span> | <span class="built_in">tr</span> <span class="string">&#x27; &#x27;</span> <span class="string">&#x27;-&#x27;</span> | <span class="built_in">paste</span> -d <span class="string">&#x27; &#x27;</span> - <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp | utils/filter_scp.pl false_alarm_rejection - &gt; <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.1</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;2.5&quot;&#125;&#x27;</span>  <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.1 &gt;  <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.1</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;output-0&quot;&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.1 &gt;  <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.1</span><br><span class="line">  awk -F<span class="string">&#x27;-&#x27;</span> <span class="string">&#x27;&#123;$NF=null;print$0&#125;&#x27;</span> <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp| sed <span class="string">&#x27;s/ *$//&#x27;</span> | <span class="built_in">tr</span> <span class="string">&#x27; &#x27;</span> <span class="string">&#x27;-&#x27;</span> | <span class="built_in">paste</span> -d <span class="string">&#x27; &#x27;</span> - <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp | utils/filter_scp.pl --exclude false_alarm_rejection - &gt; <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.2</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;1&quot;&#125;&#x27;</span>  <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.2 &gt;  <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.2</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;output-1&quot;&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.2 &gt;  <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.2</span><br><span class="line">  <span class="built_in">cat</span> <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.1 <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.2 &gt; <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.3</span><br><span class="line">  <span class="built_in">cat</span> <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.1 <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.2 &gt; <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.3</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$1,$1&#125;&#x27;</span> <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp |  utils/apply_map.pl -f 1 <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.3 | awk <span class="string">&#x27;&#123;print$2,$1&#125;&#x27;</span> &gt; <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$1,$1&#125;&#x27;</span> <span class="variable">$dir</span>/cegs.<span class="variable">$n</span>.scp |  utils/apply_map.pl -f 1 <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.3 | awk <span class="string">&#x27;&#123;print$2,$1&#125;&#x27;</span> &gt; <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark</span><br><span class="line">  <span class="built_in">rm</span> <span class="variable">$dir</span>/cegs.weight.<span class="variable">$n</span>.ark.*</span><br><span class="line">  <span class="built_in">rm</span> <span class="variable">$dir</span>/cegs.output.<span class="variable">$n</span>.ark.*</span><br><span class="line">  <span class="built_in">rm</span>  <span class="variable">$dir</span>/<span class="variable">$n</span>.temp.ark.*</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> combine train_diagnostic valid_diagnostic;<span class="keyword">do</span></span><br><span class="line">  nnet3-chain-copy-egs ark:exp_syll/chain/chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN/egs/<span class="variable">$i</span>.cegs ark,scp:<span class="variable">$src</span>/<span class="variable">$i</span>.cegs,<span class="variable">$src</span>/<span class="variable">$i</span>.scp</span><br><span class="line">  <span class="built_in">cp</span> <span class="variable">$src</span>/<span class="variable">$i</span>.scp <span class="variable">$dir</span>/<span class="variable">$i</span>.scp</span><br><span class="line">  awk -F<span class="string">&#x27;-&#x27;</span> <span class="string">&#x27;&#123;$NF=null;print$0&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.scp | sed <span class="string">&#x27;s/ *$//&#x27;</span> | <span class="built_in">tr</span> <span class="string">&#x27; &#x27;</span> <span class="string">&#x27;-&#x27;</span> | <span class="built_in">paste</span> -d <span class="string">&#x27; &#x27;</span> - <span class="variable">$dir</span>/<span class="variable">$i</span>.scp | utils/filter_scp.pl false_alarm_rejection - &gt; <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.1</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;2.5&quot;&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.1 &gt;  <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.1</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;output-0&quot;&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.1 &gt;  <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.1</span><br><span class="line"></span><br><span class="line">  awk -F<span class="string">&#x27;-&#x27;</span> <span class="string">&#x27;&#123;$NF=null;print$0&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.scp| sed <span class="string">&#x27;s/ *$//&#x27;</span> | <span class="built_in">tr</span> <span class="string">&#x27; &#x27;</span> <span class="string">&#x27;-&#x27;</span> | <span class="built_in">paste</span> -d <span class="string">&#x27; &#x27;</span> - <span class="variable">$dir</span>/<span class="variable">$i</span>.scp | utils/filter_scp.pl --exclude false_alarm_rejection - &gt; <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.2</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;1&quot;&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.2 &gt;  <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.2</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$2,&quot;output-1&quot;&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.2 &gt;  <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.2</span><br><span class="line"></span><br><span class="line">  <span class="built_in">cat</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.1 <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.2 &gt; <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.3</span><br><span class="line">  <span class="built_in">cat</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.1 <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.2 &gt; <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.3</span><br><span class="line"></span><br><span class="line">  awk <span class="string">&#x27;&#123;print$1,$1&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.scp |  utils/apply_map.pl -f 1 <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.3 | awk <span class="string">&#x27;&#123;print$2,$1&#125;&#x27;</span> &gt; <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark</span><br><span class="line">  awk <span class="string">&#x27;&#123;print$1,$1&#125;&#x27;</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.scp |  utils/apply_map.pl -f 1 <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.3 | awk <span class="string">&#x27;&#123;print$2,$1&#125;&#x27;</span> &gt; <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark</span><br><span class="line">  <span class="built_in">rm</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.weight.ark.*</span><br><span class="line">  <span class="built_in">rm</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.output.ark.*</span><br><span class="line">  <span class="built_in">rm</span> <span class="variable">$dir</span>/<span class="variable">$i</span>.temp.ark.*</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>初始学习率设置为1.2e-04（8卡，脚本里对应0.000015）或者1e6，结果差不多</li>
+<li>input_model：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;final_add_output01.mdl</li>
+<li>似乎是因为这是tdnn5的false alarm和false rejection样本，似乎对于tdnnf8无效，因此没有改善，应该用tdnnf8的解码训练集训一轮，会好一点</li>
+</ul>
+<h4 id="把以上对于tdnn5不同权重finetune一轮："><a href="#把以上对于tdnn5不同权重finetune一轮：" class="headerlink" title="把以上对于tdnn5不同权重finetune一轮："></a>把以上对于tdnn5不同权重finetune一轮：</h4><ul>
+<li><p>脚本：25.3:&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;run_tdnn_multilingual_tdnn5.sh</p>
+</li>
+<li><p>模型：exp_syll&#x2F;chain&#x2F;chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_multitask</p>
+</li>
+<li><p>input_model：exp_syll&#x2F;chain&#x2F;chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm&#x2F;final_add_output01.mdl</p>
+</li>
+<li><p>初始和结束的学习率都为&#x3D;&#x3D;0.000001&#x3D;&#x3D;（8卡，脚本里对应0.000000125）（是否有点小了？）</p>
+</li>
+<li><p>有改善，改善比方法1多，不知道这个改善是否来源于多训练一轮epoch？</p>
+</li>
+</ul>
+<h4 id="重新解码tdnnf8训练集，用tdnnf8解码的false-alarm和false-rejection样本finetune一轮"><a href="#重新解码tdnnf8训练集，用tdnnf8解码的false-alarm和false-rejection样本finetune一轮" class="headerlink" title="重新解码tdnnf8训练集，用tdnnf8解码的false alarm和false rejection样本finetune一轮"></a>重新解码tdnnf8训练集，用tdnnf8解码的false alarm和false rejection样本finetune一轮</h4><ul>
+<li>weight比例2.5：1，无论学习率是1e-6（8卡后）或者1.5e-5（8卡后），效果都没有改善</li>
+<li>查看有没有&#x3D;&#x3D;过拟合&#x3D;&#x3D;：<code>grep output-0-xent compute_prob_valid.* | sed &#39;s/valid./ /g&#39; | sed &#39;s/.log/ /g&#39; | sort -k 2 -n</code></li>
+<li><code>grep &quot;average objective function for &#39;output-0&#39;&quot; train.*.1.log |  sed &#39;s/train./ /g&#39; | sed &#39;s/.1.log/ /g&#39; |  sort -k 1 -n</code></li>
+<li>少数测试集有改善</li>
+</ul>
+<h3 id="学习率设置"><a href="#学习率设置" class="headerlink" title="学习率设置"></a>学习率设置</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>脚本里initial_lr（实际lr (乘以gpu数)</th>
+<th>脚本里final_lr（实际lr (乘以gpu数)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>普通</td>
+<td>0.00015</td>
+<td>0.000015</td>
+</tr>
+<tr>
+<td>more_epoch</td>
+<td>0.000015</td>
+<td>0.0000015</td>
+</tr>
+<tr>
+<td>false_reje_ala：训练的是tdnn5（结果不好）</td>
+<td>0.00015</td>
+<td>0.000015</td>
+</tr>
+<tr>
+<td>false_reje_ala调小学习率：训练的是tdnn5（有改善）</td>
+<td>1.25e-7（1e-06）</td>
+<td>1.25e-7（1e-06）</td>
+</tr>
+<tr>
+<td>multitask_test_input_model：训练的是tdnnf8（没有改善）</td>
+<td>0.000015（0.00012）</td>
+<td>0.0000015（1.2e-05）</td>
+</tr>
+<tr>
+<td>multitask_test_input_model_small_learningrate：训练的是tdnnf8（没有改善）</td>
+<td>1.25e-7（1e-06）</td>
+<td>1.25e-7（1e-06）</td>
+</tr>
+</tbody></table>
+<h3 id="测试解码"><a href="#测试解码" class="headerlink" title="测试解码"></a>测试解码</h3><ul>
+<li>chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm</li>
+</ul>
+<h3 id="实验测试结果"><a href="#实验测试结果" class="headerlink" title="实验测试结果"></a>实验测试结果</h3><ul>
+<li><p>10000条命令词，测唤醒率</p>
+</li>
+<li><p>tdnn[1]：chain_tdnn5_256_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm&#x2F;graph_add_two</p>
+</li>
+<li><p>tdnn[2]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_filter_false_reje_ala_small_learningrate&#x2F;graph</p>
+</li>
+<li><p>tdnn[3]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_multitask&#x2F;graph</p>
+</li>
+<li><p>tdnn[4]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph</p>
+</li>
+<li><p>tdnnf[1]：chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm</p>
+</li>
+<li><p>tdnnf[2]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph_add_two2&#x2F;</p>
+</li>
+<li><p>tdnnf[3]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch_multitask_tdnnf8decode&#x2F;graph_10_1</p>
+</li>
+<li><p>tdnnf[4]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph1&#x2F;  （2gram lm）[实际不可用]</p>
+</li>
+<li><p>47万条随机语音片段，测误唤醒（479984）</p>
+</li>
+<li><p>tdnn[1]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm&#x2F;graph_add_two</p>
+</li>
+<li><p>tdnn[2]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_filter_false_reje_ala_small_learningrate&#x2F;graph</p>
+</li>
+<li><p>tdnn[3]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_multitask&#x2F;graph</p>
+</li>
+<li><p>tdnn[4]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph</p>
+</li>
+<li><p>tdnnf[1]：chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm</p>
+</li>
+<li><p>tdnnf[2]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph_add_two2&#x2F;</p>
+</li>
+<li><p>tdnnf[3]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch_multitask_tdnnf8decode&#x2F;graph_10_1</p>
+</li>
+<li><p>tdnnf[4]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph1&#x2F;  （2gram lm）[实际不可用]</p>
+</li>
+<li><p>小源小源一个唤醒词</p>
+</li>
+<li><p>lei：V1+SIL</p>
+</li>
+<li><p>tdnn[1]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm&#x2F;graph_add_two</p>
+</li>
+<li><p>tdnn[2]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_filter_false_reje_ala_small_learningrate&#x2F;graph</p>
+</li>
+<li><p>tdnn[3]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_multitask&#x2F;graph</p>
+</li>
+<li><p>tdnn[4]：chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph</p>
+</li>
+<li><p>tdnnf[1]：chain_tdnnf13_320_32_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm&#x2F;graph_add_two2 前向计算时间长，不考虑</p>
+</li>
+<li><p>tdnnf[2]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph_add_two2</p>
+</li>
+<li><p>tdnnf[3]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch_multitask_tdnnf8decode&#x2F;graph_10_1</p>
+</li>
+<li><p>tdnnf[4]：chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph1&#x2F;  （2gram lm）[实际不可用]</p>
+</li>
+<li><p>()内是所有命令词的误唤醒</p>
+</li>
+</ul>
+<h3 id="实验小结"><a href="#实验小结" class="headerlink" title="实验小结"></a>实验小结</h3><ul>
+<li>从声学模型输出观察：</li>
+</ul>
+<p><code>pdf2phone exp_syll/chain/chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm/final.mdl ark:feats.scp1.1.1 | utils/int2sym.pl -f 2- exp_syll/chain/chain_tdnn5_256_l39r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm/phones.txt -</code></p>
+<p>发现确实是声学模型不够好造成的误触发。相似音（比如jing和ji）容易误触发</p>
+<ul>
+<li><p>多训练epoch效果有改善（4epoch-&gt;5epoch）</p>
+</li>
+<li><p>学习率不能调高，否则易过拟合</p>
+</li>
+<li><p>训练分母的phone lm从4gram到2gram，效果会提升，训练中复杂的语言模型反而没有带来收益，推测原因：</p>
+<ul>
+<li>1.简单的语言模型能让声学模型得到的信息更少，加重了声学模型的训练难度，使得声学模型训练得更不容易过拟合；</li>
+<li>2.复杂的语言模型（适配训练集的语言模型）使得声学模型更容易过拟合；</li>
+<li>3.训练中简单的语言模型与测试的1gram语言模型更接近；</li>
+</ul>
+</li>
+<li><p>解码训练集，用false alarm和false rejection的样本，增加高一点权重（调参10:1和2.5:1）,不同学习率，重训练一轮。结果没有改善</p>
+</li>
+</ul>
+<h2 id="结果分析"><a href="#结果分析" class="headerlink" title="结果分析"></a>结果分析</h2><ul>
+<li>小源小源唤醒词的唤醒率、误唤醒基本可以达到要求，但是其他唤醒词的误唤醒还是比较高。</li>
+<li>尝试从样本出发：解码训练集，用false alarm和false rejection的样本，增加高一点权重（调参10:1和2.5:1），重训练一轮。结果：没有改善</li>
+<li>尝试从后处理出发：增加简单二级阈值判断（解码命令词起止时间长度，解码命令词cost值）。结果：没有改善，简单阈值判断不出。</li>
+<li>尝试从训练目标函数出发：用最大化状态&#x2F;音素正确率作为目标函数（sMBR、MPE），增加唤醒词的唤醒率；尝试center loss减少类内距离（从而增加类间距离）（未完成）</li>
+<li>尝试从声学模型出发：tdnnf比tdnn好，在前向时间相同情况下尝试其他声学模型（未完成）</li>
+</ul>
+<h2 id="增加解码竞争路径"><a href="#增加解码竞争路径" class="headerlink" title="增加解码竞争路径"></a>增加解码竞争路径</h2><p>花哥说，用类似2gram语言模型思路，通过判断两个字前后的文本是怎样的，来抑制两个字的误触发。</p>
+<p>具体做法思路：把1gram里的命令词去掉，放在2gram里</p>
+<p>路径：25.3:&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;hi_mia&#x2F;w1&#x2F;data_syll&#x2F;lang_context</p>
+<p>HCLG：exp_syll&#x2F;chain&#x2F;chain_tdnnf8_432_48_l27r27_id_merge_all_sub4_12000_basedTDNN_smaller_phone_lm_more_epoch&#x2F;graph1&#x2F; </p>
+<p>把四字放到2gram里，删掉1gram它的路径，效果没有提升反而下降，原因分析 </p>
+<p>该方法有效降低误触发，二、三字误触发能降低17%~30%</p>
+<p><img src="/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/image-20211220141423434.png" alt="image-20211220141423434"></p>
+<p>1是开始状态，两个圈是结束状态。</p>
+<p>表示只能以 2gram里只能以 比如 静音 开头，可以 有“静音 其他音” 的路径，但没有“其他音 静音” 的路径</p>
+<p>与原先区别：命令词前有其他声音会降低唤醒率（要很大声）（现实总是有其他声音的，不可行）</p>
+<p>实验不可行：测试0807（实际录音），小源小源也采用上述方法放进2gram，发现唤醒率很低。</p>
+<p>虽然在test_1w里，四字的唤醒率没有降低，但是在0807实测测试集里，唤醒率大幅度降低</p>
+<h4 id="2gram"><a href="#2gram" class="headerlink" title="2gram"></a>2gram</h4><p>用训练集ali训练的2gram LM，误识别率可以下降34%，但是时间多5倍</p>
+<p>剪枝后：</p>
+<p>ngram -lm srilm.o3g.kn.gz -order 2  -prune 0.00001 -write-lm newlm：误唤醒能下降28%，时间2倍之前（雷博说这个可能测不准，要用keyword_lib测才会准一点）</p>
+<p>ngram -lm srilm.o3g.kn.gz -order 2  -prune 0.0001 -write-lm newlm：误唤醒只能下降4%，时间1.4倍之前</p>
+<h4 id="降低一点点识别率，同时也降低误识别率的方法："><a href="#降低一点点识别率，同时也降低误识别率的方法：" class="headerlink" title="降低一点点识别率，同时也降低误识别率的方法："></a>降低一点点识别率，同时也降低误识别率的方法：</h4><p>把相似音（比如zan的相似音zai、zi、zhan…….）的权重提高一点</p>
+<h4 id="误触发常发生在有个xiao-x2F-yuan开头的音，即使音后面不同，也会触发"><a href="#误触发常发生在有个xiao-x2F-yuan开头的音，即使音后面不同，也会触发" class="headerlink" title="误触发常发生在有个xiao&#x2F;yuan开头的音，即使音后面不同，也会触发"></a>误触发常发生在有个xiao&#x2F;yuan开头的音，即使音后面不同，也会触发</h4><p>我的意思是修改FST，让小源小源在发音发完整个词后，output label才是小源小源。</p>
+<p>雷博说，现在输出文本，都是发完小源小源，达到结束state了，才会回溯判断是否有小源小源，不存在发音一半就出来小源小源的情况；</p>
+<p>唯一可能减少一点误触发的方法就是，小&#x2F;源状态自己也有结束state，可能到达小&#x2F;源就结束；</p>
+<p>但其实这个在垃圾路径里已经添加了，没有走到还是路径权重的原因；</p>
+<img src="/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/image-20220104172646296.png" alt="image-20220104172646296" style="zoom: 25%;">
+
+
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%91%BD%E4%BB%A4%E8%AF%8D/" rel="tag"># 命令词</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/Alignment%20free%20LF-MMI%E5%B0%8F%E7%BB%93/" rel="next" title="Alignment free LF-MMI小结">
+                <i class="fa fa-chevron-left"></i> Alignment free LF-MMI小结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/01/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8E%E5%88%86%E7%B1%BB%E7%9A%84%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AF%86%E5%88%AB/" rel="prev" title="基于分类的命令词识别">
+                基于分类的命令词识别 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">基于chain多唤醒词识别模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%8B%E4%BA%88loss%E4%B8%8D%E5%90%8C%E6%9D%83%E9%87%8D"><span class="nav-number">1.1.</span> <span class="nav-text">赋予loss不同权重</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF%EF%BC%9A"><span class="nav-number">1.1.1.</span> <span class="nav-text">思路：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E6%B1%87%E6%80%BB"><span class="nav-number">2.</span> <span class="nav-text">实验汇总</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#topo%E5%8C%BA%E5%88%AB%E5%AE%9E%E9%AA%8C"><span class="nav-number">2.0.1.</span> <span class="nav-text">topo区别实验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DNN%E5%AF%B9%E9%BD%90%E6%A8%A1%E5%9E%8B%E5%8C%BA%E5%88%AB%E5%AE%9E%E9%AA%8C"><span class="nav-number">2.0.2.</span> <span class="nav-text">DNN对齐模型区别实验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E9%BD%90%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%94%9F%E6%88%90lattice"><span class="nav-number">2.0.3.</span> <span class="nav-text">对齐大模型生成lattice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E5%8D%95%E9%9F%B3%E7%B4%A0%EF%BC%88%E6%AF%8F%E4%B8%AA%E9%9F%B3%E7%B4%A0%E4%B8%A4%E4%B8%AApdf%EF%BC%89"><span class="nav-number">2.0.4.</span> <span class="nav-text">构建单音素（每个音素两个pdf）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83chain-model"><span class="nav-number">2.0.5.</span> <span class="nav-text">训练chain model</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Finetune"><span class="nav-number">2.1.</span> <span class="nav-text">Finetune</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%B3%951%EF%BC%9A"><span class="nav-number">2.1.0.1.</span> <span class="nav-text">方法1：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%B3%952%EF%BC%9A"><span class="nav-number">2.1.0.2.</span> <span class="nav-text">方法2：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8A%8A%E4%BB%A5%E4%B8%8A%E5%AF%B9%E4%BA%8Etdnn5%E4%B8%8D%E5%90%8C%E6%9D%83%E9%87%8Dfinetune%E4%B8%80%E8%BD%AE%EF%BC%9A"><span class="nav-number">2.1.0.3.</span> <span class="nav-text">把以上对于tdnn5不同权重finetune一轮：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E6%96%B0%E8%A7%A3%E7%A0%81tdnnf8%E8%AE%AD%E7%BB%83%E9%9B%86%EF%BC%8C%E7%94%A8tdnnf8%E8%A7%A3%E7%A0%81%E7%9A%84false-alarm%E5%92%8Cfalse-rejection%E6%A0%B7%E6%9C%ACfinetune%E4%B8%80%E8%BD%AE"><span class="nav-number">2.1.0.4.</span> <span class="nav-text">重新解码tdnnf8训练集，用tdnnf8解码的false alarm和false rejection样本finetune一轮</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E7%8E%87%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.1.1.</span> <span class="nav-text">学习率设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E8%A7%A3%E7%A0%81"><span class="nav-number">2.1.2.</span> <span class="nav-text">测试解码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E6%B5%8B%E8%AF%95%E7%BB%93%E6%9E%9C"><span class="nav-number">2.1.3.</span> <span class="nav-text">实验测试结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E5%B0%8F%E7%BB%93"><span class="nav-number">2.1.4.</span> <span class="nav-text">实验小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90"><span class="nav-number">2.2.</span> <span class="nav-text">结果分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A2%9E%E5%8A%A0%E8%A7%A3%E7%A0%81%E7%AB%9E%E4%BA%89%E8%B7%AF%E5%BE%84"><span class="nav-number">2.3.</span> <span class="nav-text">增加解码竞争路径</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2gram"><span class="nav-number">2.3.0.1.</span> <span class="nav-text">2gram</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%99%8D%E4%BD%8E%E4%B8%80%E7%82%B9%E7%82%B9%E8%AF%86%E5%88%AB%E7%8E%87%EF%BC%8C%E5%90%8C%E6%97%B6%E4%B9%9F%E9%99%8D%E4%BD%8E%E8%AF%AF%E8%AF%86%E5%88%AB%E7%8E%87%E7%9A%84%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="nav-number">2.3.0.2.</span> <span class="nav-text">降低一点点识别率，同时也降低误识别率的方法：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%AF%E8%A7%A6%E5%8F%91%E5%B8%B8%E5%8F%91%E7%94%9F%E5%9C%A8%E6%9C%89%E4%B8%AAxiao-x2F-yuan%E5%BC%80%E5%A4%B4%E7%9A%84%E9%9F%B3%EF%BC%8C%E5%8D%B3%E4%BD%BF%E9%9F%B3%E5%90%8E%E9%9D%A2%E4%B8%8D%E5%90%8C%EF%BC%8C%E4%B9%9F%E4%BC%9A%E8%A7%A6%E5%8F%91"><span class="nav-number">2.3.0.3.</span> <span class="nav-text">误触发常发生在有个xiao&#x2F;yuan开头的音，即使音后面不同，也会触发</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2021/12/03/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%9F%BA%E4%BA%8Echain%E5%A4%9A%E5%94%A4%E9%86%92%E8%AF%8D%E8%AF%86%E5%88%AB%E6%A8%A1%E5%9E%8B/';
+          this.page.identifier = '2021/12/03/命令词/基于chain多唤醒词识别模型/';
+          this.page.title = '基于chain多唤醒词识别模型';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

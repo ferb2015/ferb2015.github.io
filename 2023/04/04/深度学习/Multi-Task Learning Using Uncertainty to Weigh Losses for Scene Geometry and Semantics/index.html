@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="深度学习," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics Kendall, Alex, Yarin Gal, and Roberto Cipolla. “Multi-task learning using uncertainty to weigh losses for scene g">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics">
+<meta property="og:url" content="http://example.com/2023/04/04/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20Using%20Uncertainty%20to%20Weigh%20Losses%20for%20Scene%20Geometry%20and%20Semantics/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics Kendall, Alex, Yarin Gal, and Roberto Cipolla. “Multi-task learning using uncertainty to weigh losses for scene g">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/04/04/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20Using%20Uncertainty%20to%20Weigh%20Losses%20for%20Scene%20Geometry%20and%20Semantics/image-20230403102151154.png">
+<meta property="og:image" content="http://example.com/2023/04/04/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20Using%20Uncertainty%20to%20Weigh%20Losses%20for%20Scene%20Geometry%20and%20Semantics/image-20230403155801322.png">
+<meta property="article:published_time" content="2023-04-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-04-04T10:45:18.220Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="深度学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/04/04/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20Using%20Uncertainty%20to%20Weigh%20Losses%20for%20Scene%20Geometry%20and%20Semantics/image-20230403102151154.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/04/04/深度学习/Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics/"/>
+
+
+
+
+
+  <title>Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/04/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20Using%20Uncertainty%20to%20Weigh%20Losses%20for%20Scene%20Geometry%20and%20Semantics/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-04-04T00:00:00+08:00">
+                2023-04-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/04/04/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20Using%20Uncertainty%20to%20Weigh%20Losses%20for%20Scene%20Geometry%20and%20Semantics/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/04/04/深度学习/Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Multi-Task-Learning-Using-Uncertainty-to-Weigh-Losses-for-Scene-Geometry-and-Semantics"><a href="#Multi-Task-Learning-Using-Uncertainty-to-Weigh-Losses-for-Scene-Geometry-and-Semantics" class="headerlink" title="Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics"></a>Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics</h1><blockquote>
+<p>Kendall, Alex, Yarin Gal, and Roberto Cipolla. “Multi-task learning using uncertainty to weigh losses for scene geometry and semantics.” <em>Proceedings of the IEEE conference on computer vision and pattern recognition</em>. 2018. citations 2258</p>
+<p>网友复现 github：<a target="_blank" rel="noopener" href="https://github.com/ranandalon/mtl">https://github.com/ranandalon/mtl</a></p>
+</blockquote>
+<h3 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h3><p>多任务学习loss如何平衡的问题。</p>
+<h3 id="提出什么方法"><a href="#提出什么方法" class="headerlink" title="提出什么方法"></a>提出什么方法</h3><ul>
+<li>每个任务的同方差不确定性 homoscedastic  uncertainty。将同方差不确定性解释为任务相关的加权。文章中展示了如何推导出一个的多任务损失函数，该函数可以学习平衡各种回归和分类损失。</li>
+<li>使用 shared representation（共享encoder输出特征）可以在各种指标（度量）上都能改善性能。</li>
+<li>就用一个模型，进行多任务，可以让模型在不同的独立的任务输出之间保持一致，同时减少计算量。</li>
+</ul>
+<h3 id="本文贡献"><a href="#本文贡献" class="headerlink" title="本文贡献"></a>本文贡献</h3><ol>
+<li>利用同方差任务不确定性，同时学习不同数量和单位的各种分类和回归损失的多任务损失。</li>
+<li>语义分割、实例分割和深度回归的统一架构。</li>
+<li>证明了损失加权在多任务深度学习中的重要性，以及与等效的单独训练模型相比如何获得更好的性能。</li>
+</ol>
+<h3 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h3><p>与单独学习每个任务相比，本文方法可以学习优化这些权重，从而获得更好的性能。</p>
+<p>应用场景的例子是用的 语义分割 semantic segmentation （classify objects at a pixel level  ）、实例分割instance segmentation（回归任务）  、pixel-wise metric depth（depth regression，是一个回归任务  ），同时训练这三个任务。</p>
+<h3 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h3><p>。。。</p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>多任务，这里应用场景的例子是用的 语义分割 semantic segmentation （classify objects at a pixel level  ）、实例分割instance segmentation  、pixel-wise metric depth  ，同时训练这三个任务。</p>
+<img src="/2023/04/04/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20Using%20Uncertainty%20to%20Weigh%20Losses%20for%20Scene%20Geometry%20and%20Semantics/image-20230403102151154.png" alt="image-20230403102151154" style="zoom:80%;">
+
+
+
+
+
+<p>w&#x3D;0和w&#x3D;1是单独训练模型的情况，w在0-1中间值是联合训练：</p>
+<img src="/2023/04/04/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20Using%20Uncertainty%20to%20Weigh%20Losses%20for%20Scene%20Geometry%20and%20Semantics/image-20230403155801322.png" alt="image-20230403155801322" style="zoom:80%;">
+
+
+
+<h3 id="Homoscedastic-uncertainty-as-task-dependent-uncertainty"><a href="#Homoscedastic-uncertainty-as-task-dependent-uncertainty" class="headerlink" title="Homoscedastic uncertainty as task-dependent uncertainty"></a>Homoscedastic uncertainty as task-dependent uncertainty</h3><p>在贝叶斯建模中，有两种主要的不确定性可以建模：</p>
+<ul>
+<li><strong>Epistemic uncertainty</strong>  认知不确定性。是模型中的不确定性，它捕获了我们的模型由于缺乏训练数据而不知道的东西。这可以用增加的训练数据来解释。</li>
+<li><strong>Aleatoric uncertainty</strong>  偶然不确定性。捕捉我们对于数据无法解释的信息的不确定性，可以解释为能够越来越精确地观察所有解释变量。分为两个子类：<ul>
+<li><strong>Data-dependent</strong> 或 <strong>Heteroscedastic uncertainty</strong>   是一种依赖于输入数据并被预测为模型输出的 Aleatoric uncertainty。</li>
+<li><strong>Task-dependent</strong> 或 <strong>Homoscedastic uncertainty</strong>  不依赖输入数据的 Aleatoric uncertainty，相反，它是一个对所有输入数据保持不变的量，在不同的任务之间变化。因此，它可以被描述为任务相关的不确定性。</li>
+</ul>
+</li>
+</ul>
+<p>任务不确定性捕获任务之间的相对置信度，反映回归或分类任务固有的不确定性。它还取决于任务的表示或度量单位。这里用的是 Homoscedastic uncertainty。</p>
+<p><code>同方差</code> 指的是假定数据输入一定的情况下，真实的分布与任务的输出之间有一个恒定的方差。</p>
+<blockquote>
+<p>知乎：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/278182454/answer/398539763?spm=a2c6h.12873639.article-detail.126.15ab6f734hQZYB">Homoskedasticity同方差性与Heteroskedasticity异方差性的区别是什么？</a></p>
+</blockquote>
+<h3 id="Multi-task-likelihoods"><a href="#Multi-task-likelihoods" class="headerlink" title="Multi-task likelihoods"></a>Multi-task likelihoods</h3><p>推导了一个基于最大化具有同方差不确定性的高斯似然的多任务损失函数。神经网络输入 $\mathbf x$，经过权重 $\mathbf W$，得到输出 $\mathbf f^\mathbf W(\mathbf x)$。</p>
+<p>对于回归任务，定义输出的似然值服从一个均值是模型输出的高斯分布，即：<br>$$<br>p\left(\mathbf{y} \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x})\right)&#x3D;\mathcal{N}\left(\mathbf{f}^{\mathbf{W}}(\mathbf{x}), \sigma^2\right)<br>$$<br>其中，$\sigma$ 是观测噪声，是一个标量。</p>
+<p>对于分类任务，通常通过一个softmax函数压缩模型输出，并从产生的概率向量中取样：<br>$$<br>p\left(\mathbf{y} \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x})\right)&#x3D;\operatorname{Softmax}\left(\mathbf{f}^{\mathbf{W}}(\mathbf{x})\right) .<br>$$<br>定义 $\mathrm{f}^{\mathrm{W}}(\mathrm{x})$ 作为充分统计量 sufficient statistics，则多任务似然概率可以分解为：<br>$$<br>p\left(\mathbf{y}_1, \ldots, \mathbf{y}_K \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x})\right)&#x3D;p\left(\mathbf{y}_1 \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x})\right) \ldots p\left(\mathbf{y}_K \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x})\right)<br>$$<br>输出 $\mathbf{y}_1, \ldots, \mathbf{y}_K$ 是不同任务的输出。</p>
+<p>最大似然推断，用最大化 $\log$ 似然值。</p>
+<p>对于回归任务，$\log$ 似然值：<br>$$<br>\log p\left(\mathbf{y} \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x})\right) \propto-\frac{1}{2 \sigma^2}\left|\mathbf{y}-\mathbf{f}^{\mathbf{W}}(\mathbf{x})\right|^2-\log \sigma<br>$$<br>$\sigma$ 是模型的观测噪声参数，<strong>捕捉在输出中有多少噪声</strong>（通过方差来看出输出的变化程度？）。最大log似然估计，参数是 $\mathbf{W}$ 和 $\sigma$。</p>
+<p>现在假设模型输出由两个向量 $\mathbf{y}_1$ 和 $\mathbf{y}_2$ 组成，每个向量都服从高斯分布：<br>$$<br>\begin{aligned}<br>p\left(\mathbf{y}_1, \mathbf{y}_2 \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x})\right) &amp; &#x3D;p\left(\mathbf{y}_1 \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x})\right) \cdot p\left(\mathbf{y}_2 \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x})\right) \<br>&amp; &#x3D;\mathcal{N}\left(\mathbf{y}_1 ; \mathbf{f}^{\mathbf{W}}(\mathbf{x}), \sigma_1^2\right) \cdot \mathcal{N}\left(\mathbf{y}_2 ; \mathbf{f}^{\mathbf{W}}(\mathbf{x}), \sigma_2^2\right)<br>\end{aligned}<br>$$<br>最小化多任务loss， $\mathcal{L}\left(\mathbf{W}, \sigma_1, \sigma_2\right)$：<br>$$<br>\begin{aligned}<br>\mathcal{L}\left(\mathbf{W}, \sigma_1, \sigma_2\right) &amp;&#x3D;-\log p\left(\mathbf{y}_1, \mathbf{y}_2 \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x})\right) \<br>&amp; \propto \frac{1}{2 \sigma_1^2}\left|\mathbf{y}_1-\mathbf{f}^{\mathbf{W}}(\mathbf{x})\right|^2+\frac{1}{2 \sigma_2^2}\left|\mathbf{y}_2-\mathbf{f}^{\mathbf{W}}(\mathbf{x})\right|^2+\log \sigma_1 \sigma_2 \<br>&amp; &#x3D;\frac{1}{2 \sigma_1^2} \mathcal{L}_1(\mathbf{W})+\frac{1}{2 \sigma_2^2} \mathcal{L}_2(\mathbf{W})+\log \sigma_1 \sigma_2<br>\end{aligned}<br>$$<br>其中，第一个任务输出变量的loss为 $\mathcal{L}_1(\mathbf{W})&#x3D;\left|\mathbf{y}_1-\mathbf{f}^{\mathbf{W}}(\mathbf{x})\right|^2$ ， $\mathcal{L}_2(\mathbf{W})$ 也是类似的。</p>
+<p>&#x3D;&#x3D;将最后一个关于$\sigma_1$ 和 $\sigma_2$的最小化目标解释为基于数据自适应地学习损失 $\mathcal{L}_1(\mathbf{W})$ 和 $\mathcal{L}_2(\mathbf{W})$ 的相对权重。&#x3D;&#x3D;</p>
+<p>当输出 $y_1$ 的噪声参数 $\sigma_1$ 增大，则 $\mathcal{L}_1(\mathbf{W})$ 的权重要减小。目标中的最后一项阻止噪声增加太多（有效地忽略数据），它充当噪声项的正则器。</p>
+<p>我的理解是：loss function里的方差项大时，也就是输出似然值变化大，我们希望输出似然值变化不要那么大，要朝着变化小的方向更新，于是这个任务的权重调小一点。                  </p>
+<p>对于分类任务，通过一个softmax函数调整分类似然来压缩模型输出的缩放scaled版本<br>$$<br>p\left(\mathbf{y} \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x}), \sigma\right)&#x3D;\operatorname{Softmax}\left(\frac{1}{\sigma^2} \mathbf{f}^{\mathbf{W}}(\mathbf{x})\right)<br>$$<br>$\sigma$是一个正数的标量。解释为 Boltzmann distribution (也成为 Gibbs distribution) ，输入缩放到 $\sigma^2$ （通常也叫做 temperature）。这个标量要么是固定的，要么是可以学习的，其中参数的大小决定了离散分布的“均匀”(平坦)程度。这与它的不确定性有关，以熵来衡量。该输出的对数似然可以写成<br>$$<br>\begin{aligned}<br>\log p\left(\mathbf{y}&#x3D;c \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x}), \sigma\right) &amp; &#x3D;\frac{1}{\sigma^2} f_c^{\mathbf{W}}(\mathbf{x}) \<br>&amp; -\log \sum_{c^{\prime}} \exp \left(\frac{1}{\sigma^2} f_{c^{\prime}}^{\mathbf{W}}(\mathbf{x})\right)<br>\end{aligned}<br>$$<br>其中， $f_{c^{\prime}}^{\mathbf{W}}(\mathbf{x})$ 是向量 $\mathbf{f}^{\mathbf{W}}(\mathbf{x})$ 的第 $c^{\prime}$ 个元素。</p>
+<p>假设模型的多个输出由连续输出 $y_1$ 和离散输出 $y_2$ 组成，分别用高斯似然和软最大似然建模。就像之前的联合损失一样，$\mathcal{L}\left(\mathbf{W}, \sigma_1, \sigma_2\right)$：<br>$$<br>\begin{aligned}<br>\mathcal{L}\left(\mathbf{W}, \sigma_1, \sigma_2\right)&amp; &#x3D;-\log p\left(\mathbf{y}_1, \mathbf{y}_2&#x3D;c \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x})\right) \<br>&amp; &#x3D;-\log \mathcal{N}\left(\mathbf{y}_1 ; \mathbf{f}^{\mathbf{W}}(\mathbf{x}), \sigma_1^2\right) \cdot \operatorname{Softmax}\left(\mathbf{y}_2&#x3D;c ; \mathbf{f}^{\mathbf{W}}(\mathbf{x}), \sigma_2\right) \<br>&amp; &#x3D;\frac{1}{2 \sigma_1^2}\left|\mathbf{y}<em>1-\mathbf{f}^{\mathbf{W}}(\mathbf{x})\right|^2+\log \sigma_1-\log p\left(\mathbf{y}<em>2&#x3D;c \mid \mathbf{f}^{\mathbf{W}}(\mathbf{x}), \sigma_2\right) \<br>&amp; &#x3D;\frac{1}{2 \sigma_1^2} \mathcal{L}<em>1(\mathbf{W})+\frac{1}{\sigma_2^2} \mathcal{L}<em>2(\mathbf{W})+\log \sigma_1 \<br>&amp; \qquad \quad+\log \frac{\sum</em>{c^{\prime}} \exp \left(\frac{1}{\sigma_2^2} f</em>{c^{\prime}}^{\mathbf{W}}(\mathbf{x})\right)}{\left(\sum</em>{c^{\prime}} \exp \left(f</em>{c^{\prime}}^{\mathbf{W}}(\mathbf{x})\right)\right)^{\frac{1}{\sigma_2^2}}} \<br>&amp; \approx \frac{1}{2 \sigma_1^2} \mathcal{L}_1(\mathbf{W})+\frac{1}{\sigma_2^2} \mathcal{L}_2(\mathbf{W})+\log \sigma_1+\log \sigma_2,<br>\end{aligned}<br>$$<br>其中， $\mathcal{L}_1(\mathbf{W})&#x3D;\left|\mathbf{y}_1-\mathbf{f}^{\mathbf{W}}(\mathbf{x})\right|^2$ 是 $\mathbf{y}_1$ loss的欧氏距离， $\mathcal{L}_2(\mathbf{W})&#x3D;-\log \operatorname{Softmax}\left(\mathbf{y}_2, \mathbf{f}^{\mathbf{W}}(\mathbf{x})\right)$ 是 $\mathbf{y}_2$ 的交叉熵（ $\mathbf{f}^{\mathrm{W}}(\mathrm{x})$ 没缩放）</p>
+<p>（验算了一下是对的）</p>
+<p>最优化参数 $\mathbf{W}$ 、 $\sigma_1$ 、$\sigma_2$ 。上式的最后一行是做了简化：假设 $\frac{1}{\sigma_2} \sum_{c^{\prime}} \exp \left(\frac{1}{\sigma_2^2} f_{c^{\prime}}^{\mathbf{W}}(\mathbf{x})\right) \approx$ $\left(\sum_{c^{\prime}} \exp \left(f_{c^{\prime}}^{\mathbf{W}}(\mathbf{x})\right)\right)^{\frac{1}{\sigma_2^2}}$ ，当 $\sigma_2 \rightarrow 1$ 时等号成立。</p>
+<p>感觉这一步简化是比较难想到的。。。</p>
+<p>最后一个目标可以看作是学习每个输出的损失的相对权重。由 $\frac{1}{2 \sigma_1^2} \mathcal{L}_1(\mathbf{W})$ 可知， 大缩放数值值$\sigma_2$ 会降低 $\mathcal{L}_2(\mathbf{W})$的贡献，反之亦然。缩放值由方程的最后一项决定。当将$\sigma_2$设置太大时，目标将被惩罚。</p>
+<h2 id="pytorch版代码实现"><a href="#pytorch版代码实现" class="headerlink" title="pytorch版代码实现"></a>pytorch版代码实现</h2><p>pytorch实现一：</p>
+<blockquote>
+<p>阿里云社区 <a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/1170913">【多任务学习】Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics</a></p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pylab</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> Dataset, DataLoader</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">gen_data</span>(<span class="params">N</span>):</span><br><span class="line">    X = np.random.randn(N, <span class="number">1</span>)</span><br><span class="line">    w1 = <span class="number">2.</span></span><br><span class="line">    b1 = <span class="number">8.</span></span><br><span class="line">    sigma1 = <span class="number">1e1</span>  <span class="comment"># ground truth</span></span><br><span class="line">    Y1 = X.dot(w1) + b1 + sigma1 * np.random.randn(N, <span class="number">1</span>)</span><br><span class="line">    w2 = <span class="number">3</span></span><br><span class="line">    b2 = <span class="number">3.</span></span><br><span class="line">    sigma2 = <span class="number">1e0</span>  <span class="comment"># ground truth</span></span><br><span class="line">    Y2 = X.dot(w2) + b2 + sigma2 * np.random.randn(N, <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> X, Y1, Y2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TrainData</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, feature_num, X, Y1, Y2</span>):</span><br><span class="line"></span><br><span class="line">        self.feature_num = feature_num</span><br><span class="line"></span><br><span class="line">        self.X = torch.tensor(X, dtype=torch.float32)</span><br><span class="line">        self.Y1 = torch.tensor(Y1, dtype=torch.float32)</span><br><span class="line">        self.Y2 = torch.tensor(Y2, dtype=torch.float32)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self.feature_num</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="keyword">return</span> self.X[idx,:], self.Y1[idx,:], self.Y2[idx,:]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MultiTaskLossWrapper</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, task_num, model</span>):</span><br><span class="line">        <span class="built_in">super</span>(MultiTaskLossWrapper, self).__init__()</span><br><span class="line">        self.model = model</span><br><span class="line">        self.task_num = task_num</span><br><span class="line">        self.log_vars = nn.Parameter(torch.zeros((task_num)))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, <span class="built_in">input</span>, targets</span>):</span><br><span class="line"></span><br><span class="line">        outputs = self.model(<span class="built_in">input</span>)</span><br><span class="line"></span><br><span class="line">        precision1 = torch.exp(-self.log_vars[<span class="number">0</span>])</span><br><span class="line">        loss = torch.<span class="built_in">sum</span>(precision1 * (targets[<span class="number">0</span>] - outputs[<span class="number">0</span>]) ** <span class="number">2.</span> + self.log_vars[<span class="number">0</span>], -<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        precision2 = torch.exp(-self.log_vars[<span class="number">1</span>])</span><br><span class="line">        loss += torch.<span class="built_in">sum</span>(precision2 * (targets[<span class="number">1</span>] - outputs[<span class="number">1</span>]) ** <span class="number">2.</span> + self.log_vars[<span class="number">1</span>], -<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        loss = torch.mean(loss)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> loss, self.log_vars.data.tolist()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MTLModel</span>(torch.nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, n_hidden, n_output</span>):</span><br><span class="line">        <span class="built_in">super</span>(MTLModel, self).__init__()</span><br><span class="line"></span><br><span class="line">        self.net1 = nn.Sequential(nn.Linear(<span class="number">1</span>, n_hidden), nn.ReLU(), nn.Linear(n_hidden, n_output))</span><br><span class="line">        self.net2 = nn.Sequential(nn.Linear(<span class="number">1</span>, n_hidden), nn.ReLU(), nn.Linear(n_hidden, n_output))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        <span class="keyword">return</span> [self.net1(x), self.net2(x)]</span><br><span class="line">np.random.seed(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">feature_num = <span class="number">100</span></span><br><span class="line">nb_epoch = <span class="number">2000</span></span><br><span class="line">batch_size = <span class="number">20</span></span><br><span class="line">hidden_dim = <span class="number">1024</span></span><br><span class="line"></span><br><span class="line">X, Y1, Y2 = gen_data(feature_num)</span><br><span class="line">pylab.figure(figsize=(<span class="number">3</span>, <span class="number">1.5</span>))</span><br><span class="line">pylab.scatter(X[:, <span class="number">0</span>], Y1[:, <span class="number">0</span>])</span><br><span class="line">pylab.scatter(X[:, <span class="number">0</span>], Y2[:, <span class="number">0</span>])</span><br><span class="line">pylab.show()</span><br><span class="line"></span><br><span class="line">train_data = TrainData(feature_num, X, Y1, Y2)</span><br><span class="line">train_data_loader = DataLoader(train_data, shuffle=<span class="literal">True</span>, batch_size=batch_size)</span><br><span class="line"></span><br><span class="line">model = MTLModel(hidden_dim, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">mtl = MultiTaskLossWrapper(<span class="number">2</span>, model)</span><br><span class="line">mtl</span><br><span class="line"></span><br><span class="line"><span class="comment"># https://github.com/keras-team/keras/blob/master/keras/optimizers.py</span></span><br><span class="line"><span class="comment"># k.epsilon() = keras.backend.epsilon()</span></span><br><span class="line">optimizer = torch.optim.Adam(mtl.parameters(), lr=<span class="number">0.001</span>, eps=<span class="number">1e-07</span>)</span><br><span class="line"></span><br><span class="line">loss_list = []</span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> <span class="built_in">range</span>(nb_epoch):</span><br><span class="line">    cumulative_loss = <span class="number">0</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> X, Y1, Y2 <span class="keyword">in</span> train_data_loader:</span><br><span class="line"></span><br><span class="line">        loss, log_vars = mtl(X, [Y1, Y2])</span><br><span class="line"></span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        cumulative_loss += loss.item()</span><br><span class="line"></span><br><span class="line">    loss_list.append(cumulative_loss/batch_size)</span><br><span class="line">pylab.plot(loss_list)</span><br><span class="line">pylab.show()</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(log_vars)</span><br><span class="line">[<span class="number">4.2984442710876465</span>, -<span class="number">0.2037072628736496</span>]</span><br><span class="line"><span class="comment"># Found standard deviations (ground truth is 10 and 1):</span></span><br><span class="line"><span class="built_in">print</span>([math.exp(log_var) ** <span class="number">0.5</span> <span class="keyword">for</span> log_var <span class="keyword">in</span> log_vars])</span><br><span class="line">[<span class="number">8.578183137529612</span>, <span class="number">0.9031617364804738</span>]</span><br></pre></td></tr></table></figure>
+
+
+
+<p>pytorch实现二：</p>
+<blockquote>
+<p>csdn：<a target="_blank" rel="noopener" href="https://blog.csdn.net/u010212101/article/details/115701136">【论文阅读】Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics</a></p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">DynamicWeightedLoss</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, num=<span class="number">2</span></span>):</span><br><span class="line">        <span class="built_in">super</span>(DynamicWeightedLoss, self).__init__()</span><br><span class="line">        params = torch.ones(num, requires_grad=<span class="literal">True</span>)</span><br><span class="line">        self.params = torch.nn.Parameter(params)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, *x</span>):</span><br><span class="line">        loss_sum = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> i, loss <span class="keyword">in</span> <span class="built_in">enumerate</span>(x):</span><br><span class="line">            loss_sum += torch.exp(-self.params[i]) * loss </span><br><span class="line">            + self.params[i]</span><br><span class="line">        <span class="keyword">return</span> loss_sum</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2><p>多任务loss间权重如何设置呢，手调太费时，能不能通过loss值的变化大小来反馈给权重呢，要怎么衡量loss值变化呢，衡量变化，也就是衡量不确定性，很容易想到熵是衡量不确定性的。（然后我现在暂时还不知道，为什么是这样）就是对于分类任务，softmax输出乘以一个方差倒数（这个在蒸馏里是temperature），认为是“软最大似然”，这个物理意义为方差的参数$\sigma$ ，用来衡量不确定性，如果某一个任务loss变化大，则方差（不同任务的相对权重）设置为小一点；对于回归任务，认为模型似然服从高斯分布，高斯分布的均值是模型输出（因为没有softmax，所以模型输出不是后验概率），方差是 $\sigma$，然后和分类任务差不多，如果某一个任务loss变化大，则方差（不同任务的相对权重）设置为小一点。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/04/03/C++/C++%E7%AC%94%E8%AE%B0/" rel="next" title="C++笔记">
+                <i class="fa fa-chevron-left"></i> C++笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/" rel="prev" title="Multi-Task Learning as Multi-Objective Optimization">
+                Multi-Task Learning as Multi-Objective Optimization <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Multi-Task-Learning-Using-Uncertainty-to-Weigh-Losses-for-Scene-Geometry-and-Semantics"><span class="nav-number">1.</span> <span class="nav-text">Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.1.</span> <span class="nav-text">解决什么问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%90%E5%87%BA%E4%BB%80%E4%B9%88%E6%96%B9%E6%B3%95"><span class="nav-number">1.0.2.</span> <span class="nav-text">提出什么方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E6%96%87%E8%B4%A1%E7%8C%AE"><span class="nav-number">1.0.3.</span> <span class="nav-text">本文贡献</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%88%E6%9E%9C%E5%A6%82%E4%BD%95"><span class="nav-number">1.0.4.</span> <span class="nav-text">效果如何</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%98%E5%AD%98%E5%9C%A8%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.5.</span> <span class="nav-text">还存在什么问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.1.</span> <span class="nav-text">思路</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Homoscedastic-uncertainty-as-task-dependent-uncertainty"><span class="nav-number">1.1.1.</span> <span class="nav-text">Homoscedastic uncertainty as task-dependent uncertainty</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Multi-task-likelihoods"><span class="nav-number">1.1.2.</span> <span class="nav-text">Multi-task likelihoods</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pytorch%E7%89%88%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.2.</span> <span class="nav-text">pytorch版代码实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%84%E4%BB%B7"><span class="nav-number">1.3.</span> <span class="nav-text">评价</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/04/04/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20Using%20Uncertainty%20to%20Weigh%20Losses%20for%20Scene%20Geometry%20and%20Semantics/';
+          this.page.identifier = '2023/04/04/深度学习/Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics/';
+          this.page.title = 'Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

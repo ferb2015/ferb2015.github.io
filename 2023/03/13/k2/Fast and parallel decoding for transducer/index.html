@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="k2,语音识别," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Fast and parallel decoding for transducer. RNN-T 的快速 GPU 解码 Kang, Wei, et al. “Fast and parallel decoding for transducer.” arXiv preprint arXiv:2211.00484 (2022). icefall ：fast_beam_search 公众号 新一代Kald">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fast and parallel decoding for transducer. RNN-T 的快速 GPU 解码">
+<meta property="og:url" content="http://example.com/2023/03/13/k2/Fast%20and%20parallel%20decoding%20for%20transducer/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="Fast and parallel decoding for transducer. RNN-T 的快速 GPU 解码 Kang, Wei, et al. “Fast and parallel decoding for transducer.” arXiv preprint arXiv:2211.00484 (2022). icefall ：fast_beam_search 公众号 新一代Kald">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/03/13/k2/Fast%20and%20parallel%20decoding%20for%20transducer/image-20230313165244454.png">
+<meta property="article:published_time" content="2023-03-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-03-13T13:55:02.630Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="k2">
+<meta property="article:tag" content="语音识别">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/03/13/k2/Fast%20and%20parallel%20decoding%20for%20transducer/image-20230313165244454.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/03/13/k2/Fast and parallel decoding for transducer/"/>
+
+
+
+
+
+  <title>Fast and parallel decoding for transducer. RNN-T 的快速 GPU 解码 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/13/k2/Fast%20and%20parallel%20decoding%20for%20transducer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Fast and parallel decoding for transducer. RNN-T 的快速 GPU 解码</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-03-13T00:00:00+08:00">
+                2023-03-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k2/" itemprop="url" rel="index">
+                    <span itemprop="name">k2</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/03/13/k2/Fast%20and%20parallel%20decoding%20for%20transducer/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/03/13/k2/Fast and parallel decoding for transducer/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Fast-and-parallel-decoding-for-transducer-RNN-T-的快速-GPU-解码"><a href="#Fast-and-parallel-decoding-for-transducer-RNN-T-的快速-GPU-解码" class="headerlink" title="Fast and parallel decoding for transducer. RNN-T 的快速 GPU 解码"></a>Fast and parallel decoding for transducer. RNN-T 的快速 GPU 解码</h1><blockquote>
+<p>Kang, Wei, et al. “Fast and parallel decoding for transducer.” <em>arXiv preprint arXiv:2211.00484</em> (2022).</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/icefall">icefall</a> ：fast_beam_search</p>
+<p>公众号 新一代Kaldi  <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/f0vpatseghLi2piYpUpmQQ">什么是Next-gen Kaldi?</a></p>
+<p>解码算法实现：在K2中用ragged tensor数据结构实现</p>
+<p>核心代码实现开源在<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/k2">https://github.com/k2-fsa/k2</a> (搜索 rnnt_decode.{h,cu})，应用示例开源在<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/icefall">https://github.com/k2-fsa/icefall</a> (搜索fast_beam_search)。</p>
+</blockquote>
+<ul>
+<li><p><strong>解决什么问题</strong></p>
+<p>transducer模型每个时间步的输出symbol数量没有约束，不确定一个时间步可以输出几个symbol（可以一直输出symbol直到遇到blank），每个输出都依赖上一个输出symbol，因此难以实现并行解码（本来是串行）。</p>
+</li>
+<li><p><strong>提出什么方法</strong></p>
+<p>设计并实现了在 GPU 上实现高效FSA 解码的方案，为此本文对 RNN-T 做了一些改造。</p>
+<ol>
+<li>在训练过程中，限制了loss function，使得朝向严格单调对齐的方向输出（音频和文本序列单调对齐）。<strong>在RNN-T中使用了无状态的decoder网络，使用有限的left context。</strong></li>
+<li>解码过程中（greedy search和beam search），限制了每步参与解码的symbol（本来是不确定可以输出几个symbol），更有效地并行批量解码。<strong>在解码时限制每一帧语音只能输出一个symbol。</strong></li>
+<li>提出搜索图可以运行在GPU上的FSA 并行beam search算法。</li>
+</ol>
+</li>
+<li><p><strong>效果如何</strong></p>
+<p>实验表明，在提高解码速度的同时，还能降低WER。</p>
+<p>在上述两个前提下，又基于 k2 中的 RaggedTensor 实现了帧同步的 beam search 解码。这可能是现今唯一既能使用  FSA 又能运行于 GPU 的解码方法，通过测试我们发现使用 80M 的模型在英伟达 V100 显卡上能并行跑 200 路以上的语音，LibriSpeech 数据集上的解码实时率低至 0.0025。</p>
+</li>
+<li><p><strong>还有什么问题</strong></p>
+</li>
+<li><p><strong>本文贡献</strong></p>
+<ul>
+<li>通过限制每个时间步发射的符号数量为“1”来加速transducer解码。</li>
+<li>提出了一种有约束的transucer模型，来提高解码时one-symbol-per-frame的能力。</li>
+<li>实现了一种基于fsa的并行beam search算法，该算法使得搜索图能够高效地运行在GPU上。</li>
+</ul>
+</li>
+</ul>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>在 GPU 上实现了高效的 FSA 解码，为此我们对 RNN-T 做了一些改造，首先我们在 RNN-T 中使用了无状态的 decoder 网络，使用有限的 left context；另外，我们在解码时限制每一帧语音只能输出一个 symbol。在这两个前提下，我们基于 <code>k2</code> 中的 RaggedTensor 实现了帧同步的 beam search 解码。这可能是现今唯一既能使用 FSA 又能运行于 GPU 的解码方法，我们测试发现使用 80M 的模型在英伟达 V100 显卡上能并行跑 200 路以上的语音，LibriSpeech 数据集上的解码实时率低至 0.0025。该工作提交至 ICASSP2023，<code>icefall</code>中的<code>fast_beam_search</code>实现了该种解码办法。</p>
+<p>上述章节中提到我们在GPU上实现了FSA-based的高并发解码方法，这个解码方法的实现得益于我们在RNN-T模型上做的两个小创新。第一，我们的decoder网络是一个无状态的网络，从（<a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/document/9054419/%EF%BC%89%E4%BF%AE%E6%94%B9%E8%80%8C%E6%9D%A5%EF%BC%8C%E6%88%91%E4%BB%AC%E5%9C%A8embedding%E5%B1%82%E5%90%8E%E9%9D%A2%E5%8A%A0%E4%BA%86%E4%B8%80%E4%B8%AA%E4%B8%80%E7%BB%B4%E5%8D%B7%E7%A7%AF%E4%BB%A5%E6%89%AE%E6%BC%94N-gram%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E7%9A%84%E4%BD%9C%E7%94%A8%E3%80%82%E7%AC%AC%E4%BA%8C%EF%BC%8C%E6%88%91%E4%BB%AC%E5%9C%A8%E8%A7%A3%E7%A0%81%E9%98%B6%E6%AE%B5%E4%B8%A5%E6%A0%BC%E9%99%90%E5%88%B6%E6%AF%8F%E4%B8%80%E5%B8%A7%E8%BE%93%E5%87%BA%E4%B8%80%E4%B8%AA%E7%AC%A6%E5%8F%B7%E3%80%82%E8%BF%99%E4%BD%BF%E5%BE%97%E6%88%91%E4%BB%AC%E8%A7%A3%E7%A0%81%E8%BF%87%E7%A8%8B%E4%B8%8D%E5%AD%98%E5%9C%A8%E8%87%AA%E5%9B%9E%E5%BD%92%EF%BC%8C%E8%80%8C%E4%B8%94%E5%9C%A8%E6%AF%8F%E4%B8%80%E5%B8%A7%E4%B8%8A%E4%B9%9F%E4%B8%8D%E4%BC%9A%E6%9C%89%E5%BE%AA%E7%8E%AF%E5%AD%98%E5%9C%A8%E3%80%82%E5%85%B7%E4%BD%93%E7%9A%84%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82%E6%96%87%E8%BE%9E%E4%B8%8A%E9%9A%BE%E4%BB%A5%E5%B0%BD%E8%BF%B0%EF%BC%8C%E6%83%B3%E4%BA%86%E8%A7%A3%E5%85%B6%E4%B8%AD%E7%BB%86%E8%8A%82%E5%8F%AF%E4%BB%A5%E5%8F%82%E7%9C%8BDaniel%E7%9A%84proposal">https://ieeexplore.ieee.org/document/9054419/）修改而来，我们在embedding层后面加了一个一维卷积以扮演N-gram语言模型的作用。第二，我们在解码阶段严格限制每一帧输出一个符号。这使得我们解码过程不存在自回归，而且在每一帧上也不会有循环存在。具体的实现细节文辞上难以尽述，想了解其中细节可以参看Daniel的proposal</a>:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/k2/issues/885">https://github.com/k2-fsa/k2/issues/885</a></li>
+</ul>
+<p>最终实现跟这个有些差异；k2中的实现</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/k2/pull/926">https://github.com/k2-fsa/k2/pull/926</a></li>
+</ul>
+<p>Icefall中的运用:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/icefall/pull/250">https://github.com/k2-fsa/icefall/pull/250</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/k2fsa/icefall/pull/277">https://github.com/k2fsa/icefall/pull/277</a></li>
+</ul>
+<h2 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h2><p>为了加快RNNT解码速度，相关论文中有如下思路：</p>
+<ol>
+<li>采用caching缓存技术避免了预测网络中相同预测历史的冗余计算。</li>
+<li>用pruning剪枝减少搜索过程中活跃symbol的数量，使计算更有效率。</li>
+<li>使用有限的标签上下文label context来合并具有相同预测历史的假设，来减少活跃symbol的数量。</li>
+<li>在解码过程中限制每个时间步输出的symbol数为1。</li>
+</ol>
+<h2 id="Transducer-decoding-algorithms"><a href="#Transducer-decoding-algorithms" class="headerlink" title="Transducer decoding algorithms"></a>Transducer decoding algorithms</h2><h3 id="Traditional-Transducer"><a href="#Traditional-Transducer" class="headerlink" title="Traditional Transducer"></a>Traditional Transducer</h3><p>$(\mathbf{y}, t)$ 转移到 $(\mathbf{y} + a, t)$ with label $a$ ，转移概率 $P (a|\mathbf{y}, t)$ ；</p>
+<p>$(\mathbf{y}, t)$ 转移到 $(\mathbf{y}, t+1)$ ，转移概率 $P (\varnothing|\mathbf{y}, t)$  ；</p>
+<h3 id="Stateless-Transducer"><a href="#Stateless-Transducer" class="headerlink" title="Stateless Transducer"></a>Stateless Transducer</h3><p>这种transducer下，decoder network （也就是prediction network，输入是上一时刻的symbol） 可以简化为只有最近的符号，例如y的两个符号。</p>
+<h3 id="Max-symbols-decoding"><a href="#Max-symbols-decoding" class="headerlink" title="Max-symbols decoding"></a>Max-symbols decoding</h3><p>限制每帧可以输出的最多symbol，每帧都有一个状态空间，$0 \leq n &lt; S$  ，表示当前状态已经输出了几个symbol了。</p>
+<p>所以状态的形式是： $(\mathbf{y}, t, n)$。（ $\mathbf{y}$ 是一个序列）</p>
+<ul>
+<li>当blank $(\varnothing)$ 转移时，形式是 $(\mathbf{y}, t, n)$ →  $(\mathbf{y}, t+1, 0) $ ；</li>
+<li>当label $a$ （$a \neq \varnothing  $）转移时（此处 $n \leq S-1$ ），形式是 $(\mathbf{y}, t, n)$ → $(\mathbf{y}+a, t, n+1)$ ；</li>
+<li>当label $a$ （$a \neq \varnothing  $）转移时（此处 $n &#x3D; S-1$ ），形式是 $(\mathbf{y}, t, S-1)$ → $(\mathbf{y}+a, t+1, 0)$ ；这相当于假设在给定帧上发射 $S$ 个符号后，blank的概率总是1。</li>
+</ul>
+<h3 id="FSA-based-decoding"><a href="#FSA-based-decoding" class="headerlink" title="FSA-based decoding"></a>FSA-based decoding</h3><p>提出两个假设来简化算法：</p>
+<ol>
+<li>使用stateless transducer  ，假设decoder network只依赖非常少的input symbol（前时刻的symbol）。</li>
+<li>用max-symbols decoding，假设每帧可输出的symbol数量 $S&#x3D;1$ 。（这和hybrid或CTC解码很像，一帧只会输出一个位置的label）</li>
+</ol>
+<p>扩展状态空间，用graph进行解码，state的形式是：$((a, b), t, s)   $，$a$ 和  $b$ 是symbols（包括 blank）； $t \geq 0$ 是帧索引； $s$ 是解码图状态。</p>
+<p>对于label $c$ （ $c \neq \varnothing  $ ），概率 $q$，解码图上的每条弧 $s$ → $r$ ,  lattice上存在这样的转移：$((a, b), t, s)$ → $((b, c), t+1, r)$ ，转移概率 $P (c|(a, b), t)  $；</p>
+<p>对于label $\varnothing $（$\varnothing&#x3D;0$ ），blank转移 $((a, b), t, s) → ((a, b), t+1, s) $ ， 转移概率 $P (\varnothing |(a, b), t)   $ ；</p>
+<p>解码算法是在k2 中使用 ragged tensor 数据结构实现的，它可以在GPU上并行快速处理不规则大小的对象</p>
+<h3 id="Beam-search"><a href="#Beam-search" class="headerlink" title="Beam search"></a>Beam search</h3><p>三个限制：</p>
+<ol>
+<li>a log-probability <strong>beam</strong>, </li>
+<li>a <strong>max-states constraint</strong> (that limits the number of tuples ((a, b), t, s) for a given t)  </li>
+<li>a <strong>max-contexts constraint</strong> that limits the number of symbol contexts like (a, b) that are active on a given t</li>
+</ol>
+<p>On each frame we first do propagation to the next frame without pruning  </p>
+<p>We then apply the max-states and beam constraints in one pruning operation; and then apply the max-contexts constraint in a second pruning operation.  </p>
+<img src="/2023/03/13/k2/Fast%20and%20parallel%20decoding%20for%20transducer/image-20230313165244454.png" alt="image-20230313165244454" style="zoom: 50%;">
+
+
+
+<h2 id="Constrained-Transducer-Training"><a href="#Constrained-Transducer-Training" class="headerlink" title="Constrained Transducer Training"></a>Constrained Transducer Training</h2><p>todo………..</p>
+<p>$$<br>\begin{array}{r}<br>\alpha(t, u)&#x3D;\log _{-} \operatorname{add}(\alpha(t-1, u)+\varnothing(t-1, u), \<br>\alpha(t, u-1)+y(t, u-1)))<br>\end{array}<br>$$<br>with the final data-likelihood being $\alpha(T-1, U)+\varnothing(T-1, U)$, the modified transducer is:<br>$$<br>\begin{aligned}<br>&amp; \alpha(t, u)&#x3D;\text { log-add }(\alpha(t-1, u)+\varnothing(t-1, u) \text {, } \<br>&amp; \alpha(t-1, u-1)+y(t-1, u-1))) \<br>&amp;<br>\end{aligned}<br>$$<br>with the final data-likelihood being $\alpha(T, U)$.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/k2/" rel="tag"># k2</a>
+          
+            <a href="/tags/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" rel="tag"># 语音识别</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/03/13/k2/Pruned%20RNN-T%20for%20fast,%20memory-efficient%20ASR%20training/" rel="next" title="Pruned RNN-T for fast, memory-efficient ASR training. Pruned RNN-T loss">
+                <i class="fa fa-chevron-left"></i> Pruned RNN-T for fast, memory-efficient ASR training. Pruned RNN-T loss
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/03/14/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E6%96%B0%E4%B8%80%E4%BB%A3kaldi%E9%A1%B9%E7%9B%AE%E7%9A%84%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B-%E9%83%AD%E7%90%86%E5%8B%87%20%E5%B0%8F%E7%B1%B3/" rel="prev" title="视频 基于新一代kaldi项目的语音识别应用实例-郭理勇 小米">
+                视频 基于新一代kaldi项目的语音识别应用实例-郭理勇 小米 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Fast-and-parallel-decoding-for-transducer-RNN-T-%E7%9A%84%E5%BF%AB%E9%80%9F-GPU-%E8%A7%A3%E7%A0%81"><span class="nav-number">1.</span> <span class="nav-text">Fast and parallel decoding for transducer. RNN-T 的快速 GPU 解码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.1.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.2.</span> <span class="nav-text">相关工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Transducer-decoding-algorithms"><span class="nav-number">1.3.</span> <span class="nav-text">Transducer decoding algorithms</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Traditional-Transducer"><span class="nav-number">1.3.1.</span> <span class="nav-text">Traditional Transducer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stateless-Transducer"><span class="nav-number">1.3.2.</span> <span class="nav-text">Stateless Transducer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Max-symbols-decoding"><span class="nav-number">1.3.3.</span> <span class="nav-text">Max-symbols decoding</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FSA-based-decoding"><span class="nav-number">1.3.4.</span> <span class="nav-text">FSA-based decoding</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Beam-search"><span class="nav-number">1.3.5.</span> <span class="nav-text">Beam search</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Constrained-Transducer-Training"><span class="nav-number">1.4.</span> <span class="nav-text">Constrained Transducer Training</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/03/13/k2/Fast%20and%20parallel%20decoding%20for%20transducer/';
+          this.page.identifier = '2023/03/13/k2/Fast and parallel decoding for transducer/';
+          this.page.title = 'Fast and parallel decoding for transducer. RNN-T 的快速 GPU 解码';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

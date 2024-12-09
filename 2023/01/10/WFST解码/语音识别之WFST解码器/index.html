@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="WFST解码,《语音识别原理与应用》," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="WFST解码器 厦门大学洪青阳教授的公开课：《语音识别值WFST解码器——基于WFST的维特比解码过程》   token：保存解码的中间结果 WFST解码本质上也是Viterbi解码，根据输入的特征序列，进行帧同步对齐，寻求最佳状态序列。   注意这里的状态不是HMM状态，而是HCLG的状态节点，所遍历状态节点之间的衔接，可能是&#x3D;&#x3D;产生观察值&#x3D;&#x3D;的转移弧（如">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《语音识别原理与应用》洪青阳 第9章 WFST解码器————最优路径解码">
+<meta property="og:url" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="WFST解码器 厦门大学洪青阳教授的公开课：《语音识别值WFST解码器——基于WFST的维特比解码过程》   token：保存解码的中间结果 WFST解码本质上也是Viterbi解码，根据输入的特征序列，进行帧同步对齐，寻求最佳状态序列。   注意这里的状态不是HMM状态，而是HCLG的状态节点，所遍历状态节点之间的衔接，可能是&#x3D;&#x3D;产生观察值&#x3D;&#x3D;的转移弧（如">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144630412.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144643772.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144711483.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144701827.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144724575.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144919914.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144944825.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707145013053.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707145028147.png">
+<meta property="article:published_time" content="2023-01-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-02-06T11:02:05.231Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="WFST解码">
+<meta property="article:tag" content="《语音识别原理与应用》">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144630412.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/01/10/WFST解码/语音识别之WFST解码器/"/>
+
+
+
+
+
+  <title>《语音识别原理与应用》洪青阳 第9章 WFST解码器————最优路径解码 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《语音识别原理与应用》洪青阳 第9章 WFST解码器————最优路径解码</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
+                2023-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WFST%E8%A7%A3%E7%A0%81/" itemprop="url" rel="index">
+                    <span itemprop="name">WFST解码</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/10/WFST解码/语音识别之WFST解码器/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="WFST解码器"><a href="#WFST解码器" class="headerlink" title="WFST解码器"></a>WFST解码器</h1><blockquote>
+<p>厦门大学洪青阳教授的公开课：<a target="_blank" rel="noopener" href="https://appqtulvsie4217.pc.xiaoe-tech.com/live_pc/l_5f504e67e4b0158ded4dffed">《语音识别值WFST解码器——基于WFST的维特比解码过程》</a></p>
+</blockquote>
+<ul>
+<li>token：保存解码的中间结果</li>
+<li>WFST解码本质上也是Viterbi解码，根据输入的特征序列，进行帧同步对齐，寻求最佳状态序列。  </li>
+<li>注意这里的状态不是HMM状态，而是HCLG的状态节点，所遍历状态节点之间的衔接，可能是&#x3D;&#x3D;产生观察值&#x3D;&#x3D;的转移弧（如状态𝑆1和𝑆2、 𝑆2和𝑆3之间的实线），也可能&#x3D;&#x3D;不产生观察值&#x3D;&#x3D;的转移弧（如状态𝑆4和𝑆5之间的虚线）。</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144630412.png" alt="image-20210707144630412"></p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144643772.png" alt="image-20210707144643772"></p>
+<ul>
+<li>Emitting arc：发射转移弧，会<strong>产生观察值</strong>，观察值产生声学分数（acoustic_cost），非0的输入标签（ilabel！&#x3D;0）.</li>
+<li>Nonemitting arc：非发射转移弧，<strong>不会产生观察值</strong>，没有声学分数，但是状态间能够跳转。简单理解可以想成  o—语:语文—o—文: $\epsilon$ —o 。0的输入标签（ilabel&#x3D;0）</li>
+<li>graph_cost：图代价，每条转移弧对应的权重。</li>
+<li>weight_cutoff：要剪枝的阈值</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144711483.png" alt="image-20210707144711483"></p>
+<ul>
+<li>cost越小越好</li>
+<li>arc.weight：包含hmm 转移概率、词典概率、语言模型概率（不包含am发射概率）（负对数）</li>
+<li>acoustic_cost：am发射概率（负对数）</li>
+<li>若cost更小，存在该token，有就替换，没有就添加</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144701827.png" alt="image-20210707144701827"></p>
+<ul>
+<li>若cost更小，存在该token，有就替换，没有就创建一个</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144724575.png" alt="image-20210707144724575"></p>
+<h2 id="基于token的viterbi解码"><a href="#基于token的viterbi解码" class="headerlink" title="基于token的viterbi解码"></a>基于token的viterbi解码</h2><ul>
+<li><p>类似HMM的解码过程， WFST的Viterbi解码也是逐帧推进，分别计算每帧的声学得分，然后结合转移弧的权重，得到每个时刻扩展路径的累计代价，这些代价用Token的cost保存。  </p>
+</li>
+<li><p>WFST的Viterbi解码通过对比指向同一个状态的不同路径的由Token（&#x3D;&#x3D;该Token与状态节点关联&#x3D;&#x3D;，如果状态节点还没有Token，则创建一个新的Token）保存的累计代价（cost） ，选择值更小的并更新Token信息。  </p>
+</li>
+<li><p>Viterbi算法的每个状态最多只有一个Token，如果有多条路径到某个状态，则Token可能存在冲突，根据值更小原则保持或进行替代 。</p>
+</li>
+<li><p>token：当走到某状态，会有一个token（没走到不会创建），token中的cost会更新</p>
+</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144919914.png" alt="image-20210707144919914"></p>
+<ul>
+<li>prev_toks：历史token</li>
+<li>cur_toks：当前token</li>
+</ul>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707144944825.png" alt="image-20210707144944825"></p>
+<ul>
+<li>当前帧的token：状态0，会遍历，cur_token会依次放进8，1，9，第一次，是创建token。9还会走processnonemitting，走到2，创建状态2的token</li>
+</ul>
+<p>第二帧：</p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707145013053.png" alt="image-20210707145013053"></p>
+<ul>
+<li>10-&gt;2：看看状态2的token的cost有没有更小，要不要更新2的token cost</li>
+</ul>
+<h4 id="回溯："><a href="#回溯：" class="headerlink" title="回溯："></a>回溯：</h4><p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/image-20210707145028147.png" alt="image-20210707145028147"></p>
+<p>beam：指的是一个窗口范围，对于一个token，到下一个状态弧在不在这个范围里，不在就舍弃，而不是取前beam个，是beam对应的窗口范围</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/WFST%E8%A7%A3%E7%A0%81/" rel="tag"># WFST解码</a>
+          
+            <a href="/tags/%E3%80%8A%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%E3%80%8B/" rel="tag"># 《语音识别原理与应用》</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/01/10/%E8%AF%86%E5%88%AB/TDNNF%E6%8E%A8%E5%AF%BC%E8%BF%87%E7%A8%8B/" rel="next" title="《语音识别原理与应用》洪青阳 第10章 DNN-HMM TDNNF推导过程">
+                <i class="fa fa-chevron-left"></i> 《语音识别原理与应用》洪青阳 第10章 DNN-HMM TDNNF推导过程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="prev" title="《语音识别原理与应用》洪青阳 第9章 WFST解码器————Lattice解码">
+                《语音识别原理与应用》洪青阳 第9章 WFST解码器————Lattice解码 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#WFST%E8%A7%A3%E7%A0%81%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">WFST解码器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Etoken%E7%9A%84viterbi%E8%A7%A3%E7%A0%81"><span class="nav-number">1.1.</span> <span class="nav-text">基于token的viterbi解码</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9E%E6%BA%AF%EF%BC%9A"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">回溯：</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/';
+          this.page.identifier = '2023/01/10/WFST解码/语音识别之WFST解码器/';
+          this.page.title = '《语音识别原理与应用》洪青阳 第9章 WFST解码器————最优路径解码';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="语音合成," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="端到端合成论文——声学模型——VITS &#x3D;&#x3D;Kim, Jaehyeon, Jungil Kong, and Juhee Son. “Conditional variational autoencoder with adversarial learning for end-to-end text-to-speech.” International Conference on Ma">
+<meta property="og:type" content="article">
+<meta property="og:title" content="端到端合成论文——声学模型——VITS">
+<meta property="og:url" content="http://example.com/2022/12/12/%E5%90%88%E6%88%90/VITS%E8%AE%BA%E6%96%87/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="端到端合成论文——声学模型——VITS &#x3D;&#x3D;Kim, Jaehyeon, Jungil Kong, and Juhee Son. “Conditional variational autoencoder with adversarial learning for end-to-end text-to-speech.” International Conference on Ma">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/12/12/%E5%90%88%E6%88%90/VITS%E8%AE%BA%E6%96%87/image-20221212162129315.png">
+<meta property="og:image" content="http://example.com/2022/12/12/%E5%90%88%E6%88%90/VITS%E8%AE%BA%E6%96%87/image-20221212104145183.png">
+<meta property="og:image" content="http://example.com/2022/12/12/%E5%90%88%E6%88%90/VITS%E8%AE%BA%E6%96%87/image-20221212104128108.png">
+<meta property="article:published_time" content="2022-12-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-12-12T08:38:09.275Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="语音合成">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/12/12/%E5%90%88%E6%88%90/VITS%E8%AE%BA%E6%96%87/image-20221212162129315.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/12/12/合成/VITS论文/"/>
+
+
+
+
+
+  <title>端到端合成论文——声学模型——VITS | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/12/%E5%90%88%E6%88%90/VITS%E8%AE%BA%E6%96%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">端到端合成论文——声学模型——VITS</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-12T00:00:00+08:00">
+                2022-12-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90/" itemprop="url" rel="index">
+                    <span itemprop="name">语音合成</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/12/12/%E5%90%88%E6%88%90/VITS%E8%AE%BA%E6%96%87/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/12/12/合成/VITS论文/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="端到端合成论文——声学模型——VITS"><a href="#端到端合成论文——声学模型——VITS" class="headerlink" title="端到端合成论文——声学模型——VITS"></a>端到端合成论文——声学模型——VITS</h1><blockquote>
+<p>&#x3D;&#x3D;Kim, Jaehyeon, Jungil Kong, and Juhee Son. “Conditional variational autoencoder with adversarial learning for end-to-end text-to-speech.” <em>International Conference on Machine Learning</em>. PMLR, 2021.&#x3D;&#x3D; citations: 118 Kakao （和hifi-gan一样的作者）</p>
+<p>github: <a target="_blank" rel="noopener" href="https://github.com/jaywalnut310/vits">https://github.com/jaywalnut310/vits</a></p>
+<p>Demo: <a target="_blank" rel="noopener" href="https://jaywalnut310.github.io/vits-demo/index.html">https://jaywalnut310.github.io/vits-demo/index.html</a>  </p>
+</blockquote>
+<ul>
+<li>解决什么问题<ul>
+<li>one-stage TTS model合成音质没有two-stage model好的问题。</li>
+</ul>
+</li>
+<li>用了什么方法<ul>
+<li>提出VITS（Variational Inference with adversarial learning for end-to-end Text-to-Speech）  ，是一个结合了变分推断、标准化flow、对抗网络的TTS model；</li>
+<li>提出了一种从输入文本合成不同韵律语音的随机时长预测器，实现one-to-many。</li>
+<li>不同于two-stage tts用mel谱作为中间产物进行声学模型和声码器的串联，vits用的vae的隐变量作为中间物。</li>
+</ul>
+</li>
+<li>效果如何<ul>
+<li>比two-stage TTS model音质好，更自然；</li>
+<li>多种生成方法结合，改善了生成模型的建模能力；</li>
+<li>在LJ Speech数据集达到SOTA，媲美真实声音。</li>
+</ul>
+</li>
+<li>存在什么问题<ul>
+<li>VITS输入依然需要文本预处理，研究语言表征的自监督学习可能是消除文本预处理的一个可能的方向。</li>
+</ul>
+</li>
+</ul>
+<h2 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h2><ul>
+<li><p>为什么likelihood-based的方法对于序列问题会更好：因为不用去学习text和spectrograms之间的alignment关系，直接通过最大化目标mel谱的似然。（之间用attention-map来得到text和mel的对齐关系，attention-map越好，tts模型性能更好）</p>
+</li>
+<li><p>two-stage系统有天然的问题，在于：</p>
+<ol>
+<li>训练vocoder的输入用的是声学模型生成（输出）的样本，声学模型训得很好或不太好，对于后面的vocoder，以及整体的语音合成来说，不确定哪种结合方案是最好的。就是两个模型之间有gap。</li>
+<li>依赖于预定义的中间特征，比如mel谱，因此无法应用习得的隐藏表示来获得进一步的性能改进。</li>
+</ol>
+</li>
+</ul>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>提出一个端到端TTS方法，叫VITS，用了CVAE来连接两个模块（vocoder和声学模型），CVAE的隐变量就是两个模块之间的code，中间变量；用了标准化flow来建模条件先验分布；用了对抗学习来训练生成waveform的vocoder模块。CVAE的隐变量能起到一定的one-to-many效果，为了进一步one-to-many的效果，提出stochastic duration predictor  随机时长预测器，合成不同rhythm的语音。</p>
+<h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><h3 id="Variational-Inference"><a href="#Variational-Inference" class="headerlink" title="Variational Inference"></a>Variational Inference</h3><h4 id="OVERVIEW"><a href="#OVERVIEW" class="headerlink" title="OVERVIEW"></a>OVERVIEW</h4><p>CVAE的目标是最大化变分下界variational lower bound  ，也叫做 $\log p_\theta(x \mid c) $ 的 evidence lower bound (ELBO)<br>$$<br>\log p_\theta(x \mid c) \geq \mathbb{E}<em>{q_\phi(z \mid x)}\left[\log p_\theta(x \mid z)-\log \frac{q_\phi(z \mid x)}{p_\theta(z \mid c)}\right]<br>&#x3D;-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}) | p_\theta(\mathbf{z} \mid \mathbf{c})\right)+\mathbb{E}</em>{q_\phi(\mathbf{z} \mid \mathbf{x})}\left[\log p_\theta(\mathbf{x} \mid \mathbf{z})\right]<br>$$</p>
+<p>其中， $p_\theta(z \mid c)$ 是给定条件 $c$ 下隐变量 $z$ 的先验分布； $ p_\theta(x \mid z)$ 是数据点 $x$ 的似然函数； $q_\phi(z \mid x)$ 是<strong>后验概率分布</strong>的近似。</p>
+<p>把ELBO取负，则第一项是 $\log q_\phi(z \mid x)$ 和 $\log p_\theta(z \mid c)$ 之间的KL散度，其中  $z \sim q_\phi(z \mid x)$ ；第二项是重构误差 reconstruction loss $-\log p_\theta(x \mid z)$ 。</p>
+<p>$x$ 表示mel谱；$c$ 表示<strong>文本信息</strong>和<strong>对齐信息</strong>；$z$ 表示隐含变量，其中，对齐信息是一个&#x3D;&#x3D;硬对齐矩阵，形状为[|text|,|z|]&#x3D;&#x3D;。</p>
+<p>文中提到，发现在 $P(z|c)$ 表示成简单的高斯分布之后再加一个flow变换，音质会更好。（这也就解释了为什么要加flow不可，其实不加也可以的）</p>
+<h4 id="RECONSTRUCTION-LOSS"><a href="#RECONSTRUCTION-LOSS" class="headerlink" title="RECONSTRUCTION LOSS"></a>RECONSTRUCTION LOSS</h4><p>&#x3D;&#x3D;decoder&#x3D;&#x3D; 。重构误差里的真实数据点x用的是mel谱（不是waveform），用 $x_{mel}$ 表示。采样出来的 $z$ 通过decoder进行上采样，得到  $\hat{y}$ ，将 $\hat{y}$ 转换到mel谱域，得到 $\hat{x}<em>{m e l}$ ，把预测和真实mel谱之间的 $L_1$ loss 作为reconstruction：（这里不是直接最大似然）<br>$$<br>L</em>{\text {recon }}&#x3D;\left|x_{m e l}-\hat{x}_{\text {mel }}\right|_1<br>$$<br>这个步骤只在训练阶段进行，而在推理阶段，不是把整个向量 $z$ 都上采样，而是只把一部分送入decoder，这叫做 windowed generator training  。</p>
+<p>这个deocoder也就是基于gan的声码器的生成器。</p>
+<h4 id="KL-DIVERGENCE"><a href="#KL-DIVERGENCE" class="headerlink" title="KL-DIVERGENCE"></a>KL-DIVERGENCE</h4><p>我们的目标是为&#x3D;&#x3D;后验编码器 posterior encoder&#x3D;&#x3D;提供更多高分辨率的信息。因此，我们使用目标语音的线性尺度谱 linear-scale spectrogram   $x_{lin}$ 作为输入，而不是mel谱。</p>
+<p>因此 KL散度公式为：<br>$$<br>\begin{gathered}<br>L_{k l}&#x3D;\log q_\phi\left(z \mid x_{l i n}\right)-\log p_\theta\left(z \mid c_{\text {text }}, A\right), \<br>z \sim q_\phi\left(z \mid x_{l i n}\right)&#x3D;N\left(z ; \mu_\phi\left(x_{l i n}\right), \sigma_\phi\left(x_{l i n}\right)\right)<br>\end{gathered}<br>$$<br>这里 $x_{lin}$ 作为输入到高斯分布中，输出 $z$ ；</p>
+<p>所以说训练时，z来自于x，是后验分布得到的z（推理时就不是通过后验分布得到z，因为推理时没有x）</p>
+<p>然后，作者发现增加&#x3D;&#x3D;先验分布&#x3D;&#x3D; $p(z|c)$ 的表达性对于生成样本像不像真实语音来说很重要，因此提出在encoder的先验分布和后验上做factorized normal distribution用标准化flow $f_\theta$    ，可以根据变量变化规则，将简单分布可逆转换为更复杂的分布。（通过简单的jacobian行列式计算就可以映射过去）</p>
+<p>这里其实是额外做了一步，没有flow这一步，先验分布也可以表示的，就是特地做的一步，因为实验发现先验分布表达好了，对结果音质会很友好。</p>
+<p>先验分布 &#x3D;&#x3D;先验编码器 prior encoder&#x3D;&#x3D;   $ p_\theta(z \mid c)$ 的 factorized normal distribution的表达式为：<br>$$<br>\begin{aligned}<br> p_\theta(z \mid c)&amp;&#x3D;N\left(f_\theta(z) ; \mu_\theta(c), \sigma_\theta(c)\right)\left|\operatorname{det} \frac{\partial f_\theta(z)}{\partial z}\right| \<br>&amp; c&#x3D;\left[c_{\text {text }}, A\right]<br>\end{aligned}<br>$$</p>
+<p>其中，先验encoder $c$ 的输入条件是文本中提取的音素 $c_{text}$ 和音素、隐变量和音素之间的对齐矩阵 $A$ 组成。</p>
+<p>这里c为输入的高斯分布，高斯分布的输出是 $f_\theta(z)$ ！注意这里输出比较特别是 $f_\theta(z)$ 服从高斯分布，然后再映射到另一个分布（z的分布）（这里如果对应到flow，z的分布就是复杂分布，而f(z)是简单分布）。</p>
+<h3 id="Alignment-Estimation"><a href="#Alignment-Estimation" class="headerlink" title="Alignment Estimation"></a>Alignment Estimation</h3><h4 id="MONOTONIC-ALIGNMENT-SEARCH"><a href="#MONOTONIC-ALIGNMENT-SEARCH" class="headerlink" title="MONOTONIC ALIGNMENT SEARCH"></a>MONOTONIC ALIGNMENT SEARCH</h4><p>为了估计输入文本和目标语音之间的对齐关系 $A$，作者采用了单调对齐搜索 Monotonic Alignment Search   (MAS)，这是一种搜索对齐的方法，该方法使标准化flow $f$ 最大化数据的似然值（找在某参数下的A，能够让似然值（这里就不是先验分布了，而是在条件下生成样本）最大，找到对应的参数A）：</p>
+<p>这里对齐关系是语音x和c的关系。</p>
+<p>$$<br>\begin{aligned}<br>A&amp;&#x3D;\underset{\hat{A}}{\arg \max } \log p_\theta\left(x \mid c_{\text {text }}, \hat{A}\right) \<br>&amp;&#x3D;\underset{\hat{A}}{\arg \max } \log N\left(f(x) ; \mu\left(c_{\text {text }}, \hat{A}\right), \sigma\left(c_{\text {text }}, \hat{A}\right)\right) \quad<br>\end{aligned}<br>$$</p>
+<p>这里对齐矩阵A的限制条件为文本和语音都是单调对齐的，并且是non-skipping的。这种求代价最小路径的问题，很容易想出用动态规划求解，但是这里的“代价”，也就是似然值不好求，因为CVAE的目标函数也没直接求似然，而是用的求ELBO代替的。所以作者这里就没有直接用似然值作为动态规划里的“代价”，而是就用的ELBO当作是似然值了。因此MAS公式就变成了，去找ELBO最大时对应的参数A：<br>$$<br>\begin{aligned}<br>A&amp;&#x3D;  \underset{\hat{A}}{\arg \max } \log p_\theta\left(x_{\text {mel }} \mid z\right)-\log \frac{q_\phi\left(z \mid x_{\text {lin }}\right)}{p_\theta\left(z \mid c_{\text {text }}, \hat{A}\right)} \<br>&amp; &#x3D;\underset{\hat{A}}{\arg \max } \log p_\theta\left(z \mid c_{\text {text }}, \hat{A}\right) \<br>&amp; &#x3D;\log N\left(f_\theta(z) ; \mu_\theta\left(c_{\text {text }}, \hat{A}\right), \sigma_\theta\left(c_{\text {text }}, \hat{A}\right)\right)<br>\end{aligned}<br>$$<br>第二行公式是因为矩阵A和 $p(x|z)$ 、 $q(z|x)$ 都无关，因此忽略这两项，只保留有关的 $p(z|c,A)$ 先验分布， 然后要最大化它。</p>
+<p>再根据前面的先验分布的flow模块，由于 $\frac{\partial f_\theta(z)}{\partial z}$ 和A无关，行列式为1，log后为0，写成第三行。</p>
+<h4 id="DURATION-PREDICTION-FROM-TEXT"><a href="#DURATION-PREDICTION-FROM-TEXT" class="headerlink" title="DURATION PREDICTION FROM TEXT"></a>DURATION PREDICTION FROM TEXT</h4><p>时长预测模型的必要性是因为，推理阶段，先验分布 $p(z|c,A)$ 需要A，如果不知道A就无法得知先验分布，A和音素持续时长有关，因此需要知道音素时长。也就是说这个&#x3D;&#x3D;时长预测模型，是为了推理阶段服务，才提出的&#x3D;&#x3D;。</p>
+<p>每个人说不同句子都可能会有不同语速，如果是确定的时长预测器（每个phone固定的预测时长），可能合成出来的不够像真实的人类的韵律。作者提出了一种随机时长预测器，每次从音素时长分布中采样，也就是说，每个音素都有一个时长分布，每次通过采样，得到这次这个音素的时长。结构是一个flow-based的生成模型，生成的东西是“音素时长“，训练目标是最大似然估计，直接用会有点问题，因为时长是离散的整数，而flow对象是连续变量，并且时长是一个标量，一个数值，因为flow的可逆性，输入输出维度相同，都是个标量，就不好做高维变换了。</p>
+<p>为了解决用flow做时长预测器会遇到的问题，作者用了variational dequantization   和 variational data augmentation  。</p>
+<p>具体做法为：引入两个随机变量 $u$ 和 $v$ （和时长序列 $d$ 的time resolution相同（长度相同）、维度相同），$u$ 限制在 [0,1) 里，因此 $d-u$ 就是一个连续变量 （该方法叫variational dequantization）；$d$ 和 $v$ 做channel-wise拼接，得到更高维的隐变量表示（该方法叫 variational data augmentation）。 $u$ 、 $v$ 是从近似分布（不是真实分布）后验分布 $q_\phi(u, ν|d, c_{text})$ 中采样来的。 </p>
+<p>因此，音素时长预测器的目标本来是最大似然估计，这里也用VAE的变分下界代替了，目标表达式为：<br>$$<br>\log p_\theta\left(d \mid c_{\text {text }}\right) \geq \mathbb{E}<em>{q_\phi\left(u, \nu \mid d, c</em>{\text {text }}\right)}\left[\log \frac{p_\theta\left(d-u, \nu \mid c_{\text {text }}\right)}{q_\phi\left(u, \nu \mid d, c_{\text {text }}\right)}\right]<br>$$<br>训练的时候要让时长预测器的梯度不能回传到input，就传到中间层A、$c_{test}$ 就行（通过A矩阵知道每个音素对应多长的语音）。</p>
+<p>实际上训练（目标）的是时长预测器的逆，训练的时候，从真实数据中采样的x作为输入，简单的分布采样z作为输出，训练x到z的映射，然后实际用时，时长预测器取逆，输入简单分布z（随机噪声），抽样，输出时长预测结果x，然后转成整数，作为时长；</p>
+<h3 id="Adversarial-Training"><a href="#Adversarial-Training" class="headerlink" title="Adversarial Training"></a>Adversarial Training</h3><p>和gan的vocoder一样了，就是额外添加一个判别器模型，对抗网络目标用最小均方loss和特征匹配loss。<br>$$<br>\begin{aligned}<br>L_{a d v}(D) &amp; &#x3D;\mathbb{E}<em>{(y, z)}\left[(D(y)-1)^2+(D(G(z)))^2\right] \<br>L</em>{a d v}(G) &amp; &#x3D;\mathbb{E}<em>z\left[(D(G(z))-1)^2\right] \<br>L</em>{f m}(G) &amp; &#x3D;\mathbb{E}<em>{(y, z)}\left[\sum</em>{l&#x3D;1}^T \frac{1}{N_l}\left|D^l(y)-D^l(G(z))\right|_1\right]<br>\end{aligned}<br>$$<br>特征匹配loss可以视为VAE里的重构误差 reconstruction loss ？</p>
+<h3 id="Final-Loss"><a href="#Final-Loss" class="headerlink" title="Final Loss"></a>Final Loss</h3><p>$$<br>L_{vae}&#x3D;L_{recon}+L_{kl}+L_{dur}+L_{adv}(G)+L_{fm}(G)<br>$$</p>
+<h3 id="Model-Architecture"><a href="#Model-Architecture" class="headerlink" title="Model Architecture"></a>Model Architecture</h3><p>下面介绍VITS中所使用的模块的结构。</p>
+<h4 id="POSTERIOR-ENCODER"><a href="#POSTERIOR-ENCODER" class="headerlink" title="POSTERIOR ENCODER"></a>POSTERIOR ENCODER</h4><p>只用于训练阶段，推理不用。结构是non-causal WaveNet residual blocks  。</p>
+<p>也就是拟合 $q_\phi(z \mid x)$ 后验概率。</p>
+<p>输入 $x_{lin}$ ，输出均值方差，后验概率，再采样出z。</p>
+<p>应用于多人模型时，将说话人嵌入向量添加进残差模块。</p>
+<p>隐变量z可以理解为声学模型的输出。</p>
+<h4 id="PRIOR-ENCODER"><a href="#PRIOR-ENCODER" class="headerlink" title="PRIOR ENCODER"></a>PRIOR ENCODER</h4><p>先验分布 $ p_\theta(z \mid c)$  ，$c&#x3D;\left[c_{\text {text }}, A\right] $  。</p>
+<p>结构是transformer encoder + flow结构。transformer encoder目的是将文本变成提高维特征为 $c_{text}$ ， flow目的是进一步变成复杂分布，提高分布的复杂度。</p>
+<p>输入是文本，输出是先验分布。</p>
+<p>先验编码器作用类似于声学模型，只不过 VITS 是将音素映射为中间表示 z 而不是频谱 。</p>
+<p>应用于多人模型时，向标准化流的残差模块中添加说话人嵌入向量。  </p>
+<h4 id="DECODER"><a href="#DECODER" class="headerlink" title="DECODER"></a>DECODER</h4><p>$p_\theta(x \mid z)$。从隐变量z中生成波形。</p>
+<p>应用于多人模型时，在说话人嵌入向量之后添加一个线性层，拼接到   $f_\theta$ 的输出隐变量 $z$ 。</p>
+<h4 id="DISCRIMINATOR"><a href="#DISCRIMINATOR" class="headerlink" title="DISCRIMINATOR"></a>DISCRIMINATOR</h4><p>gan中使用，只用于训练阶段，推理不用。</p>
+<h4 id="STOCHASTIC-DURATION-PREDICTOR"><a href="#STOCHASTIC-DURATION-PREDICTOR" class="headerlink" title="STOCHASTIC DURATION PREDICTOR"></a>STOCHASTIC DURATION PREDICTOR</h4><p>基于flow。从条件输入 $h_{text}$  估算音素时长的分布。</p>
+<p>应用于多人模型时，在说话人嵌入向量之后添加一个线性层，并将其拼接到文本编码器的输出  $h_{text}$ 。</p>
+<p>架构图：</p>
+<p><img src="/2022/12/12/%E5%90%88%E6%88%90/VITS%E8%AE%BA%E6%96%87/image-20221212162129315.png" alt="image-20221212162129315"></p>
+<h2 id="VITS公式推导"><a href="#VITS公式推导" class="headerlink" title="VITS公式推导"></a>VITS公式推导</h2><blockquote>
+<p>b站 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1wU4y1q7po/?spm_id_from=333.999.0.0&vd_source=5e9891722f2b62adca440a5e92121b5b">60、基于cVAE+Flow+GAN的效果最好语音合成VITS模型论文精讲</a></p>
+</blockquote>
+<p>出发点是 $P(z|x)$ 和 $Q(z|x)$ 的关系，注意这里是 $P(z|x)$  ，虽然 $P(x)$ 积分项里是和 $P(x|z)$ 有关。（数据x给定下的叫后验，求数据x的叫似然）。</p>
+<p><img src="/2022/12/12/%E5%90%88%E6%88%90/VITS%E8%AE%BA%E6%96%87/image-20221212104145183.png" alt="image-20221212104145183"></p>
+<p>发现这里的推导都是从kl散度出发，vae基础上加上条件变量c。</p>
+<p><img src="/2022/12/12/%E5%90%88%E6%88%90/VITS%E8%AE%BA%E6%96%87/image-20221212104128108.png" alt="image-20221212104128108"></p>
+<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90/" rel="tag"># 语音合成</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/" rel="next" title="CVAE论文">
+                <i class="fa fa-chevron-left"></i> CVAE论文
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/12/15/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Denoising%20Diffusion%20Probabilistic%20Models%E8%AE%BA%E6%96%87/" rel="prev" title="Denoising Diffusion Probabilistic Models论文">
+                Denoising Diffusion Probabilistic Models论文 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AB%AF%E5%88%B0%E7%AB%AF%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E2%80%94%E2%80%94%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94VITS"><span class="nav-number">1.</span> <span class="nav-text">端到端合成论文——声学模型——VITS</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.1.</span> <span class="nav-text">相关工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95"><span class="nav-number">1.3.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Variational-Inference"><span class="nav-number">1.3.1.</span> <span class="nav-text">Variational Inference</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#OVERVIEW"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">OVERVIEW</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RECONSTRUCTION-LOSS"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">RECONSTRUCTION LOSS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#KL-DIVERGENCE"><span class="nav-number">1.3.1.3.</span> <span class="nav-text">KL-DIVERGENCE</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Alignment-Estimation"><span class="nav-number">1.3.2.</span> <span class="nav-text">Alignment Estimation</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#MONOTONIC-ALIGNMENT-SEARCH"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">MONOTONIC ALIGNMENT SEARCH</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DURATION-PREDICTION-FROM-TEXT"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">DURATION PREDICTION FROM TEXT</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Adversarial-Training"><span class="nav-number">1.3.3.</span> <span class="nav-text">Adversarial Training</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Final-Loss"><span class="nav-number">1.3.4.</span> <span class="nav-text">Final Loss</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Model-Architecture"><span class="nav-number">1.3.5.</span> <span class="nav-text">Model Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#POSTERIOR-ENCODER"><span class="nav-number">1.3.5.1.</span> <span class="nav-text">POSTERIOR ENCODER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PRIOR-ENCODER"><span class="nav-number">1.3.5.2.</span> <span class="nav-text">PRIOR ENCODER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DECODER"><span class="nav-number">1.3.5.3.</span> <span class="nav-text">DECODER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DISCRIMINATOR"><span class="nav-number">1.3.5.4.</span> <span class="nav-text">DISCRIMINATOR</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#STOCHASTIC-DURATION-PREDICTOR"><span class="nav-number">1.3.5.5.</span> <span class="nav-text">STOCHASTIC DURATION PREDICTOR</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VITS%E5%85%AC%E5%BC%8F%E6%8E%A8%E5%AF%BC"><span class="nav-number">1.4.</span> <span class="nav-text">VITS公式推导</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%84%E4%BB%B7"><span class="nav-number">1.5.</span> <span class="nav-text">评价</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/12/12/%E5%90%88%E6%88%90/VITS%E8%AE%BA%E6%96%87/';
+          this.page.identifier = '2022/12/12/合成/VITS论文/';
+          this.page.title = '端到端合成论文——声学模型——VITS';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

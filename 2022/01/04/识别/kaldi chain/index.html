@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="语音识别," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="kaldi chain生成phone的语言模型lm，为了分母hclg lattice服务：chain_lib.create_phone_lm(args.dir, args.tree_dir, run_opts, lm_opts&#x3D;args.lm_opts) exp7&#x2F;chain&#x2F;tdnn&#x2F;log&#x2F;make_phone_lm.log： gunzip -">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kaldi chain">
+<meta property="og:url" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="kaldi chain生成phone的语言模型lm，为了分母hclg lattice服务：chain_lib.create_phone_lm(args.dir, args.tree_dir, run_opts, lm_opts&#x3D;args.lm_opts) exp7&#x2F;chain&#x2F;tdnn&#x2F;log&#x2F;make_phone_lm.log： gunzip -">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211012143307127.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211012143412126.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211013153727170.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211013153656637.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211013153537767.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211013143601942.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211013160335326.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211013160653298.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211020161517294.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211020162405339.png">
+<meta property="article:published_time" content="2022-01-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T08:26:00.109Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="语音识别">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211012143307127.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/01/04/识别/kaldi chain/"/>
+
+
+
+
+
+  <title>kaldi chain | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">kaldi chain</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/kaldi chain/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="kaldi-chain"><a href="#kaldi-chain" class="headerlink" title="kaldi chain"></a>kaldi chain</h1><h3 id="生成phone的语言模型lm，为了分母hclg-lattice服务："><a href="#生成phone的语言模型lm，为了分母hclg-lattice服务：" class="headerlink" title="生成phone的语言模型lm，为了分母hclg lattice服务："></a>生成phone的语言模型lm，为了分母hclg lattice服务：</h3><p>chain_lib.create_phone_lm(args.dir, args.tree_dir, run_opts, lm_opts&#x3D;args.lm_opts)</p>
+<p>exp7&#x2F;chain&#x2F;tdnn&#x2F;log&#x2F;make_phone_lm.log：</p>
+<p>gunzip -c exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.1.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.2.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.3.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.4.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.5.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.6.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.7.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.8.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.9.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.10.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.11.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.12.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.13.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.14.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.15.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.16.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.17.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.18.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.19.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.20.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.21.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.22.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.23.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.24.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.25.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.26.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.27.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.28.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.29.gz exp7&#x2F;chain&#x2F;tri5_tree&#x2F;ali.30.gz | ali-to-phones exp7&#x2F;chain&#x2F;tri5_tree&#x2F;final.mdl ark:- ark:- | chain-est-phone-lm –num-extra-lm-states&#x3D;2000 ark:- exp7&#x2F;chain&#x2F;tdnn&#x2F;phone_lm.fst</p>
+<h3 id="生成分母lattice"><a href="#生成分母lattice" class="headerlink" title="生成分母lattice"></a>生成分母lattice</h3><p>exp7&#x2F;chain&#x2F;tdnn&#x2F;log&#x2F;make_den_fst.log：</p>
+<p>chain-make-den-fst exp7&#x2F;chain&#x2F;tdnn&#x2F;tree exp7&#x2F;chain&#x2F;tdnn&#x2F;0.trans_mdl exp7&#x2F;chain&#x2F;tdnn&#x2F;phone_lm.fst exp7&#x2F;chain&#x2F;tdnn&#x2F;den.fst exp7&#x2F;chain&#x2F;tdnn&#x2F;normalization.fst</p>
+<p>den.fst ：</p>
+<ul>
+<li>第一列 ：输入结点（结点，也叫fst的状态数），G 3gram phone 状态（0-3475，一共3476个）；</li>
+<li>第二列 ：输出结点，G 3gram phone 状态（0-3474，一共3475个）；（hmm_state？？？？chain&#x2F;chain-den-graph.cc）</li>
+<li>第三列：in label：H pdf 状态（1-2392，一共2392个，原本pdf是0-2391的（pdf包含forward-pdf 和self-loop-pdf））（下面的例子用的tdnn_3、tdnn_4的模型，pdf 1976个）</li>
+<li>第四列：out label：H pdf 状态</li>
+<li>in label和out label相同</li>
+<li>den.fst的结点是G空间，上面的分数是声学分数？语言分数？</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">3475    1516    1       1       8.70407677</span><br><span class="line">3475    3011    1       1       15.0414305</span><br><span class="line">3475    198     1       1       9.42041969</span><br><span class="line">3475    318     1       1       9.59932804</span><br><span class="line">3475    271     1       1       10.1355295</span><br><span class="line">3475    99      1       1       8.69728088</span><br><span class="line">3475    689     1       1       10.1195202</span><br><span class="line">3475    3368    1       1       16.4325008</span><br><span class="line">3475    2406    1       1       13.7536497</span><br><span class="line">3475    914     1       1       10.7855644</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="计算loss脚本："><a href="#计算loss脚本：" class="headerlink" title="计算loss脚本："></a>计算loss脚本：</h3><p>exp7&#x2F;chain&#x2F;tdnn&#x2F;log&#x2F;compute_prob_valid.1.log：</p>
+<p>nnet3-chain-compute-prob –l2-regularize&#x3D;0.0 –leaky-hmm-coefficient&#x3D;0.1 –xent-regularize&#x3D;0.1 exp7&#x2F;chain&#x2F;tdnn_3&#x2F;final.mdl exp7&#x2F;chain&#x2F;tdnn_3&#x2F;den.fst ‘ark,bg:nnet3-chain-copy-egs  ark:exp7&#x2F;chain&#x2F;tdnn_4&#x2F;egs&#x2F;train_diagnostic.cegs ark:- | nnet3-chain-merge-egs –minibatch-size&#x3D;1:64 ark:- ark:- |’</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">nnet3-chain-merge-egs --minibatch-size=1:64 ark:- ark:-</span><br><span class="line">nnet3-chain-copy-egs ark:exp7/chain/tdnn/egs/valid_diagnostic.cegs ark:-</span><br><span class="line">LOG (nnet3-chain-copy-egs[5.5.591~43-fa0934]:main():nnet3-chain-copy-egs.cc:395) Read 400 neural-network training examples, wrote 400</span><br><span class="line">LOG (nnet3-chain-merge-egs[5.5.591~43-fa0934]:PrintSpecificStats():nnet-example-utils.cc:1143) Merged specific eg types as follows [format: &lt;eg-size1&gt;=&#123;&lt;mb-size1&gt;-&gt;&lt;num-minibatches1&gt;,&lt;mbsize2&gt;-&gt;&lt;num-minibatches2&gt;.../d=&lt;num-discarded&gt;&#125;,&lt;egs-size2&gt;=&#123;...&#125;,... (note,egs-size == number of input frames including context).</span><br><span class="line">LOG (nnet3-chain-merge-egs[5.5.591~43-fa0934]:PrintSpecificStats():nnet-example-utils.cc:1173) 152=&#123;44-&gt;1,d=0&#125;,173=&#123;40-&gt;1,d=0&#125;,212=&#123;60-&gt;1,64-&gt;4,d=0&#125;</span><br><span class="line">LOG (nnet3-chain-merge-egs[5.5.591~43-fa0934]:PrintAggregateStats():nnet-example-utils.cc:1139) Processed 400 egs of avg. size 201.5 into 7 minibatches, discarding 0% of egs.  Avg minibatch size was 57.14, #distinct types of egs/minibatches was 3/4</span><br><span class="line">LOG (nnet3-chain-compute-prob[5.5.591~43-fa0934]:PrintTotalStats():nnet-chain-diagnostics.cc:194) Overall log-probability for &#x27;output-xent&#x27; is -3.05123 per frame, over 18600 frames.</span><br><span class="line">LOG (nnet3-chain-compute-prob[5.5.591~43-fa0934]:PrintTotalStats():nnet-chain-diagnostics.cc:194) Overall log-probability for &#x27;output&#x27; is -0.328318 per frame, over 18600 frames.</span><br><span class="line">LOG (nnet3-chain-compute-prob[5.5.591~43-fa0934]:~CachingOptimizingCompiler():nnet-optimize.cc:710) 0.323 seconds taken in nnet3 compilation total (breakdown: 0.139 compilation, 0.00658 optimization, 0.17 shortcut expansion, 0.00139 checking, 3.81e-05 computing indexes, 0.00598 misc.) + 0 I/O.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/detail/180841">kaldi语音识别 chain模型的数据准备</a></p>
+</blockquote>
+<p>normalization.fst在分母有限状态机den.fst的基础上，修改了初始概率和终止概率得到的。</p>
+<h3 id="查看-cegs内容："><a href="#查看-cegs内容：" class="headerlink" title="查看 cegs内容："></a>查看 cegs内容：</h3><p>nnet3-chain-copy-egs ark:exp7&#x2F;chain&#x2F;tdnn_4&#x2F;egs&#x2F;train_diagnostic.cegs ark,t:1</p>
+<ul>
+<li>由于chain模型采用跳帧策略，所以egs中存储的是三倍下采样后输出索引</li>
+<li>分子lattice。WFSA结构。用于计算MMI，第三列、第四列是pdf的id（1-1975）</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211012143307127.png" alt="image-20211012143307127"></p>
+<ul>
+<li>强制对齐结果，用于计算交叉熵？？实际用上了吗？代码中交叉熵也是用的前后向计算的，没有用这个</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211012143412126.png" alt="image-20211012143412126"></p>
+<h3 id="计算loss代码："><a href="#计算loss代码：" class="headerlink" title="计算loss代码："></a>计算loss代码：</h3><p><code>nnet3-chain-compute-prob --l2-regularize=0.0 --leaky-hmm-coefficient=0.1 --xent-regularize=0.1 exp7/chain/tdnn_3/final.mdl exp7/chain/tdnn_3/den.fst ark:1</code></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/JarvanWang/p/10281089.html">kaldi chain模型的序列鉴别性训练代码分析</a> jarvanWang博客园</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/JarvanWang/p/10145889.html">Chain训练准则的计算</a> jarvanWang博客园</p>
+</blockquote>
+<p>跳转路线：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">chainbin/nnet3-chain-compute-prob.cc 的 chain_prob_computer.<span class="built_in">Compute</span>(example_reader.<span class="built_in">Value</span>());</span><br><span class="line"></span><br><span class="line">nnet3/nnet-chain-diagnostics.cc 的 <span class="keyword">this</span>-&gt;<span class="built_in">ProcessOutputs</span>(chain_eg, &amp;computer);  </span><br><span class="line"></span><br><span class="line">nnet3/nnet-chain-diagnostics.cc 的    <span class="built_in">ComputeChainObjfAndDeriv</span>(chain_config_, den_graph_,</span><br><span class="line">                             sup.supervision, nnet_output,</span><br><span class="line">                             &amp;tot_like, &amp;tot_l2_term, &amp;tot_weight,</span><br><span class="line">                             (nnet_config_.compute_deriv ? &amp;nnet_output_deriv :</span><br><span class="line">                              <span class="literal">NULL</span>), (use_xent ? &amp;xent_deriv : <span class="literal">NULL</span>));</span><br><span class="line">chain/chain-training.cc 的 <span class="function">ComputeChainObjfAndDerivE2e</span></span><br><span class="line"><span class="function">    DenominatorComputation <span class="title">denominator</span><span class="params">(opts, den_graph,supervision.num_sequences,nnet_output)</span></span>;<span class="comment">//得到objf（loss）</span></span><br><span class="line"><span class="comment">//分母计算：</span></span><br><span class="line">den_logprob_weighted = supervision.weight * denominator.<span class="built_in">Forward</span>();</span><br><span class="line">chain/chain-denominator.cc的<span class="function">BaseFloat <span class="title">DenominatorComputation::Forward</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="comment">//分子计算：</span></span><br><span class="line">    numerator_ok = numerator.<span class="built_in">ForwardBackward</span>(&amp;num_logprob_weighted,</span><br><span class="line">                                               xent_output_deriv);</span><br></pre></td></tr></table></figure>
+
+<p>nnet_output：dnn输出</p>
+<p>chain&#x2F;chain-training.cc</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Supervision &amp;supervision</span><br><span class="line">DenominatorGraph &amp;den_graph</span><br></pre></td></tr></table></figure>
+
+<h3 id="初始化："><a href="#初始化：" class="headerlink" title="初始化："></a>初始化：</h3><p>NnetChainComputeProb chain_prob_computer(nnet_opts, chain_opts, den_fst,nnet);</p>
+<p>chain&#x2F;chain-supervision.h：可以看见类Supervision的详细定义与Supervision的成员解释</p>
+<ul>
+<li>Supervision类：<ul>
+<li>label_dim：pdf数量</li>
+<li>fst：按帧index排序</li>
+</ul>
+</li>
+</ul>
+<p>chain&#x2F;chain-den-graph.h：可以看见类DenominatorGraph的成员定义</p>
+<ul>
+<li>DenominatorGraph类：<ul>
+<li>ForwardTransitions </li>
+<li>BackwardTransitions </li>
+<li>Transitions</li>
+</ul>
+</li>
+</ul>
+<p>chain&#x2F;chain-den-graph.cc：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">DenominatorGraph::SetTransitions</span><span class="params">(<span class="type">const</span> fst::StdVectorFst &amp;fst,</span></span></span><br><span class="line"><span class="params"><span class="function">                                      int32 num_pdfs)</span> </span>&#123;</span><br><span class="line">  int32 num_states = fst.<span class="built_in">NumStates</span>();</span><br><span class="line"></span><br><span class="line">  std::vector&lt;std::vector&lt;DenominatorGraphTransition&gt; &gt;</span><br><span class="line">      <span class="built_in">transitions_out</span>(num_states),</span><br><span class="line">      <span class="built_in">transitions_in</span>(num_states);</span><br><span class="line">  <span class="keyword">for</span> (int32 s = <span class="number">0</span>; s &lt; num_states; s++) &#123;</span><br><span class="line">    <span class="keyword">for</span> (fst::ArcIterator&lt;fst::StdVectorFst&gt; <span class="built_in">aiter</span>(fst, s); !aiter.<span class="built_in">Done</span>();</span><br><span class="line">         aiter.<span class="built_in">Next</span>()) &#123;</span><br><span class="line">      <span class="type">const</span> fst::StdArc &amp;arc = aiter.<span class="built_in">Value</span>();</span><br><span class="line">      DenominatorGraphTransition transition;</span><br><span class="line">      transition.transition_prob = <span class="built_in">exp</span>(-arc.weight.<span class="built_in">Value</span>());</span><br><span class="line">      transition.pdf_id = arc.ilabel - <span class="number">1</span>;</span><br><span class="line">      transition.hmm_state = arc.nextstate;</span><br><span class="line">      <span class="built_in">KALDI_ASSERT</span>(transition.pdf_id &gt;= <span class="number">0</span> &amp;&amp; transition.pdf_id &lt; num_pdfs);</span><br><span class="line">      transitions_out[s].<span class="built_in">push_back</span>(transition);</span><br><span class="line">      <span class="comment">// now the reverse transition.</span></span><br><span class="line">      transition.hmm_state = s;</span><br><span class="line">      transitions_in[arc.nextstate].<span class="built_in">push_back</span>(transition);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function">std::vector&lt;Int32Pair&gt; <span class="title">forward_transitions</span><span class="params">(num_states)</span></span>;</span><br><span class="line">  <span class="function">std::vector&lt;Int32Pair&gt; <span class="title">backward_transitions</span><span class="params">(num_states)</span></span>;</span><br><span class="line">  std::vector&lt;DenominatorGraphTransition&gt; transitions;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (int32 s = <span class="number">0</span>; s &lt; num_states; s++) &#123;</span><br><span class="line">    forward_transitions[s].first = <span class="built_in">static_cast</span>&lt;int32&gt;(transitions.<span class="built_in">size</span>());</span><br><span class="line">    transitions.<span class="built_in">insert</span>(transitions.<span class="built_in">end</span>(), transitions_out[s].<span class="built_in">begin</span>(),</span><br><span class="line">                       transitions_out[s].<span class="built_in">end</span>());</span><br><span class="line">    forward_transitions[s].second = <span class="built_in">static_cast</span>&lt;int32&gt;(transitions.<span class="built_in">size</span>());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (int32 s = <span class="number">0</span>; s &lt; num_states; s++) &#123;</span><br><span class="line">    backward_transitions[s].first = <span class="built_in">static_cast</span>&lt;int32&gt;(transitions.<span class="built_in">size</span>());</span><br><span class="line">    transitions.<span class="built_in">insert</span>(transitions.<span class="built_in">end</span>(), transitions_in[s].<span class="built_in">begin</span>(),</span><br><span class="line">                       transitions_in[s].<span class="built_in">end</span>());</span><br><span class="line">    backward_transitions[s].second = <span class="built_in">static_cast</span>&lt;int32&gt;(transitions.<span class="built_in">size</span>());</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  forward_transitions_ = forward_transitions;</span><br><span class="line">  backward_transitions_ = backward_transitions;</span><br><span class="line">  transitions_ = transitions;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>den.fst：（这里把fst权重转换为exp-）<code>fstprint den.fst | awk -F&#39;\t&#39; &#39;&#123;$NF=exp(-$NF);print$0&#125;&#39; | tr &#39; &#39; &#39;\t&#39; </code></li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211013153727170.png" alt="image-20211013153727170"></p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211013153656637.png" alt="image-20211013153656637"></p>
+<ul>
+<li>transitions_out ：transitions_out索引是den.fst的第一列，因此表示这个结点状态辐射出多少条路径的意思</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211013153537767.png" alt="image-20211013153537767"></p>
+<p>​	</p>
+<ul>
+<li>transitions_in ：transitions_in索引是den.fst的第二列，因此表示多少条路径到这个结点状态的意思</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211013143601942.png" alt="image-20211013143601942"></p>
+<p>​		</p>
+<ul>
+<li>transitions ：按顺序把transitions_out内容和transitions_in 全放到transitions里</li>
+<li>forward_transitions ：transitions_out每个结点状态的初始数量和辐射出边的数量</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211013160335326.png" alt="image-20211013160335326"></p>
+<ul>
+<li>backward_transitions 内容：接完transitions_out全部后，transitions_in每个结点状态的初始数量和到这个结点边的数量</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211013160653298.png" alt="image-20211013160653298"></p>
+<p>只求loss时，也会用到前后向算法（chain&#x2F;chain-training.cc:denominator.Forward()）</p>
+<p>$\alpha$ 的概率，依赖声学分数（nnet_output（pdf数*帧数））和语言分数，因为里面的状态是G空间的状态</p>
+<p>chain&#x2F;chain-denominator.cc：赋予$\alpha$ 值</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BaseFloat <span class="title">DenominatorComputation::Forward</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">NVTX_RANGE</span>(__func__);</span><br><span class="line">  <span class="built_in">AlphaFirstFrame</span>(); <span class="comment">//初始权重</span></span><br><span class="line">  <span class="built_in">AlphaDash</span>(<span class="number">0</span>);</span><br><span class="line">  <span class="keyword">for</span> (int32 t = <span class="number">1</span>; t &lt;= frames_per_sequence_; t++) &#123;</span><br><span class="line">    <span class="built_in">AlphaGeneralFrame</span>(t);</span><br><span class="line">    <span class="built_in">AlphaDash</span>(t);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">ComputeTotLogLike</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">frames_per_sequence_ = 30</span><br><span class="line">den_graph_.NumStates() = 3221</span><br><span class="line">alpha_(frames_per_sequence_ + 1,den_graph_.NumStates() * num_sequences_ + num_sequences_,kUndefined),</span><br><span class="line"></span><br><span class="line">alpha_： num_cols_ = 3222, num_rows_ = 31, stride_ = 3224</span><br></pre></td></tr></table></figure>
+
+<p>alpha(t, i)对应前后向算法中的$\alpha$（$\alpha_t(i)$定义：到时刻t，部分观测序列为$o_1,o_2….,o_t$且状态为i的概率为前向概率）</p>
+<p>beta(t, i)对应前后向算法中的$\beta$（$\beta_t(i)$定义：到时刻t，状态i，部分观测序列为$o_{t+1},o_{t+2},…,o_T$的概率为后向概率）</p>
+<p>gamma(t, n) （$\gamma_t(i)$定义：给定模型和观测序列，在时刻t处于状态i的概率$\large{\gamma_t(i)&#x3D;\frac{\alpha_t(i)\beta_t(i)}{\sum\limits_{j&#x3D;1}^N\alpha_t(j)\beta_t(j)}}$）</p>
+<p>chain&#x2F;chain-datastruct.h：</p>
+<p>后面计算alpha就是用到这个三元组，hmm_state知道哪个状态结点（要遍历的），pdf就知道对应哪个发射概率，transition_prob对应语言模型概率</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">DenominatorGraphTransition</span> &#123;</span><br><span class="line">  BaseFloat transition_prob;  <span class="comment">// language-model part of the probability (not</span></span><br><span class="line">                              <span class="comment">// in log)</span></span><br><span class="line">  int32_cuda pdf_id;   <span class="comment">// pdf-id on the transition.</span></span><br><span class="line">  int32_cuda hmm_state;  <span class="comment">// source, or destination, HMM state.</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>前后向算法里面的转移概率是语言模型概率</p>
+<ul>
+<li>loss，用前后向算法得到loss值</li>
+</ul>
+<p>分母前向alpha计算：chain&#x2F;chain-denominator.cc</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">int32 prob_stride = probs.<span class="built_in">Stride</span>(); <span class="comment">//yl:probs.Stride()是帧数</span></span><br><span class="line"><span class="keyword">for</span> (int32 h = <span class="number">0</span>; h &lt; num_hmm_states; h++)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">for</span> (int32 s = <span class="number">0</span>; s &lt; num_sequences; s++)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="type">double</span> this_tot_alpha = <span class="number">0.0</span>;</span><br><span class="line">    <span class="type">const</span> DenominatorGraphTransition</span><br><span class="line">        *trans_iter = transitions + backward_transitions[h].first,</span><br><span class="line">        *trans_end = transitions + backward_transitions[h].second;</span><br><span class="line">    <span class="keyword">for</span> (; trans_iter != trans_end; ++trans_iter)</span><br><span class="line">    &#123;</span><br><span class="line">      BaseFloat transition_prob = trans_iter-&gt;transition_prob;</span><br><span class="line">      int32 pdf_id = trans_iter-&gt;pdf_id,</span><br><span class="line">            prev_hmm_state = trans_iter-&gt;hmm_state;</span><br><span class="line">        <span class="comment">// prob_data 维度是pdf数，之前保存的矩阵是帧数行*pdf列，因此每次取当前帧的pdf值时，stride是帧数，每次跳这么多步，到达同一个时间的下一个pdf数值，取得该同一个时刻的发射概率</span></span><br><span class="line">      BaseFloat prob = prob_data[pdf_id * prob_stride + s],</span><br><span class="line">                this_prev_alpha = prev_alpha_dash[prev_hmm_state * num_sequences + s];</span><br><span class="line">      this_tot_alpha += this_prev_alpha * transition_prob * prob;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Let arbitrary_scale be the inverse of the alpha-sum value that we</span></span><br><span class="line">    <span class="comment">// store in the same place we&#x27;d store the alpha for the state numbered</span></span><br><span class="line">    <span class="comment">// &#x27;num_hmm_states&#x27;. We multiply this into all the</span></span><br><span class="line">    <span class="comment">// transition-probabilities from the previous frame to this frame, in</span></span><br><span class="line">    <span class="comment">// both the forward and backward passes, in order to keep the alphas in</span></span><br><span class="line">    <span class="comment">// a good numeric range.  This won&#x27;t affect the posteriors, but when</span></span><br><span class="line">    <span class="comment">// computing the total likelihood we&#x27;ll need to compensate for it later</span></span><br><span class="line">    <span class="comment">// on.</span></span><br><span class="line">    BaseFloat arbitrary_scale =</span><br><span class="line">        <span class="number">1.0</span> / prev_alpha_dash[num_hmm_states * num_sequences + s];</span><br><span class="line">    <span class="built_in">KALDI_ASSERT</span>(this_tot_alpha - this_tot_alpha == <span class="number">0</span>);</span><br><span class="line">    this_alpha[h * num_sequences + s] = this_tot_alpha * arbitrary_scale;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="分子"><a href="#分子" class="headerlink" title="分子"></a>分子</h2><p>分子loss计算：chain&#x2F;chain-generic-numerator.cc</p>
+<p>知道了确定的pdf，三元组的时候就不用遍历所有pdf了，但也要遍历所有G空间状态。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//chain/chain-training.cc：</span></span><br><span class="line"><span class="function">GenericNumeratorComputation <span class="title">numerator</span><span class="params">(opts.numerator_opts,</span></span></span><br><span class="line"><span class="params"><span class="function">                                          supervision, nnet_output)</span></span>;</span><br><span class="line"><span class="comment">//跳到 chain/chain-generic-numerator.cc</span></span><br><span class="line">GenericNumeratorComputation::<span class="built_in">GenericNumeratorComputation</span>(</span><br><span class="line">    supervision_.e2e_fsts[i].<span class="built_in">NumStates</span>() <span class="comment">//fst就是分子lattice的结点数（状态数），对当前这条句子sequence能展开的图 有多少个状态</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//跳回chain/chain-training.cc：   </span></span><br><span class="line">          numerator_ok = numerator.<span class="built_in">ForwardBackward</span>(&amp;num_logprob_weighted,</span><br><span class="line">                                                   xent_output_deriv);    </span><br><span class="line"><span class="comment">//跳到chain/chain-generic-numerator.cc    </span></span><br><span class="line">    <span class="type">bool</span> GenericNumeratorComputation::<span class="built_in">ForwardBackward</span>( <span class="comment">// 计算out_transitions_、in_transitions_</span></span><br><span class="line"><span class="comment">//跳回chain/chain-generic-numerator.cc</span></span><br><span class="line">        <span class="comment">// Forward part</span></span><br><span class="line">        <span class="built_in">AlphaFirstFrame</span>(seq, &amp;alpha[thread]);</span><br><span class="line">        partial_loglike_mt[thread] += <span class="built_in">AlphaRemainingFrames</span>(seq, probs, &amp;alpha[thread]);</span><br><span class="line">        <span class="comment">// Backward part</span></span><br><span class="line">        <span class="built_in">BetaLastFrame</span>(seq, alpha[thread], &amp;beta[thread]);</span><br><span class="line">        <span class="built_in">BetaRemainingFrames</span>(seq, probs, alpha[thread], &amp;beta[thread], &amp;derivs);</span><br></pre></td></tr></table></figure>
+
+<p>chain&#x2F;chain-generic-numerator.cc：</p>
+<ul>
+<li>out_transitions_：GenericNumeratorComputation的类成员，transition_prob是当前lattice里的权重减去该句子权重最大值，再取负号</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211020161517294.png" alt="image-20211020161517294"></p>
+<ul>
+<li>in_transitions_：GenericNumeratorComputation的类成员</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/image-20211020162405339.png" alt="image-20211020162405339"></p>
+<ul>
+<li>计算$\alpha$，所有lattice上这个状态结点的概率 累加 （概率还包含状态转移和pdf发射）</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> t = <span class="number">1</span>; t &lt;= num_frames; ++t)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">const</span> BaseFloat *probs_tm1 = probs.<span class="built_in">RowData</span>(t - <span class="number">1</span>);</span><br><span class="line">  BaseFloat *<span class="type">alpha_t</span> = alpha-&gt;<span class="built_in">RowData</span>(t);</span><br><span class="line">  <span class="type">const</span> BaseFloat *alpha_tm1 = alpha-&gt;<span class="built_in">RowData</span>(t - <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (int32 h = <span class="number">0</span>; h &lt; supervision_.e2e_fsts[seq].<span class="built_in">NumStates</span>(); h++)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> tr = in_transitions_[seq][h].<span class="built_in">begin</span>();</span><br><span class="line">         tr != in_transitions_[seq][h].<span class="built_in">end</span>(); ++tr)</span><br><span class="line">    &#123;</span><br><span class="line">      BaseFloat transition_prob = tr-&gt;transition_prob;</span><br><span class="line">      int32 pdf_id = tr-&gt;pdf_id,</span><br><span class="line">            prev_hmm_state = tr-&gt;hmm_state;</span><br><span class="line">      BaseFloat prob = probs_tm1[pdf_id];</span><br><span class="line">      <span class="type">alpha_t</span>[h] = <span class="built_in">LogAdd</span>(<span class="type">alpha_t</span>[h],</span><br><span class="line">                          alpha_tm1[prev_hmm_state] + transition_prob + prob);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="type">double</span> sum = alpha_tm1[alpha-&gt;<span class="built_in">NumCols</span>() - <span class="number">1</span>];</span><br><span class="line">  <span class="function">SubMatrix&lt;BaseFloat&gt; <span class="title">alpha_t_mat</span><span class="params">(*alpha, t, <span class="number">1</span>, <span class="number">0</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                                   alpha-&gt;NumCols() - <span class="number">1</span>)</span></span>;</span><br><span class="line">  alpha_t_mat.<span class="built_in">Add</span>(-sum);</span><br><span class="line">  sum = alpha_t_mat.<span class="built_in">LogSumExp</span>();</span><br><span class="line"></span><br><span class="line">  <span class="type">alpha_t</span>[alpha-&gt;<span class="built_in">NumCols</span>() - <span class="number">1</span>] = sum;</span><br><span class="line">  log_scale_product += sum;</span><br><span class="line">&#125;          </span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" rel="tag"># 语音识别</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/" rel="next" title="kaldi实现迁移学习">
+                <i class="fa fa-chevron-left"></i> kaldi实现迁移学习
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/01/04/%E8%AF%86%E5%88%AB/decoder_main%E4%BF%AE%E6%94%B9blank%E6%A6%82%E7%8E%87/" rel="prev" title="decoder_main修改blank概率">
+                decoder_main修改blank概率 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#kaldi-chain"><span class="nav-number">1.</span> <span class="nav-text">kaldi chain</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90phone%E7%9A%84%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8Blm%EF%BC%8C%E4%B8%BA%E4%BA%86%E5%88%86%E6%AF%8Dhclg-lattice%E6%9C%8D%E5%8A%A1%EF%BC%9A"><span class="nav-number">1.0.1.</span> <span class="nav-text">生成phone的语言模型lm，为了分母hclg lattice服务：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E5%88%86%E6%AF%8Dlattice"><span class="nav-number">1.0.2.</span> <span class="nav-text">生成分母lattice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97loss%E8%84%9A%E6%9C%AC%EF%BC%9A"><span class="nav-number">1.0.3.</span> <span class="nav-text">计算loss脚本：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B-cegs%E5%86%85%E5%AE%B9%EF%BC%9A"><span class="nav-number">1.0.4.</span> <span class="nav-text">查看 cegs内容：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97loss%E4%BB%A3%E7%A0%81%EF%BC%9A"><span class="nav-number">1.0.5.</span> <span class="nav-text">计算loss代码：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%EF%BC%9A"><span class="nav-number">1.0.6.</span> <span class="nav-text">初始化：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%AD%90"><span class="nav-number">1.1.</span> <span class="nav-text">分子</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/kaldi%20chain/';
+          this.page.identifier = '2022/01/04/识别/kaldi chain/';
+          this.page.title = 'kaldi chain';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="《语音识别原理与应用》,工程实践," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="动态库封装 《语音识别原理与技术》洪青阳 工业应用实践 书、PPT 15.1   函数接口 动态库编译 动态库调用  函数接口12345678910111213&#x2F;***********************************************************************************************************************">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《语音识别原理与应用》洪青阳 第15章 工程应用实践————动态库封装">
+<meta property="og:url" content="http://example.com/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="动态库封装 《语音识别原理与技术》洪青阳 工业应用实践 书、PPT 15.1   函数接口 动态库编译 动态库调用  函数接口12345678910111213&#x2F;***********************************************************************************************************************">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/%E5%9B%BE%E7%89%872-16750654093591.png">
+<meta property="og:image" content="http://example.com/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/%E5%9B%BE%E7%89%871.png">
+<meta property="og:image" content="http://example.com/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/%E5%9B%BE%E7%89%873.png">
+<meta property="article:published_time" content="2023-01-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-02-06T11:01:11.224Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="《语音识别原理与应用》">
+<meta property="article:tag" content="工程实践">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/%E5%9B%BE%E7%89%872-16750654093591.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/01/30/工程实践/动态库封装/"/>
+
+
+
+
+
+  <title>《语音识别原理与应用》洪青阳 第15章 工程应用实践————动态库封装 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《语音识别原理与应用》洪青阳 第15章 工程应用实践————动态库封装</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-30T00:00:00+08:00">
+                2023-01-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index">
+                    <span itemprop="name">工程实践</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/30/工程实践/动态库封装/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="动态库封装"><a href="#动态库封装" class="headerlink" title="动态库封装"></a>动态库封装</h1><blockquote>
+<p>《语音识别原理与技术》洪青阳 工业应用实践 书、PPT 15.1</p>
+</blockquote>
+<ul>
+<li>函数接口</li>
+<li>动态库编译</li>
+<li>动态库调用</li>
+</ul>
+<h2 id="函数接口"><a href="#函数接口" class="headerlink" title="函数接口"></a>函数接口</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">			基于语音缓冲区的语音识别（非特定人）</span></span><br><span class="line"><span class="comment">		@ handle	      : 线路资源标识（必须是已打开） 用来区分不同线程，防止共享资源同时修改某个地址的内容造成混乱 每个线程对应一个句柄号</span></span><br><span class="line"><span class="comment">		@ buffer           : 待识别语音缓冲区	short型 因为采样点一般用两个字节的short来保存</span></span><br><span class="line"><span class="comment">		@ length          : 待识别语音缓冲区长度	无符号的长整型 unsigned int 是buffer的长度 比如16000个采样点数 表示长度</span></span><br><span class="line"><span class="comment">		@ text              : 识别的文本内容 	字符串	是一个指针，因此结果即使已经有一部分输出了，也是可以随时修改前面的，输出变换后的内容</span></span><br><span class="line"><span class="comment">		@ scoreASR      : 语音识别得分		一般用置信度</span></span><br><span class="line"><span class="comment">		@ return	      : 成功识别返回SUCCESS</span></span><br><span class="line"><span class="comment">                                                                                                                                                                                   */</span></span><br><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="function">return_ASR_Code <span class="title">ASR_recSpeechBuf</span><span class="params">(Handle handle, <span class="type">short</span>* buffer, <span class="type">unsigned</span> <span class="type">long</span> length, <span class="type">char</span>* text, <span class="type">float</span> &amp;scoreASR)</span></span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>根据ASR_recSpeechBuf函数的输入和输出参数，我们&#x3D;&#x3D;改写&#x3D;&#x3D;了Kaldi的在线解码程序，包括以下函数：</p>
+<ul>
+<li><strong>ASR_recSpeechBuf</strong>函数：与外面调用程序交互，首先判断分配到的句柄handle是否空闲，如果忙则返回ASR_STATE_ERROR，表示已被占用；如果检查通过，则调用KaldiDecode函数进行解码，并把词序列索引转化为文本内容，保存到输出参数text，即为识别后的句子。</li>
+<li><strong>KaldiDecode</strong>函数：实现从语音缓冲buffer到识别结果的具体解码过程，首先完成输入buffer到SubVector<BaseFloat> wave_part的转化过程，然后调用feature_pipeline.AcceptWaveform(samp_freq, wave_part)进行声学特征提取，注意声学特征一般有做倒谱均值减（CMN），因此在函数内部还要加上这步操作，接着调用decoder.AdvanceDecoding()进行分片段识别，得到中间解码结果，保存在Lattice里，随后采用decoder.FinalizeDecoding()进行Lattice解码，修正中间部分结果。最后调用GetDiagnosticsAndPrintOutput函数得到解码后的词序列索引。</BaseFloat></li>
+<li><strong>GetDiagnosticsAndPrintOutput</strong>函数：根据输入的CompactLattice进行Lattice最优路径搜索并返回得到词序列和基于最小贝叶斯风险算出来的置信度，分别存放在输出参数words和words_conf（confidence置信度）。</li>
+</ul>
+<p>改写后：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 根据输入的CompactLattice进行Lattice最优路径搜索</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">GetDiagnosticsAndPrintOutput</span><span class="params">(<span class="type">const</span> fst::SymbolTable *word_syms,</span></span></span><br><span class="line"><span class="params"><span class="function">                                  <span class="type">const</span> CompactLattice &amp;clat,</span></span></span><br><span class="line"><span class="params"><span class="function">                                  int64 *tot_num_frames,</span></span></span><br><span class="line"><span class="params"><span class="function">                                  <span class="type">double</span> *tot_like,</span></span></span><br><span class="line"><span class="params"><span class="function">                                 std::vector&lt;int32&gt; &amp;words,</span></span></span><br><span class="line"><span class="params"><span class="function">                                 BaseFloat &amp;words_conf)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (clat.<span class="built_in">NumStates</span>() == <span class="number">0</span>) &#123;</span><br><span class="line">    KALDI_WARN &lt;&lt; <span class="string">&quot;Empty lattice.&quot;</span>;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  CompactLattice best_path_clat;</span><br><span class="line">  <span class="built_in">CompactLatticeShortestPath</span>(clat, &amp;best_path_clat);</span><br><span class="line"></span><br><span class="line">  Lattice best_path_lat;</span><br><span class="line">  <span class="built_in">ConvertLattice</span>(best_path_clat, &amp;best_path_lat);</span><br><span class="line"></span><br><span class="line">  <span class="type">double</span> likelihood;</span><br><span class="line">  LatticeWeight weight;</span><br><span class="line">  int32 num_frames;</span><br><span class="line">  std::vector&lt;int32&gt; alignment;</span><br><span class="line">  <span class="built_in">GetLinearSymbolSequence</span>(best_path_lat, &amp;alignment, &amp;words, &amp;weight);</span><br><span class="line">  num_frames = alignment.<span class="built_in">size</span>();</span><br><span class="line">  likelihood = -(weight.<span class="built_in">Value1</span>() + weight.<span class="built_in">Value2</span>());</span><br><span class="line">  *tot_num_frames += num_frames;</span><br><span class="line">  *tot_like += likelihood;</span><br><span class="line">  <span class="built_in">KALDI_VLOG</span>(<span class="number">2</span>) &lt;&lt; <span class="string">&quot;Likelihood per frame for utterance &quot;</span> &lt;&lt; utt &lt;&lt; <span class="string">&quot; is &quot;</span></span><br><span class="line">                &lt;&lt; (likelihood / num_frames) &lt;&lt; <span class="string">&quot; over &quot;</span> &lt;&lt; num_frames</span><br><span class="line">                &lt;&lt; <span class="string">&quot; frames.&quot;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="type">bool</span> decode_mbr = <span class="literal">true</span>;</span><br><span class="line">  MinimumBayesRisk *mbr = <span class="literal">NULL</span>;</span><br><span class="line">  mbr = <span class="keyword">new</span> <span class="built_in">MinimumBayesRisk</span>(clat, words);</span><br><span class="line"></span><br><span class="line">  <span class="type">const</span> std::vector&lt;BaseFloat&gt; &amp;conf = mbr-&gt;<span class="built_in">GetOneBestConfidences</span>();    </span><br><span class="line">  </span><br><span class="line">  words_conf = <span class="number">0.0</span>;</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">if</span> (word_syms != <span class="literal">NULL</span>) </span><br><span class="line">    std::cerr &lt;&lt; utt &lt;&lt; <span class="string">&#x27; &#x27;</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; words.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">      std::string s = word_syms-&gt;<span class="built_in">Find</span>(words[i]);</span><br><span class="line">      <span class="keyword">if</span> (s == <span class="string">&quot;&quot;</span>)&#123;</span><br><span class="line">        KALDI_ERR &lt;&lt; <span class="string">&quot;Word-id &quot;</span> &lt;&lt; words[i] &lt;&lt; <span class="string">&quot; not in symbol table.&quot;</span>;</span><br><span class="line">        words_conf += conf[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (words.size &gt; <span class="number">0</span>) words_conf /= words.<span class="built_in">size</span>();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (mbr != <span class="literal">NULL</span>) <span class="keyword">delete</span> mbr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现从语音缓冲 buffer 到识别结果的具体解码过程</span></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">int</span> <span class="title">KaldiDecode</span><span class="params">(<span class="type">short</span>* buffer, <span class="type">unsigned</span> <span class="type">long</span> length, std::vector&lt;int32&gt; &amp;words, <span class="type">float</span> &amp;scoreASR)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">try</span>&#123;</span><br><span class="line">        <span class="type">double</span> tot_like = <span class="number">0.0</span>;</span><br><span class="line">        int64 num_frames = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="function">OnlineNnet2FeaturePipelineInfo <span class="title">feature_info</span><span class="params">(feature_opots)</span></span>;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">stricmp</span> (asr_feature_type.<span class="built_in">c_str</span>(), <span class="string">&quot;mfcc&quot;</span>) == <span class="number">0</span>) </span><br><span class="line">            samp_freq = feature_info.mfcc_opts.frame_opts.samp_freq; </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">stricmp</span> (asx_feature_type.<span class="built_in">c_str</span>(), <span class="string">&quot;plp&quot;</span>) == <span class="number">0</span> ) </span><br><span class="line">            samp_freq = feature_info.plp_opts.frame_opts.samp_freq; </span><br><span class="line">        <span class="keyword">else</span> <span class="comment">//default: fbank</span></span><br><span class="line">            </span><br><span class="line">        samp_freq = feature_info.fbank_opts.frame_opts.samp_freq;</span><br><span class="line">            </span><br><span class="line">            <span class="function">OnlineNnet2FeaturePipeline <span class="title">feature_pipeline</span> <span class="params">(feature_info)</span></span>;</span><br><span class="line">            </span><br><span class="line">            <span class="function">Online IvectorExtractorAdaptationstate <span class="title">adaptation_state</span> <span class="params">(feature_info.ivector_extractor_info)</span></span>;</span><br><span class="line">            feature_pipeline. <span class="built_in">SetAdaptationstate</span> (adaptation_state) ;</span><br><span class="line"></span><br><span class="line">            <span class="function">OnlineSilenceWeighting <span class="title">silence_weighting</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">                trans_model, feature_info.silence weighting_config,</span></span></span><br><span class="line"><span class="params"><span class="function">                decodable_opts .frame_subsampling_factor)</span></span>;</span><br><span class="line">            </span><br><span class="line">            <span class="function">SingleUtteranceNnet3Decoder <span class="title">decoder</span><span class="params">(decoder_opts, trans_model, *decode_fst, &amp;feature_pipeline)</span></span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// read data from buffer</span></span><br><span class="line">            <span class="function">Matrix&lt;BaseFloat&gt; <span class="title">data_</span><span class="params">(<span class="number">1</span>, length)</span></span>;</span><br><span class="line">            BaseFloat *data_ptr = data_.<span class="built_in">Data</span>();</span><br><span class="line">            <span class="keyword">for</span> (int32 i=<span class="number">0</span> ; i &lt; length; i++ )&#123;</span><br><span class="line">                data_ptr[i] = buffer[i];</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="function">Subvector&lt;Baserloat&gt; <span class="title">data</span><span class="params">(data_, <span class="number">0</span>)</span></span>;</span><br><span class="line">            </span><br><span class="line">            int32 chunk_length;</span><br><span class="line">            <span class="keyword">if</span> (chunk_length_secs &gt;<span class="number">0</span> )</span><br><span class="line">            &#123;</span><br><span class="line">                chunk_length = <span class="built_in">int32</span> (samp_freq * chunk_length_secs);</span><br><span class="line">                <span class="keyword">if</span> (chunk_length ==<span class="number">0</span> ) chunk_length = <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                chunk_length = std::numeric_limits&lt;int32&gt;::<span class="built_in">max</span>();    </span><br><span class="line">            &#125;</span><br><span class="line">            int32 samp_offset = <span class="number">0</span>;</span><br><span class="line">            std::vector&lt;std::pair&lt;int32, BaseFloat&gt; &gt; delta_weights;</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">while</span> (samp_offset &lt; data.<span class="built_in">Dim</span>())</span><br><span class="line">            &#123;</span><br><span class="line">                int32 samp_remaining = data.<span class="built_in">Dim</span>() - samp_offset;</span><br><span class="line">                int32 num_samp = chunk_length &lt; samp_remaining ? chunk_length : samp_remaining;</span><br><span class="line"></span><br><span class="line">                <span class="function">Subvector&lt;BaseFloat&gt; <span class="title">wave_part</span> <span class="params">(data, samp_offset, num_samp)</span></span>;</span><br><span class="line">                feature_pipeline.<span class="built_in">AcceptWaveform</span>(samp_freq, wave_part);</span><br><span class="line">                </span><br><span class="line">                samp_offset += num_samp;</span><br><span class="line">                <span class="keyword">if</span> (samp_offset == data.<span class="built_in">Dim</span>())&#123; </span><br><span class="line">                    <span class="comment">// no more input. flush out last frames</span></span><br><span class="line">                    feature_pipeline.<span class="built_in">InputFinished</span>();</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">                <span class="keyword">if</span> (silence_weighting.<span class="built_in">Active</span>() &amp;&amp; feature_pipeline.<span class="built_in">IvectorFeature</span> () != <span class="literal">NULL</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    silence_weighting.<span class="built_in">ComputeCurrentTraceback</span> (decoder.<span class="built_in">Decoder</span>());</span><br><span class="line">        silence_weighting.<span class="built_in">GetDeltaWeights</span> (feature_pipeline.<span class="built_in">NumFramesReady</span> (), &amp;delta_weights);</span><br><span class="line">        feature_pipeline.<span class="built_in">IvectorFeature</span> () -&gt; <span class="built_in">UpdateFrameWeights</span> (delta_weights);</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">                decoder.<span class="built_in">AdvanceDecoding</span> ();</span><br><span class="line">                </span><br><span class="line">                <span class="keyword">if</span> (do_endpointing &amp;&amp; decoder.<span class="built_in">EndpointDetected</span>(endpoint_opts))</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            decoder.<span class="built_in">FinalizeDecoding</span> ();</span><br><span class="line">            </span><br><span class="line">            Compactlattice clat;</span><br><span class="line">            <span class="type">bool</span> end_of_utterance = <span class="literal">true</span>;</span><br><span class="line">            decoder. <span class="built_in">GetLattice</span>(end_of_utterance, &amp;clat);</span><br><span class="line">            </span><br><span class="line">            BaseFloat words_conf = <span class="number">0.0</span>;</span><br><span class="line">            <span class="built_in">GetDiagnosticsAndPrintoutput</span>(word_syms, clat, &amp;num_frames, &amp;tot_like, words, words_conf);</span><br><span class="line"></span><br><span class="line">            scoreASR = words_conf;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">            <span class="built_in">catch</span>(<span class="type">const</span> std::exception&amp; e)</span><br><span class="line">            &#123;</span><br><span class="line">                std: : cerr &lt; e. <span class="built_in">what</span> ();</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用来和外面调用程序交互</span></span><br><span class="line"><span class="function">return_ASR_Code <span class="title">ASR_recSpeechBuf</span> <span class="params">(Handle handle, <span class="type">short</span>* buffer, <span class="type">unsigned</span> <span class="type">long</span> length, <span class="type">char</span>* text, <span class="type">float</span> &amp;scoreASR)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!asr_bInited) <span class="keyword">return</span> ASR_STATE_ERROR; </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (handle &lt;=<span class="number">0</span> || handle&gt;asr_engine_thread_nb) <span class="keyword">return</span> ASR_HANDLE_ERROR;</span><br><span class="line">    <span class="built_in">ASR_P</span>() ;</span><br><span class="line">    <span class="keyword">if</span> (asr_state [handle] != TSASR_IDLE)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">ASR_V</span>();</span><br><span class="line">        <span class="keyword">return</span> ASR_STATE_ERROR;</span><br><span class="line">    &#125;</span><br><span class="line">    asr_state[handle] = TSASR_BUSY;</span><br><span class="line">    <span class="built_in">ASR_V</span>();</span><br><span class="line">    </span><br><span class="line">    std::vector&lt;int32&gt; words;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">Kaldidecode</span> (buffer, length, words, scoreASR);</span><br><span class="line">    </span><br><span class="line">    string recText = <span class="string">&quot;&quot;</span> ;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span>(int32 i=<span class="number">0</span> ; i&lt; words.<span class="built_in">size</span>(); i++)&#123;</span><br><span class="line">        recText += word_syms-&gt;<span class="built_in">Find</span> (words[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    recText +=<span class="string">&quot;\0&quot;</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">ASR_P</span>();</span><br><span class="line">    <span class="keyword">if</span>(asr_state[handle] == TSASR_BUSY) asr_state [handle] = TSASR_IDLE;</span><br><span class="line">    <span class="built_in">ASR_V</span>();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> ASR_SUCCEEDED_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="函数接口——返回值"><a href="#函数接口——返回值" class="headerlink" title="函数接口——返回值"></a>函数接口——返回值</h3><p>函数返回结果是return_ASR_code类型，它包含运行中可能出现的各种情况，用枚举类型定义。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">return_ASR_Code</span></span><br><span class="line">&#123;</span><br><span class="line">	ASR_SUCCEEDED_OK=<span class="number">0</span>,	 <span class="comment">//	0:操作成功</span></span><br><span class="line">	ASR_WORKINGDIR_NOT_FIND,	 <span class="comment">//	1:工作目录不存在</span></span><br><span class="line">	ASR_CONFIG_FILE_NOT_FOUND,     <span class="comment">//	2:配置文件未找到</span></span><br><span class="line">	ASR_MODEL_FILE_NOT_FOUND,      <span class="comment">//               3:模型文件未找到</span></span><br><span class="line">	ASR_LICENSE_ERROR,     	 <span class="comment">//	4:授权有误</span></span><br><span class="line">	ASR_HANDLE_ERROR,   	 <span class="comment">//	5:句柄标识有误</span></span><br><span class="line">	ASR_STATE_ERROR,		 <span class="comment">//	6:句柄状态有误</span></span><br><span class="line">	ASR_TOO_SHORT_BUFFER,	 <span class="comment">//	7:语音太短</span></span><br><span class="line">	ASR_EXTRACT_FEAT_ERROR,	 <span class="comment">//	8:特征提取出错</span></span><br><span class="line">	ASR_MODEL_LOAD_ERROR,	 <span class="comment">//	9:模型加载出错</span></span><br><span class="line">	ASR_MODEL_SAVE_ERROR,	 <span class="comment">//	10:模型保存出错</span></span><br><span class="line">	TSASR_BUSY,		<span class="comment">//	11:线路正忙</span></span><br><span class="line">	TSASR_IDLE,		 <span class="comment">//	12:线路空闲</span></span><br><span class="line">	TSASR_CLOSE,		 <span class="comment">//	13:线路关闭</span></span><br><span class="line">	ASR_OTHER_ERROR		 <span class="comment">//	14:其他错误</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>用返回值来诊断引擎出现的问题。</p>
+<p>为了提高可读性, 还需对识别后的句子进行加标点等后处理。加标点的操作可采用语言模型，该模型通过对规范的文本语料训练得到。</p>
+<p>由于声学模型和 WFST 解码用的 HCLG 文件很大, 通用版本大小一般有 5GB 以上, 故只能在系统初始化阶段加载, 并且只需要加载一次。其相关代码如下:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 加载声学模型</span></span><br><span class="line"><span class="type">bool</span> binary;</span><br><span class="line"><span class="function">Input <span class="title">ki</span> <span class="params">(nnet3_rxfilename, &amp;binary)</span></span>;</span><br><span class="line">trans_model.<span class="built_in">Read</span> (ki.<span class="built_in">stream</span> (), binary);</span><br><span class="line">am_nnet.<span class="built_in">Read</span> (ki.<span class="built_in">Stream</span> (), binary);</span><br><span class="line"><span class="built_in">SetBatchnormTestMode</span> (<span class="literal">true</span>, &amp;(am_nnet.<span class="built_in">GetNnet</span> () ));</span><br><span class="line"><span class="built_in">SetDropoutTestMode</span> (<span class="literal">true</span>, &amp;(am_nnet.<span class="built_in">GetNnet</span> ()));</span><br><span class="line">nnet3::<span class="built_in">CollapseModel</span> (nnet3::<span class="built_in">CollapseModelConfig</span>(), &amp;(am_nnet.<span class="built_in">GetNnet</span>()));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载 HCLG</span></span><br><span class="line">decode_fst = <span class="built_in">ReadFstKaldiGeneric</span>(fst_rxfilename);</span><br><span class="line"></span><br><span class="line"><span class="comment">//加载词典</span></span><br><span class="line"><span class="keyword">if</span> (word_syms_rxfilename != <span class="string">&quot;&#x27;&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> (! (word_syms = fst::SymbolTable::<span class="built_in">ReadText</span> (word_syms_rxfilename))</span><br><span class="line">        KALDI_ERR &lt;&lt; <span class="string">&quot;Could not read symbol table from file &quot;</span></span><br><span class="line">                    &lt;&lt; word_syms_rxfilename;</span><br><span class="line"></span><br><span class="line"><span class="comment">//解码参数初始化</span></span><br><span class="line">decodable_info = <span class="keyword">new</span> nnet3::<span class="built_in">DecodableNnetSimpleLoopedinfo</span>(decodable_opts, &amp;am_nnet);</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="函数接口—引擎初始化和关闭"><a href="#函数接口—引擎初始化和关闭" class="headerlink" title="函数接口—引擎初始化和关闭"></a>函数接口—引擎初始化和关闭</h3><p>对于引擎初始化，我们专门定义一个函数ASR_Init。</p>
+<p>ASR_Init 函数除了进行引擎文件的加载外, 同时也检查线路授权, 分配能同时并发的路数, 以支持多路调用。调用 ASR_Init 函数后, 如果返回函数值为 ASR_SUCCEEDED_OK, 则表示初始化成功。如果要关闭语音识别服务, 则需要调用 ASR_Release 函数释放相关资源。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">	      		初始化引擎</span></span><br><span class="line"><span class="comment">		@ working_dir	: 工作目录下有引擎工作所必需的文件</span></span><br><span class="line"><span class="comment">		@ max_lines	: 引擎支持最大线数</span></span><br><span class="line"><span class="comment">		@ return		: 成功初始化返回SUCCESS</span></span><br><span class="line"><span class="comment">                                                                                                                                                                                   */</span></span><br><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="function">return_ASR_Code <span class="title">ASR_Init</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* config_file,<span class="type">int</span> max_lines)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">			关闭引擎：改变各线路状态为CLOSE</span></span><br><span class="line"><span class="comment">                                                                                                                                                                                   */</span></span><br><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="function">return_ASR_Code <span class="title">ASR_Release</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="函数接口—句柄打开和关闭"><a href="#函数接口—句柄打开和关闭" class="headerlink" title="函数接口—句柄打开和关闭"></a>函数接口—句柄打开和关闭</h3><p>由于涉及多线程调用, 所以需要为每个线程分配专门的句柄, 因此还需要 ASR_Open 和 ASR_Close 两个函数。调用 ASR_Open 函数分配到句柄后，执行完相关操作也要及时调用 ASR_Close 函数释放句柄。这两个函数属于标准化的操作, 这里不再细述。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">				打开线路：h是线路资源标识</span></span><br><span class="line"><span class="comment">                                                                                                                                                                                   */</span></span><br><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="function">return_ASR_Code <span class="title">ASR_Open</span><span class="params">(Handle &amp;outh)</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">*************************************************************************************************************************/</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">				关闭线路：h是线路资源标识</span></span><br><span class="line"><span class="comment">                                                                                                                                                                                   */</span></span><br><span class="line"><span class="comment">/*************************************************************************************************************************/</span></span><br><span class="line"><span class="function">return_ASR_Code <span class="title">ASR_Close</span><span class="params">(Handle &amp;h)</span></span>;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="动态库编译"><a href="#动态库编译" class="headerlink" title="动态库编译"></a>动态库编译</h2><p>完成函数接口定义后，需要把引擎代码编译成动态库。接下来介绍Linux环境下so的编译过程。</p>
+<h3 id="动态库编译—Linux环境"><a href="#动态库编译—Linux环境" class="headerlink" title="动态库编译—Linux环境"></a>动态库编译—Linux环境</h3><p>Linux环境不方便修改及调试代码，为便于操作，我们建议采用跨平台工具，开发环境可采用 &#x3D;&#x3D;CodeBlocks&#x3D;&#x3D;，读者可下载最新版本并安装到Windows系统。以CodeBlocks16.01版本为例，一旦安装完成后，在文件菜单里选择新建-&gt;工程-&gt;动态库（New -&gt; Project -&gt; DLL），打开codeblock动态库创建窗口，如图所示。</p>
+<p><img src="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/%E5%9B%BE%E7%89%872-16750654093591.png" alt="图片2"></p>
+<p>然后根据提示一步步创建，选择存放的目录，输入工程名，直到工程环境创建成功，如图所示。这时在工程目录会生成一个.cbp的工程文件，如asr.cbp。根据Kaldi函数调用关系，我们需要把在线解码需要的源程序全部加载到工程，并加入必要的外部支撑文件，用来读取配置文件，输出日志信息等。</p>
+<p><img src="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/%E5%9B%BE%E7%89%871.png" alt="图片1"></p>
+<p>工程配置保存完，把整个工程目录传到Linux环境，Linux的编译需要Makefile配置文件。为提高效率，可采用cbp2make工具（可网上下载）把asr.cbp工程文件转化为Makefile文件。有了Makefile文件，即可&#x3D;&#x3D;在Linux环境进行make编译&#x3D;&#x3D;。</p>
+<p>我理解的流程是：先在windows新建工程（codeblock），把所以依赖文件放进来，然后把windows上的这个工程，转成makefile，再放到linux平台上编译，再根据报错情况，再在win平台上的codeblock工程进行修改，然后再转成makefile放到linux里进行编译，直到编译通过，生成.so文件（动态库）。</p>
+<p>用了哪些库，比如数学的库，就要把这些库的头文件的路径在makefile里包含、引用进来。</p>
+<p>由于kaldi需要调用第三方提供的数学加速库，如Atlas或MKL，因此需要在Makefile中进行如下配置：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[采用Atlas库]</span><br><span class="line">INC = -Isrc -Iopenfst/<span class="keyword">include</span> -I/home/kaldi/tools/ATLAS/<span class="keyword">include</span> -I/usr/local/cuda/<span class="keyword">include</span>/ -I/home/kaldi/tools/portaudio/<span class="keyword">include</span> -I/home/kaldi/tools/portaudio/install/<span class="keyword">include</span> -I/usr/<span class="keyword">include</span>/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/<span class="keyword">include</span> -I/usr/<span class="keyword">include</span>/libxml2/</span><br><span class="line">CFLAGS = -std=c++11 -DHAVE_ATLAS -DHAVE_POSIX_MEMALIGN</span><br><span class="line">RESINC = </span><br><span class="line">LIBDIR = </span><br><span class="line">LIB = lib/libatlas.so lib/liblapack.so</span><br><span class="line">LDFLAGS = -ldl</span><br><span class="line"></span><br><span class="line">[采用 MKL 库]</span><br><span class="line">INC = -Isrc -Iopenfst/<span class="keyword">include</span></span><br><span class="line">-I/opt/intel/compilers_and_libraries_2019.2.187/linux/mkl/<span class="keyword">include</span>/</span><br><span class="line">-I/usr/local/cuda/<span class="keyword">include</span>/-I/usr/lib/x86_64-1inux-gnu/glib-2.0/<span class="keyword">include</span></span><br><span class="line">-I/usr/<span class="keyword">include</span>/libxml2/</span><br><span class="line">CFLAGS = -std=c++11 -DHAVE_MKL_-DHAVE_POSIX_MEMALIGN</span><br><span class="line">RESINC =</span><br><span class="line">LIBDIR =</span><br><span class="line">LIB = lib_mkl/libiomp5.so lib_mkl/libmkl_core.so 11b_mkl/libmkl_intel_lp64.so</span><br><span class="line">LDFLAGS = -ldl -lpthread</span><br></pre></td></tr></table></figure>
+
+<p>Linux环境差异大，包括centos，ubuntu等不同版本，安装库的位置也可能不同，需要根据实际环境，修改makefile里面关于这些库的访问路径配置。服务器一般采用centos。</p>
+<p>由于Kaldi代码众多，包含很多子模块，函数互相之间关联度较强，加载的文件可能存在冗余或冲突，导致各种编译错误，读者需要根据报错信息一一修正，直至编译成功，最后生成so动态库文件。</p>
+<p>这个so动态库需配套相应的头文件，包含可调用的函数接口及参数说明，供外部调用参照。</p>
+<p>.so有release版本和debug版本，我们要用release版本，速度快。</p>
+<h3 id="动态库编译—Windows环境"><a href="#动态库编译—Windows环境" class="headerlink" title="动态库编译—Windows环境"></a>动态库编译—Windows环境</h3><p>Windows环境编译的是dll动态库，主要采用Visual Studio开发工具。由于Kaldi代码采用C++ 11标准，需要安装Visual Studio 2015或更新的版本。另外，Windows环境的加速库只能采用Intel MKL或OpenBLAS。MKL集成相对容易，但需要安装Intel的配套工具，安装完MKL与Visual Studio 2015集成环境如图所示。</p>
+<p><img src="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/%E5%9B%BE%E7%89%873.png" alt="图片3"></p>
+<p>由于 Kaldi 默认在 Linux 环境下编译, 对 Windows 的支持不是很到位, 因此 部分变量和代码在编译时会出现问题, 需要修改, 例如在 kaldi-math.h 文件中需要补充针对_MSC_VER (Visual Studio 开发环境) 的定义。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifdef</span> MSC_VER</span></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">int</span> <span class="title">isnan</span><span class="params">(<span class="type">double</span> x)</span> </span>&#123; <span class="keyword">return</span> x != x;&#125;</span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">int</span> <span class="title">isinf</span><span class="params">(<span class="type">double</span> x )</span> </span>&#123; <span class="keyword">return</span> !<span class="built_in">isnan</span>(x) &amp;&amp; <span class="built_in">isnan</span>(x-x); &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">define</span> isfinite finite</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ISNAN isnan</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ISINF isinf</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ISFINITE(x) isfinite(x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">elif</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ISNAN std:: isnan</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ISINF std:: isinf</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> KALDI_ISFINITE(x) std::isfinite(x)</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h2 id="动态库调用"><a href="#动态库调用" class="headerlink" title="动态库调用"></a>动态库调用</h2><p>外部程序调用编译好的动态库，要先集成到工程里，如Linux在Makefile里配置如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">CC = gcc</span><br><span class="line">CXX = g++</span><br><span class="line">AR = ar</span><br><span class="line">LD = g++</span><br><span class="line">WINDRES = windres</span><br><span class="line"></span><br><span class="line">INC = </span><br><span class="line">CFLAGS = -Wall -fexceptions</span><br><span class="line">RESINC = </span><br><span class="line">LIBDIR = </span><br><span class="line">LIB = lib/libatlas.so lib/libtsASR.so lib/liblapack.so</span><br><span class="line">LDFLAGS = </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>程序要调用时，先初始化引擎，然后分配句柄，再调用相关的识别函数，识别完关闭句柄。程序到最后还要关闭引擎，释放资源。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//初始化引擎</span></span><br><span class="line"><span class="keyword">if</span>(ASR_SUCCEEDED_OK == <span class="built_in">ASR_Init</span>(config_asr_file.<span class="built_in">c_str</span>(),<span class="number">3</span>))</span><br><span class="line">&#123;</span><br><span class="line">      cout&lt;&lt;<span class="string">&quot;ASR init success!&quot;</span>&lt;&lt;endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">      cout&lt;&lt;<span class="string">&quot;ASR init fails!&quot;</span>&lt;&lt;endl;</span><br><span class="line">      <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//打开句柄</span></span><br><span class="line">Handle tsASR;</span><br><span class="line"><span class="built_in">ASR_Open</span>(tsASR);</span><br><span class="line"></span><br><span class="line"><span class="type">float</span> scoreASR;</span><br><span class="line"><span class="type">char</span> rec_text[<span class="number">10240</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">//语音识别</span></span><br><span class="line"><span class="keyword">if</span>(ASR_SUCCEEDED_OK == <span class="built_in">ASR_recSpeechBuf</span>(tsASR,pWavBuffer,length,rec_text,scoreASR))</span><br><span class="line">&#123;</span><br><span class="line">       cout&lt;&lt;<span class="string">&quot;Recognized text: &quot;</span>&lt;&lt;rec_text&lt;&lt;endl;</span><br><span class="line">       cout&lt;&lt;<span class="string">&quot;scoreASR: &quot;</span>&lt;&lt;scoreASR&lt;&lt;endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">       cout&lt;&lt;<span class="string">&quot;Recognize &quot;</span>&lt;&lt;wave_full_file.<span class="built_in">c_str</span>()&lt;&lt;<span class="string">&quot;error!&quot;</span>&lt;&lt;endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//关闭句柄</span></span><br><span class="line"><span class="built_in">ASR_Close</span>(tsASR);</span><br><span class="line"></span><br><span class="line"><span class="comment">//关闭引擎</span></span><br><span class="line"><span class="built_in">ASR_Release</span>();</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E3%80%8A%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%E3%80%8B/" rel="tag"># 《语音识别原理与应用》</a>
+          
+            <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/" rel="tag"># 工程实践</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E8%AF%AD%E9%9F%B3%E4%BA%91%E5%B9%B3%E5%8F%B0/" rel="next" title="《语音识别原理与应用》洪青阳 第15章 工程应用实践————语音云平台">
+                <i class="fa fa-chevron-left"></i> 《语音识别原理与应用》洪青阳 第15章 工程应用实践————语音云平台
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%A7%BB%E6%A4%8D/" rel="prev" title="《语音识别原理与应用》洪青阳 第15章 工程应用实践————嵌入式移植">
+                《语音识别原理与应用》洪青阳 第15章 工程应用实践————嵌入式移植 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85"><span class="nav-number">1.</span> <span class="nav-text">动态库封装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.1.</span> <span class="nav-text">函数接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E6%8E%A5%E5%8F%A3%E2%80%94%E2%80%94%E8%BF%94%E5%9B%9E%E5%80%BC"><span class="nav-number">1.1.1.</span> <span class="nav-text">函数接口——返回值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E6%8E%A5%E5%8F%A3%E2%80%94%E5%BC%95%E6%93%8E%E5%88%9D%E5%A7%8B%E5%8C%96%E5%92%8C%E5%85%B3%E9%97%AD"><span class="nav-number">1.1.2.</span> <span class="nav-text">函数接口—引擎初始化和关闭</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E6%8E%A5%E5%8F%A3%E2%80%94%E5%8F%A5%E6%9F%84%E6%89%93%E5%BC%80%E5%92%8C%E5%85%B3%E9%97%AD"><span class="nav-number">1.1.3.</span> <span class="nav-text">函数接口—句柄打开和关闭</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E5%BA%93%E7%BC%96%E8%AF%91"><span class="nav-number">1.2.</span> <span class="nav-text">动态库编译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E5%BA%93%E7%BC%96%E8%AF%91%E2%80%94Linux%E7%8E%AF%E5%A2%83"><span class="nav-number">1.2.1.</span> <span class="nav-text">动态库编译—Linux环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E5%BA%93%E7%BC%96%E8%AF%91%E2%80%94Windows%E7%8E%AF%E5%A2%83"><span class="nav-number">1.2.2.</span> <span class="nav-text">动态库编译—Windows环境</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E5%BA%93%E8%B0%83%E7%94%A8"><span class="nav-number">1.3.</span> <span class="nav-text">动态库调用</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%8A%A8%E6%80%81%E5%BA%93%E5%B0%81%E8%A3%85/';
+          this.page.identifier = '2023/01/30/工程实践/动态库封装/';
+          this.page.title = '《语音识别原理与应用》洪青阳 第15章 工程应用实践————动态库封装';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

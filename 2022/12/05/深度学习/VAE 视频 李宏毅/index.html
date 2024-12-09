@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="深度学习," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="VAE 视频 李宏毅 李宏毅机器学习(2016) P17.无监督学习——深度生成模型 李宏毅机器学习(2017) p28 17- unsupervised learning - deep generative models openai 写的 generative model的博客：https:&#x2F;&#x2F;openai.com&#x2F;blog&#x2F;generative-models&#x2F;  回顾 Autoencoder">
+<meta property="og:type" content="article">
+<meta property="og:title" content="VAE 视频 李宏毅">
+<meta property="og:url" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="VAE 视频 李宏毅 李宏毅机器学习(2016) P17.无监督学习——深度生成模型 李宏毅机器学习(2017) p28 17- unsupervised learning - deep generative models openai 写的 generative model的博客：https:&#x2F;&#x2F;openai.com&#x2F;blog&#x2F;generative-models&#x2F;  回顾 Autoencoder">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202115750027.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202115951114.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202140646680.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202141718600.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202141948165.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202142940904.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202170229264.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205093748168.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205095132363.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205095944153.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205151712109.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205152007417.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205153652816.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205163038825.png">
+<meta property="og:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205163213233.png">
+<meta property="article:published_time" content="2022-12-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-12-05T08:44:51.036Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="深度学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202115750027.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/12/05/深度学习/VAE 视频 李宏毅/"/>
+
+
+
+
+
+  <title>VAE 视频 李宏毅 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">VAE 视频 李宏毅</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-05T00:00:00+08:00">
+                2022-12-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/12/05/深度学习/VAE 视频 李宏毅/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="VAE-视频-李宏毅"><a href="#VAE-视频-李宏毅" class="headerlink" title="VAE 视频 李宏毅"></a>VAE 视频 李宏毅</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Ux411S7Yk?p=17&vd_source=5e9891722f2b62adca440a5e92121b5b">李宏毅机器学习(2016) P17.无监督学习——深度生成模型</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV13x411v7US/?spm_id_from=333.999.0.0&vd_source=5e9891722f2b62adca440a5e92121b5b">李宏毅机器学习(2017) p28 17- unsupervised learning - deep generative models</a></p>
+<p>openai 写的 generative model的博客：<a target="_blank" rel="noopener" href="https://openai.com/blog/generative-models/">https://openai.com/blog/generative-models/</a></p>
+</blockquote>
+<p>回顾 Autoencoder：</p>
+<p>image经过encoder，生成一个向量code，再经过decoder，输出一张图片，目标是输入输出尽可能接近；</p>
+<p>使用时，输入随意一个向量code到decoder中，看输出什么image；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202115750027.png" alt="image-20221202115750027" style="zoom:50%;">
+
+
+
+<p>VAE示意图：</p>
+<p>autoencoder只用一个向量code，vae则是把code做了一系列操作：</p>
+<p>encoder输出一个和code维度相同的向量，记作 $m$ ；encoder同时也输出一个和code维度相同的向量，记作 $\sigma$ ；然后实现准备一个均匀分布，从中随机采样出一个向量（维度和code相同），记作 $e$ ，然后将 $\sigma$ 取exp，与均匀分布样本 $e$ 相乘，再加上 $m$，这里都是element-wise，对应元素相乘、加；</p>
+<p>VAE的目标从autoencoder的一个目标增加到两个，一个是和AE一样的最小化重建误差，还有一个是最小化 一个和 $\sigma$ 有关的误差；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202115951114.png" alt="image-20221202115951114" style="zoom:50%;">
+
+<p>但是VAE生成出来的图片很模糊，这还能用吗？VAE的优势是什么呢？</p>
+<p>取中间向量code的其中两个维度出来，画成直角坐标系，在坐标系上不同的地方取点，然后和之前8维再形成code，送入decoder，观察输出image；</p>
+<p>这样做的目的是想看看这两个维度选取不一样的值，对于最终图片的影响。如果图片按某种趋势变化，可以侧面反映出某一个维度的作用、物理含义；比如图片逐渐旋转，可以表示出某一个维度起到的作用是旋转图片；从而改变这个维度的值，就能控制输出图片朝着我们想要的方向生成；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202140646680.png" alt="image-20221202140646680" style="zoom:50%;">
+
+<p>如下图所示，横轴代表code的某一维的不同值，纵轴也是代表code的某一维的不同值；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202141718600.png" alt="image-20221202141718600" style="zoom:50%;">
+
+<p>那么为什么VAE具有这种效果，也就是说，为什么取某个维度的左右两边不同值，就能起到朝某个趋势变化的作用呢？</p>
+<p>原本的autoencoder中，如下面的例子，输入满月图，中间code是某个值a，输入半月图，中间code是某个值b，当我们把code人为取一个a和b中间的值，送入decoder，是否输出的是一个介于满月和半月的图片呢？答案是否定的，因为NN是一个非线性过程，code并不具有线性关系，也就是不具有code和输出的一个趋势变换的关系，不是说code取一个中间值，就能输出一个介于两者之间的图片的；</p>
+<p>那么为什么VAE能实现呢？这是因为VAE在训练时，decoder的输入，也就是中间变量code，它并不是一个单个、唯一的值，而是一个小的范围，也就是code+小范围的noise才是decoder的输入。我们希望（训练目标）是输入code a + 小范围noise（code a’ ）时，输出的都是满月；输入code b + 小范围noise（code b’）时，输出都是半月，因此，可能会出现这么一种情况，这两个范围分别取到某个值时，code a + noise a &#x3D; code b + noise b，两个code’ 是相等的，输出对应的既是满月、又是半月，称为“image overlap”，那么输出是要学的是满月还是半月呢？答案是模型要尽可能学到在该输入下，能生成满月的能力，也要学到能生成半月的能力，因此，输入a和b中间值时（从ab范围中sample一个值），输出的就是一个既像满月、又像半月的图片，也就是半满月。因此，VAE具有“趋势性”（我取的），它的code中间值是有物理意义的。</p>
+<p><img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202141948165.png" alt="image-20221202141948165"></p>
+<p>基于上述VAE能起到的作用解释，为了给一点物理涵义，这里把几个变量都赋予意义：$m$ 认为是和autoencoder一样的向量code（original code）；变换后的$c$ 认为是加了noise的code；$\sigma$ 认为是noise的方差（其实是 $\exp(\sigma)$ 才表示方差），代表噪声应该要有多大。而因为NN出来可正可负，加exp确保是正值，$\exp(\sigma)$ 表示方差；因此，正态分布中采样的样本 $e$ 乘以方差（本来标准正态每个维度方差相同，乘以一个不同的方差），得到不同方差的正态分布，结果也是一个正态分布模样的样本，理解成噪声。加上 $m$ 就是 原始code + noise了。</p>
+<p>方差 $\exp(\sigma)$ 决定了noise的大小，而 $\sigma$ 来自 NN，因此是NN encoder决定了noise的大小，这也是可学习、可更新的参数；</p>
+<p>由于是模型自己学的参数，只用最小化重建误差作为目标的话，就会出现方差（ $\exp(\sigma)$ ）等于0的结果，因为方差越小，重建误差越小，这样就没有noise了。因此要新增加一个目标函数，在最小化重建误差的同时，也要限制方差不可以太小。</p>
+<p>具体实现“限制方差不可以太小”的目标表达式为：$\sum_{i&#x3D;1}^3(exp(\sigma_i)-(1+\sigma_i)+(m_i)^2)$</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202142940904.png" alt="image-20221202142940904" style="zoom:50%;">
+
+<p>解释表达式：</p>
+<p>蓝线是 $\exp(\sigma_i)$ ，红线是 $1+\sigma_i$ ，绿线是 $\exp(\sigma_i) - (1+\sigma_i)$ ，目标minimize也就是绿线希望取最小值，也就是 $\sigma_i$ 接近0时，此时方差 $\exp(\sigma_i)$ 接近1，方差代表噪声（一部分），因此不会噪声等于0的情况了。（之所以要最小化它，是想让 $\sigma$ 有小，但也别太小（小到0）或者直接限制 $\sigma$ 大于等于0，这样 $\exp(\sigma)$ 也不会趋近于0啊？）</p>
+<p>$(m_i)^2$ 是正则项，提高泛化性。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221202170229264.png" alt="image-20221202170229264" style="zoom:50%;">
+
+
+
+<p>以上是定性分析。下面是公式分析。</p>
+<p>每个生成器输出，比如图像，想象成是高维空间上的一个点，比如20×20的图片，想象成是400维空间中的一个点。</p>
+<p>如果能估计出 $P(x)$ ，采样出的样本就比较是我们所希望的，<strong>因为 $P(x)$ 做采样时会倾向于采样出 $P(x)$ 中概率高的那些样本</strong>。</p>
+<p>比如下图的 $P(x)$ 分布，概率高的地方采样都比较像宝可梦，概率低的地方采样比较不像，概率高的地方更容易采样，因此这个 $P(x)$ 估计是合理的。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205093748168.png" alt="image-20221205093748168" style="zoom:50%;">
+
+
+
+<p>可以用混合高斯分布来估计概率分布</p>
+<p>把估计的概率分布 $P(x)$ 近似为 $\sum_mP(m)P(x|m)$ ，其中， $P(m)$ 是不同高斯分布的权重weight，$P(x|m)$ 是不同的高斯分布，$m$ 代表第几个高斯；</p>
+<p>采样 $x$ 的过程就变成：</p>
+<ol>
+<li>从一系列权重分布 $P(m)$ 中采样出某一个值，代表采样出第 $m$ 个高斯（比如从[0.2,0.3,0.4,0.1]的权重向量中（其实应该是权重分布），按照权重分布选出某一个权重，比如0.4，对应第3个）；</li>
+<li>从这第 $m$ 个高斯分布中采样出样本，记作 $x$；（比如从第3个高斯分布中采样出一个样本来）</li>
+</ol>
+<p>虽然概率分布写作不同高斯的不同weight求和，但是采样的时候，是先根据weight采样出第几个高斯、再从该高斯中采样出样本，作为最终采样的样本；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205095132363.png" alt="image-20221205095132363" style="zoom:50%;">
+
+<p>用混合高斯分布来估计概率分布，可以看到，采样的时候，其实是从某一个具体的高斯中采样的，x看作是某一类中采样了（称作cluster），这样似乎并不好，更好的做法是用（distributed representation）中采样，就是x并不属于某一个class或cluster，而是用一个vector来描述它各个不同维度、面向的特质。</p>
+<p>VAE可以理解为 混合高斯分布的distributed representation版本；VAE的具体做法、流程是：</p>
+<p>从一个标准高斯分布中采样出一个样本 $z$  （ $z\sim N(0,I)$ ） （$z$ 是向量vector，<strong>向量 $z$ 的每个维度表示一种特质attribute</strong>，每一维之间相互独立）（采样出来的是连续变量，可以取高斯分布中的任意值），然后变量 $z$ 送入到某一个函数，输出两个向量，一个是均值向量，一个是方差向量（方差是矩阵，这里只取对角阵），根据该均值 $\mu (z)$ 和方差 $\sigma(z)$，就得到了一个高斯分布 $z\sim N(\mu(z),\sigma(z))$ ，这个高斯分布的均值就是这个 $\mu (z)$，方差就是这个 $\sigma(z)$ ，然后再从这个高斯分布中采样，采样出来的样本叫做 $x$ 。</p>
+<p>因此z是连续变量、无穷多个可能，由z得到的高斯分布也是连续的，也就是说<strong>有无限个、无穷多个高斯分布</strong>（而不是离散的，用有限个高斯分布去估计 $P(x)$ ）。不同的z对应到不同的高斯分布。每个z都有对应的高斯分布。</p>
+<p>用这种方式估计出来的 $P(x)$ 写成的表达式为： $P(x)&#x3D;\int_zP(z)P(x|z)dz$ 。即先从标准正态 $P(z)$ 中采样 $z$ ，再根据 $z$ 得到均值方差，得到高斯分布 $P(x|z)$ ，再采样得到 $x$ 。</p>
+<p>这里变量 $z$ 送入到某一个函数，函数用的神经网络NN。</p>
+<p>$z$ 服从的分布这里是高斯分布，也可以用别的分布。p(z)简单（高斯）不影响p(x)可以是一个很复杂的分布，因为p(x|z)是用NN拟合，NN拟合能力很强。之所以p(z)用高斯，因为高斯常见，z的attribute特质用高斯分布来描述比较合理。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205095944153.png" alt="image-20221205095944153" style="zoom:50%;">
+
+
+
+<p>目标是找到、估计一个分布，使得 $P(x)$ 最大，也就是最大似然估计。</p>
+<p>我们现在有的是数据、观测值 $x$ ，为了最大似然估计，我们需要另一个分布，叫 $q(z|x)$，让x从某个高斯分布中采样出z来（z不是纯靠前面的标准正态 $P(z)$ 采样的了，而是通过 $q(z|x)$ 中采样的了）。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205151712109.png" alt="image-20221205151712109" style="zoom:50%;">
+
+<p>数学推导一下：</p>
+<p>目标是最大化观测值x的似然。这里 $logP(x)&#x3D;logP(x)\int_zq(z|x)dz&#x3D;\int_zq(z|x)logP(x)dz$ （ $\int_zq(z|x)dz&#x3D;1$ ），x给定下的z。</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205152007417.png" alt="image-20221205152007417" style="zoom:50%;">
+
+
+
+<p>得到：<br>$$<br>\log P(x) \geq \int_z q(z \mid x) \log \left(\frac{P(x \mid z) P(z)}{q(z \mid x)}\right) d z<br>$$<br>称为 <strong>lower bound</strong>，$L_b$ 。</p>
+<p>之所以要引入 $q(z|x)$ ，把目标函数写成和 $P(x|z)$ 、 $q(z|x)$ 有关的形式，是因为最大化 $logP(x)$ 变成了 $L_b$ 。而在 $x$ 给定下， $q(z|x)$ 的变化不影响 $logP(x)$，（$logP(x)$不变），因此此时最大化 $L_b$ ，改变 $q(z|x)$ 使得 $L_b$ 尽可能接近 $logP(x)$ （减少KL散度距离）；再然后， $L_b$ 更大时，由于 $logP(x)$ 一定大于等于 $L_b$ ，所以 $logP(x)$ 也会更大，逐渐最大似然。</p>
+<p>如果只用 $P(x|z)$ 这一项，而不是两项都用，可能会出现 $L_b$ 增加，$logP(x)$ 减少的情况（但还是满足$logP(x)$ 大于等于 $L_b$ ）。</p>
+<p>？不理解为什么不能直接最大化logP(x)而是要转成最大化L_b。 ？</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205153652816.png" alt="image-20221205153652816" style="zoom:50%;">
+
+<p>进一步展开公式，将 $L_b$ 展开，可以写成两个式子</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205163038825.png" alt="image-20221205163038825" style="zoom:50%;">
+
+
+
+<p>左式的目标变成最小化 $KL(q(z|x)||P(z))$ ，也就是让 $q(z|x)$ 接近标准正态分布 $P(z)$ ；</p>
+<p>右式的目标变成最大化从 $q(z|x)$ 分布中采样 $z$ ，再由 $z\sim N(\mu(z),\sigma(z))$ 中采样出 $x$，使得该高斯函数的均值最接近 $x$ ；</p>
+<img src="/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221205163213233.png" alt="image-20221205163213233" style="zoom:50%;">
+
+
+
+
+
+<p>可以看出，VAE的目标是尽可能接近数据集的数据，作为生成器可能是不够真实的。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/" rel="next" title="GLOW论文">
+                <i class="fa fa-chevron-left"></i> GLOW论文
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/" rel="prev" title="VAE论文">
+                VAE论文 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#VAE-%E8%A7%86%E9%A2%91-%E6%9D%8E%E5%AE%8F%E6%AF%85"><span class="nav-number">1.</span> <span class="nav-text">VAE 视频 李宏毅</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/12/05/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/';
+          this.page.identifier = '2022/12/05/深度学习/VAE 视频 李宏毅/';
+          this.page.title = 'VAE 视频 李宏毅';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

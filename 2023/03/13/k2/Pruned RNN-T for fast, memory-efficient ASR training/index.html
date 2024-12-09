@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="k2,语音识别," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Pruned RNN-T for fast, memory-efficient ASR training. Pruned RNN-T loss Kuang, Fangjun, et al. “Pruned RNN-T for fast, memory-efficient ASR training.” arXiv preprint arXiv:2206.13236 (2022). citations">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pruned RNN-T for fast, memory-efficient ASR training. Pruned RNN-T loss">
+<meta property="og:url" content="http://example.com/2023/03/13/k2/Pruned%20RNN-T%20for%20fast,%20memory-efficient%20ASR%20training/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="Pruned RNN-T for fast, memory-efficient ASR training. Pruned RNN-T loss Kuang, Fangjun, et al. “Pruned RNN-T for fast, memory-efficient ASR training.” arXiv preprint arXiv:2206.13236 (2022). citations">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/03/13/k2/Pruned%20RNN-T%20for%20fast,%20memory-efficient%20ASR%20training/image-20230313144523612.png">
+<meta property="article:published_time" content="2023-03-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-03-13T13:43:44.316Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="k2">
+<meta property="article:tag" content="语音识别">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/03/13/k2/Pruned%20RNN-T%20for%20fast,%20memory-efficient%20ASR%20training/image-20230313144523612.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/03/13/k2/Pruned RNN-T for fast, memory-efficient ASR training/"/>
+
+
+
+
+
+  <title>Pruned RNN-T for fast, memory-efficient ASR training. Pruned RNN-T loss | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/13/k2/Pruned%20RNN-T%20for%20fast,%20memory-efficient%20ASR%20training/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Pruned RNN-T for fast, memory-efficient ASR training. Pruned RNN-T loss</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-03-13T00:00:00+08:00">
+                2023-03-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k2/" itemprop="url" rel="index">
+                    <span itemprop="name">k2</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/03/13/k2/Pruned%20RNN-T%20for%20fast,%20memory-efficient%20ASR%20training/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/03/13/k2/Pruned RNN-T for fast, memory-efficient ASR training/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Pruned-RNN-T-for-fast-memory-efficient-ASR-training-Pruned-RNN-T-loss"><a href="#Pruned-RNN-T-for-fast-memory-efficient-ASR-training-Pruned-RNN-T-loss" class="headerlink" title="Pruned RNN-T for fast, memory-efficient ASR training. Pruned RNN-T loss"></a>Pruned RNN-T for fast, memory-efficient ASR training. Pruned RNN-T loss</h1><blockquote>
+<p>Kuang, Fangjun, et al. “Pruned RNN-T for fast, memory-efficient ASR training.” <em>arXiv preprint arXiv:2206.13236</em> (2022). citations：9</p>
+<p>公众号 新一代Kaldi：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzkyMzI5NTM2Ng==&mid=2247483741&idx=1&sn=fc76586359d371f82c46e62c7b762369&scene=21#wechat_redirect">多快好省的 RNN-T 训练</a></p>
+<p>公众号 新一代Kaldi：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/M7Oz5b0LbtIxm0PfVb5iww">Pruned RNN-T 何以又快又好</a></p>
+<p>开源代码 rnnt_loss.py：<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/k2/blob/master/k2/python/k2/rnnt_loss.py">https://github.com/k2-fsa/k2/blob/master/k2/python/k2/rnnt_loss.py</a></p>
+<p>Bechmark 的开源代码 transducer-loss-benchmarking：<a target="_blank" rel="noopener" href="https://github.com/csukuangfj/transducer-loss-benchmarking">https://github.com/csukuangfj/transducer-loss-benchmarking</a></p>
+</blockquote>
+<ul>
+<li><strong>简介</strong></li>
+</ul>
+<p>新一代 Kaldi 针对 RNN-T 损失函数的创新性改进。原始的 RNN-T 损失函数在处理长文本或者长语音的时候显存占用较大，训练时间较长。对此，我们提出对 RNN-T 的 log-probability lattice 进行裁剪，能够在不损失训练精度的前提下大幅缩短 RNN-T 损失函数的计算时间。该工作已经被Interspeech2022 收录。</p>
+<ul>
+<li><strong>解决什么问题</strong></li>
+</ul>
+<p>在 CTC 模型、RNN-T 模型和 attention-based 模型中，RNN-T 是最适合用于产线部署的流式解码模型。但 RNN-T 具有以下几个痛点：</p>
+<ol>
+<li>训练时，与其他模型相比，占用的内存至少高一个数量级</li>
+<li>解码时，很难通过以 batch 的方式实现并行解码</li>
+</ol>
+<ul>
+<li><p><strong>用了什么方法</strong></p>
+<ol>
+<li>提出 pruned RNN-T，改变了 RNN-T 模型中最后一层的输出维度：从 <code>(N, T, U, C)</code> 变成了 <code>(N, T, S, C)</code>，其中 $U \gg S$ 。矩阵变小了，内存使用就降低了。</li>
+<li>矩阵变小了，Pruned RNN-T 进入 joiner 网络的是更小得多的 <code>(N，T，S，V)</code>向量 ，所以 joiner 网络里面的非线性层和 Linear 层的计算量大大减小，从而大大提高了计算速度。</li>
+<li>Pruned RNN-T 的快部分来自<strong>高效的代码实现</strong>。</li>
+</ol>
+</li>
+<li><p><strong>效果如何</strong></p>
+<p>具有以下特点：</p>
+<p> <strong>“多”</strong></p>
+<ul>
+<li>可以用更大的 batch size</li>
+<li>可以用更大的 vocabulary size</li>
+</ul>
+<p><strong>“快”</strong></p>
+<ul>
+<li>目前为止，所有常用开源实现中，训练速度最快</li>
+<li>训练出来的模型，在不降低性能的前提下，解码速度更快</li>
+</ul>
+<p><strong>“好”</strong></p>
+<ul>
+<li>训练出来的模型，在 GigaSpeech 和 WenetSpeech 的 Leaderboard 上，排名第一</li>
+</ul>
+<p><strong>“省”</strong></p>
+<ul>
+<li>省内存</li>
+<li>目前为止，所有常用开源实现中，所需内存最少</li>
+</ul>
+</li>
+</ul>
+<p>针对问题1，训练部分，展开介绍。</p>
+<h2 id="存在问题：RNNT训练时占用内存高"><a href="#存在问题：RNNT训练时占用内存高" class="headerlink" title="存在问题：RNNT训练时占用内存高"></a>存在问题：RNNT训练时占用内存高</h2><p>RNN-T 模型最后一层的输出是一个 4-D 的 tensor，维度是 <code>(N, T, U, C)</code>, 其中</p>
+<ul>
+<li><code>N</code>: batch size。数值大小: 一般是几十</li>
+<li><code>T</code>: encoder 的输出帧数。数值大小：一般是好几百（CTC network，encoder）</li>
+<li><code>U</code>: decoder 的输出帧数。数值大小：几十至上百（prediction network，decoder）</li>
+<li><code>C</code>: vocabulary size。数值大小：几百至上千</li>
+</ul>
+<p>所以，RNN-T 训练时，所需的内存（显存）正比于 <code>N</code>, <code>T</code> , <code>U</code>, <code>C</code> 这 4 个数的乘积 <code>NTUC</code>。训练 CTC 或者 attention-based 模型时，所需的内存（显存）一般与 <code>NTC</code> 或者 <code>NUC</code> 成正比。相比较之下，RNN-T 模型的训练，对内存的要求高了一个数量级。</p>
+<p>这样一个大的向量需要占据很大的显存，导致没法使用大的 batch size 来训练，另外，如此大的向量也造成 joiner 网络的计算量非常大，从而增加单次迭代的时间。</p>
+<blockquote>
+<p>为了避免训练时出现 out-of-memory (OOM) 错误，通常的做法是：</p>
+<ul>
+<li>减少 <code>N</code>，使用一个小的 batch size</li>
+<li>减少 <code>C</code>，使用一个较小的 vocabulary size</li>
+<li>降低模型参数量</li>
+</ul>
+<p>但是，使用小的 batch size 会增加模型训练所需的时间；而使用小的 vocabulary size， 可能会影响模型的性能。例如，若以单个汉字为建模单元，vocabulary size 一般是 4000 到 7000 之间。如果使用一个很小的 vocabulary size，那么对于 out-of-vocabulary (OOV) 这种问题，就会更加常见。而降低模型的参数量，也会影响模型的性能。）</p>
+</blockquote>
+<p>那么如何在不降低模型性能的前提下，做到以下几点呢?</p>
+<ul>
+<li>降低训练时所需的内存</li>
+<li>降低训练所需的时间</li>
+</ul>
+<h2 id="相似工作"><a href="#相似工作" class="headerlink" title="相似工作"></a>相似工作</h2><p>微软 Improving RNN Transducer Modeling for End-to-End Speech Recognition：通过移除一个 batch 中所需的 padding 来减少内存的占用量。作者对这个方法提供了一个开源的实现，链接如下: <a target="_blank" rel="noopener" href="https://github.com/csukuangfj/optimized_transducer">optimized_transducer</a>。相关 benchmark 数据表明，这种方法在所有<strong>标准的 RNN-T</strong> 开源实现中，所需内存最低。</p>
+<h2 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h2><p>提出 pruned RNN-T，pruned RNN-T 改变了 RNN-T 模型中最后一层的输出维度：</p>
+<ul>
+<li>从 <code>(N, T, U, C)</code> 变成了 <code>(N, T, S, C)</code></li>
+</ul>
+<p>其中，<code>S</code> 是用户指定的一个参数。我们所做的实验中，一般选用 5；而 <code>U</code> 则一般是几十甚至上百。</p>
+<p>结果就是，所需的内存与 <code>NTSC</code> 成正比，而不再是 <code>NTUC</code>。</p>
+<img src="/2023/03/13/k2/Pruned%20RNN-T%20for%20fast,%20memory-efficient%20ASR%20training/image-20230313144523612.png" alt="image-20230313144523612" style="zoom: 67%;">
+
+<p>图1（a）是针对标准的 RNN-T，图中所有的结点都参与了RNN-T loss 的计算。</p>
+<p>作者提出一个很有意思的问题：是不是所有的结点都应该参与计算？然后做出论证，如图2所示。</p>
+<p>图2 显示了图 1（a）中每个结点在训练时某一时刻的梯度。我们可以看到，&#x3D;&#x3D;随着训练的进行，靠近对角线上的结点对计算起到的作用最大。也就是说，不同位置的结点，在训练中起到的作用不同。&#x3D;&#x3D;</p>
+<p>图1（b）则是针对 pruned RNN-T，图中只有部分结点参与了 RNN-T loss 的计算。</p>
+<p>参与计算的结点数量越少，所需的计算量则越少、计算速度就越快，并且所需的内存也越少。</p>
+<ul>
+<li>哪些结点应该被选出来参与计算呢？</li>
+<li>又如何选择这些结点呢？</li>
+</ul>
+<p>音频和文本的单调对应特性决定了 lattice 中的大多数节点对最终的 Loss 几乎没有贡献。</p>
+<h2 id="trivial-joiner-平凡联合网络"><a href="#trivial-joiner-平凡联合网络" class="headerlink" title="trivial joiner 平凡联合网络"></a>trivial joiner 平凡联合网络</h2><p>为了确定剪裁的边界，我们提出了一个<strong>“平凡联合网络”</strong>（<code>trivial joiner</code>）的概念，这个 <code>trivial joiner</code> 是 encoder 和 predictor 的简单相加，即 <code>am + lm</code>。使用这样一个简单的 joiner 网络是为了在<strong>不生成四维向量</strong>的情况下得到一个 lattice，以便在这个 lattice 上求得剪裁边界。下图是 Pruned RNN-T 计算的流程图，我们实际上计算了两次损失函数，一次是在上述的 <code>trivial joiner</code> 上，一次是在正常的包含非线性层的 joiner 上（下图中的 s_range 就是上面提到的 S）。</p>
+<p>![640 (1)](640 (1).png)</p>
+<p>在一个 lattice 中，每一个节点包含了两个概率，即 $y(t, u)$ 和 $\varnothing(t, u) $， $ y(t, u)$ 表示在第 $t$ 帧给定 $y_{0 . . u}$ 的情况下发射 $y_{u+1}$ 的对数概率， $\varnothing(t, u)$ 则代表在第 $t$ 帧给定 $y_{0 . . u}$ 的情况下 发射 blank 的对数概率。由于 <code>trivial joiner </code>是个简单的相加，所以我们不需要在相加之 后的向量中来获取这两个概率，只需分别在 $a m$ 和 $l m$ 中获得这两个概率，然后将 $a m$ 和 $l m$ 中得到的概率分别加起来就行。获取概率的操作就是个简单的查询，在代码中使用 torc h. gather 来实现，这个过程和乘法分配律非常相似。</p>
+<blockquote>
+<p>注：两个 shape 不一样的向量相加得先统一 shape，即 <code>logit = am.unsqueeze(2) + lm.unsqueeze(1)</code>,所以如果相加之后再获取概率，我们就不得不生成一个四维向量。</p>
+</blockquote>
+<h2 id="剪裁边界的确定"><a href="#剪裁边界的确定" class="headerlink" title="剪裁边界的确定"></a>剪裁边界的确定</h2><p>TODO。。。。。。</p>
+<h2 id="实验及结果"><a href="#实验及结果" class="headerlink" title="实验及结果"></a>实验及结果</h2><p>pruned RNN-T 在以下几方面的结果:</p>
+<ul>
+<li>训练速度</li>
+<li>训练所需内存</li>
+<li>在LibriSpeech test-clean 测试集上的 WER 及 RTF</li>
+</ul>
+<p>在进行 benchmark 时，我们采用 LibriSpeech test-clean 测试集来生成 RNN-T 模型训练时所需的维度信息， 而不是针对特定的维度进行 benchmark。这样可以考虑每个 batch 中 padding 所造成的影响，尽量还原真实的应用场景。</p>
+<p>我们设置了两种 bechmark 模式:</p>
+<ul>
+<li>(1) 以随机的方式组成 batch。batch size 为 30。</li>
+<li>(2) 按照样本时长进行排序的方式组成 batch。每个 batch 中最多包含 1万 帧特征。</li>
+</ul>
+<p>在论文中，我们对比了 pruned RNN-T 和 常用的开源 RNN-T loss 实现的性能。结果如表 1 和 表 2 所示。我们可以看出，不管是在训练时间还是在内存使用量上， pruned RNN-T 与其他实现相比，都有很大的优势。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/k2/" rel="tag"># k2</a>
+          
+            <a href="/tags/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" rel="tag"># 语音识别</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/03/12/k2/Delay-penalized%20transducer%20for%20low-latency%20streaming%20ASR/" rel="next" title="Delay-penalized transducer for low-latency streaming ASR">
+                <i class="fa fa-chevron-left"></i> Delay-penalized transducer for low-latency streaming ASR
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/03/13/k2/Fast%20and%20parallel%20decoding%20for%20transducer/" rel="prev" title="Fast and parallel decoding for transducer. RNN-T 的快速 GPU 解码">
+                Fast and parallel decoding for transducer. RNN-T 的快速 GPU 解码 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Pruned-RNN-T-for-fast-memory-efficient-ASR-training-Pruned-RNN-T-loss"><span class="nav-number">1.</span> <span class="nav-text">Pruned RNN-T for fast, memory-efficient ASR training. Pruned RNN-T loss</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%9C%A8%E9%97%AE%E9%A2%98%EF%BC%9ARNNT%E8%AE%AD%E7%BB%83%E6%97%B6%E5%8D%A0%E7%94%A8%E5%86%85%E5%AD%98%E9%AB%98"><span class="nav-number">1.1.</span> <span class="nav-text">存在问题：RNNT训练时占用内存高</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E4%BC%BC%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.2.</span> <span class="nav-text">相似工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="nav-number">1.3.</span> <span class="nav-text">解决方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#trivial-joiner-%E5%B9%B3%E5%87%A1%E8%81%94%E5%90%88%E7%BD%91%E7%BB%9C"><span class="nav-number">1.4.</span> <span class="nav-text">trivial joiner 平凡联合网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%AA%E8%A3%81%E8%BE%B9%E7%95%8C%E7%9A%84%E7%A1%AE%E5%AE%9A"><span class="nav-number">1.5.</span> <span class="nav-text">剪裁边界的确定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E5%8F%8A%E7%BB%93%E6%9E%9C"><span class="nav-number">1.6.</span> <span class="nav-text">实验及结果</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/03/13/k2/Pruned%20RNN-T%20for%20fast,%20memory-efficient%20ASR%20training/';
+          this.page.identifier = '2023/03/13/k2/Pruned RNN-T for fast, memory-efficient ASR training/';
+          this.page.title = 'Pruned RNN-T for fast, memory-efficient ASR training. Pruned RNN-T loss';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="计算机组成," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Socket通信 b站：socket到底是什么？    对应公众号：socket到底是什么？  百度百科粗略的一个解释（百度百科粗略的一个解释，有浅显的一个理解，大概就是不同主机通信，收发数据的一个桥梁。） socket（套接字）：对网络中不同主机上的应用进程之间进行双向通信的端点的抽象。一个套接字就是网络上进程通信的一端，提供了应用层进程利用网络协议交换数据的机制。 Socket是由IP地址和端">
+<meta property="og:type" content="article">
+<meta property="og:title" content="socket入门">
+<meta property="og:url" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="Socket通信 b站：socket到底是什么？    对应公众号：socket到底是什么？  百度百科粗略的一个解释（百度百科粗略的一个解释，有浅显的一个理解，大概就是不同主机通信，收发数据的一个桥梁。） socket（套接字）：对网络中不同主机上的应用进程之间进行双向通信的端点的抽象。一个套接字就是网络上进程通信的一端，提供了应用层进程利用网络协议交换数据的机制。 Socket是由IP地址和端">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/640.gif">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/642.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/641-16751508946574.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/643.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/644.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/645.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/646.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/647.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/648.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/649.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/650.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/651.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/652.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/653.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/654.png">
+<meta property="og:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/655.png">
+<meta property="article:published_time" content="2023-01-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-02-01T09:45:17.533Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="计算机组成">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/640.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/01/31/计算机组成/socket/"/>
+
+
+
+
+
+  <title>socket入门 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">socket入门</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-31T00:00:00+08:00">
+                2023-01-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/" itemprop="url" rel="index">
+                    <span itemprop="name">计算机组成</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/31/计算机组成/socket/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Socket通信"><a href="#Socket通信" class="headerlink" title="Socket通信"></a>Socket通信</h1><blockquote>
+<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV12A411X7gY/?spm_id_from=333.337.search-card.all.click&vd_source=5e9891722f2b62adca440a5e92121b5b">socket到底是什么？ </a>   对应公众号：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/VazobOgY9QVaADpEur81ng">socket到底是什么？</a></p>
+</blockquote>
+<h2 id="百度百科粗略的一个解释"><a href="#百度百科粗略的一个解释" class="headerlink" title="百度百科粗略的一个解释"></a>百度百科粗略的一个解释</h2><p>（百度百科粗略的一个解释，有浅显的一个理解，大概就是不同主机通信，收发数据的一个桥梁。）</p>
+<p>socket（套接字）：对网络中不同主机上的应用进程之间进行双向通信的端点的抽象。一个套接字就是网络上进程通信的一端，提供了应用层进程利用网络协议交换数据的机制。 Socket是由IP地址和端口结合的，提供向应用层进程传送数据包的机制。</p>
+<p>socket表示方法：套接字Socket&#x3D;（IP地址：端口号），套接字的表示方法是点分十进制的lP地址后面写上端口号，中间用冒号或逗号隔开。每一个传输层连接唯一地被通信两端的两个端点（即两个套接字）所确定。例如：如果IP地址是210.37.145.1，而端口号是23，那么得到套接字就是(210.37.145.1:23)   。</p>
+<p>socket主要类型：</p>
+<p><strong>1.流套接字(SOCK_STREAM)</strong></p>
+<p>流套接字用于提供面向连接、可靠的数据传输服务。该服务将保证数据能够实现无差错、无重复送，并按顺序接收。流套接字之所以能够实现可靠的数据服务，原因在于其使用了传输控制协议，即TCP(The Transmission Control Protocol)协议。</p>
+<p><strong>2.数据报套接字(SOCK_DGRAM)</strong></p>
+<p>数据报套接字提供一种无连接的服务。该服务并不能保证数据传输的可靠性,数据有可能在传输过程中丢失或出现数据重复，且无法保证顺序地接收到数据。数据报套接字使用UDP( User DatagramProtocol)协议进行数据的传输。由于数据报套接字不能保证数据传输的可靠性，对于有可能出现的数据丢失情况，需要在程序中做相应的处理。</p>
+<p><strong>3.原始套接字(SOCK_RAW)</strong></p>
+<p>原始套接字与标准套接字(标准套接字指的是前面介绍的流套接字和数据报套接字)的区别在于：原始套接字可以读写内核没有处理的IP数据包，而流套接字只能读取TCP协议的数据，数据报套接字只能读取UDP协议的数据。因此，如果要访问其他协议发送的数据必须使用原始套接。</p>
+<p>套接字之间的连接过程可以分为三个步骤：</p>
+<ol>
+<li>服务器监听：服务器端套接字并不定位具体的客户端套接字，而是处于等待连接的状态，实时监控网络状态。</li>
+<li>客户端请求：由客户端的套接字提出连接请求，要连接的目标是服务器端的套接字。为此，客户端的套接字必须首先描述它要连接的服务器的套接字，指出服务器端套接字的地址和端口号，然后就向服务器端接字提出连接请求。</li>
+<li>连接确认：当服务器端套接字监听到或者说接收到客户端套接字的连接请求，就会响应客户端套接字的请求，建立一个新的线程，并把服务器端套接字的描述发送给客户端。一旦客户端确认了此描述，连接就建立好了。而服务器端套接字继续处于监听状态，接收其他客户端套接字的连接请求。</li>
+</ol>
+<h3 id="socket使用场景"><a href="#socket使用场景" class="headerlink" title="socket使用场景"></a>socket使用场景</h3><p>将数据从A电脑的某个进程发到B电脑的某个进程。</p>
+<h3 id="socket白话理解"><a href="#socket白话理解" class="headerlink" title="socket白话理解"></a>socket白话理解</h3><p>为什么操作系统没有暴露tcp udp这些协议的使用给应用，说白了太底层了，用了一层socket封装，通过socket去操作底层协议的具体实现，应用程序只需要用socket暴露的API就好了。</p>
+<p>一个内存里的抽象数据结构，用于管理硬件网卡对数据的收发。</p>
+<h2 id="通信（网络传输）过程："><a href="#通信（网络传输）过程：" class="headerlink" title="通信（网络传输）过程："></a>通信（网络传输）过程：</h2><blockquote>
+<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV12A411X7gY/?spm_id_from=333.337.search-card.all.click&vd_source=5e9891722f2b62adca440a5e92121b5b">socket到底是什么？ </a>   对应公众号：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/VazobOgY9QVaADpEur81ng">socket到底是什么？</a></p>
+</blockquote>
+<p>客户端、服务端各自执行socket方法，得到fd句柄之后，服务端依次执行bind、listen、accept方法，然后坐等客户端的连接请求 执行connect方法，向服务端发起建立连接的请求。连接建立完成后，客户端可以执行send方法发送消息，服务端可以执行recv()方法接收消息。反过来，服务器也可以执行send发送消息，客户端可以执行recv接收消息。</p>
+<p>具体的：</p>
+<p>第一步就是创建个关于TCP的<code>socket</code>。就像下面这样。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sock_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);</span><br></pre></td></tr></table></figure>
+
+<p>这个方法会返回<code>socket_fd</code>，它是socket文件的句柄，是个数字，相当于socket的身份证号。</p>
+<p>得到了<code>socket_fd</code>之后，对于服务端，就可以依次执行<code>bind()</code>, <code>listen()</code>, <code>accept()</code>方法，然后坐等客户端的连接请求。</p>
+<p>对于客户端，得到<code>socket_fd</code>之后，你就可以执行<code>connect()</code>方法向服务端发起建立连接的请求，此时就会发生TCP三次握手。</p>
+<p>连接建立完成后，<strong>客户端</strong>可以执行<code>send()</code> 方法发送消息，<strong>服务端</strong>可以执行<code>recv()</code>方法接收消息，反过来，<strong>服务器</strong>也可以执行<code>send()</code>，<strong>客户端</strong>执行<code>recv()</code>方法。</p>
+<p><img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/640.gif" alt="640"></p>
+<h2 id="socket的设计"><a href="#socket的设计" class="headerlink" title="socket的设计"></a>socket的设计</h2><p>网络传输，从操作上来看，就是两端之间<strong>互相</strong>收发数据，也就是对应<strong>读数据和写数据</strong>，也就是对文件的读、写（&#x3D;&#x3D;对远端服务器进程收发数据可以抽象为读和写&#x3D;&#x3D;）。</p>
+<p>用一个数据结构（类），取名叫sock，表示互相收发读写功能。下面开始完善这个类，这个类定义过程中，需要解决两个问题：</p>
+<ol>
+<li>由于接收端和发送端不止一个，因此加入IP和端口做下区分，<strong>IP用来定位是哪台电脑，端口用来定位是这台电脑上的哪个进程。</strong></li>
+<li>发送端和接收端的传输方式有很多区别，可以是可靠的<code>TCP协议</code>，也可以是不可靠的<code>UDP协议</code>，甚至还需要支持基于<code>icmp协议</code>的<code>ping命令</code>。</li>
+</ol>
+<p>解决第1个问题：可以在<code>sock</code>里加入<strong>IP和端口</strong>字段。</p>
+<p>解决第2个问题：会发现这些协议虽然各不相同，但还是有一些功能相似的地方，比如收发数据时的一些逻辑完全可以复用。按面向对象编程的思想，我们可以将不同的协议当成是不同的<strong>对象类（或结构体）</strong>，将公共的部分提取出来，通过”<strong>继承</strong>“的方式，复用功能。（也就是说，不同协议是不同的类，用一个sock作为基类，不同协议类作为派生类，继承这个公共部分（基类））</p>
+<h3 id="基于各种sock实现网络传输功能"><a href="#基于各种sock实现网络传输功能" class="headerlink" title="基于各种sock实现网络传输功能"></a>基于各种sock实现网络传输功能</h3><p>于是，我们将功能<strong>重新划分</strong>下，定义了一些数据结构。</p>
+<p>继承sock的各类sock：</p>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/642.png" alt="642" style="zoom:67%;">
+
+<p><code>sock</code>是<strong>最基础</strong>的结构，维护一些任何协议都有可能会用到的收发数据缓冲区。</p>
+<p><code>inet_sock</code>特指用了<strong>网络传输</strong>功能的<code>sock</code>，在<code>sock</code>的基础上还加入了<code>TTL</code>，<strong>端口，IP地址</strong>这些跟网络传输相关的字段信息。说到这里大家就懵了，难道还有不是用网络传输的？有，比如<code>Unix domain socket</code>，用于本机进程之间的通信，直接读写文件，不需要经过网络协议栈。</p>
+<p><code>inet_connection_sock</code> 是指<strong>面向连接</strong>的<code>sock</code>，在<code>inet_sock</code>的基础上加入面向连接的协议里相关字段，比如<code>accept队列</code>，数据包分片大小，握手失败重试次数等。虽然我们现在提到面向连接的协议就是指TCP，但设计上linux需要支持扩展<strong>其他</strong>面向连接的<strong>新协议</strong>，比如SCTP协议。</p>
+<p><code>tcp_sock</code> 就是正儿八经的<strong>tcp协议</strong>专用的<code>sock</code>结构了，在<code>inet_connection_sock</code>基础上还加入了tcp特有的<strong>滑动窗口</strong>、<strong>拥塞避免</strong>等功能。同样udp协议也会有一个专用的数据结构，叫<code>udp_sock</code>。</p>
+<p>好了，现在有了这套数据结构，我们将它们跟<strong>硬件</strong>网卡对接一下，就实现了网络传输的功能。</p>
+<h3 id="提供socket层"><a href="#提供socket层" class="headerlink" title="提供socket层"></a>提供socket层</h3><p>可以想象得到，这里面的代码肯定非常复杂，同时还操作了网卡硬件，需要比较高的<strong>操作系统权限</strong>，再考虑到性能和安全，于是决定将它放在<strong>操作系统内核</strong>里。</p>
+<p>既然网络传输功能做在内核里，那用户空间的应用程序想要用这部分功能的话，该怎么办呢？</p>
+<p>这个好办，本着不重复造轮子的原则，我们将这部分功能抽象成一个个<strong>简单的接口</strong>。以后别人只需要调用这些接口，就可以驱动我们写好的这一大堆复杂的数据结构去发送数据。</p>
+<p>那么问题来了，<strong>怎么样将这部分功能暴露出去呢？让其他程序员更方便的使用呢？</strong></p>
+<p>既然跟远端服务端进程收发数据可以抽象为“<strong>读和写</strong>”，操作文件也可以抽象为”<strong>读和写</strong>“，正好有句话叫，”<strong>linux里一切皆是文件</strong>“，那我们索性，&#x3D;&#x3D;<strong>将内核的sock封装成文件</strong>就好了。创建<code>sock</code>的同时也创建一个<strong>文件</strong>&#x3D;&#x3D;，<strong>文件有个句柄fd</strong>，说白了就是个<strong>文件系统</strong>里的<strong>身份证号码</strong>，通过它可以<strong>唯一确定</strong>是哪个<code>sock</code>。</p>
+<blockquote>
+<p>这个文件句柄fd其实就是 <code>sock_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)</code> 里的<code>sock_fd</code>。</p>
+</blockquote>
+<p>将句柄暴露给用户，之后用户就可以像操作<strong>文件句柄</strong>那样去操作这个<strong>sock句柄</strong>。在用户空间里操作这个句柄，<strong>文件系统</strong>就会将操作<strong>指向</strong>内核<code>sock</code>结构。</p>
+<p>是的，操作这个特殊的<strong>文件</strong>就相当于操作内核里对应的<code>sock</code>。</p>
+<p>通过文件找到sock：</p>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/641-16751508946574.png" alt="641" style="zoom:67%;">
+
+<p>有了<code>sock_fd句柄</code>之后，我们就需要提供一些接口方法（API），让用户更方便的实现特定的网络编程功能。这些接口，我们列了一下，发现需要有<code>send()</code>，<code>recv()</code>，<code>bind()</code>, <code>listen()</code>，<code>connect()</code>这些。到这里，我们的内核网络传输功能就算设计完成了。</p>
+<p>现在是不是眼熟了，<strong>上面这些接口方法其实就是&#x3D;&#x3D;socket&#x3D;&#x3D;提供出来的接口</strong>。</p>
+<p>所以说，socket其实就是个<strong>代码库 or 接口层</strong>，它介于<strong>内核和应用程序之间</strong>，提供了一些<strong>高度封装过</strong>的接口，让我们去使用<strong>内核网络传输功能</strong>。</p>
+<p>基于sock实现网络传输功能：</p>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/643.png" alt="643" style="zoom:67%;">
+
+
+
+<p>到这里，我们应该明白了。我们平时写的应用程序里代码里虽然用了socket实现了收发数据包的功能，但其实真正执行网络通信功能的，不是应用程序，而是<strong>linux内核</strong>。相当于&#x3D;&#x3D;应用程序通过socket提供的接口，将网络传输的这部分工作<strong>外包</strong>给了<strong>linux内核</strong>&#x3D;&#x3D;。</p>
+<p>这听起来像不像我们最熟悉的<strong>前后端分离</strong>的服务架构，<strong>虽然这么说不太严谨</strong>，但看上去linux就像是被分成了<strong>应用程序和内核两个服务</strong>。内核就像是<strong>后端</strong>，暴露了好多个<strong>api接口</strong>，其中一类就是socket的<code>send()</code>和<code>recv()</code>这些方法。应用程序就像是<strong>前端</strong>，负责调用内核提供的接口来实现想要的功能。</p>
+<p>进程通过socket调用内核功能：</p>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/644.png" alt="644" style="zoom:67%;">
+
+
+
+<p>看到这里，我担心大家会有点混乱，来做个小的<strong>总结</strong>。</p>
+<p>&#x3D;&#x3D;<strong>在操作系统内核空间里，实现网络传输功能的结构是sock，基于不同的协议和应用场景，会被泛化为各种类型的xx_sock，它们结合硬件，共同实现了网络传输功能。为了将这部分功能暴露给用户空间的应用程序使用，于是引入了socket层，同时将sock嵌入到文件系统的框架里，sock就变成了一个特殊的文件，用户就可以在用户空间使用文件句柄，也就是socket_fd来操作内核sock的网络传输能力。</strong>&#x3D;&#x3D;</p>
+<p>这个<code>socket_fd</code>是一个<strong>int类型的数字</strong>。现在回去看<code>socket</code>的中文翻译，<strong>套接字</strong>，<strong>我</strong>将它理解为一<strong>套</strong>用于连<strong>接</strong>的数<strong>字</strong>，是不是就觉得特别合理了。</p>
+<p>网络分层与基于sock实现网络传输功能：</p>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/645.png" alt="645" style="zoom:67%;">
+
+
+
+<h2 id="socket如何实现网络通信"><a href="#socket如何实现网络通信" class="headerlink" title="socket如何实现网络通信"></a>socket如何实现网络通信</h2><p>以最常用的TCP协议为例，简单了解下它是怎么实现网络传输功能的。</p>
+<p>将它分为两阶段，分别是<strong>建立连接</strong>和<strong>数据传输</strong>。</p>
+<h3 id="建立连接"><a href="#建立连接" class="headerlink" title="建立连接"></a>建立连接</h3><p>对于TCP，要传数据，就得先在客户端和服务端中间<strong>建立连接</strong>。</p>
+<p><strong>在客户端</strong>，代码执行socket提供的<code>connect(sockfd, &quot;ip:port&quot;)</code>方法时，会通过<strong>sockfd句柄</strong>找到对应的<strong>文件</strong>，再根据文件里的信息<strong>指向</strong>内核的<code>sock</code>结构。通过这个sock结构主动发起三次握手。</p>
+<p>TCP三次握手：</p>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/646.png" alt="646" style="zoom:67%;">
+
+
+
+<p>在服务端握手次数还没达到”三次”的连接，叫<strong>半连接</strong>，完成好三次握手的连接，叫<strong>全连接</strong>。它们分别会用<strong>半连接队列</strong>和<strong>全连接队列</strong>来存放，这两个队列会在你执行<code>listen()</code>方法的时候创建好。当服务端执行<code>accept()</code>方法时，就会从全连接队列里拿出一条全连接。</p>
+<p>半连接队列和全连接队列：</p>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/647.png" alt="647" style="zoom:67%;">
+
+
+
+<p>至此，连接就算准备好了，之后，就可以<strong>开始传输数据</strong>。</p>
+<blockquote>
+<p>虽然都叫队列，但半连接队列其实是个hash表，而全连接队列其实是个链表。</p>
+<p>那么问题来了，为什么半连接队列要设计成哈希表而全连接队列是个链表？这个在我在我之前写的<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg5NDY2MDk4Mw==&mid=2247487062&idx=1&sn=fa75a39e60f13e2275ff9ef7c96866de&scene=21#wechat_redirect">《没有accept，能建立TCP连接吗？》</a> 已经提到过，不再重复。</p>
+</blockquote>
+<h3 id="数据传输"><a href="#数据传输" class="headerlink" title="数据传输"></a>数据传输</h3><p>为了实现发送和接收数据的功能，sock结构体里带了<strong>一个发送缓冲区和一个接收缓冲区</strong>，&#x3D;&#x3D;说是<strong>缓冲区</strong>，但其实就是个<strong>链表</strong>&#x3D;&#x3D;，上面挂着一个个准备要发送或接收的数据。</p>
+<p>当应用执行<code>send()</code>方法<strong>发送数据</strong>时，同样也会通过<code>sock_fd</code>句柄找到对应的文件，根据文件指向的<code>sock</code>结构，找到这个<code>sock</code>结构里带的<strong>发送缓冲区</strong>，将数据会放到发送缓冲区，然后结束流程，内核看心情决定什么时候将这份数据发送出去。</p>
+<p><strong>接收数据</strong>流程也类似，当数据送到linux内核后，数据不是立马给到应用程序的，而是先放在接收缓冲区中，数据静静躺着，卑微的等待<strong>应用程序</strong>什么时候执行<code>recv()</code>方法来拿一下。</p>
+<p>sock的发送和接收缓冲区：</p>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/648.png" alt="648" style="zoom:67%;">
+
+<p>IP和端口其实不在sock下，而在inet_sock下，上面这么画只是为了简化。</p>
+<p>那么问题来了，发送数据是应用程序主动发起，这个大家都没问题。</p>
+<p><strong>那接收数据呢？数据从远端发过来了，怎么通知并给到应用程序呢？</strong></p>
+<p>这就需要用到<strong>等待队列</strong>。</p>
+<p>sock内的等待队列：</p>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/649.png" alt="649" style="zoom:67%;">
+
+<p>当你的应用进程执行<code>recv()</code>方法尝试获取（阻塞场景下）接收缓冲区的数据时。</p>
+<ul>
+<li><p>如果有数据，那正好，取走就好了。这点没啥疑问。</p>
+</li>
+<li><p>但如果没数据，就会将自己的<strong>进程</strong>信息注册到这个sock用的<strong>等待队列</strong>里，然后进程<strong>休眠</strong>。如果这时候有数据从远端发过来了，数据进入到接收缓冲区时，内核就会取出sock的等待队列里的进程，<strong>唤醒</strong>进程来取数据。</p>
+</li>
+</ul>
+<p>recv时无数据进程进入等待队列：</p>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/650.png" alt="650" style="zoom: 50%;">
+
+
+
+<p>有时候，你会看到<strong>多个进程</strong>通过<code>fork</code>的方式，<code>listen</code>了同一个<code>socket_fd</code>。在内核，它们都是<strong>同一个sock</strong>，多个进程执行listen()之后，都嗷嗷等待连接进来，所以都会将自身的进程信息注册到这个socket_fd对应的内核sock的<strong>等待队列</strong>中。如果这时真来了一个连接，是该唤醒等待队列里的哪个进程来接收连接呢？这个问题的答案比较有趣。</p>
+<ul>
+<li>在linux 2.6以前，会唤醒等待队列里的所有进程。但最后其实只有一个进程会处理这个连接请求，其他进程又重新进入休眠，这些被唤醒了又无事可做最后只能重新回去休眠的进程会消耗一定的资源。就好像你在广东的街头，想问路，叫一声靓仔，几十个人同时回头，但你其实只需要其中一个靓仔告诉你路该怎么走。你这种一不小心<strong>惊</strong>动这<strong>群</strong>靓仔的场景，在计算机领域中，就叫<strong>惊群效应</strong>。</li>
+<li>在linux 2.6之后，只会唤醒等待队列里的其中一个进程。是的，socket监听的惊群效应问题被修复了。</li>
+</ul>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/651.png" alt="651" style="zoom: 50%;">
+
+<center><p>惊群效应</p></center>
+
+<p>看到这里，问题又来了。</p>
+<p><strong>服务端 listen 的时候，那么多数据到一个 socket 怎么区分多个客户端的？</strong></p>
+<p>以TCP为例，服务端执行listen方法后，会等待客户端发送数据来。客户端发来的数据包上会有<strong>源IP地址和端口</strong>，以及<strong>目的IP地址和端口</strong>，这四个元素构成一个<strong>四元组</strong>，可以用于唯一标记一个客户端。</p>
+<blockquote>
+<p>其实说四元组并不严谨，因为过程中还有很多其他信息，也可以说是五元组。。。但大概理解就好，就这样吧。。。</p>
+</blockquote>
+<p>四元组：</p>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/652.png" alt="652" style="zoom: 50%;">
+
+
+
+<p>服务端会创建一个新的内核sock，并用四元组生成一个<code>hash key</code>，将它放入到一个<code>hash表</code>中。</p>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/653.png" alt="653" style="zoom:50%;">
+
+<center><p>四元组映射成hash键</p></center>
+
+
+
+<p>下次再有消息进来的时候，通过消息自带的四元组生成<code>hash key</code>再到这个<code>hash表</code>里重新取出<strong>对应的sock</strong>就好了。所以说<strong>服务端是通过四元组来区分多个客户端的</strong>。</p>
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/654.png" alt="654" style="zoom:50%;">
+
+<center><p>多个hash_key对应多个客户端</p></center>
+
+
+
+<h2 id="sock怎么实现”继承”"><a href="#sock怎么实现”继承”" class="headerlink" title="sock怎么实现”继承”"></a>sock怎么实现”继承”</h2><p>最后遗留一个问题。</p>
+<p>大家都知道linux内核是C语言实现的，而<strong>C语言没有类也没有继承的特性，是怎么做到”继承”的效果的呢？</strong></p>
+<p>在C语言里，结构体里的内存是<strong>连续</strong>的，将要继承的”父类”，放到结构体的<strong>第一位</strong>，就像下面这样。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">tcp_sock</span> &#123;</span></span><br><span class="line">    <span class="comment">/* inet_connection_sock has to be the first member of tcp_sock */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inet_connection_sock</span> <span class="title">inet_conn</span>;</span></span><br><span class="line">        <span class="comment">// 其他字段</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">inet_connection_sock</span> &#123;</span></span><br><span class="line">    <span class="comment">/* inet_sock has to be the first member! */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">inet_sock</span>   <span class="title">icsk_inet</span>;</span></span><br><span class="line">        <span class="comment">// 其他字段</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>然后我们就可以通过结构体名的长度来强行截取内存，这样就能转换结构体，从而实现类似”继承”的效果。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sock 转为 tcp_sock</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="keyword">struct</span> tcp_sock *<span class="title function_">tcp_sk</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> sock *sk)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">struct</span> tcp_sock *)sk;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<img src="/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/655.png" alt="655" style="zoom:50%;">
+
+<center>内存布局</center>
+
+
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>socket中文套接字，我理解为一<strong>套</strong>用于连<strong>接</strong>的数<strong>字</strong>。</li>
+<li>sock在内核，socket_fd在用户空间，socket层介于内核和用户空间之间。</li>
+<li>在操作系统内核空间里，实现网络传输功能的结构是sock，基于不同的协议和应用场景，会被泛化为各种类型的xx_sock，它们结合硬件，共同实现了网络传输功能。为了将这部分功能暴露给用户空间的应用程序使用，于是引入了socket层，同时将sock嵌入到文件系统的框架里，sock就变成了一个特殊的文件，用户就可以在用户空间使用文件句柄，也就是socket_fd来操作内核sock的网络传输能力。</li>
+<li>服务端可以通过四元组来区分多个客户端。</li>
+<li>内核通过c语言”结构体里的内存是连续的”这一特点实现了类似继承的效果。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/" rel="tag"># 计算机组成</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/01/30/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%A7%BB%E6%A4%8D/" rel="next" title="《语音识别原理与应用》洪青阳 第15章 工程应用实践————嵌入式移植">
+                <i class="fa fa-chevron-left"></i> 《语音识别原理与应用》洪青阳 第15章 工程应用实践————嵌入式移植
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/02/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/python%20socket/" rel="prev" title="python socket">
+                python socket <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Socket%E9%80%9A%E4%BF%A1"><span class="nav-number">1.</span> <span class="nav-text">Socket通信</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%99%BE%E5%BA%A6%E7%99%BE%E7%A7%91%E7%B2%97%E7%95%A5%E7%9A%84%E4%B8%80%E4%B8%AA%E8%A7%A3%E9%87%8A"><span class="nav-number">1.1.</span> <span class="nav-text">百度百科粗略的一个解释</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#socket%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.1.1.</span> <span class="nav-text">socket使用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#socket%E7%99%BD%E8%AF%9D%E7%90%86%E8%A7%A3"><span class="nav-number">1.1.2.</span> <span class="nav-text">socket白话理解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1%EF%BC%88%E7%BD%91%E7%BB%9C%E4%BC%A0%E8%BE%93%EF%BC%89%E8%BF%87%E7%A8%8B%EF%BC%9A"><span class="nav-number">1.2.</span> <span class="nav-text">通信（网络传输）过程：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#socket%E7%9A%84%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.3.</span> <span class="nav-text">socket的设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%90%84%E7%A7%8Dsock%E5%AE%9E%E7%8E%B0%E7%BD%91%E7%BB%9C%E4%BC%A0%E8%BE%93%E5%8A%9F%E8%83%BD"><span class="nav-number">1.3.1.</span> <span class="nav-text">基于各种sock实现网络传输功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%90%E4%BE%9Bsocket%E5%B1%82"><span class="nav-number">1.3.2.</span> <span class="nav-text">提供socket层</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#socket%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1"><span class="nav-number">1.4.</span> <span class="nav-text">socket如何实现网络通信</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5"><span class="nav-number">1.4.1.</span> <span class="nav-text">建立连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93"><span class="nav-number">1.4.2.</span> <span class="nav-text">数据传输</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sock%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E2%80%9D%E7%BB%A7%E6%89%BF%E2%80%9D"><span class="nav-number">1.5.</span> <span class="nav-text">sock怎么实现”继承”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.6.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/01/31/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/socket/';
+          this.page.identifier = '2023/01/31/计算机组成/socket/';
+          this.page.title = 'socket入门';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

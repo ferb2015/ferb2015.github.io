@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="深度学习," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="CVAE Sohn, Kihyuk, Honglak Lee, and Xinchen Yan. “Learning structured output representation using deep conditional generative models.” Advances in neural information processing systems 28 (2015). cita">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CVAE论文">
+<meta property="og:url" content="http://example.com/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="CVAE Sohn, Kihyuk, Honglak Lee, and Xinchen Yan. “Learning structured output representation using deep conditional generative models.” Advances in neural information processing systems 28 (2015). cita">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208092952774.png">
+<meta property="og:image" content="http://example.com/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208115448455.png">
+<meta property="og:image" content="http://example.com/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208145203584.png">
+<meta property="og:image" content="http://example.com/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208144045383.png">
+<meta property="og:image" content="http://example.com/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208145555694.png">
+<meta property="article:published_time" content="2022-12-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-12-09T06:55:10.396Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="深度学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208092952774.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/12/08/深度学习/CVAE论文/"/>
+
+
+
+
+
+  <title>CVAE论文 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">CVAE论文</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-08T00:00:00+08:00">
+                2022-12-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/12/08/深度学习/CVAE论文/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="CVAE"><a href="#CVAE" class="headerlink" title="CVAE"></a>CVAE</h1><blockquote>
+<p>Sohn, Kihyuk, Honglak Lee, and Xinchen Yan. “Learning structured output representation using deep conditional generative models.” <em>Advances in neural information processing systems</em> 28 (2015). citations：2250 </p>
+<p><a target="_blank" rel="noopener" href="http://ijdykeman.github.io/ml/2016/12/21/cvae.html">http://ijdykeman.github.io/ml/2016/12/21/cvae.html</a> （翻译：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/sddai/p/10523431.html%EF%BC%89">https://www.cnblogs.com/sddai/p/10523431.html）</a></p>
+<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/79871846">Conditional VAE</a></p>
+</blockquote>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>提出一种生成模型的训练方法，该模型在随机梯度变分 Bayes框架下进行有效训练，此外，我们提供了新的策略来构建robust的结构化预测 算法，是一个深度条件 生成模型，用于使用高斯潜变量进行结构化输出预测。例如在 训练中输入噪声注入和多尺度预测目标。												</p>
+<p>structured output 我理解的是多种特征、属性都有一点的结构化输出</p>
+<p>multi-modal distribution 我理解就是组成output分布的多种特征、属性，多种特征的分布组成了多模态分布</p>
+<p>在分割精度、条件对数似然估计和生成样本的可视化方面表现出色</p>
+<p>对生成模型（或者说预测任务）的要求有两个：1.可以形成好的概率分布probabilistic inference（生成的样本和训练样本的分布是接近的）；2. 可以生成出不一样的样本，不能生成出来的样本都很接近，要是不一样的。</p>
+<p>提出conditional variational auto-encoder (CVAE).CVAE是一个有条件的  有向图模型（z生成x，有个方向），其输入观测调节了产生输出的高斯潜变量 的先验 p(z)</p>
+<p>主要改进如下：</p>
+<ul>
+<li>提出了cvae，我们提出了CVAE及其在SGVB框架中可有效训练的变体， ，并引入了新的策略来增强结构化预测模型的鲁棒性。</li>
+<li>我们用高斯随机神经元 证明了我们提出的算法在建模结构化输出变量的多模态分布方面的有效性</li>
+<li>我们在CUB和LFW数据集上实现了强大的语义对象分割性能。</li>
+</ul>
+<p>目标不仅是估计 $p(x)$ ，并且是在某个条件，比如s下的x发生的概率，p(x|s)，目标变成也要知道条件s对x会起到什么影响。</p>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>recognition network：$q_\phi(z|x)$ 或者 $q_\phi(z|x,y)$  x（或x,y）条件下预测出的z的分布；</p>
+<p>prior network  ：$p_\theta(z)$ 或者 $p_\theta(z|x)$ x条件下z的真实分布、先验分布；</p>
+<h2 id="Related-work"><a href="#Related-work" class="headerlink" title="Related work"></a>Related work</h2><p>The stochastic feed-forward neural network (SFNN)随机前馈神经网络(SFNN)是一个条件有向图模型 ，它结合了实值确定性神经元和二元随机神经元。</p>
+<p>SFNN使用广义EM的蒙特卡罗变体进行训练，从前馈建议分布中提取多个样本 ，并用不同的重要性权重对它们进行加权</p>
+<p>作者提出的叫做Gaussian stochastic neural network，用高斯隐变量替换了sfnn里的二元随机神经元binary stochastic neurons.</p>
+<h2 id="Preliminary-Variational-Auto-encoder"><a href="#Preliminary-Variational-Auto-encoder" class="headerlink" title="Preliminary: Variational Auto-encoder"></a>Preliminary: Variational Auto-encoder</h2><p>回顾VAE，VAE用似然的variational lower bound作为目标函数，公式为<br>$$<br>\begin{aligned}<br>\log p_\theta(\mathbf{x}) &amp; &#x3D;K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)+\mathbb{E}<em>{q_\phi(\mathbf{z} \mid \mathbf{x})}\left[-\log q_\phi(\mathbf{z} \mid \mathbf{x})+\log p_\theta(\mathbf{x}, \mathbf{z})\right] \<br>&amp; \geq-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}) | p_\theta(\mathbf{z})\right)+\mathbb{E}</em>{q_\phi(\mathbf{z} \mid \mathbf{x})}\left[\log p_\theta(\mathbf{x} \mid \mathbf{z})\right]<br>\end{aligned}<br>$$<br>其中，$q_\phi(\mathbf{z} \mid \mathbf{x})$ 是 recognition model，用来近似真实后验 $p_\theta(\mathbf{z} \mid \mathbf{x})$ 。recognition model结构是MLP。</p>
+<p>假设z服从高斯分布，则 $-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}) | p_\theta(\mathbf{z})\right)$ 可以忽略，$\mathbb{E}_{q_\phi(\mathbf{z} \mid \mathbf{x})}\left[\log p_\theta(\mathbf{x} \mid \mathbf{z})\right]$ 可以用 $L$ 个 $z$ 样本表示，则带有高斯隐变量的VAE目标写成：</p>
+<p>$$<br>\widetilde{\mathcal{L}}<em>{\mathrm{VAE}}(\mathbf{x} ; \theta, \phi)&#x3D;-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}) | p_\theta(\mathbf{z})\right)+\frac{1}{L} \sum</em>{l&#x3D;1}^L \log p_\theta\left(\mathbf{x} \mid \mathbf{z}^{(l)}\right)<br>$$<br>其中，$\mathbf{z}^{(l)}&#x3D;g_\phi\left(\mathbf{x}, \epsilon^{(l)}\right), \epsilon^{(l)} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ 。用了重参数技巧，把  $q_\phi(\mathbf{z} \mid \mathbf{x})$ 函数用 $g_\phi\left(\mathbf{x}, \epsilon\right)$ 函数代替，这个 $g_\phi(\cdot, \cdot)$ 是一个deterministic、differentiable的函数，里头的参数是data $\mathbf{x}$ 和 noise variable $\epsilon$ 。这种trick允许误差通过高斯隐变量反向传播，这在VAE训练中是必不可少的，因为它由多个mlp组成，用于识别和生成模型。因此，使用随机梯度下降(SGD)可以有效地训练VAE。</p>
+<h2 id="Deep-Conditional-Generative-Models-for-Structured-Output-Prediction"><a href="#Deep-Conditional-Generative-Models-for-Structured-Output-Prediction" class="headerlink" title="Deep Conditional Generative Models for Structured Output Prediction"></a>Deep Conditional Generative Models for Structured Output Prediction</h2><p>如下图所示 Fig1(a) 展示了x拟合y的分布，$p_\theta(y|x)$ ，Fig1(b)、Fig1(c)、Fig1(d)展示了三种conditional generative model (CGM)  。</p>
+<p>Fig1(b) 是先验网络和生成网络、decoder，说的是x条件下生成z的真实分布，z和x共同作用生成y，我们输入给定的数据点x，由于生成z会有随机性，$p_\theta(y|x,z)$ 允许建模多种模式，因此生成的y也有随机性，y有很多种可能生成的样子，是一个one-to-many过程；</p>
+<p>z的先验来自x，也可以放宽限制，把 $p_\theta(z)$ 写成 $p_\theta(z|x)$  。</p>
+<p>Fig1(c)是识别网络、encoder；</p>
+<img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208092952774.png" alt="image-20221208092952774" style="zoom: 67%;">
+
+<p>Deep CGMs 用 maximize the conditional log-likelihood训练，通常很难直接计算目标函数，因此也像VAE一样用SGVB框架（求导）训练。</p>
+<p>variational lower bound of the model 写为：<br>$$<br>\log p_\theta(\mathbf{y} \mid \mathbf{x}) \geq-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)+\mathbb{E}<em>{q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})}\left[\log p_\theta(\mathbf{y} \mid \mathbf{x}, \mathbf{z})\right]<br>$$<br>empirical lower bound 写为：<br>$$<br>\widetilde{\mathcal{L}}</em>{\mathrm{CVAE}}(\mathbf{x}, \mathbf{y} ; \theta, \phi)&#x3D;-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)+\frac{1}{L} \sum_{l&#x3D;1}^L \log p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(l)}\right)<br>$$<br>其中，$\mathbf{z}^{(l)}&#x3D;g_\phi\left(\mathbf{x,y}, \epsilon^{(l)}\right), \epsilon^{(l)} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ , $L$ 是样本数。</p>
+<p>这种模型称为 conditional variational auto-encoder (CVAE) ，识别模型变成了 $q_\phi(z|x,y)$ ，生成模型变成了 $p_\theta (y|x,z)$ 。如Fig1(d)是一个CVAE结构，有一个循环结构，给定数据x，有一个初始预测的 $\hat y$ ，$q_\phi(z|x,\hat y)$ 采样出 z，再  $p_\theta (y|x,z)$ 生成 $y$ （重建）。</p>
+<p>上式的推导过程为：</p>
+<p>在条件VAE中，我们假设要建模的变量是 $y$ ，条件是 $x$ 。隐变量 $z$ 的近似分布 $q_\phi(z \mid x, y)$ 和真 实后验概率 $p_\theta(z \mid x, y)$ 之间的 KL-divergence 记为:<br>$$<br>\begin{aligned}<br> K L\left[q_\phi(z \mid x, y) | p_\theta(z \mid x, y)\right]  &amp;&#x3D;\int q_\phi(z \mid x, y) \log \frac{q_\phi(z \mid x, y)}{p_\theta(z \mid x, y)} d \phi \<br>&amp;&#x3D;\int q_\phi(z \mid x, y) \log \frac{q_\phi(z \mid x, y) p_\theta(y \mid x) p_\theta(x)}{p_\theta(z, x, y)} d \phi<br>\end{aligned}<br>$$<br>展开:<br>$$<br>\begin{aligned}<br>&amp; &#x3D;\int q_\phi(z \mid x, y) \log _\phi(z \mid x, y) d \phi+\int q_\phi(z \mid x, y) \operatorname{logp}_\theta(y \mid x) d \phi+  \int q_\phi(z \mid x, y) \operatorname{logp}_\theta(x) d \phi  -\int q_\phi(z \mid x, y) \operatorname{logp}_\theta(z, x, y) d \phi<br>\end{aligned}<br>$$<br>其中，第二项:<br>$$<br>\int q_\phi(z \mid x, y) \log p_\theta(y \mid x) d \phi&#x3D;\log <em>\theta(y \mid x)<br>$$<br>其余三项合并，原式<br>$$<br>K L\left[q_\phi(z \mid x, y)|| p_\theta(z \mid x, y)\right]&#x3D;\log <em>\theta(y \mid x)+\int q_\phi(z \mid x, y) \log \frac{q_\phi(z \mid x, y)}{p_\theta(y \mid x, z) p_\theta(z \mid x)} d \phi<br>$$<br>由于左侧 $K L \geq 0$ ，因此:<br>$$<br>\begin{aligned}<br>&amp; \log <em>\theta(y \mid x) \geq-\int q_\phi(z \mid x, y) \log \frac{q_\phi(z \mid x, y)}{p_\theta(y \mid x, z) p_\theta(z \mid x)} d \phi \<br>&amp; &#x3D;\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log p_\theta(y \mid x, z)+\log p_\theta(z \mid x)-q_\phi(z \mid x, y)\right] d \phi \<br>&amp; &#x3D;\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log <em>\theta(y \mid x, z)\right]-\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log q_\phi(z \mid x, y)-\log <em>\theta(z \mid x)\right] \<br>&amp; &#x3D;\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log <em>\theta(y \mid x, z)\right]-K L\left[q_\phi(z \mid x, y)|| p_\theta(z \mid x)\right]<br>\end{aligned}<br>$$<br>左侧 $\log <em>\theta(y \mid x)$ 是基于条件 $x$ 的后验概率，右侧是条件VAE的ELBO:<br>$$<br>E L B O&#x3D;\mathbb{E}</em>{q_\phi(z \mid x, y)}\left[\log p_\theta(y \mid x, z)\right]-K L\left[q_\phi(z \mid x, y) | p_\theta(z \mid x)\right]<br>$$<br>第一项是对隐变量 $z \sim p_\phi(z \mid x, y)$ 的期望下的极大似然估计，第二项是 $q_\phi$ 与先验的KL约束。同 样，第一项也要通过采样来估计，具体而言:<br>$$<br>\widetilde{\mathcal{L}}</em>{\mathrm{CVAE}}(\mathbf{x}, \mathbf{y} ; \theta, \phi)&#x3D;-K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)+\frac{1}{L} \sum</em>{l&#x3D;1}^L \log p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(l)}\right)<br>$$</p>
+<h3 id="Output-inference-and-estimation-of-the-conditional-likelihood"><a href="#Output-inference-and-estimation-of-the-conditional-likelihood" class="headerlink" title="Output inference and estimation of the conditional likelihood"></a>Output inference and estimation of the conditional likelihood</h3><p>推理的时候，评估模型预测准确度时，用z的期望（不采样z）作为样本z（不是直接采样一个z） $\mathbf{y}^*&#x3D;\arg \max _{\mathbf{y}} p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^<em>\right), \mathbf{z}^</em>&#x3D;\mathbb{E}[\mathbf{z} \mid \mathbf{x}] ^2$</p>
+<p>计算这个期望可以用采样多个z的平均值，那么生成的样本变成 $\mathbf{y}^*&#x3D;\arg \max <em>{\mathbf{y}} \frac{1}{L} \sum</em>{l&#x3D;1}^L p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(l)}\right), \mathbf{z}^{(l)} \sim p_\theta(\mathbf{z} \mid \mathbf{x})$ 。</p>
+<p>还有一种估计CGM的方法，是比较测试集的条件似然conditional likelihood，直接从prior network（ $p_\theta(z|x)$ ）里采样z个样本（这里z 的先验依赖于x），取似然平均，称为 Monte Carlo (MC) sampling  ：<br>$$<br>p_\theta(\mathbf{y} \mid \mathbf{x}) \approx \frac{1}{S} \sum_{s&#x3D;1}^S p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(s)}\right), \quad \mathbf{z}^{(s)} \sim p_\theta(\mathbf{z} \mid \mathbf{x})<br>$$<br>但是这个方法需要样本数很多才准。因此作者提出用**重要性采样 **importance sampling 来估计条件似然：</p>
+<p>这里impotance sampling原理是 $\mathbb{E}<em>{p(a)}[\tau]&#x3D;\mathbb{E}</em>{p(b)}[\frac{p(a)}{p(b)}\tau]$<br>$$<br>p_\theta(\mathbf{y} \mid \mathbf{x}) \approx \frac{1}{S} \sum_{s&#x3D;1}^S \frac{p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(s)}\right) p_\theta\left(\mathbf{z}^{(s)} \mid \mathbf{x}\right)}{q_\phi\left(\mathbf{z}^{(s)} \mid \mathbf{x}, \mathbf{y}\right)}, \quad \mathbf{z}^{(s)} \sim q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})<br>$$<br>由上面的KL散度可知，$q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})$ 和 $p_\theta(\mathbf{z} \mid \mathbf{x})$ 越接近越好，越接近说明采样的样本z更接近真实分布，可以用来衡量该样本对结果准确度的重要性。</p>
+<h3 id="Learning-to-predict-structured-output"><a href="#Learning-to-predict-structured-output" class="headerlink" title="Learning to predict structured output"></a>Learning to predict structured output</h3><p>用SGVB框架训练有个问题，就是训练时最优化了 $q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})$ ，但是测试、推理时用的是 $p_\theta(\mathbf{z} \mid \mathbf{x})$ ，（ 先验网络函数在训练里没有更新、$\theta$ 更新是通过生成网络 $p_\theta(y|x,z)$ 更新的 ），因此，可以在训练目标中<strong>加大KL散度项的权重</strong>，也就是让  $q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})$ 和 $p_\theta(\mathbf{z} \mid \mathbf{x})$ 分布更接近，这样可以让训练和测试时隐变量z编码的差异没那么大。即 $-(1+\beta) K L\left(q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y}) | p_\theta(\mathbf{z} \mid \mathbf{x})\right)$ with $\beta \geq 0$。 加大权重虽然想法很好，但是在实验中发现没什么效果。</p>
+<p>因此要找别的方法来减少训练和测试之间的差异，作者通过让 $q_\phi(\mathbf{z} \mid \mathbf{x}, \mathbf{y})&#x3D;p_\theta(\mathbf{z} \mid \mathbf{x})$ ，也就是识别网络和预测网络用同一个网络。</p>
+<p>则目标函数变成：<br>$$<br>\widetilde{\mathcal{L}}<em>{\mathrm{GSNN}}(\mathbf{x}, \mathbf{y} ; \theta, \phi)&#x3D;\frac{1}{L} \sum</em>{l&#x3D;1}^L \log p_\theta\left(\mathbf{y} \mid \mathbf{x}, \mathbf{z}^{(l)}\right), \text { where } \mathbf{z}^{(l)}&#x3D;g_\theta\left(\mathbf{x}, \epsilon^{(l)}\right), \epsilon^{(l)} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})<br>$$<br>称这种模型叫 Gaussian stochastic neural network (GSNN)  。结合CVAE和GSMN两种模型，就是两种都用，目标函数变成：<br>$$<br>\widetilde{\mathcal{L}}<em>{hybrid}&#x3D;\alpha\widetilde{\mathcal{L}}</em>{CVAE}+(1-\alpha)\widetilde{\mathcal{L}}_{GSNN}<br>$$</p>
+<h3 id="CVAE-for-image-segmentation-and-labeling"><a href="#CVAE-for-image-segmentation-and-labeling" class="headerlink" title="CVAE for image segmentation and labeling"></a>CVAE for image segmentation and labeling</h3><p>针对语义分割任务（属于 structured output prediction task  ）（语音分割应该是每个像素有某类语义），作者对于训练预测网络，提出两种训练方法：</p>
+<ol>
+<li>multi-scale prediction objective 多尺度预测目标（或者说output，预测出多个尺度的输出）；</li>
+<li>structured input noise 结构化输入噪声；</li>
+</ol>
+<h4 id="Training-with-multi-scale-prediction-objective"><a href="#Training-with-multi-scale-prediction-objective" class="headerlink" title="Training with multi-scale prediction objective"></a>Training with multi-scale prediction objective</h4><p>训练过程中，如下图所示，预测出原始输出的1&#x2F;4、预测出原始输出的1&#x2F;2、预测出原始输出，每个scale预测都有对应scale真实的重建误差。</p>
+<p>比如要训练一张图片，一次前向传播中，就输出了1&#x2F;4图片、1&#x2F;2图片和整张图片。</p>
+<img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208115448455.png" alt="image-20221208115448455" style="zoom:67%;">
+
+
+
+<h4 id="Training-with-input-omission-noise"><a href="#Training-with-input-omission-noise" class="headerlink" title="Training with input omission noise"></a>Training with input omission noise</h4><p>给网络输入噪声是一种正则化方法，作者给输入input加噪，相当于给重建目标增加了难度。具体地，输入比如是图片，那么给输入图片随机一部分mask成0，相当于输入信息变少了（加噪了），给模型增加了难度，可以使得模型的泛化性变好。</p>
+<h2 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h2><p>数据集 MNIST，任务是visual object segmentation and labeling  图像分割、图像标记。</p>
+<p>为了强调通过随机神经网络进行概率推断对于结构化输出变量的重要性，做了一个实验，是将图片分成四个象限，输入三个象限，让模型预测第四个象限、更大胆点，让模型预测更多的象限，随着模型要预测的东西越多（本来只要预测图片的一小部分，逐渐到要预测整张图片），生成的图片和输入图片就会越不同。</p>
+<img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208145203584.png" alt="image-20221208145203584" style="zoom:67%;">
+
+<p>CVAE预测得更真实</p>
+<p><img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208144045383.png" alt="image-20221208144045383"></p>
+<h3 id="Visual-Object-Segmentation-and-Labeling"><a href="#Visual-Object-Segmentation-and-Labeling" class="headerlink" title="Visual Object Segmentation and Labeling"></a>Visual Object Segmentation and Labeling</h3><p>todo</p>
+<h3 id="Object-Segmentation-with-Partial-Observations"><a href="#Object-Segmentation-with-Partial-Observations" class="headerlink" title="Object Segmentation with Partial Observations"></a>Object Segmentation with Partial Observations</h3><img src="/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/image-20221208145555694.png" alt="image-20221208145555694" style="zoom:67%;">
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/12/06/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/VAE%E8%AE%BA%E6%96%87/" rel="next" title="VAE论文">
+                <i class="fa fa-chevron-left"></i> VAE论文
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/12/12/%E5%90%88%E6%88%90/VITS%E8%AE%BA%E6%96%87/" rel="prev" title="端到端合成论文——声学模型——VITS">
+                端到端合成论文——声学模型——VITS <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CVAE"><span class="nav-number">1.</span> <span class="nav-text">CVAE</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.1.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">1.2.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Related-work"><span class="nav-number">1.3.</span> <span class="nav-text">Related work</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Preliminary-Variational-Auto-encoder"><span class="nav-number">1.4.</span> <span class="nav-text">Preliminary: Variational Auto-encoder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Deep-Conditional-Generative-Models-for-Structured-Output-Prediction"><span class="nav-number">1.5.</span> <span class="nav-text">Deep Conditional Generative Models for Structured Output Prediction</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Output-inference-and-estimation-of-the-conditional-likelihood"><span class="nav-number">1.5.1.</span> <span class="nav-text">Output inference and estimation of the conditional likelihood</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Learning-to-predict-structured-output"><span class="nav-number">1.5.2.</span> <span class="nav-text">Learning to predict structured output</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CVAE-for-image-segmentation-and-labeling"><span class="nav-number">1.5.3.</span> <span class="nav-text">CVAE for image segmentation and labeling</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Training-with-multi-scale-prediction-objective"><span class="nav-number">1.5.3.1.</span> <span class="nav-text">Training with multi-scale prediction objective</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Training-with-input-omission-noise"><span class="nav-number">1.5.3.2.</span> <span class="nav-text">Training with input omission noise</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experiments"><span class="nav-number">1.6.</span> <span class="nav-text">Experiments</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Visual-Object-Segmentation-and-Labeling"><span class="nav-number">1.6.1.</span> <span class="nav-text">Visual Object Segmentation and Labeling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Object-Segmentation-with-Partial-Observations"><span class="nav-number">1.6.2.</span> <span class="nav-text">Object Segmentation with Partial Observations</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/12/08/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CVAE%E8%AE%BA%E6%96%87/';
+          this.page.identifier = '2022/12/08/深度学习/CVAE论文/';
+          this.page.title = 'CVAE论文';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="语音识别," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="mmiMaximum  mutual information   Bahl L, Brown P, De Souza P, et al. Maximum mutual information estimation of hidden Markov model parameters for speech recognition[C]&#x2F;&#x2F;ICASSP’86. IEEE Intern">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mmi">
+<meta property="og:url" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/mmi/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="mmiMaximum  mutual information   Bahl L, Brown P, De Souza P, et al. Maximum mutual information estimation of hidden Markov model parameters for speech recognition[C]&#x2F;&#x2F;ICASSP’86. IEEE Intern">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211006170322880.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211012153400589.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/mmi/1.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/mmi/2.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211008150208238.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211008160228044.png">
+<meta property="article:published_time" content="2022-01-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T08:28:10.348Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="语音识别">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211006170322880.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/01/04/识别/mmi/"/>
+
+
+
+
+
+  <title>mmi | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/mmi/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">mmi</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/mmi/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="mmi"><a href="#mmi" class="headerlink" title="mmi"></a>mmi</h1><p>Maximum  mutual information </p>
+<blockquote>
+<p>Bahl L, Brown P, De Souza P, et al. Maximum mutual information estimation of hidden Markov model parameters for speech recognition[C]&#x2F;&#x2F;ICASSP’86. IEEE International Conference on Acoustics, Speech, and Signal Processing. IEEE, 1986, 11: 49-52. citation:1212</p>
+<p>csdn blog <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_35742630/article/details/89004890">区分性训练和mmi（一）</a></p>
+<p>blog <a target="_blank" rel="noopener" href="https://liuyanfeier.github.io/2018/12/16/%E5%8C%BA%E5%88%86%E6%80%A7%E8%AE%AD%E7%BB%83%EF%BC%88Discriminative-Training%EF%BC%89%E5%8F%8A%E5%85%B6%E5%9C%A8%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%EF%BC%88ASR%EF%BC%89%E4%B8%8A%E7%9A%84%E8%BF%90%E7%94%A8/">区分性训练（Discriminative Training）及其在语音识别（ASR）上的运用</a></p>
+<p>Chen, Zhehuai, Yanmin Qian, and Kai Yu. “Sequence discriminative training for deep learning based acoustic keyword spotting.” <em>Speech Communication</em> 102 (2018): 100-111.</p>
+</blockquote>
+<h3 id="GMM与DT"><a href="#GMM与DT" class="headerlink" title="GMM与DT"></a>GMM与DT</h3><ul>
+<li><p>GMM-HMM，回顾最大似然准则（Maximum likelihood estimation ）：$F_{ML}&#x3D;\sum_{u&#x3D;1}^UlogP(X_u|W_u;\theta)$</p>
+</li>
+<li><p>其中，$W_u$是标注序列，$X_u$是语音信号，$\theta$是声学模型参数。</p>
+<p>$p(x)&#x3D;\sum_yp(x,y)$</p>
+<p>$p(x)&#x3D;\sum_yp(x)p(y)$</p>
+</li>
+</ul>
+<h4 id="最大互信息准则"><a href="#最大互信息准则" class="headerlink" title="最大互信息准则"></a>最大互信息准则</h4><ul>
+<li><p>熵：$H(X)\triangleq-\sum_xPr(X&#x3D;x)logPr(X&#x3D;x)$  （ps.$\triangleq$是定义为def的意思）（$P(X&#x3D;x)$也可以直接写成$P(x)$）</p>
+</li>
+<li><p>互信息 ：$I(X,Y)&#x3D;H(Y)-H(Y|X)$，熵-条件熵，互信息是描述两个随机变量的关联程度，于是在这里就是描述<strong>观测序列和文本的关联程度</strong></p>
+</li>
+<li><p>条件熵 $H(Y|X)&#x3D;\sum_{x\in{X}}p(x)H(Y|X&#x3D;x)&#x3D;-\sum_{x\in{X}}p(x)\sum_{y\in{Y}}p(y|x)logp(y|x)]&#x3D;-\sum_{x\in{X}}\sum_{y\in{Y}}p(x,y)logp(y|x)$</p>
+</li>
+<li><p>X,Y是变量，x,y是变量的取值，条件熵是指在给定某个数（某个变量为某个值）的情况下，另一个变量的熵是多少，变量的不确定性是多少？条件熵中X也是一个变量，意思是在一个变量X的条件下（变量X的每个值都会取），另一个变量Y熵对X的期望</p>
+</li>
+<li><p>我的理解是条件熵越小，相关性越大；或者说互信息越大，相关性越大。</p>
+<p>H(Y|X)相当于告诉Y一些已知信息X后Y的熵，对Y加了一些限制条件。所以$H(Y)\geq{H(Y|X)}$，H(Y)就是Y的熵，描述Y的混乱程度，他们的互信息实际上也就是去求X和Y到底什么关系，X对Y到底产生了多大的影响。</p>
+</li>
+<li><p>互信息$I(X;Y)\triangleq{H(X)-H(X|Y)}$，或者写成$I(X;Y)\triangleq{H(Y)-H(Y|X)}$，</p>
+</li>
+<li><p>互信息$\large{I(X;Y)&#x3D;\sum_{x,y}Pr(X&#x3D;x,Y&#x3D;y)log\frac{Pr(X&#x3D;x,Y&#x3D;y)}{Pr(X&#x3D;x)Pr(Y&#x3D;y)}}$</p>
+<p>（∵$I(X;Y)&#x3D;-\sum_xp(x)log(x)+\sum_{xy}p(x,y)logp(x|y)&#x3D;-\sum_{xy}p(x,y)log(x)+\sum_{xy}p(xy)log\frac{p(x,y)}{p(y)}$）</p>
+<p>可以看出，互信息会更关注因为引入的某个“文本”，对于观测序列的影响、变化。</p>
+</li>
+<li><p>MMI准则公式：$\large{F_{MMIE}(\lambda)&#x3D;\sum_{u&#x3D;1}^{U}logP(W_u|x_u;\theta)&#x3D;\sum_{u&#x3D;1}^Ulog\frac{P(X_u|W_u;\theta)P(W_u)}{\sum_{w’}P(X_u|w’;\theta)P(w’)}}$</p>
+</li>
+<li><p>其中$P(W_u)$是固定的语言模型</p>
+<p>分子上的$P(X_u|Wu;θ)$，正是ML的目标函数；而分母则是所有文本（包括训练文本和它的所有竞争者）产生训练语音的概率（按语言模型加权）和。</p>
+<p>分子Numerator表示的是正确单词序列的可能性，分母Denominator是所有可能单词序列的可能性之和。</p>
+<p>两者之间的区别在于条件概率不同。ML中只要训练文本产生训练语音的概率大就行，而MMI要求的是训练语音对应训练文本的概率大，就是要训练文本产生语音信号的概率与其它文本产生语音信号的概率之差大。</p>
+</li>
+</ul>
+<h3 id="DNN与DT"><a href="#DNN与DT" class="headerlink" title="DNN与DT"></a>DNN与DT</h3><h4 id="MMI损失函数"><a href="#MMI损失函数" class="headerlink" title="MMI损失函数"></a>MMI损失函数</h4><p>在DNN神经网络中，DT准则可以替换CE准则作为损失函数。</p>
+<ul>
+<li><p>MMI准则过程为：</p>
+<ul>
+<li>$\large{P(\textbf{W}_u|\textbf{O}_u)&#x3D;\frac{p(\textbf{O}_u|\textbf{W}_u)P(\textbf{W}_u)}{p(\textbf{O}_u)}}$</li>
+</ul>
+<p>其中，$P(\textbf{W}_u)$是语言模型概率（一整句话有一个语言模型概率），在kws中，是keyword序列和非keyword的先验概率。</p>
+<ul>
+<li>分子  $p(\textbf{O}_u|\textbf{W}<em>u)&#x3D;\sum</em>{L\in{\mathcal{L}(W)}}p(\textbf{O}|\textbf{L})P(\textbf{L}|\textbf{W})$</li>
+</ul>
+<p>其中，$p(\textbf{O}|\textbf{L})$由HMM给出，$L$是状态（或者说标签）序列；$\mathcal{L}$是词序列W到它的标签序列$L$的映射函数，也就是词典lexicon；$P(\textbf{L}|\textbf{W})$是发音概率，由词典和语言模型决定；</p>
+<p>所以，是在分子lattice上可能的L序列路径求和的过程（用前后向）</p>
+<ul>
+<li>分母 $p(\textbf{O}<em>u)&#x3D;\sum</em>{W}p(\textbf{O}_u,W)&#x3D;\sum_WP(\textbf{W})p(\textbf{O}_u|\textbf{W})$</li>
+</ul>
+<p>其中，$\textbf{W}$denotes one of the competing hypotheses, which are usually represented as a path in the decoding lattice  </p>
+<ul>
+<li>MMI准则公式为：$\large{\mathcal{F}_{MMI}&#x3D;\sum_ulog\frac{P(\textbf{O}_u|\textbf{W}_u)^kP(\textbf{W}<em>u)}{\sum</em>{\textbf{W}}P(\textbf{O}<em>u|\textbf{W})^kP(\textbf{W})}&#x3D;\sum_ulog\frac{\sum</em>{L\in{\mathcal{L}(W)}}p(\textbf{O}|\textbf{L})^kP(\textbf{L}|\textbf{W})^kP(\textbf{W}_u)}{\sum_Wp(\textbf{O}_u|\textbf{W})^kP(\textbf{W})}}$</li>
+</ul>
+<p>（$logp(w|o)&#x3D;logp(o,w)-log(o)&#x3D;log\sum_sp(o,s,w)-log(o)&#x3D;log\sum_sp(o|s,w)p(s|w)p(w)-logp(o)$）</p>
+</li>
+<li><p>u是某一条样本，就是w的状态序列s的引入，对音频观测序列o产生多大的影响，loss越大，条件熵越小，互信息越大，越相关。因此要最大化互信息。</p>
+</li>
+<li><p>MMI准则最大化单词序列分布和观察序列分布之间的互信息,，减小句子错误率。最大化分子， 最小化分母。 </p>
+</li>
+<li><p>DT训练之前需要使用CE准则生成alignments和lattices，DT的初始化模型为使用CE准则训练出的最好模型。</p>
+</li>
+<li><p>理论上说,，DT训练分母应该取遍所有可能的单词序列。不过在实际中，这个求和运算是限制在解码得到的lattice上做的，这样可以减少运算量。</p>
+</li>
+<li><p>DNN训练算法一般是用来最小化一个目标方程, 所以我们可以对MMI准则取反进行最小化，而不是最大化互信息。</p>
+</li>
+<li><p>最大互信息量估计准则（Maximum Mutual Information Estimation，MMIE）、最小分类错误准则（Minimum Classification Error，MCE），以及最小词&#x2F;音素错误准则(Minimum Word&#x2F;Phone Error)。而常用的参数优化准则算法则包括广义概率下降(Generalized Pmbability Descent，GPD)，以及扩展Baum-Welch(Extened Baum—Welch，EB)算法。</p>
+</li>
+</ul>
+<h4 id="MMI求导"><a href="#MMI求导" class="headerlink" title="MMI求导"></a>MMI求导</h4><p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211006170322880.png" alt="image-20211006170322880"></p>
+<h2 id="MMI详细求导过程"><a href="#MMI详细求导过程" class="headerlink" title="MMI详细求导过程"></a>MMI详细求导过程</h2><blockquote>
+<p>Veselý K, Ghoshal A, Burget L, et al. Sequence-discriminative training of deep neural networks[C]&#x2F;&#x2F;Interspeech. 2013, 2013: 2345-2349. citation：802 Daniel Povey</p>
+<p>[mmi推导]Note_on_MMI （Sequence-discriminative training of deep neural networks）.pdf</p>
+</blockquote>
+<ul>
+<li>得到反向传播的可导性（求偏导）</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211012153400589.png" alt="image-20211012153400589"></p>
+<ul>
+<li>分母用前后向求得</li>
+</ul>
+<h2 id="lattice"><a href="#lattice" class="headerlink" title="lattice"></a>lattice</h2><p>前向后向算法都是在lattice上进行的，下图是一个word级别的lattice：</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/1.png" alt="img"></p>
+<h4 id="kaldi中的DT实现"><a href="#kaldi中的DT实现" class="headerlink" title="kaldi中的DT实现"></a>kaldi中的DT实现</h4><p>kaldi nnet3中的DT计算过程</p>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/2.png" alt="img"></p>
+<ul>
+<li>lattice rescore是DNN前向计算出$P(s|o)$，除以先验概率$P(s)$，得到似然概率$P(o|s)$，替换lattice边上对应的$P(o|s)$</li>
+<li>其中<code>vector&lt;BaseFloat&gt; answers</code>是前面计算出来的DNN的输出对应参考pdf的概率。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// nnet3/discriminative-training.cc</span></span><br><span class="line"><span class="comment">// 对lattice进行声学校正, 将负（缩放）声学对数似然置于lattice的弧中</span></span><br><span class="line"><span class="function"><span class="type">size_t</span> <span class="title">DiscriminativeComputation::LatticeAcousticRescore</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">const</span> std::vector&lt;BaseFloat&gt; &amp;answers,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">size_t</span> index, Lattice *lat)</span> </span>&#123;</span><br><span class="line">  int32 num_states = lat-&gt;<span class="built_in">NumStates</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (StateId s = <span class="number">0</span>; s &lt; num_states; s++) &#123;</span><br><span class="line">    <span class="keyword">for</span> (fst::MutableArcIterator&lt;Lattice&gt; <span class="built_in">aiter</span>(lat, s);</span><br><span class="line">         !aiter.<span class="built_in">Done</span>(); aiter.<span class="built_in">Next</span>()) &#123;</span><br><span class="line">      Arc arc = aiter.<span class="built_in">Value</span>();</span><br><span class="line">      <span class="keyword">if</span> (arc.ilabel != <span class="number">0</span>) &#123; <span class="comment">// input-side has transition-ids, output-side empty</span></span><br><span class="line">        arc.weight.<span class="built_in">SetValue2</span>(-answers[index]);</span><br><span class="line">        <span class="comment">// graph cost: lm + transition + pronunciation</span></span><br><span class="line">        <span class="comment">// acoustic cost: -P(o|s)</span></span><br><span class="line">        index++;</span><br><span class="line">        aiter.<span class="built_in">SetValue</span>(arc);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    LatticeWeight <span class="keyword">final</span> = lat-&gt;<span class="built_in">Final</span>(s);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">final</span> != LatticeWeight::<span class="built_in">Zero</span>()) &#123;</span><br><span class="line">      <span class="keyword">final</span>.<span class="built_in">SetValue2</span>(<span class="number">0.0</span>); <span class="comment">// 确保在最终概率中没有声学项</span></span><br><span class="line">      lat-&gt;<span class="built_in">SetFinal</span>(s, <span class="keyword">final</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 用于rescore lattice的对数似然的索引个数</span></span><br><span class="line">  <span class="keyword">return</span> index;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在分母lattice上进行前向后向的计算函数为LatticeForwardBackward；在分子lattice的前向后向计算函数为AlignmentToPosterior。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lat/lattice-functions.cc</span></span><br><span class="line"><span class="comment">// 在lattice上执行前向后向算法并计算弧的后验概率</span></span><br><span class="line"><span class="function">BaseFloat <span class="title">LatticeForwardBackward</span><span class="params">(<span class="type">const</span> Lattice &amp;lat, Posterior *post,</span></span></span><br><span class="line"><span class="params"><span class="function">                                 <span class="type">double</span> *acoustic_like_sum)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 注意Posterior定义如下:  </span></span><br><span class="line">  <span class="comment">// Indexed [frame], then a list of (transition-id, posterior-probability) pairs.</span></span><br><span class="line">  <span class="comment">// typedef std::vector&lt;std::vector&lt;std::pair&lt;int32, BaseFloat&gt; &gt; &gt; Posterior;</span></span><br><span class="line">  <span class="keyword">using</span> <span class="keyword">namespace</span> fst;</span><br><span class="line">  <span class="keyword">typedef</span> Lattice::Arc Arc;</span><br><span class="line">  <span class="keyword">typedef</span> Arc::Weight Weight;</span><br><span class="line">  <span class="keyword">typedef</span> Arc::StateId StateId;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (acoustic_like_sum) *acoustic_like_sum = <span class="number">0.0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 确保lattices在拓扑上排序</span></span><br><span class="line">  <span class="keyword">if</span> (lat.<span class="built_in">Properties</span>(fst::kTopSorted, <span class="literal">true</span>) == <span class="number">0</span>)</span><br><span class="line">    KALDI_ERR &lt;&lt; <span class="string">&quot;Input lattice must be topologically sorted.&quot;</span>;</span><br><span class="line">  <span class="built_in">KALDI_ASSERT</span>(lat.<span class="built_in">Start</span>() == <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  int32 num_states = lat.<span class="built_in">NumStates</span>();</span><br><span class="line">  vector&lt;int32&gt; state_times;</span><br><span class="line">  <span class="comment">// 拓扑迭代den_lats中的每个state，并按顺序对每个state进行计数，结果</span></span><br><span class="line">  <span class="comment">// 保存在vector state_times中，最后一个state对应的计数时间应该为帧的数量值</span></span><br><span class="line">  int32 max_time = <span class="built_in">LatticeStateTimes</span>(lat, &amp;state_times);</span><br><span class="line">  <span class="function">std::vector&lt;<span class="type">double</span>&gt; <span class="title">alpha</span><span class="params">(num_states, kLogZeroDouble)</span></span>;</span><br><span class="line">  <span class="function">std::vector&lt;<span class="type">double</span>&gt; &amp;<span class="title">beta</span><span class="params">(alpha)</span></span>; </span><br><span class="line">  <span class="comment">// 重用相同的内存，beta是alpha的引用</span></span><br><span class="line">  <span class="type">double</span> tot_forward_prob = kLogZeroDouble;</span><br><span class="line"></span><br><span class="line">  post-&gt;<span class="built_in">clear</span>();</span><br><span class="line">  post-&gt;<span class="built_in">resize</span>(max_time);</span><br><span class="line"></span><br><span class="line">  alpha[<span class="number">0</span>] = <span class="number">0.0</span>;</span><br><span class="line">  <span class="comment">// Propagate alphas forward.</span></span><br><span class="line">  <span class="keyword">for</span> (StateId s = <span class="number">0</span>; s &lt; num_states; s++) &#123;</span><br><span class="line">    <span class="type">double</span> this_alpha = alpha[s];</span><br><span class="line">    <span class="comment">// alpha[]里面存储着从init state走到该state的所有路径中cost value加和最大值</span></span><br><span class="line">    <span class="keyword">for</span> (ArcIterator&lt;Lattice&gt; <span class="built_in">aiter</span>(lat, s); !aiter.<span class="built_in">Done</span>(); aiter.<span class="built_in">Next</span>()) &#123;</span><br><span class="line">      <span class="type">const</span> Arc &amp;arc = aiter.<span class="built_in">Value</span>();</span><br><span class="line">      <span class="comment">// arc_like = arc.weight.value1 + arc.weight.value2</span></span><br><span class="line">      <span class="type">double</span> arc_like = -<span class="built_in">ConvertToCost</span>(arc.weight);    </span><br><span class="line">      <span class="comment">// LogAdd返回两者之间较大的一个... + something else</span></span><br><span class="line">      alpha[arc.nextstate] = <span class="built_in">LogAdd</span>(alpha[arc.nextstate], this_alpha + arc_like);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// get状态s的final weight; if == Weight::Zero() =&gt; non-final</span></span><br><span class="line">    <span class="comment">// final state上面有单独的语言和声学分 </span></span><br><span class="line">    Weight f = lat.<span class="built_in">Final</span>(s);</span><br><span class="line">    <span class="keyword">if</span> (f != Weight::<span class="built_in">Zero</span>()) &#123;     </span><br><span class="line">      <span class="type">double</span> final_like = this_alpha - (f.<span class="built_in">Value1</span>() + f.<span class="built_in">Value2</span>());</span><br><span class="line">      tot_forward_prob = <span class="built_in">LogAdd</span>(tot_forward_prob, final_like);</span><br><span class="line">      <span class="built_in">KALDI_ASSERT</span>(state_times[s] == max_time &amp;&amp;</span><br><span class="line">                   <span class="string">&quot;Lattice is inconsistent (final-prob not at max_time)&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (StateId s = num_states<span class="number">-1</span>; s &gt;= <span class="number">0</span>; s--) &#123;</span><br><span class="line">    Weight f = lat.<span class="built_in">Final</span>(s);</span><br><span class="line">    <span class="comment">// 如果s不是final state, this_beta = 0</span></span><br><span class="line">    <span class="type">double</span> this_beta = -(f.<span class="built_in">Value1</span>() + f.<span class="built_in">Value2</span>());</span><br><span class="line">    <span class="comment">// beta[]里面存储的是从该state走到final state的所有路径中cost value加和最大值（加上final state的权值）</span></span><br><span class="line">    <span class="keyword">for</span> (ArcIterator&lt;Lattice&gt; <span class="built_in">aiter</span>(lat, s); !aiter.<span class="built_in">Done</span>(); aiter.<span class="built_in">Next</span>()) &#123;</span><br><span class="line">      <span class="type">const</span> Arc &amp;arc = aiter.<span class="built_in">Value</span>();</span><br><span class="line">      <span class="type">double</span> arc_like = -<span class="built_in">ConvertToCost</span>(arc.weight),</span><br><span class="line">          arc_beta = beta[arc.nextstate] + arc_like;</span><br><span class="line">      this_beta = <span class="built_in">LogAdd</span>(this_beta, arc_beta);</span><br><span class="line">      int32 transition_id = arc.ilabel;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 该if判断是一个优化，以避免不需要的exp()函数</span></span><br><span class="line">      <span class="keyword">if</span> (transition_id != <span class="number">0</span> || acoustic_like_sum != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="type">double</span> posterior = <span class="built_in">Exp</span>(alpha[s] + arc_beta - tot_forward_prob);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (transition_id != <span class="number">0</span>) <span class="comment">// 该弧上有tid，不是epsilon</span></span><br><span class="line">          <span class="comment">// (*post)[state_times[s]]是以时间帧为编号的vector</span></span><br><span class="line">          (*post)[state_times[s]].<span class="built_in">push_back</span>(std::<span class="built_in">make_pair</span>(transition_id,</span><br><span class="line">                                                           <span class="built_in">static_cast</span>&lt;kaldi::BaseFloat&gt;(posterior)));</span><br><span class="line">        <span class="keyword">if</span> (acoustic_like_sum != <span class="literal">NULL</span>)</span><br><span class="line">          *acoustic_like_sum -= posterior * arc.weight.<span class="built_in">Value2</span>();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (acoustic_like_sum != <span class="literal">NULL</span> &amp;&amp; f != Weight::<span class="built_in">Zero</span>()) &#123;</span><br><span class="line">      <span class="type">double</span> final_logprob = - <span class="built_in">ConvertToCost</span>(f),</span><br><span class="line">          posterior = <span class="built_in">Exp</span>(alpha[s] + final_logprob - tot_forward_prob);</span><br><span class="line">      *acoustic_like_sum -= posterior * f.<span class="built_in">Value2</span>();     <span class="comment">// value2声学分数 </span></span><br><span class="line">    &#125;</span><br><span class="line">    beta[s] = this_beta;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="type">double</span> tot_backward_prob = beta[<span class="number">0</span>];</span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">ApproxEqual</span>(tot_forward_prob, tot_backward_prob, <span class="number">1e-8</span>)) &#123;</span><br><span class="line">    KALDI_WARN &lt;&lt; <span class="string">&quot;Total forward probability over lattice = &quot;</span> &lt;&lt; tot_forward_prob</span><br><span class="line">              &lt;&lt; <span class="string">&quot;, while total backward probability = &quot;</span> &lt;&lt; tot_backward_prob;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 按照第一个元素排序，把tid(pdfid)相同的后验combine起来(posterior值加起来)</span></span><br><span class="line">  <span class="keyword">for</span> (int32 t = <span class="number">0</span>; t &lt; max_time; t++)</span><br><span class="line">    <span class="built_in">MergePairVectorSumming</span>(&amp;((*post)[t]));</span><br><span class="line">  <span class="keyword">return</span> tot_backward_prob;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="trick"><a href="#trick" class="headerlink" title="trick"></a>trick</h4><ul>
+<li>frame rejection<br>当分子alignment的状态没有在分母lattice中出现的时候，会导致梯度过大，舍弃该帧的梯度。这种情况对于silence帧尤其常见，因为silence经常出现在分子的lattice，但是很容易被分母的lattice忽略。<br>如果新的对齐和lattice在每轮训练后被重新生成，那么运算结果将得到进一步改进。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 如果两个post[i]的第一个元素(tid)没有交集，返回true</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">PosteriorEntriesAreDisjoint</span>(post1[i], post2[i])) &#123;</span><br><span class="line">      num_disjoint++;</span><br><span class="line">      <span class="keyword">if</span> (drop_frames)</span><br><span class="line">        (*post)[i].<span class="built_in">clear</span>();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>帧平滑  $J_{FS-SEQ}(\theta;S)&#x3D;(1-H)J_{CE}(\theta;S)+HJ_{SEQ}(\theta;S)$</p>
+<p>当训练dt准则函数持续改进时，只用DNN计算出的帧准确率却显著变差。帧&#x2F;序列的比从 1:4 (H &#x3D; 4&#x2F;s )到 1:10 (H &#x3D; 10&#x2F;11 )常常是有效的。</p>
+</li>
+<li><p>更小的lr，大数据集上smbr效果最好</p>
+</li>
+</ul>
+<hr>
+<blockquote>
+<p>七月在线的视频 07.第四课 序列判别式训练（视频），PPT:《asr_lecture4.pdf》</p>
+</blockquote>
+<ul>
+<li>之前是nbest求和，现在是用lattice，lattice上路径会有重合，也是求和</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211008150208238.png" alt="image-20211008150208238"></p>
+<ul>
+<li>用lattice估计全量量的W </li>
+<li>用最初的模型⽣生成lattice</li>
+<li>使用弱的语言模型，通常用1-gram的语言模型</li>
+<li>但是控制lattice⼤小，通过beam控制，以减小计算的复杂度</li>
+<li>继承解码后的边对应的phone</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/mmi/image-20211008160228044.png" alt="image-20211008160228044"></p>
+<p>生成分母FST代码： kaldi&#x2F;src&#x2F;chainbin&#x2F;chainmake-den-fst.cc  </p>
+<p>2016 paper仍需要用gmm进行预训练，进行对齐，对phone出现的帧进行限制，同分母的fst进行连接，那样就是带上语言模型概念</p>
+<hr>
+<p>区分性训练，其实应该说鉴别性训练，相对于生成式模型？<del>意思就是不是把所有样本一视同仁地训练，而是赋予不同权重训练</del></p>
+<ul>
+<li><p>LFMMI之前的MMI分母用的解码得到的lattice作为词空间</p>
+</li>
+<li><p>LFMMI分子用的对齐lattice，分母用的是phoneWFST构成的lattice，所有句子的分母lattice都相同，就一个，之前没用这个HCLG是因为用word得到的HCLG特别大</p>
+</li>
+</ul>
+<hr>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU4MTA0NDE5NQ==&mid=2247485166&idx=1&sn=8b16bf29ed1a40e5b6cb2ba7104a1f1d&chksm=fd4cd462ca3b5d7446b4893cee3a03015d2b91dd0013f61ed0586be79bc514ebdb85a14ee31c&mpshare=1&scene=1&srcid=&sharer_sharetime=1584408100044&sharer_shareid=2c567b07b642647cb9daac1b143684f9#rd">语音识别系列之区分性训练和LF-MMI</a></p>
+</blockquote>
+<ul>
+<li><p>普通MMI：MMI的训练依赖Lattice，Lattice又依赖已经训练好的声学模型，所以在DNN的声学模型中，我们要先基于ML准则先训练好DNN模型，然后做MMI的训练。并且，<strong>Lattice是一个解码过程，其生成代价很高</strong>，并且只能在CPU上进行解码生成。一般我们只生成一次Lattice，区分性训练的过程中我们并不根据当前更新后的声学模型实时生成Lattice，也就是不使用实时的Lattice做MMI训练。所以在这种方式中，<strong>Lattice是滞后的，和当前的声学模型并不同步</strong>。</p>
+<p>每句话生成一个lattice，这个lattice之后都不更新，并且这个lattice也许不能代表这句话的全部词空间</p>
+</li>
+<li><p>LFMMI的分母改进：提到W一定要是有限的，可枚举的，当MMI分母和语音识别解码图是一样时，即以词Word作为语言模型的单元，一般的语音识别系统词级别在数十万到百万之间，即使做个简单的bi-gram，其复杂度也非常非常高（HCLG的大小），训练代价非常高。为了降低复杂度，考虑以：</p>
+<ul>
+<li>Phone作为语言模型单元。识别系统中Phone的一般在几十个到一百多个，考虑到数据稀疏性，即使做tri-gram或者4-gram复杂度也在合理区间内。以Phone作为建模单元时，MMI的分母图为HCG(没有词典L了，并且G的单元是Phone）。</li>
+<li>State作为语言模型建模单元。识别系统中的State一般在几千个左右，考虑到数据稀疏性，做tri-gram复杂度也在合理区间内。以State作为建模单元时，MMI的分母图为G（G以State作为建模单元，这里State是指上下文相关的CD-State&#x2F;senone）。</li>
+</ul>
+</li>
+</ul>
+<p>其中，Phone和State的训练语料都可以由语音识别的训练数据通过对齐生成。<strong>合理的控制Phone和State的MMI分母的大小，可以将其前向后向计算塞进GPU进行计算，也就是将MMI训练迁移到GPU，从而大大提高了MMI的训练速度</strong>。在业界中，Phone和State的两者都有实际应用。Kaldi的chain model中，使用Phone作为MMI分母建模单元。在一些其他工作或文章中，如”Achieving Human Parity in Conversational Speech Recognition”这篇文章中，以State作为MMI分母的建模单元，该论文中的结果如下表所示，可以看到，LF-MMI也拿到了合理的收益，其收益和Lattice based的MMI收益相近。</p>
+<p>当使用语言模型的思想表示MMI的分母时，我们无需再对训练语料进行解码，无需生成Lattice，所以称之为Lattice Free MMI(LF-MMI)。对于所有训练语料来讲，MMI的分母图是以一样的，并且，因为我们限制了MMI分母图的空间，该前向后向算法是on-the-fly的，在训练过程中直接计算，其与声学模型是同步更新（声学模型更新后，lattice也更新（lattice更新里面的声学分数）（hclg不变，因为hclg里的信息就涉及声学模型只有转移））。</p>
+<h2 id="chain-model"><a href="#chain-model" class="headerlink" title="chain model"></a>chain model</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU4MTA0NDE5NQ==&mid=2247485166&idx=1&sn=8b16bf29ed1a40e5b6cb2ba7104a1f1d&chksm=fd4cd462ca3b5d7446b4893cee3a03015d2b91dd0013f61ed0586be79bc514ebdb85a14ee31c&mpshare=1&scene=1&srcid=&sharer_sharetime=1584408100044&sharer_shareid=2c567b07b642647cb9daac1b143684f9#rd">语音识别系列之区分性训练和LF-MMI</a></p>
+<p>2016 - Povey et al. - Purely sequence-trained neural networks for ASR based on lattice-free MMI </p>
+</blockquote>
+<p>chain model本质是LFMMI，用了一些trick</p>
+<p>chain model中比较重要的tirck有：</p>
+<ol>
+<li>HMM拓扑结构改变，从标准的三状态改为单状态的HMM。</li>
+<li>帧率从10ms降低到30ms。</li>
+<li>MMI分母使用Phone作为语言模型建模单元，最终表示为HCG，且为简化，C为bi-phone。</li>
+<li>训练数据均做等长(1.5s)切分，分子使用该句话的Lattice表示。且在分子Lattice上引入一定时间扰动。</li>
+<li>CE正则化。训练时同时引入CE作为第二个任务进行multi task learning。所以，最终chain model的网络结构如下图所示：</li>
+<li>L2正则化&#x2F;Leaky HMM等</li>
+</ol>
+<h2 id="区分性训练trick"><a href="#区分性训练trick" class="headerlink" title="区分性训练trick"></a>区分性训练trick</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xmdxcsj/article/details/52760111">声学模型学习笔记（五） SDT(MMI&#x2F;BMMI&#x2F;MPE&#x2F;sMBR)</a> xmdxcsj csdn blog</p>
+</blockquote>
+<h3 id="lattice-generation"><a href="#lattice-generation" class="headerlink" title="lattice generation"></a>lattice generation</h3><p>区分性训练时生成高质量的lattice很重要，需要使用最好的模型来生成对应的lattice，并且作为seed model。</p>
+<h3 id="lattice-compensation"><a href="#lattice-compensation" class="headerlink" title="lattice compensation"></a>lattice compensation</h3><p> 如果lattice产生的不合理的话，会导致计算出来的梯度异常，比如分子的标注路径没有在分母中的lattice出现，这种情况对于silience帧尤其常见，因为silience经常出现在分子的lattice，但是很容易被分母的lattice忽略。有一些方法可以解决这种问题：</p>
+<ul>
+<li>fame rejection，直接删除这些帧</li>
+<li>根据reference hypothesis修正lattice，比如在lattice中人为地添加一下silience边</li>
+</ul>
+<h3 id="frame-smoothing"><a href="#frame-smoothing" class="headerlink" title="frame smoothing"></a>frame smoothing</h3><p>SDT很容易出现overfitting，两方面原因</p>
+<ul>
+<li><p>sparse lattice</p>
+</li>
+<li><p>sdt的squence相比于frame增加了建模的维度，导致训练集的后验概率分布更容易跟测试集出现差异</p>
+</li>
+</ul>
+<p>可以修改训练准则来减弱overfitting，通过结合squence criteria和frame criteria来实现：<br>$$<br>J_{FS-SEQ}(\theta;S)&#x3D;(1-H)J_{CE}(\theta;S)+HJ_{SEQ}(\theta;S)<br>$$<br>其中，$H$成为smoothing factor，经验值设为4&#x2F;5或10&#x2F;11</p>
+<h3 id="learning-rate"><a href="#learning-rate" class="headerlink" title="learning rate"></a>learning rate</h3><p>SDT的学习率相比于CE要小，因为</p>
+<ul>
+<li>SDT的起点一般基于CE训练出来的model</li>
+<li>SDT训练容易出现overfitting</li>
+</ul>
+<h3 id="criterion-selection"><a href="#criterion-selection" class="headerlink" title="criterion selection"></a>criterion selection</h3><p>sMBR效果相比其他会好一点，MMI比较容易理解和实现。</p>
+<h3 id="noise-contrastIve-estimation"><a href="#noise-contrastIve-estimation" class="headerlink" title="noise contrastIve estimation"></a>noise contrastIve estimation</h3><p>NCE可以用于加速训练</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>[1]《automatic speech recognition a deep learning approach》 chapter8<br>[2]Sequence-discriminative training of deep neural networks<br>[3]Boosted MMI for model and feature-space discriminative training<br>[4]discriminative training for large vocabulary speech recognition {daniel povey的博士论文chapter6}</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" rel="tag"># 语音识别</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/01/04/%E8%AF%86%E5%88%AB/nnet3/" rel="next" title="kaldi nnet3">
+                <i class="fa fa-chevron-left"></i> kaldi nnet3
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/01/04/%E8%AF%86%E5%88%AB/lattice/" rel="prev" title="lattice">
+                lattice <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#mmi"><span class="nav-number">1.</span> <span class="nav-text">mmi</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GMM%E4%B8%8EDT"><span class="nav-number">1.0.1.</span> <span class="nav-text">GMM与DT</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E5%A4%A7%E4%BA%92%E4%BF%A1%E6%81%AF%E5%87%86%E5%88%99"><span class="nav-number">1.0.1.1.</span> <span class="nav-text">最大互信息准则</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DNN%E4%B8%8EDT"><span class="nav-number">1.0.2.</span> <span class="nav-text">DNN与DT</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#MMI%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0"><span class="nav-number">1.0.2.1.</span> <span class="nav-text">MMI损失函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MMI%E6%B1%82%E5%AF%BC"><span class="nav-number">1.0.2.2.</span> <span class="nav-text">MMI求导</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MMI%E8%AF%A6%E7%BB%86%E6%B1%82%E5%AF%BC%E8%BF%87%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">MMI详细求导过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lattice"><span class="nav-number">1.2.</span> <span class="nav-text">lattice</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#kaldi%E4%B8%AD%E7%9A%84DT%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.2.0.1.</span> <span class="nav-text">kaldi中的DT实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#trick"><span class="nav-number">1.2.0.2.</span> <span class="nav-text">trick</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#chain-model"><span class="nav-number">1.3.</span> <span class="nav-text">chain model</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E5%88%86%E6%80%A7%E8%AE%AD%E7%BB%83trick"><span class="nav-number">1.4.</span> <span class="nav-text">区分性训练trick</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#lattice-generation"><span class="nav-number">1.4.1.</span> <span class="nav-text">lattice generation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lattice-compensation"><span class="nav-number">1.4.2.</span> <span class="nav-text">lattice compensation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#frame-smoothing"><span class="nav-number">1.4.3.</span> <span class="nav-text">frame smoothing</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#learning-rate"><span class="nav-number">1.4.4.</span> <span class="nav-text">learning rate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#criterion-selection"><span class="nav-number">1.4.5.</span> <span class="nav-text">criterion selection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#noise-contrastIve-estimation"><span class="nav-number">1.4.6.</span> <span class="nav-text">noise contrastIve estimation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">1.4.7.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/mmi/';
+          this.page.identifier = '2022/01/04/识别/mmi/';
+          this.page.title = 'mmi';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

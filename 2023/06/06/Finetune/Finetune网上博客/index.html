@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="深度学习,Finetune," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="finetune网上博客 极市 花式 Finetune 方法大汇总  1. 招式1：使用Pretrain模型做约束在Finetune阶段，如果我们可用于Finetune的目标任务数据量较少时，很有可能出现过拟合现象，严重影响模型效果；或者在Finetune过程中出现知识遗忘问题（catastrophic memory），把Pretrain阶段学到的有用知识遗忘，丢了西瓜捡了芝麻。为了解决这种问题，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Finetune网上博客">
+<meta property="og:url" content="http://example.com/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="finetune网上博客 极市 花式 Finetune 方法大汇总  1. 招式1：使用Pretrain模型做约束在Finetune阶段，如果我们可用于Finetune的目标任务数据量较少时，很有可能出现过拟合现象，严重影响模型效果；或者在Finetune过程中出现知识遗忘问题（catastrophic memory），把Pretrain阶段学到的有用知识遗忘，丢了西瓜捡了芝麻。为了解决这种问题，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixa2vmfj30k00fudh8.jpg">
+<meta property="og:image" content="http://example.com/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixa0uljj30k005xjsb.jpg">
+<meta property="og:image" content="http://example.com/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixa1qmhj30u007hgmq.jpg">
+<meta property="og:image" content="http://example.com/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixa1sffj30k0089t9i.jpg">
+<meta property="og:image" content="http://example.com/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixabsy3j30k006tdgj.jpg">
+<meta property="og:image" content="http://example.com/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixaemucj30k0077mya.jpg">
+<meta property="og:image" content="http://example.com/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixacx2rj30k00c375s.jpg">
+<meta property="article:published_time" content="2023-06-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-06-06T14:18:57.756Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="深度学习">
+<meta property="article:tag" content="Finetune">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixa2vmfj30k00fudh8.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/06/06/Finetune/Finetune网上博客/"/>
+
+
+
+
+
+  <title>Finetune网上博客 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Finetune网上博客</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-06-06T00:00:00+08:00">
+                2023-06-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Finetune/" itemprop="url" rel="index">
+                    <span itemprop="name">Finetune</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/06/06/Finetune/Finetune网上博客/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="finetune网上博客"><a href="#finetune网上博客" class="headerlink" title="finetune网上博客"></a>finetune网上博客</h1><blockquote>
+<p>极市 <a target="_blank" rel="noopener" href="https://www.cvmart.net/community/detail/6198">花式 Finetune 方法大汇总</a></p>
+</blockquote>
+<h2 id="1-招式1：使用Pretrain模型做约束"><a href="#1-招式1：使用Pretrain模型做约束" class="headerlink" title="1. 招式1：使用Pretrain模型做约束"></a>1. 招式1：使用Pretrain模型做约束</h2><p>在Finetune阶段，如果我们可用于Finetune的目标任务数据量较少时，很有可能出现过拟合现象，严重影响模型效果；或者在Finetune过程中出现知识遗忘问题（catastrophic memory），把Pretrain阶段学到的有用知识遗忘，丢了西瓜捡了芝麻。为了解决这种问题，学术界提出利用Pretrain模型作为约束，指导Finetune的过程，让Finetune得到的模型更加鲁棒。具体包括：&#x3D;&#x3D;直接使用Pretrain模型的参数作为约束、使用Pretrain模型的中间层表示作为约束、使用Pretrain模型对不同特征注意力强度作为约束&#x3D;&#x3D;。</p>
+<p>为了防止模型在Finetune阶段过拟合目标任务数据，或忘记了Pretrain阶段学到的有意义知识，<em><strong>Explicit inductive bias for transfer learning with convolutional networks（ICML 2018）*<strong>这篇文章介绍了一种使用Pretrain模型参数约束Finetune过程的方法：通过添加Pretrain模型参数和Finetune模型参数之间的某种正则化损失，让Finetune后的模型参数和最开始的Pretrain模型参数更加相似。文章中尝试了多种正则化方法，通过最终的实验发现，一个简单的L2正则效果最好，即对于Pretrain模型和Finetune模型的</strong>对应层</strong>的参数计算</em><em>L2距离<strong>，作为Finetune过程中</strong>损失函数的一部分**，公式如下（w为Finetune参数，w0位Pretrain参数）：<br>$$<br>\Omega(\boldsymbol{w})&#x3D;\frac{\alpha}{2}\left|\boldsymbol{w}-\boldsymbol{w}^0\right|_2^2<br>$$<br>通过L2正则化的方法拉近Pretrain模型和Target模型参数也存在一定问题，如何设定正则化的强度直接决定了迁移效果，正则化太弱仍然会导致过拟合和信息遗忘，迁移强度太强会导致Finetune的模型在Target任务上不是最优解。百度的文章 <strong>DELTA: DEEP LEARNING TRANSFER USING FEATURE MAP WITH ATTENTION FOR CONVOLUTIONAL NET- WORKS（ICLR 2019）</strong> 提出，通过约束网络的behavior，即feature map，而非模型参数，来实现约束目标。具体的，约束项可以表示为如下形式：<br>$$<br>\Omega^{\prime}\left(\omega, \omega^</em>, \mathbf{x}<em>i, y_i, z\right)&#x3D;\sum</em>{j&#x3D;1}^N\left(\mathrm{~W}_j\left(z, \omega^*, \mathbf{x}_i, y_i\right) \cdot | \mathrm{FM}_j\left(z, \omega, \mathbf{x}_i\right)-\mathrm{FM}_j\left(z, \omega^*, \mathbf{x}_i\right)\right) |_2^2<br>$$<br>其中，Wj表示第j个卷积层的约束强度，FM表示第i个样本经过参数w提取的feaure map。Wj的计算方法为，使用Pretrain的模型Freeze住底层Feature Extractor参数，Finetune后面Discriminator参数，<strong>通过衡量去掉每个channel后效果的损失，得到这个channel的迁移强度</strong>。如果去掉Pretrain模型某个channel后效果下降特别明显，说明Pretrain得到的这个channel的信息对Target任务是很有效的，这个时候要增大这种channel参数的迁移强度。</p>
+<img src="/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixa2vmfj30k00fudh8.jpg" alt="img" style="zoom:80%;">
+
+
+
+<p><strong>采用Pretrain模型对Finetune模型进行约束需要引入额外的正则化Loss，可以被称为Transfer Loss</strong>。由于Transfer Loss和Target Task Loss的优化目标不同，如何平衡两个Loss的关系决定了迁移效果。为了统一这两种Loss，<strong>Robust Knowledge Transfer via Hybrid Forward on the Teacher-Student Model（AAAI 2021）</strong> 提出了一种混合前向网络。当一个样本输入时，会通过三种不同的路径得到三种Loss，Loss1和Loss2通过交替进入Student网络（Target Task模型）某层和Teachder网络（Pretrain模型）某层，最终再通过Target Task Head得到；Loss3只进入Student网络通过Target Task Head得到。Loss1和Loss2代表了Student网络和Teachder网络Transfer Loss，Loss3代表了Target Task的优化Loss。与之前方法相比，该方法的三个Loss都是以优化Target Task为目标的，因此可以通过直接对比来判断目前的Transfer强度是否太强。文中设计了一种简单的平衡Transfer Loss和Target Loss的方法，让两个任务的Loss同等重要，随着训练过程动态计算Loss1和Loss2的权重。</p>
+<p>TODO…</p>
+<img src="/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixa0uljj30k005xjsb.jpg" alt="006C3FgEgy1h0hixa0uljj30k005xjsb">
+
+<img src="/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixa1qmhj30u007hgmq.jpg" alt="006C3FgEgy1h0hixa1qmhj30u007hgmq" style="zoom:80%;">
+
+
+
+<h2 id="2-招式2：选择性地对Pretrain模型迁移"><a href="#2-招式2：选择性地对Pretrain模型迁移" class="headerlink" title="2. 招式2：选择性地对Pretrain模型迁移"></a>2. 招式2：选择性地对Pretrain模型迁移</h2><p>Pretrain模型中的参数不一定都是对下游任务有帮助的，因此一些研究提出，<strong>对Pretrain的模型进行有选择性的迁移，重点迁移那些对下游任务帮助大的信息</strong>。<strong>Learning What and Where to Transfer（ICML 2019）</strong> 中提出一种基于<strong>meta-learning</strong>的迁移学习方法。这篇文章的核心思路建立在<strong>FITNETS: HINTS FOR THIN DEEP NETS（ICLR 2015）</strong> 一文提出的迁移方法之上，<strong>让Target模型通过一个回归任务拟合Pretrain模型中间层的表示</strong>，该优化目标可以表示为：<br>$$<br>\mathcal{L}<em>{H T}\left(\mathbf{W}</em>{\text {Guided }}, \mathbf{W}<em>{\mathbf{r}}\right)&#x3D;\frac{1}{2}\left|u_h\left(\mathbf{x} ; \mathbf{W}</em>{\text {Hint }}\right)-r\left(v_g\left(\mathbf{x} ; \mathbf{W}<em>{\text {Guided }}\right) ; \mathbf{W}</em>{\mathbf{r}}\right)\right|^2<br>$$<br>在FitNet中WGuided和WHint分别表示Target模型的Pretrain模型某一对应层的参数。<strong>Learning What and Where to Transfer（ICML 2019）</strong> 对该方法进行了扩展。在What to transfer阶段，对每一个channel的迁移做一个权重学习，每个channel的权重是通过一个单独的网络输入图片在Source模型的输出计算得到的（T代表Target模型，S代表Source模型，与FitNet中的Guided和Hint相对应）：<br>$$<br>\begin{aligned}<br>&amp; \mathcal{L}<em>{\text {wfm }}^{m, n}\left(\theta \mid x, w^{m, n}\right) \<br>&amp; &#x3D;\frac{1}{H W} \sum_c w_c^{m, n} \sum</em>{i, j}\left(r_\theta\left(T_\theta^n(x)\right)<em>{c, i, j}-S^m(x)</em>{c, i, j}\right)^2 \<br>&amp;<br>\end{aligned}<br>$$<br>在Where to transfer阶段，主要决定Source模型到Target模型的迁移层pair，即Source模型的第i层参数要迁移到Target模型的哪一层。类似What to transfer，通过一个单独的网络学习(i,j)这组Source模型到Target模型pair对的迁移强度：<br>$$<br>\mathcal{L}<em>{\mathrm{wfm}}(\theta \mid x, \phi)&#x3D;\sum</em>{(m, n) \in \mathcal{C}} \lambda^{m, n} \mathcal{L}_{\mathrm{wfm}}^{m, n}\left(\theta \mid x, w^{m, n}\right)<br>$$</p>
+<p>最终的Loss由上面两个阶段的Loss，以及任务本身的Loss共同组成。在训练阶段，文章采用了Meta-learning的方法，内循环阶段更新总体Loss，外循环阶段更新三个Loss的总和。Meta-learning原理可以参考历史文章<a href="https://link.zhihu.com/?target=http://mp.weixin.qq.com/s?__biz=MzIyOTUyMDIwNg==&mid=2247484082&idx=1&sn=2246b9a98c8a0f8d46fbbd3fc2851267&chksm=e8402493df37ad85ebde8754d7832945f1bddff79094beb8d99aa8931cb06a2c22f855b9b719&scene=21%23wechat_redirect">Meta-learning核心思想及近年顶会3个优化方向</a>。</p>
+<img src="/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixa1sffj30k0089t9i.jpg" alt="006C3FgEgy1h0hixa1sffj30k0089t9i">
+
+
+
+<h2 id="3-招式3：在Finetune阶段调整网络结构"><a href="#3-招式3：在Finetune阶段调整网络结构" class="headerlink" title="3. 招式3：在Finetune阶段调整网络结构"></a>3. 招式3：在Finetune阶段调整网络结构</h2><p>之前介绍的迁移学习方法，大多数都是通过Finetune对Pretrain模型的参数进行调整。然而<strong>，下游的Target任务可能需要和Source任务采用不同的模型结构来更好的进行学习</strong>。因此，<strong>TransTailor: Pruning the Pre-trained Model for Improved Transfer Learning（AAAI 2021）</strong> 提出了一种在Finetune阶段动态剪枝的方法，实现Finetune阶段不仅能够调整模型参数，还能调整模型网络结构。该方法分为Target-aware Pruning和Importance-aware Finetuning两个阶段。在Target-aware Pruning阶段，对于网络中每一层的每一个filter，都对应一个可学习的权重，把Pretrain模型的参数Freeze住，使用Target任务的数据和优化目标进行训练，得到每组参数最终对应的权重，训练过程可以表示为：<br>$$<br>\alpha^*&#x3D;\arg \min _\alpha \mathcal{L}\left(D_t ; W_f^s \odot \alpha\right)<br>$$<br>这个重要性权重会使用泰勒变换，融合全局各层的打分结果得到全局的打分，最后将打分较低的网络参数剪枝掉。在Importance-aware Finetuning，会结合第一阶段得到的参数打分进行Finetune，具体的，通过将每组参数的打分结果乘到参数上，的到参数的转换结果进行前向传播。最终两个过程交替进行，直到得到最终模型。</p>
+<img src="/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixabsy3j30k006tdgj.jpg" alt="006C3FgEgy1h0hixabsy3j30k006tdgj">
+
+
+
+<h2 id="4-招式4：学习每组参数Transfer的方式"><a href="#4-招式4：学习每组参数Transfer的方式" class="headerlink" title="4. 招式4：学习每组参数Transfer的方式"></a>4. 招式4：学习每组参数Transfer的方式</h2><p>在利用Pretrain模型进行迁移学习时，我们往往需要决定哪些网络的参数要Freeze，哪些网络参数跟随Target任务Finetune。例如，在CV领域，一些研究表明底层网络能够提取出更一般的图像规律，而接近分类层的参数对于不同Task差异很大，因此为了不将Pretrain阶段学到的知识破坏，将底层参数Freeze，只Finetune上层参数，会最大限度保留Pretrain阶段在大量数据学到的知识，提升迁移学习效果。然而，不同任务需要Freeze的参数存在差异，人工调试不同的Transfer方式（哪些层Freeze、哪些层Finetune）效率很低。同时，一般的Finetune假设每个Target样本都应该使用相同的Finetune方式，这也是不合理的。例如，和source domain更相似的样本，从source domain迁移更多知识更有帮助。因此，学术界出现一些相关工作，自动化学习每层以及每个样本的迁移策略。</p>
+<p>在<strong>SpotTune: Transfer Learning through Adaptive Fine-tuning（CVPR 2019）</strong> 这篇文章中，提出了对于<strong>每个样本</strong>学习一个个性化的迁移方式。对于每个样本，经过网络的每层可以选择是使用Pretrain模型的原始参数，还是使用Pretrain模型初始化后Finetune的参数。模型通过一个Policy Network，输入每个样本的特征（一般使用Pretrain模型对样本的表征向量），输出模型每组参数的迁移方式（使用Pretrain模型原始参数，或使用Pretrain模型初始化后Finetune的参数）。这个过程中需要对两种迁移方式进行采样，而采样运算不可导。为了让该运算可导，本文使用了Gumbel-Max Trick生成采样结果。SpotTune的模型结构如下图所示：</p>
+<img src="/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixaemucj30k0077mya.jpg" alt="006C3FgEgy1h0hixaemucj30k0077mya">
+
+<p>SpotTune实现了每个样本个性化的Finetune策略学习，但是只能做到layer维度。<strong>AdaFilter: Adaptive Filter Fine-tuning for Deep Transfer Learning（AAAI 2020）</strong> 提出了能够在filter维度实现每个样本的Finetune策略学习。与SpotTune类似，Finetune策略仍然为使用Pretrain模型的原始参数，或使用Pretrain模型初始化后Finetune的参数两种。与SpotTune不同的是，AdaFilter使用RNN学习每层各个channel的Finetune策略，每层的Finetune策略选择依赖于上一层输出的表示（SpotTune则是根据样本同时产出所有层的Finetune策略）。</p>
+<p>TODO…</p>
+<img src="/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/006C3FgEgy1h0hixacx2rj30k00c375s.jpg" alt="006C3FgEgy1h0hixacx2rj30k00c375s">
+
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a><strong>5. 总结</strong></h2><p>本文介绍了7篇顶会论文中对Finetune阶段进行的改进，包括Finetune过程使用Pretrain模型做约束、选择性地对Pretrain模型进行迁移、在Finetune阶段调整网络结构以及学习每组参数Transfer的方式4种类型。Pretrain-Finetune的核心问题在于，如何考虑到Target Task的样本特性，将Pretrain的知识合理迁移到Target Task的模型上。其中每个样本个性化地进行Finetune策略学习，可能是后续可以继续深入研究的方向。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
+          
+            <a href="/tags/Finetune/" rel="tag"># Finetune</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/05/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Quantization%20and%20Training%20of%20Neural%20Networks%20for%20Efficient%20Integer-Arithmetic-Only%20Inference/" rel="next" title="Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference">
+                <i class="fa fa-chevron-left"></i> Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/07/02/Finetune/SpotTune%20Transfer%20Learning%20through%20Adaptive%20Fine-tuning/" rel="prev" title="SpotTune Transfer Learning through Adaptive Fine-tuning">
+                SpotTune Transfer Learning through Adaptive Fine-tuning <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2"><span class="nav-number">1.</span> <span class="nav-text">finetune网上博客</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%8B%9B%E5%BC%8F1%EF%BC%9A%E4%BD%BF%E7%94%A8Pretrain%E6%A8%A1%E5%9E%8B%E5%81%9A%E7%BA%A6%E6%9D%9F"><span class="nav-number">1.1.</span> <span class="nav-text">1. 招式1：使用Pretrain模型做约束</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%8B%9B%E5%BC%8F2%EF%BC%9A%E9%80%89%E6%8B%A9%E6%80%A7%E5%9C%B0%E5%AF%B9Pretrain%E6%A8%A1%E5%9E%8B%E8%BF%81%E7%A7%BB"><span class="nav-number">1.2.</span> <span class="nav-text">2. 招式2：选择性地对Pretrain模型迁移</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%8B%9B%E5%BC%8F3%EF%BC%9A%E5%9C%A8Finetune%E9%98%B6%E6%AE%B5%E8%B0%83%E6%95%B4%E7%BD%91%E7%BB%9C%E7%BB%93%E6%9E%84"><span class="nav-number">1.3.</span> <span class="nav-text">3. 招式3：在Finetune阶段调整网络结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%8B%9B%E5%BC%8F4%EF%BC%9A%E5%AD%A6%E4%B9%A0%E6%AF%8F%E7%BB%84%E5%8F%82%E6%95%B0Transfer%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">1.4.</span> <span class="nav-text">4. 招式4：学习每组参数Transfer的方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%80%BB%E7%BB%93"><span class="nav-number">1.5.</span> <span class="nav-text">5. 总结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/06/06/Finetune/Finetune%E7%BD%91%E4%B8%8A%E5%8D%9A%E5%AE%A2/';
+          this.page.identifier = '2023/06/06/Finetune/Finetune网上博客/';
+          this.page.title = 'Finetune网上博客';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

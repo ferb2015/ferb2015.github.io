@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="命令词," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="区分性训练用在命令词的论文 &#x3D;&#x3D;Chen, Zhehuai, Yanmin Qian, and Kai Yu. “Sequence discriminative training for deep learning based acoustic keyword spotting.” Speech Communication 102 (2018): 100-111.&#x3D;&amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="命令词论文笔记（五）区分性训练用在命令词的论文">
+<meta property="og:url" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="区分性训练用在命令词的论文 &#x3D;&#x3D;Chen, Zhehuai, Yanmin Qian, and Kai Yu. “Sequence discriminative training for deep learning based acoustic keyword spotting.” Speech Communication 102 (2018): 100-111.&#x3D;&amp;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211028095727692.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/51e33547d077a96de000bf42d8c40e61.jpg">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211029145733035.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211029150244872.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211029144006785.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211029144433677.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211124173256429.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211110143717599.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220321175134525.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220323115129116.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220323113837633.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220323193422151.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220323192121077.png">
+<meta property="article:published_time" content="2021-06-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T07:50:57.358Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="命令词">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211028095727692.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2021/06/29/命令词/命令词论文笔记（五）/"/>
+
+
+
+
+
+  <title>命令词论文笔记（五）区分性训练用在命令词的论文 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">命令词论文笔记（五）区分性训练用在命令词的论文</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
+                2021-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/06/29/命令词/命令词论文笔记（五）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="区分性训练用在命令词的论文"><a href="#区分性训练用在命令词的论文" class="headerlink" title="区分性训练用在命令词的论文"></a>区分性训练用在命令词的论文</h1><blockquote>
+<p>&#x3D;&#x3D;Chen, Zhehuai, Yanmin Qian, and Kai Yu. “Sequence discriminative training for deep learning based acoustic keyword spotting.” <em>Speech Communication</em> 102 (2018): 100-111.&#x3D;&#x3D;</p>
+</blockquote>
+<h3 id="post-processing-后处理："><a href="#post-processing-后处理：" class="headerlink" title="post-processing 后处理："></a>post-processing 后处理：</h3><p>acoustic KWS usually does not require a language model but needs post-processing after the frame-level acoustic model inference  </p>
+<h4 id="HMM"><a href="#HMM" class="headerlink" title="HMM"></a>HMM</h4><ul>
+<li>The post-processing method can be categorized into three groups:</li>
+</ul>
+<ol>
+<li><p><strong>Posterior smoothing</strong> </p>
+<p>aim to filter out the noise posterior output by heuristic  methods  启发式方法滤除噪声后验输出</p>
+<p>（Chen, G., Parada, C., Heigold, G., 2014a. Small-footprint keyword spotting using deep neural networks. Proceedings of the IEEE International Conference on Acoustics, Speech and Signal Processing. IEEE, pp. 4087–4091.）</p>
+</li>
+<li><p><strong>Model based inference</strong></p>
+<p>aim to filter out the noise posterior output by data-driven  methods  数据驱动方法滤除噪声后验输出</p>
+<p>（Ge, F., Yan, Y., 2017. Deep neural network based wake-up-word speech recognition with two-stage detection. Proceedings of the IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). pp. 2761–2765. New Orleans, USA）</p>
+</li>
+<li><p><strong>filler based decoding</strong>（In some recent works (Chen et al., 2014b; 2017a), a small language model can be applied in the filler modeling and shows moderate improvement  ）</p>
+<p>model out-of-domain search space </p>
+<p>（Chen, I.-F., Ni, C., Lim, B.P., Chen, N.F., Lee, C.-H., 2014b. A novel keyword+ lvcsr-filler based grammar network representation for spoken keyword search. Proceedings of the 2014 9th International Symposium on Chinese Spoken Lansguage Processing (ISCSLP). IEEE, pp. 192–196.）</p>
+<p>（Chen, Z., Qian, Y., Yu, K., 2017a. A unified confidence measure framework using auxiliary normalization graph ）</p>
+</li>
+</ol>
+<p>the possible competing words are usually not enumerable and the competing hypotheses generation is computationally expensive if using the same procedure as in LVCSR  ：</p>
+<p>Chen, S.F., Kingsbury, B., Mangu, L., Povey, D., Saon, G., Soltau, H., Zweig, G., 2006. Advances in speech transcription at ibm under the darpa ears program. IEEE Trans. Audio Speech. Lang. Process. 14 (5), 1596–1608  </p>
+<h4 id="CTC"><a href="#CTC" class="headerlink" title="CTC"></a>CTC</h4><ol>
+<li><strong>MED</strong> 最小编辑距离</li>
+</ol>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211028095727692.png" alt="image-20211028095727692"></p>
+<h4 id="CTC中的MED方法难以引入HMM的原因"><a href="#CTC中的MED方法难以引入HMM的原因" class="headerlink" title="CTC中的MED方法难以引入HMM的原因"></a>CTC中的MED方法难以引入HMM的原因</h4><ul>
+<li>MED在lattice上进行，CTC有尖峰，可降低复杂度，HMM无尖峰</li>
+<li>HMM的神经网络输出$p(o_{ut}|q_t)$，区分性训练过程已经有了该信息</li>
+</ul>
+<h3 id="区分性训练的non-keyword部分："><a href="#区分性训练的non-keyword部分：" class="headerlink" title="区分性训练的non-keyword部分："></a>区分性训练的non-keyword部分：</h3><ul>
+<li><p>MMI准则公式为：$\large{\mathcal{F}_{MMI}&#x3D;\sum_ulog\frac{P(\textbf{O}_u|\textbf{W}_u)^kP(\textbf{W}<em>u)}{\sum</em>{\textbf{W}}P(\textbf{O}<em>u|\textbf{W})^kP(\textbf{W})}&#x3D;\sum_ulog\frac{\sum</em>{L\in{\mathcal{L}(W)}}p(\textbf{O}|\textbf{L})^kP(\textbf{L}|\textbf{W})^kP(\textbf{W}_u)}{\sum_Wp(\textbf{O}_u|\textbf{W})^kP(\textbf{W})}}$</p>
+</li>
+<li><p>由于不知道non-keyword序列，通过补偿composite alternate hypotheses 的概率来模拟这个过程，</p>
+<ul>
+<li><p>提出两个建模单元：</p>
+<ul>
+<li>filler model for non-keyword speech 建模非keyword</li>
+<li>anti-keyword model for mis-recognitions 建模易与keyword混淆的音</li>
+</ul>
+</li>
+<li><p>实际上该方法不可行</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>（Sukkar, R.A., Lee, C.-H., 1996. Vocabulary independent discriminative utterance verification for nonkeyword rejection in subword based speech recognition. IEEE Trans. Speech Audio Process. 4 (6), 420–429.）<br>（Sukkar, R.A., Setlur, A.R., Rahim, M.G., Lee, C.-H., 1996. Utterance verification of keyword strings using word-based minimum verification error (wb-mve) training. Proceedings of the IEEE International Conference on Acoustics, Speech and Signal Processing. 1. IEEE, pp. 518–521. ）</p>
+<ul>
+<li><p>在单词级CTC（Fernández et al.，2007）中，虽然它自然是一个序列级标准，但它不直接模拟非关键字元素。也就是说，在关键字之间插入空格以模拟它们之间的上下文。因此，序列级准则提高了关键字之间而不是关键字与非关键字之间的序列预测能力</p>
+</li>
+<li><p>我们现在的训练数据，都是单独的关键词句子、非关键词句子，在关键词训练数据中有非关键词，可以提高预测能力？会不会增加far？</p>
+</li>
+<li><p>A per-frame non-uniform weight can be added into the loss functions; operates inMCE.   The key point is to emphasize the loss during the span of possible keyword false rejection and false alarm in the training data.</p>
+</li>
+</ul>
+<p>(Meng, Z., Juang, B.-H., 2016. Non-uniform boosted mce training of deep neural networks for keyword spotting. Proceedings of the Interspeech 2016. pp. 770–774.  )</p>
+<ul>
+<li>LF-MMI与原始MMI的区别：：<ul>
+<li>分子：原始分子文本对齐序列用的硬对齐的alignment，chain model用软对齐，左右帧移窗口，全部算进分子。</li>
+<li>分母：chain model语言模型用的3gram phone，sub-word level语言模型（chain model即使用音节建模，音节相当于“phone”，也是子词了，训练的3gram phone也是3gram syllable）</li>
+<li>改变topo结构，chain model用的标签状态pdf后接可选的（属于该状态的）blank状态 pdf，（还是用的三音素）</li>
+<li>输出帧下采样3倍</li>
+</ul>
+</li>
+<li>本论文与LF-MMI的区别：<ul>
+<li>用单音素建模（改善很小？但是可以节约计算量）</li>
+<li>这里blank可以在标签前，也可以前后都有。这叫做”label delay“，能改善性能（不确定就可以先输出blank的意思？）（eer从3.1下降到3.0，改善很小？）</li>
+<li>LF-MMI公式改进为LF-bMMI</li>
+<li>训练时加重出现false alarm和false rejection的训练数据的loss</li>
+</ul>
+</li>
+</ul>
+<h3 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h3><ul>
+<li>LSTM与TDNN比较：对于hmm的lf-mmi来说，blstm效果和tdnn一致，参数量还更大，所以用tdnn就可以了<ul>
+<li>对KWS任务，依赖的上下文并不长</li>
+<li>小模型参数下会更限制lstm效果</li>
+<li>tdnn速度更快</li>
+</ul>
+</li>
+<li>CI与CD建模单元比较：效果一致，CI的数量更小，用CI就可以了</li>
+<li>不同交叉熵正则权重，该训练集中权重0.7合适，会有一定影响，这是因为测试时语言模型和训练不同，因此要权衡</li>
+<li>topo结构比较，BP最佳（BPB由于训练数据更少，提升很小（文章用了“显著性检验”指标来衡量提升幅度））</li>
+</ul>
+<p>实验结果来看，最有效的还是训练时引入不同权重策略（给false alarm和false rejection样本更高的训练权重）</p>
+<h4 id="训练时引入不同权重策略如何实现"><a href="#训练时引入不同权重策略如何实现" class="headerlink" title="训练时引入不同权重策略如何实现"></a>训练时引入不同权重策略如何实现</h4><p>雷博想法：先训练一个不错的模型，然后解码，根据解码结构，确定哪些是false alarm和false rejection，在egs的post中（本来都是1），提高他们的概率，再训练。</p>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Wang Y, Lv H, Povey D, et al. Wake Word Detection with Alignment-Free Lattice-Free MMI[J]. arXiv preprint arXiv:2005.08347, 2020.&#x3D;&#x3D;</p>
+<p>&#x3D;&#x3D;Wang, Yiming. <em>WAKE WORD DETECTION AND ITS APPLICATIONS</em>. Diss. Johns Hopkins University, 2021.&#x3D;&#x3D;王一鸣博士论文</p>
+<p>&#x3D;&#x3D;github开源代码&#x3D;&#x3D;：The code and recipes are available in Kaldi [24]: <a target="_blank" rel="noopener" href="https://github.com/kaldi-asr/kaldi/tree/master/egs/%7Bsnips,mobvoi,mobvoihotwords%7D">https://github.com/kaldi-asr/kaldi/tree/master/egs/{snips,mobvoi,mobvoihotwords}</a>. </p>
+<p>&#x3D;&#x3D;github代码&#x3D;&#x3D;：<a target="_blank" rel="noopener" href="https://github.com/YiwenShaoStephen/pychain">https://github.com/YiwenShaoStephen/pychain</a></p>
+<p>&#x3D;&#x3D;csdn 博客&#x3D;&#x3D;：<a target="_blank" rel="noopener" href="https://blog.csdn.net/chenxi910911/article/details/107674366">Wake Word Detection with Alignment-Free Lattice-Free MMI</a></p>
+</blockquote>
+<h4 id="思想"><a href="#思想" class="headerlink" title="思想"></a>思想</h4><ul>
+<li>提出alignment free LF-MMI，不需要对齐分子lattice</li>
+<li>不把唤醒词里面每个音素建模，而是把整个唤醒词建模 model the whole wake phrase  ，用一个固定状态数的HMM去建模唤醒词（该数量少于唤醒词音素组成数量）</li>
+<li>keyword、non-keyword、sil 都各用一个HMM建模</li>
+<li>针对唤醒任务，提出alignment free LFMMI，分子不用对齐文本得到分子lattice，由于文本就是keyword&#x2F;non-keyword，文本只有一个HMM，直接遍历HMM所有可能路径，求路径和概率。（直接用文本图上添加自环，让解码更自由，前后向可选的路径更多）</li>
+<li>负样本文本一般比较长，一个HMM可能建模不了，因此把负样本切成和正常本长度差不多，每个负样本的训练文本为freetext（一个HMM），就可以去生成egs了</li>
+<li>负样本如果不segment，会严重过拟合</li>
+<li>该方法能有效改善FAR高</li>
+<li>分母图上路径权重：按正负样本比例来分配</li>
+</ul>
+<p>分子图fst：用一个文本构成（一个文本就是一个单词，一个单词用一个HMM建模）</p>
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/51e33547d077a96de000bf42d8c40e61.jpg" alt="img" style="zoom: 25%;">
+
+
+
+<p>分母图fst：可以理解成word 并联序列，只不过添加了sil（不是loop，不能重复走）</p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211029145733035.png" alt="image-20211029145733035"></p>
+<h4 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h4><ul>
+<li>负样本进行了分块chunk，&#x3D;&#x3D;chunk长度和正样本差不多&#x3D;&#x3D;，	</li>
+<li>负样本后继chunk重叠0.3s，使得前一个chunk被截掉的单词有机会在后继chunk全词出现</li>
+<li>声学模型：TDNN-F，分解到两个低秩矩阵，前一个矩阵是半正定的，确保高维到低维信息不会丢失</li>
+<li>前一层的输入乘上缩放比例0.66与本层输入加和（是add，而不是concatenate）</li>
+<li>拼帧结构：把本来要拼在一层的结构 分解到两层会更好，比如第一层拼(-3,0,3)，第二层拼(0)，更好的做法是第一层拼(-3,0)，第二层拼(0,3)</li>
+<li>训练了一个alignment-free LF-MMI后，对齐lattice，重新训练一个普通的LF-MMI，效果会更好</li>
+<li>alignment-free体现在：<ul>
+<li>（雷博）不需要GMM-HMM训练过程，不需要对齐ali文件</li>
+<li>不需要对齐训练样本然后统计得到phone-lm</li>
+<li>一个没有一点对齐能力的模型（0.mdl）也可以拿来使用的</li>
+<li>nnet3-chain-e2e-get-egs分子cegs生成，直接用text构建的fst，找到所有可能的fst中的状态序列求和就是分子，普通的还要由fst构建lattice？（感觉二者差不多）</li>
+</ul>
+</li>
+<li>博士论文中比较了不同topo结构：<ul>
+<li>把sil和freetext表示在一个HMM中，该HMM有多种可走的路径，这样就能够表示当训练样本前后是非命令词，中间是静音的情况。结果是增加了训练难度，误拒率很高，只有对齐准确的初始模型可能会得到好一点的误拒率，但是还是不好，因此最好不要把sil和freetext放在一起建模</li>
+<li>用5状态建模HMM，效果比3状态好</li>
+</ul>
+</li>
+</ul>
+<h4 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h4><h4 id><a href="#" class="headerlink" title></a></h4><ul>
+<li>雷博说：<ul>
+<li>负样本切chunk后，要注意正负样本比例，不要让负样本远远多于正样本。</li>
+<li>切割负样本（长文本切到短文本）时，文本不知道对应的是sil还是freetext，不好得知文本，把静音段也视作freeetext会有问题</li>
+<li>实验效果好，可能由于数据集较小</li>
+</ul>
+</li>
+</ul>
+<h4 id="在线解码"><a href="#在线解码" class="headerlink" title="在线解码"></a>在线解码</h4><ul>
+<li>解码FST：其实长得有点像分母图，不同之处在于是起始状态和终止状态在同一个结点，使得可以生成词串，比如生成word后还可以生成freetext，再生成word等等，文本串；而分母图要不然就走freetext，要不然就走word，不能都串行出现。</li>
+</ul>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211029150244872.png" alt="image-20211029150244872"></p>
+<ul>
+<li><p>在线解码：一个chunk一个chunk解码，每次解码了一个chunk后，就去更新immortal token和prev_immortal token（在所有active tok里找公共祖先（emitting[0]，或者说tokenOne），作为immortal tok，把前一次的immortal tok作为prevImmortal tok），每次在两个immortal tokens之间的路径寻找（backtrace）是否有唤醒词，实现了逐chunk搜索。</p>
+</li>
+<li><p>每处理过一段固定长度的录音后，我们用更新不朽token算法来回溯最近两个“不朽token”中间的这些帧，检查这部分回溯是否包含唤醒词。如果发现唤醒词则停止解码，如果没有唤醒词继续解码。（不朽token是现存激活token的共同祖先）</p>
+<p>这个是基于这样一个假设：如果现有的存活的部分假设都是来自于前一个时刻的相同的token（不朽token），同时在这之前的所有的假设都已经压缩到了这一个token上，我们就可以从这个“不朽token”检查是否具有唤醒词 [csdn]</p>
+</li>
+<li><p>伪代码 online decoding：</p>
+</li>
+</ul>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211029144006785.png" alt="image-20211029144006785"></p>
+<ul>
+<li>更新immortal token，用于回溯</li>
+</ul>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211029144433677.png" alt="image-20211029144433677"></p>
+<h4 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h4><p>The code and recipes are available in Kaldi [24]: <a target="_blank" rel="noopener" href="https://github.com/kaldi-asr/kaldi/tree/master/egs/%7Bsnips,mobvoi,mobvoihotwords%7D">https://github.com/kaldi-asr/kaldi/tree/master/egs/{snips,mobvoi,mobvoihotwords}</a>.  </p>
+<p>本文中引入了一种不需要对齐（Alignment-free）、不需要词图的（Lattice-Free MMI）鉴别性准则训练的模型<br>相比Lattice-free MMI准则需要额外修改一下发音字典、HMM拓扑结构</p>
+<p>1.HMM拓扑结构（KW和freetext）用的是5个状态；silence用的是2个状态，但是保持（Lattice-free MMI）的结构self-loop-pdf和forward-pdf对应两个不同的PDF-id，因此神经网络共82+21&#x3D;18个pdf</p>
+<p>2.分子图与分母图<br>分子图和chain的不同点在于：不需要依赖对齐结果生成label对应的图，生成一个非扩展的fst，在训练过程中通过前后向算法更加灵活的学习对齐结果<br>分母图和chain的不同点在于：phone级别的语言模型不再需要通过训练数据训练得到，直接手动生成一个语言模型fst，一共3条路径，关键词路径、freetext、silence，其中关键词和freetext前后都可加silence。每一条路径上的权重受训练数据中正负样本的占比因素影响<br>3.声学模型<br>使用TDNN-F模型（因式分解的TDNN），将一层的参数矩阵分解成两个低秩矩阵、第一个矩阵强制限制为半正定矩阵<br>模型（20层每层80节点）存在跨层连接，前一层的输入乘上缩放比例0.66与本层输入加和。<br>4.数据预处理和增强<br>对于负样本（存在很多样本时长较长）会按照正样本的时长分布，对负样本进行切段，每一段分配一个负样本标签。<br>增强：尽管训练数据很多是在实际场景中录制的，增强后效果仍然后提升<br>5.解码<br>手动构造词级别的解码网络FST，每条路径上的权重生成和分母图的LM-fst图方式是一样的。在开始token和结束token上增加从结束token到开始token的空边，原因是音频中可能存在唤醒词和其他可能的音频交叉现象。<br>在线解码的过程中：每处理过一段固定长度的录音后，我们用更新不朽token算法来回溯最近两个“不朽token”中间的这些帧，检查这部分回溯是否包含唤醒词。如果发现唤醒词则停止解码，如果没有唤醒词继续解码。（不朽token是现存激活token的共同祖先）</p>
+<p>这个是基于这样一个假设：如果现有的存活的部分假设都是来自于前一个时刻的相同的token（不朽token），同时在这之前的所有的假设都已经压缩到了这一个token上，我们就可以从这个“不朽token”检查是否具有唤醒词</p>
+<ul>
+<li>与其他模型的对比结果</li>
+</ul>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211124173256429.png" alt="image-20211124173256429"></p>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Shrivastava A ,  Kundu A ,  Dhir C , et al. Optimize What Matters: Training DNN-Hmm Keyword Spotting Model Using End Metric[C]&#x2F;&#x2F; ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). IEEE, 2021.&#x3D;&#x3D; Apple</p>
+</blockquote>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
+<li>提出状态分类精度和命令词识别的目标不一致，分类精度高不代表检测分数高</li>
+<li>从目标检测领域迁移而来提出IOU loss function：关键词groundtruth起止时间与预测的起止时间交集&#x2F;并集，但是这篇论文不是真的用这个IOU loss，而是借鉴了IOU loss，原始IOU的groundtruth的起止时间区域，到了这边就是groundtruth keyword；而预测的起止时间，变成是viterbi对齐keyword后的区域，没有groundtruth的起止时间，而是一心要最大化positive sample预测的起止时间内的平均概率（和最小化negative sample预测的起止时间内的平均概率）</li>
+<li>特地挑选子词+垃圾词作为负样本，从训练样本入手减少误唤醒</li>
+<li>增加数据已经不能提升模型效果，可能是由于唤醒任务太简单，因此把目标函数弄复杂一点，增加训练难度，如果还能训练好的话，原本的唤醒任务也会训练得很好</li>
+<li>把ground-truth（关键词）分成两部分并交换次序比如“静音”，变成“音静”，构建新的负样本，这样打乱顺序，可以强迫模型学会前后顺序（一定要减小音量才能唤醒，音量减小不能唤醒）</li>
+</ul>
+<h3 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h3><ul>
+<li>训练时，根据viterbi对齐（训练时文本已知）（不是前后向，前后向是路径求和，这里是找最佳路径）找到最佳路径，得到路径分数，找到关键词的起始位置，得到关键词平均路径分数，记为检测分数$d$，$d&#x3D;v_C(T)$，其中，C是关键词末尾状态</li>
+<li>使用 hinge loss，loss function：</li>
+<li>使用 hinge loss，loss function：$\large{L_{e2e}&#x3D;\min_\limits{\theta}\sum_\limits{j\in{X_p}}max(0,1-d_j)+\sum_\limits{j\in{X_n}}max(0,1+d_j)}$，其中，p是正样本，n是负样本</li>
+<li>一个唤醒词，正负样本比例1：30，50w样本</li>
+</ul>
+<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20211110143717599.png" alt="image-20211110143717599"></p>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;X. Wang, S. Sun, C. Shan, J. Hou, L. Xie, S. Li, and X. Lei, “Adversarial examples for improving end-to-end attention-based small-footprint keyword spotting,”in Proc. ICASSP, 2019, pp. 6366–6370.&#x3D;&#x3D;</p>
+</blockquote>
+<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><ul>
+<li><p>kws里的false alarmed和false rejected样本作为对抗样本adversarial examples，用fast gradient sign method（FGSM）构建对抗样本，作为数据增广；</p>
+</li>
+<li><p>用模型输出正确的样本（输出为ground-truth），对样本输入进行扰动，使得模型输出不正确，这种新的输入，来作为对抗样本：</p>
+<p>a pair of correctly-classified example $(x_i;y_i) $ ，其中$y_i$是ground-truth，对抗样本$x_i^{adj}&#x3D;x_i+\delta_i$，并且满足$y_i\neq{f(x_i^{adv};\theta)}$，其中，${\Vert \delta_i \Vert}\ll{\Vert x_i \Vert}$</p>
+<p>FGSM试图在输入空间中找到一个方向，使loss函数有效地增大，这个方向通过对输入求导来获得</p>
+<p>$\delta_i^{FGSM}&#x3D;\epsilon{sign}(\frac{L(y_i,\partial f(x_i;\theta))}{\partial x_i})$	（sign是符号函数 -1,1）</p>
+<p>$x_i^{adv}&#x3D;x_i+\delta_i^{FGSM}$</p>
+<p>其中，$\epsilon$是调节扰动幅度的一个小常数</p>
+</li>
+<li><p>添加一点点扰动，模型预测错误说明：神经网络模型的输出相对于输入是不平滑的，在输入空间存在“盲点”。该模型很不smooth；</p>
+</li>
+<li><p>对抗样本生成：先训练一个好的模型后，对样本中的正样本添加扰动（只对keyword segment区域）；对样本中的负样本添加扰动（全部区域），然后再retrain</p>
+</li>
+<li><p>用对抗样本能最大提高模型性能，模型最少见对抗样本的这种情况，而用随机扰动，模型只能改善一点；</p>
+</li>
+</ul>
+<h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220321175134525.png" alt="image-20220321175134525" style="zoom:67%;">
+
+<p>总体是一个attention结构，encoder是一个1层GRU，</p>
+<h3 id="训练-1"><a href="#训练-1" class="headerlink" title="训练"></a>训练</h3><ul>
+<li>正样本差不多2s，因此把负样本也segment成最大2s；</li>
+<li>在一个训练好的模型基础上，再retrain；retrain的过程为：在每个minibatch中，动态生成对抗样本；</li>
+<li>只对正样本做对抗样本生成，效果最好；</li>
+</ul>
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><ul>
+<li>200帧窗长，1帧帧移</li>
+</ul>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Goodfellow, Ian J., Jonathon Shlens, and Christian Szegedy. “Explaining and harnessing adversarial examples.” <em>arXiv preprint arXiv:1412.6572</em> (2014).&#x3D;&#x3D;ciations：10772</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u014380165/article/details/90723948">图像对抗算法-攻击篇（FGSM）</a></p>
+</blockquote>
+<h3 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h3><ul>
+<li><p>提出the fast gradient sign method (FGSM)  </p>
+</li>
+<li><p>常规的分类模型训练在更新参数时都是将参数减去计算得到的梯度，这样就能使得损失值越来越小，从而模型预测对的概率越来越大。既然无目标攻击是希望模型将输入图像错分类成正确类别以外的其他任何一个类别都算攻击成功，那么只需要损失值越来越大就可以达到这个目标，也就是模型预测的概率中对应于真实标签的概率越小越好，这和原来的参数更新目的正好相反。因此我只需要在输入图像中加上计算得到的梯度方向，这样修改后的图像经过分类网络时的损失值就比修改前的图像经过分类网络时的损失值要大，换句话说，模型预测对的概率变小了。这就是FGSM算法的内容，一方面是基于输入图像计算梯度，另一方面更新输入图像时是加上梯度，而不是减去梯度，这和常见的分类模型更新参数正好背道而驰。</p>
+</li>
+<li><p>按比例和原始数据融合  $\hat J(\theta,x,y)&#x3D;\alpha J(\theta,x,y) + (1-\alpha) J(\theta,x + \epsilon sign(\nabla_x J(\theta,x,y)))$</p>
+<p>$\alpha$ 一般取0.5</p>
+</li>
+</ul>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;A. Coucke, M. Chlieh, T. Gisselbrecht, D. Leroy, M. Poumeyrol, and T. Lavril, “Efficient keyword spotting using dilated convolutions and gating,” in Proc. ICASSP, 2019, pp. 6351–6355&#x3D;&#x3D;  </p>
+</blockquote>
+<h3 id="思想-1"><a href="#思想-1" class="headerlink" title="思想"></a>思想</h3><ul>
+<li>用了 dilated convolution 空洞卷积和 gated activations 门激活函数；</li>
+<li>只检测keyword结束位置的输出概率，做loss function计算和推理，不用max pooling loss；（我命名为）【end loss】 很好用</li>
+<li>没用alignment得到边界信息，而是用VAD（这个应该都无所谓），然后对keyword end位置的输出概率做计算，这个结束位置不是固定一帧，而是一个范围$\Delta t$，也就是在这个范围内的帧的输出概率去计算loss，$\Delta t$的最优值用dev set调参；这样的好处是，模型不会倾向于在命令词音频开头就触发，不然如果说的是命令词的子词就是误触发了；？这个是怎么用的，是这个范围内都是这个标签，more label ce吗？【这个思路还挺好的】【改进，随机选这个范围内的一帧去计算？增加扰动，随机性】</li>
+<li>加了mask【？】，防止模型去学习精确的边界，这个是我们所不希望学习的？</li>
+<li>可以流式推理【TODO】看不懂：</li>
+</ul>
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220323115129116.png" alt="image-20220323115129116" style="zoom:67%;">
+
+<h3 id="训练-2"><a href="#训练-2" class="headerlink" title="训练"></a>训练</h3><ul>
+<li>数据集：“Hey Snips” datase  （<a target="_blank" rel="noopener" href="https://research.snips.ai/datasets/keyword-spotting">https://research.snips.ai/datasets/keyword-spotting</a> ），a crowdsourced closetalk dataset  </li>
+<li>正负样本的背景音（录制场所）最好一样，防止模型训练变成分辨两种环境了</li>
+<li>$\Delta t$最佳值是160ms (15 frames before and 15 frames after the end of the keyword)  </li>
+<li>平滑窗口是30帧</li>
+<li>感受野receptive field 182帧（1.83s）</li>
+<li>24层，学习率1e-3，gradient norm clipping 10 ，A scaled uniform distribution for initialization</li>
+</ul>
+<h3 id="模型-1"><a href="#模型-1" class="headerlink" title="模型"></a>模型</h3><ul>
+<li><p>参考TTS里的wavenet结构，用了Dilated causal convolutions  空洞因果卷积，门激活函数，residual连接；</p>
+</li>
+<li><p>Gated activations  ：结合了tanh和sigmoid；a combination of tanh and sigmoid activations controlling the propagation  of information to the next layer  ，就是cnn出来，接两个激活函数，然后相乘；</p>
+</li>
+</ul>
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220323113837633.png" alt="image-20220323113837633" style="zoom: 80%;">
+
+<ul>
+<li>residual connection用的矩阵是projection layer，就是正交矩阵，32维投影到16维，再恢复32维</li>
+</ul>
+<h3 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h3><ul>
+<li>对比模型是LSTM，max-pooling（基于ce初始模型）的模型，max-pooling loss的思想是通过反向传播损失来教会网络在其最高置信时刻触发，这种损失来自于信息量最大的关键字帧，该关键字帧具有相应关键字的最大后向。lstm输入是左拼帧10帧右拼帧10帧的stack起来作为输入（11帧的向量，比如是440维），学习率5e-5‘</li>
+<li>Ablation analysis  还做了消融分析</li>
+</ul>
+<img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220323193422151.png" alt="image-20220323193422151" style="zoom:67%;">
+
+<p>分析不同特征对识别结果的影响程度，发现end-of-keyword labeling影响最大，对FRR的改善最大，特别是在噪声环境下；</p>
+<ul>
+<li>learning rate 1e-3</li>
+</ul>
+<h3 id="结果-1"><a href="#结果-1" class="headerlink" title="结果"></a>结果</h3><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/image-20220323192121077.png" alt="image-20220323192121077" style="zoom:67%;">
+
+
+
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Majumdar, Somshubra, and Boris Ginsburg. “Matchboxnet: 1d time-channel separable convolutional neural network architecture for speech commands recognition.” <em>arXiv preprint arXiv:2004.08531</em> (2020).&#x3D;&#x3D;ciations：28</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Mordido, Gonçalo, Matthijs Van Keirsbilck, and Alexander Keller. “Compressing 1D Time-Channel Separable Convolutions using Sparse Random Ternary Matrices.” <em>arXiv preprint arXiv:2103.17142</em> (2021).&#x3D;&#x3D;</p>
+</blockquote>
+<h3 id="思路-3"><a href="#思路-3" class="headerlink" title="思路"></a>思路</h3><p>在Matchboxnet基础上，replacing 1x1-convolutions in 1D time-channel separable convolutions by constant, sparse random ternary matrices with weights in {-1; 0; +1}  </p>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Tang, Raphael, and Jimmy Lin. “Honk: A pytorch reimplementation of convolutional neural networks for keyword spotting.” <em>arXiv preprint arXiv:1710.06554</em> (2017).&#x3D;&#x3D;</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/castorini/honk">https://github.com/castorini/honk</a></p>
+</blockquote>
+<h3 id="思路-4"><a href="#思路-4" class="headerlink" title="思路"></a>思路</h3><ul>
+<li>类似wekws，也是一个框架，可以直接用！！！</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%91%BD%E4%BB%A4%E8%AF%8D/" rel="tag"># 命令词</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AD%EF%BC%89/" rel="next" title="命令词论文笔记（六）蒸馏学习用在命令词的论文">
+                <i class="fa fa-chevron-left"></i> 命令词论文笔记（六）蒸馏学习用在命令词的论文
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E5%85%AB%EF%BC%89/" rel="prev" title="命令词论文笔记（八）Query by Example">
+                命令词论文笔记（八）Query by Example <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8C%BA%E5%88%86%E6%80%A7%E8%AE%AD%E7%BB%83%E7%94%A8%E5%9C%A8%E5%91%BD%E4%BB%A4%E8%AF%8D%E7%9A%84%E8%AE%BA%E6%96%87"><span class="nav-number">1.</span> <span class="nav-text">区分性训练用在命令词的论文</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#post-processing-%E5%90%8E%E5%A4%84%E7%90%86%EF%BC%9A"><span class="nav-number">1.0.1.</span> <span class="nav-text">post-processing 后处理：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#HMM"><span class="nav-number">1.0.1.1.</span> <span class="nav-text">HMM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CTC"><span class="nav-number">1.0.1.2.</span> <span class="nav-text">CTC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CTC%E4%B8%AD%E7%9A%84MED%E6%96%B9%E6%B3%95%E9%9A%BE%E4%BB%A5%E5%BC%95%E5%85%A5HMM%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="nav-number">1.0.1.3.</span> <span class="nav-text">CTC中的MED方法难以引入HMM的原因</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%BA%E5%88%86%E6%80%A7%E8%AE%AD%E7%BB%83%E7%9A%84non-keyword%E9%83%A8%E5%88%86%EF%BC%9A"><span class="nav-number">1.0.2.</span> <span class="nav-text">区分性训练的non-keyword部分：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C"><span class="nav-number">1.0.3.</span> <span class="nav-text">实验结果</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83%E6%97%B6%E5%BC%95%E5%85%A5%E4%B8%8D%E5%90%8C%E6%9D%83%E9%87%8D%E7%AD%96%E7%95%A5%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.0.3.1.</span> <span class="nav-text">训练时引入不同权重策略如何实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E6%83%B3"><span class="nav-number">1.0.3.2.</span> <span class="nav-text">思想</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">1.0.3.3.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F"><span class="nav-number">1.0.3.4.</span> <span class="nav-text">注意</span></a></li><li class="nav-item nav-level-4"><a class="nav-link"><span class="nav-number">1.0.3.5.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%A8%E7%BA%BF%E8%A7%A3%E7%A0%81"><span class="nav-number">1.0.3.6.</span> <span class="nav-text">在线解码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.0.3.7.</span> <span class="nav-text">代码实现</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.0.4.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83"><span class="nav-number">1.0.5.</span> <span class="nav-text">训练</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C"><span class="nav-number">1.0.6.</span> <span class="nav-text">结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-1"><span class="nav-number">1.0.7.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.0.8.</span> <span class="nav-text">模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83-1"><span class="nav-number">1.0.9.</span> <span class="nav-text">训练</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number">1.0.10.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-2"><span class="nav-number">1.0.11.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E6%83%B3-1"><span class="nav-number">1.0.12.</span> <span class="nav-text">思想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83-2"><span class="nav-number">1.0.13.</span> <span class="nav-text">训练</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B-1"><span class="nav-number">1.0.14.</span> <span class="nav-text">模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C-1"><span class="nav-number">1.0.15.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C-1"><span class="nav-number">1.0.16.</span> <span class="nav-text">结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-3"><span class="nav-number">1.0.17.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-4"><span class="nav-number">1.0.18.</span> <span class="nav-text">思路</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%94%EF%BC%89/';
+          this.page.identifier = '2021/06/29/命令词/命令词论文笔记（五）/';
+          this.page.title = '命令词论文笔记（五）区分性训练用在命令词的论文';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Code-Switching," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="rescore RTFpython版本 见10.22.24.2：&#x2F;home&#x2F;yelong&#x2F;data&#x2F;wenet&#x2F;examples&#x2F;aishell&#x2F;s0&#x2F;recognize_lm.py 注意（花哥教）：rescore lm是累计n-best的时间，am是一次的时间（一次出来n-best） 1234567891011121">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rescore RTF">
+<meta property="og:url" content="http://example.com/2022/06/27/Code-Switching/rescore%20RTF/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="rescore RTFpython版本 见10.22.24.2：&#x2F;home&#x2F;yelong&#x2F;data&#x2F;wenet&#x2F;examples&#x2F;aishell&#x2F;s0&#x2F;recognize_lm.py 注意（花哥教）：rescore lm是累计n-best的时间，am是一次的时间（一次出来n-best） 1234567891011121">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-06-26T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T07:45:01.524Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="Code-Switching">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/06/27/Code-Switching/rescore RTF/"/>
+
+
+
+
+
+  <title>rescore RTF | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/27/Code-Switching/rescore%20RTF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">rescore RTF</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-06-27T00:00:00+08:00">
+                2022-06-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Code-Switching/" itemprop="url" rel="index">
+                    <span itemprop="name">Code-Switching</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/06/27/Code-Switching/rescore%20RTF/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/06/27/Code-Switching/rescore RTF/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="rescore-RTF"><a href="#rescore-RTF" class="headerlink" title="rescore RTF"></a>rescore RTF</h1><p>python版本</p>
+<p>见10.22.24.2：&#x2F;home&#x2F;yelong&#x2F;data&#x2F;wenet&#x2F;examples&#x2F;aishell&#x2F;s0&#x2F;recognize_lm.py</p>
+<p>注意（花哥教）：rescore lm是累计n-best的时间，am是一次的时间（一次出来n-best）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> yaml</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> wenet.dataset.dataset <span class="keyword">import</span> Dataset</span><br><span class="line"><span class="keyword">from</span> wenet.transformer.asr_model <span class="keyword">import</span> init_asr_model</span><br><span class="line"><span class="keyword">from</span> wenet.utils.checkpoint <span class="keyword">import</span> load_checkpoint</span><br><span class="line"><span class="keyword">from</span> wenet.utils.file_utils <span class="keyword">import</span> read_symbol_table, read_non_lang_symbols</span><br><span class="line"><span class="keyword">from</span> wenet.utils.config <span class="keyword">import</span> override_config</span><br><span class="line"><span class="keyword">import</span> sentencepiece <span class="keyword">as</span> spm</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line">torch.set_num_threads(<span class="number">1</span>)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_args</span>():</span><br><span class="line">    parser = argparse.ArgumentParser(description=<span class="string">&#x27;recognize with your model&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--config&#x27;</span>, default=<span class="string">&#x27;exp/seewo/conformer/train.yaml&#x27;</span>, <span class="built_in">help</span>=<span class="string">&#x27;config file&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--test_data&#x27;</span>, default=<span class="string">&#x27;data/xueyuan/data.list1&#x27;</span>, <span class="built_in">help</span>=<span class="string">&#x27;test data file&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--data_type&#x27;</span>,</span><br><span class="line">                        default=<span class="string">&#x27;raw&#x27;</span>,</span><br><span class="line">                        choices=[<span class="string">&#x27;raw&#x27;</span>, <span class="string">&#x27;shard&#x27;</span>],</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;train and cv data type&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--gpu&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">int</span>,</span><br><span class="line">                        default=-<span class="number">1</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;gpu id for this rank, -1 for cpu&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--checkpoint&#x27;</span>, default=<span class="string">&#x27;exp/seewo/conformer/77.pt&#x27;</span>, <span class="built_in">help</span>=<span class="string">&#x27;checkpoint model&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--dict&#x27;</span>, default=<span class="string">&#x27;exp/seewo/conformer/words.txt&#x27;</span>, <span class="built_in">help</span>=<span class="string">&#x27;dict file&#x27;</span>)</span><br><span class="line">    <span class="comment"># parser.add_argument(&#x27;--dict&#x27;, default=&#x27;data/dict_bpe/lang_char.txt.bpe_100_eng600_chi7200_all7800&#x27;, help=&#x27;dict file&#x27;)</span></span><br><span class="line">    <span class="comment"># parser.add_argument(&#x27;--dict&#x27;, default=&#x27;exp/140-models/lang_char.txt&#x27;, help=&#x27;dict file&#x27;)</span></span><br><span class="line">    <span class="comment"># parser.add_argument(&#x27;--symbol_table_old&#x27;, default=&#x27;exp/140-models/lang_char.txt&#x27;, help=&#x27;dict file&#x27;)</span></span><br><span class="line">    parser.add_argument(<span class="string">&quot;--non_lang_syms&quot;</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&quot;non-linguistic symbol file. One symbol per line.&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--beam_size&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">int</span>,</span><br><span class="line">                        default=<span class="number">10</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;beam size for search&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--penalty&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">float</span>,</span><br><span class="line">                        default=<span class="number">0.0</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;length penalty&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--result_file&#x27;</span>, default=<span class="string">&#x27;exp/seewo/conformer/test_xueyuan/text&#x27;</span>, <span class="built_in">help</span>=<span class="string">&#x27;asr result file&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--batch_size&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">int</span>,</span><br><span class="line">                        default=<span class="number">1</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;asr result file&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--mode&#x27;</span>,</span><br><span class="line">                        choices=[</span><br><span class="line">                            <span class="string">&#x27;attention&#x27;</span>, <span class="string">&#x27;ctc_greedy_search&#x27;</span>,</span><br><span class="line">                            <span class="string">&#x27;ctc_prefix_beam_search&#x27;</span>, <span class="string">&#x27;attention_rescoring&#x27;</span></span><br><span class="line">                        ],</span><br><span class="line">                        default=<span class="string">&#x27;ctc_prefix_beam_search&#x27;</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;decoding mode&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--ctc_weight&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">float</span>,</span><br><span class="line">                        default=<span class="number">0.5</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;ctc weight for attention rescoring decode mode&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--decoding_chunk_size&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">int</span>,</span><br><span class="line">                        default=-<span class="number">1</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;&#x27;&#x27;decoding chunk size,</span></span><br><span class="line"><span class="string">                                &lt;0: for decoding, use full chunk.</span></span><br><span class="line"><span class="string">                                &gt;0: for decoding, use fixed chunk size as set.</span></span><br><span class="line"><span class="string">                                0: used for training, it&#x27;s prohibited here&#x27;&#x27;&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--num_decoding_left_chunks&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">int</span>,</span><br><span class="line">                        default=-<span class="number">1</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;number of left chunks for decoding&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--simulate_streaming&#x27;</span>,</span><br><span class="line">                        action=<span class="string">&#x27;store_true&#x27;</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;simulate streaming inference&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--reverse_weight&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">float</span>,</span><br><span class="line">                        default=<span class="number">0.0</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;&#x27;&#x27;right to left weight for attention rescoring</span></span><br><span class="line"><span class="string">                                decode mode&#x27;&#x27;&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--bpe_model&#x27;</span>,</span><br><span class="line">                        default=<span class="string">&#x27;data/lang_char/train_unigram1000.model&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;bpe model for english part&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--override_config&#x27;</span>,</span><br><span class="line">                        action=<span class="string">&#x27;append&#x27;</span>,</span><br><span class="line">                        default=[],</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&quot;override yaml config&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--connect_symbol&#x27;</span>,</span><br><span class="line">                        default=<span class="string">&#x27;&#x27;</span>,</span><br><span class="line">                        <span class="built_in">type</span>=<span class="built_in">str</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&#x27;used to connect the output characters&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    args = parser.parse_args()</span><br><span class="line">    <span class="built_in">print</span>(args)</span><br><span class="line">    <span class="keyword">return</span> args</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    args = get_args()</span><br><span class="line">    logging.basicConfig(level=logging.DEBUG,</span><br><span class="line">                        <span class="built_in">format</span>=<span class="string">&#x27;%(asctime)s %(levelname)s %(message)s&#x27;</span>)</span><br><span class="line">    os.environ[<span class="string">&#x27;CUDA_VISIBLE_DEVICES&#x27;</span>] = <span class="built_in">str</span>(args.gpu)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> args.mode <span class="keyword">in</span> [<span class="string">&#x27;ctc_prefix_beam_search&#x27;</span>, <span class="string">&#x27;attention_rescoring&#x27;</span></span><br><span class="line">                     ] <span class="keyword">and</span> args.batch_size &gt; <span class="number">1</span>:</span><br><span class="line">        logging.fatal(</span><br><span class="line">            <span class="string">&#x27;decoding mode &#123;&#125; must be running with batch_size == 1&#x27;</span>.<span class="built_in">format</span>(</span><br><span class="line">                args.mode))</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(args.config, <span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> fin:</span><br><span class="line">        configs = yaml.load(fin, Loader=yaml.FullLoader)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(args.override_config) &gt; <span class="number">0</span>:</span><br><span class="line">        configs = override_config(configs, args.override_config)</span><br><span class="line"></span><br><span class="line">    symbol_table = read_symbol_table(args.<span class="built_in">dict</span>)</span><br><span class="line">    symbol_table_old = read_symbol_table(args.symbol_table_old <span class="keyword">if</span> <span class="string">&#x27;symbol_table_old&#x27;</span> <span class="keyword">in</span> args <span class="keyword">else</span> args.<span class="built_in">dict</span>)    <span class="comment"># --yl</span></span><br><span class="line">    configs[<span class="string">&#x27;output_dim&#x27;</span>] = <span class="built_in">len</span>(symbol_table)   <span class="comment"># --yl</span></span><br><span class="line">    test_conf = copy.deepcopy(configs[<span class="string">&#x27;dataset_conf&#x27;</span>])</span><br><span class="line"></span><br><span class="line">    test_conf[<span class="string">&#x27;filter_conf&#x27;</span>][<span class="string">&#x27;max_length&#x27;</span>] = <span class="number">102400</span></span><br><span class="line">    test_conf[<span class="string">&#x27;filter_conf&#x27;</span>][<span class="string">&#x27;min_length&#x27;</span>] = <span class="number">0</span></span><br><span class="line">    test_conf[<span class="string">&#x27;filter_conf&#x27;</span>][<span class="string">&#x27;token_max_length&#x27;</span>] = <span class="number">102400</span></span><br><span class="line">    test_conf[<span class="string">&#x27;filter_conf&#x27;</span>][<span class="string">&#x27;token_min_length&#x27;</span>] = <span class="number">0</span></span><br><span class="line">    test_conf[<span class="string">&#x27;filter_conf&#x27;</span>][<span class="string">&#x27;max_output_input_ratio&#x27;</span>] = <span class="number">102400</span></span><br><span class="line">    test_conf[<span class="string">&#x27;filter_conf&#x27;</span>][<span class="string">&#x27;min_output_input_ratio&#x27;</span>] = <span class="number">0</span></span><br><span class="line">    test_conf[<span class="string">&#x27;speed_perturb&#x27;</span>] = <span class="literal">False</span></span><br><span class="line">    test_conf[<span class="string">&#x27;spec_aug&#x27;</span>] = <span class="literal">False</span></span><br><span class="line">    test_conf[<span class="string">&#x27;spec_sub&#x27;</span>] = <span class="literal">False</span></span><br><span class="line">    test_conf[<span class="string">&#x27;shuffle&#x27;</span>] = <span class="literal">False</span></span><br><span class="line">    test_conf[<span class="string">&#x27;sort&#x27;</span>] = <span class="literal">False</span></span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;fbank_conf&#x27;</span> <span class="keyword">in</span> test_conf:</span><br><span class="line">        test_conf[<span class="string">&#x27;fbank_conf&#x27;</span>][<span class="string">&#x27;dither&#x27;</span>] = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">elif</span> <span class="string">&#x27;mfcc_conf&#x27;</span> <span class="keyword">in</span> test_conf:</span><br><span class="line">        test_conf[<span class="string">&#x27;mfcc_conf&#x27;</span>][<span class="string">&#x27;dither&#x27;</span>] = <span class="number">0.0</span></span><br><span class="line">    test_conf[<span class="string">&#x27;batch_conf&#x27;</span>][<span class="string">&#x27;batch_type&#x27;</span>] = <span class="string">&quot;static&quot;</span></span><br><span class="line">    test_conf[<span class="string">&#x27;batch_conf&#x27;</span>][<span class="string">&#x27;batch_size&#x27;</span>] = args.batch_size</span><br><span class="line">    non_lang_syms = read_non_lang_symbols(args.non_lang_syms)</span><br><span class="line"></span><br><span class="line">    test_dataset = Dataset(args.data_type,</span><br><span class="line">                           args.test_data,</span><br><span class="line">                           symbol_table,</span><br><span class="line">                           test_conf,</span><br><span class="line">                           args.bpe_model,</span><br><span class="line">                           non_lang_syms,</span><br><span class="line">                           partition=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">    test_data_loader = DataLoader(test_dataset, batch_size=<span class="literal">None</span>, num_workers=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Init asr model from configs</span></span><br><span class="line">    model = init_asr_model(configs)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Load dict</span></span><br><span class="line">    char_dict = &#123;v: k <span class="keyword">for</span> k, v <span class="keyword">in</span> symbol_table.items()&#125;</span><br><span class="line">    eos = <span class="built_in">len</span>(char_dict) - <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    load_checkpoint(model, args.checkpoint, symbol_table, symbol_table_old)</span><br><span class="line">    use_cuda = args.gpu &gt;= <span class="number">0</span> <span class="keyword">and</span> torch.cuda.is_available()</span><br><span class="line">    device = torch.device(<span class="string">&#x27;cuda&#x27;</span> <span class="keyword">if</span> use_cuda <span class="keyword">else</span> <span class="string">&#x27;cpu&#x27;</span>)</span><br><span class="line">    model = model.to(device)</span><br><span class="line"></span><br><span class="line">    model.<span class="built_in">eval</span>()</span><br><span class="line">    <span class="keyword">from</span> transformers <span class="keyword">import</span> BertTokenizer,BertForMaskedLM</span><br><span class="line">    path_to_TAL_EduBERT = <span class="string">&quot;/home/yelong/data/edu-bert/models/TAL-EduBERT&quot;</span></span><br><span class="line">    lm_tokenizer = BertTokenizer.from_pretrained(path_to_TAL_EduBERT)</span><br><span class="line">    lm_model = BertForMaskedLM.from_pretrained(path_to_TAL_EduBERT)</span><br><span class="line">    lm_model.<span class="built_in">eval</span>()</span><br><span class="line"></span><br><span class="line">    sp = spm.SentencePieceProcessor()</span><br><span class="line">    sp.Load(<span class="string">&#x27;data/lang_char/train_unigram100.model&#x27;</span>)</span><br><span class="line">    all_dura_am, all_dura_lm, wav_dura = <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad(), <span class="built_in">open</span>(args.result_file, <span class="string">&#x27;w&#x27;</span>) <span class="keyword">as</span> fout:</span><br><span class="line">        <span class="keyword">for</span> batch_idx, batch <span class="keyword">in</span> <span class="built_in">enumerate</span>(test_data_loader):</span><br><span class="line">            keys, feats, target, feats_lengths, target_lengths = batch</span><br><span class="line">            feats = feats.to(device)</span><br><span class="line">            target = target.to(device)</span><br><span class="line">            feats_lengths = feats_lengths.to(device)</span><br><span class="line">            target_lengths = target_lengths.to(device)</span><br><span class="line">            <span class="keyword">if</span> args.mode == <span class="string">&#x27;attention&#x27;</span>:</span><br><span class="line">                hyps, _ = model.recognize(</span><br><span class="line">                    feats,</span><br><span class="line">                    feats_lengths,</span><br><span class="line">                    beam_size=args.beam_size,</span><br><span class="line">                    decoding_chunk_size=args.decoding_chunk_size,</span><br><span class="line">                    num_decoding_left_chunks=args.num_decoding_left_chunks,</span><br><span class="line">                    simulate_streaming=args.simulate_streaming)</span><br><span class="line">                hyps = [hyp.tolist() <span class="keyword">for</span> hyp <span class="keyword">in</span> hyps]</span><br><span class="line">            <span class="keyword">elif</span> args.mode == <span class="string">&#x27;ctc_greedy_search&#x27;</span>:</span><br><span class="line">                hyps, _ = model.ctc_greedy_search(</span><br><span class="line">                    feats,</span><br><span class="line">                    feats_lengths,</span><br><span class="line">                    decoding_chunk_size=args.decoding_chunk_size,</span><br><span class="line">                    num_decoding_left_chunks=args.num_decoding_left_chunks,</span><br><span class="line">                    simulate_streaming=args.simulate_streaming)</span><br><span class="line">            <span class="comment"># ctc_prefix_beam_search and attention_rescoring only return one</span></span><br><span class="line">            <span class="comment"># result in List[int], change it to List[List[int]] for compatible</span></span><br><span class="line">            <span class="comment"># with other batch decoding mode</span></span><br><span class="line">            <span class="keyword">elif</span> args.mode == <span class="string">&#x27;ctc_prefix_beam_search&#x27;</span>:</span><br><span class="line">                <span class="keyword">assert</span> (feats.size(<span class="number">0</span>) == <span class="number">1</span>)</span><br><span class="line">                <span class="comment"># hyp, _ = model.ctc_prefix_beam_search(</span></span><br><span class="line">                start_time_am = time.time()</span><br><span class="line">                hyp = model.ctc_prefix_beam_search(</span><br><span class="line">                    feats,</span><br><span class="line">                    feats_lengths,</span><br><span class="line">                    args.beam_size,</span><br><span class="line">                    decoding_chunk_size=args.decoding_chunk_size,</span><br><span class="line">                    num_decoding_left_chunks=args.num_decoding_left_chunks,</span><br><span class="line">                    simulate_streaming=args.simulate_streaming)</span><br><span class="line">                hyps = hyp</span><br><span class="line">                end_time_am = time.time()</span><br><span class="line">                <span class="comment"># hyps = [hyp]</span></span><br><span class="line">            <span class="keyword">elif</span> args.mode == <span class="string">&#x27;attention_rescoring&#x27;</span>:</span><br><span class="line">                <span class="keyword">assert</span> (feats.size(<span class="number">0</span>) == <span class="number">1</span>)</span><br><span class="line">                hyp, _ = model.attention_rescoring(</span><br><span class="line">                    feats,</span><br><span class="line">                    feats_lengths,</span><br><span class="line">                    args.beam_size,</span><br><span class="line">                    decoding_chunk_size=args.decoding_chunk_size,</span><br><span class="line">                    num_decoding_left_chunks=args.num_decoding_left_chunks,</span><br><span class="line">                    ctc_weight=args.ctc_weight,</span><br><span class="line">                    simulate_streaming=args.simulate_streaming,</span><br><span class="line">                    reverse_weight=args.reverse_weight)</span><br><span class="line">                hyps = [hyp]</span><br><span class="line">            dura_am = end_time_am - start_time_am</span><br><span class="line">            all_dura_am += dura_am</span><br><span class="line">            wav_dura += feats_lengths.item()</span><br><span class="line">            dura_lm = <span class="number">0</span></span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(hyp)):   <span class="comment">#十条</span></span><br><span class="line">                content = []</span><br><span class="line">                <span class="keyword">for</span> w <span class="keyword">in</span> hyps[j][<span class="number">0</span>]:</span><br><span class="line">                    <span class="keyword">if</span> w == eos:</span><br><span class="line">                        <span class="keyword">break</span></span><br><span class="line">                    content.append(char_dict[w])</span><br><span class="line">                text = sp.DecodePieces([args.connect_symbol.join(content)]).replace(<span class="string">&quot;▁&quot;</span>,<span class="string">&quot; &quot;</span>).lower()</span><br><span class="line">                start_time_lm = time.time() </span><br><span class="line">                lm_inputs_token = lm_tokenizer(text, return_tensors=<span class="string">&quot;pt&quot;</span>, add_special_tokens=<span class="literal">False</span>)</span><br><span class="line">                outputs = lm_model(**lm_inputs_token).logits</span><br><span class="line">                <span class="comment"># Perplexity</span></span><br><span class="line">                outputs = F.softmax(outputs[<span class="number">0</span>], dim=-<span class="number">1</span>)</span><br><span class="line">                outputs = torch.log(outputs)</span><br><span class="line">                logit = <span class="number">0</span></span><br><span class="line">                <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(outputs)):</span><br><span class="line">                    logit = logit + outputs[i][lm_inputs_token[<span class="string">&#x27;input_ids&#x27;</span>][<span class="number">0</span>][i]].item()    </span><br><span class="line">                dura_lm += time.time() - start_time_lm          </span><br><span class="line">                <span class="keyword">if</span> j == <span class="built_in">len</span>(hyp) -<span class="number">1</span> :</span><br><span class="line">                    all_dura_lm += dura_lm  </span><br><span class="line">                    logging.info(<span class="string">&#x27;&#123;&#125; &#123;&#125; &#123;:.5&#125; &#123;:.5&#125; &#123;:.5&#125; &#123;:.5&#125;&#x27;</span>.<span class="built_in">format</span>(keys[<span class="number">0</span>], args.connect_symbol.join(content), <span class="built_in">str</span>(<span class="number">100</span>*dura_am/feats_lengths.item()), <span class="built_in">str</span>(<span class="number">100</span>*dura_lm/feats_lengths.item()), <span class="built_in">str</span>(<span class="number">100</span>*(dura_am + dura_lm)/feats_lengths.item()), <span class="built_in">str</span>(logit)))</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    logging.info(<span class="string">&#x27;&#123;&#125; &#123;&#125;&#x27;</span>.<span class="built_in">format</span>(keys[<span class="number">0</span>], args.connect_symbol.join(content)))</span><br><span class="line">                <span class="comment"># logging.info(&#x27;&#123;&#125; &#123;&#125; &#123;:.4&#125; &#123;:.4&#125; &#123;:.4&#125; &#123;:.4&#125;&#x27;.format(keys[0], args.connect_symbol.join(content), str(dura_am), str(dura_lm), str(dura_am + dura_lm), str(logit)))</span></span><br><span class="line">                fout.write(<span class="string">&#x27;&#123;&#125; &#123;&#125;\n&#x27;</span>.<span class="built_in">format</span>(keys[<span class="number">0</span>], args.connect_symbol.join(content)))</span><br><span class="line">    logging.info(<span class="string">&#x27;&#123;:.5&#125; &#123;:.5&#125; &#123;:.5&#125;&#x27;</span>.<span class="built_in">format</span>(<span class="built_in">str</span>(<span class="number">100</span>*all_dura_am/wav_dura), <span class="built_in">str</span>(<span class="number">100</span>*all_dura_lm/wav_dura), <span class="built_in">str</span>(<span class="number">100</span>*(all_dura_am+all_dura_lm)/wav_dura)))</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Code-Switching/" rel="tag"># Code-Switching</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/06/27/Code-Switching/rescore/" rel="next" title="Rescore、Rescoring">
+                <i class="fa fa-chevron-left"></i> Rescore、Rescoring
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/06/27/Code-Switching/TLG%EF%BC%88%E5%9B%9B%EF%BC%89/" rel="prev" title="TLG（四）">
+                TLG（四） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#rescore-RTF"><span class="nav-number">1.</span> <span class="nav-text">rescore RTF</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/06/27/Code-Switching/rescore%20RTF/';
+          this.page.identifier = '2022/06/27/Code-Switching/rescore RTF/';
+          this.page.title = 'rescore RTF';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

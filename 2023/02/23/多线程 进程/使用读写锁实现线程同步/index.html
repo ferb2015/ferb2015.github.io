@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="多线程,C语言中文网," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="使用读写锁实现线程同步 C语言中文网：使用读写锁实现线程同步   前面章节中，我们依次介绍了使用互斥锁、信号量和条件变量实现线程同步，本节讲解如何通过「读写锁」实现线程同步。 多线程程序中，&#x3D;&#x3D;如果仅有少数线程会对共享数据进行修改（写），多数线程只是读取共享数据的值（读），就适合用读写锁解决“线程间抢夺资源”的问题。&#x3D;&#x3D; 读写锁的核心思想是：将线程访问共享数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用读写锁实现线程同步">
+<meta property="og:url" content="http://example.com/2023/02/23/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8%E8%AF%BB%E5%86%99%E9%94%81%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="使用读写锁实现线程同步 C语言中文网：使用读写锁实现线程同步   前面章节中，我们依次介绍了使用互斥锁、信号量和条件变量实现线程同步，本节讲解如何通过「读写锁」实现线程同步。 多线程程序中，&#x3D;&#x3D;如果仅有少数线程会对共享数据进行修改（写），多数线程只是读取共享数据的值（读），就适合用读写锁解决“线程间抢夺资源”的问题。&#x3D;&#x3D; 读写锁的核心思想是：将线程访问共享数">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-02-23T08:06:20.759Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="多线程">
+<meta property="article:tag" content="C语言中文网">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/02/23/多线程 进程/使用读写锁实现线程同步/"/>
+
+
+
+
+
+  <title>使用读写锁实现线程同步 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/02/23/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8%E8%AF%BB%E5%86%99%E9%94%81%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用读写锁实现线程同步</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-02-23T00:00:00+08:00">
+                2023-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">多线程</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/02/23/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8%E8%AF%BB%E5%86%99%E9%94%81%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/02/23/多线程 进程/使用读写锁实现线程同步/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="使用读写锁实现线程同步"><a href="#使用读写锁实现线程同步" class="headerlink" title="使用读写锁实现线程同步"></a>使用读写锁实现线程同步</h1><blockquote>
+<p>C语言中文网：<a target="_blank" rel="noopener" href="http://c.biancheng.net/thread/vip_8618.html">使用读写锁实现线程同步</a> </p>
+</blockquote>
+<p>前面章节中，我们依次介绍了使用<a target="_blank" rel="noopener" href="http://c.biancheng.net/thread/vip_8615.html">互斥锁</a>、<a target="_blank" rel="noopener" href="http://c.biancheng.net/thread/vip_8616.html">信号量</a>和<a target="_blank" rel="noopener" href="http://c.biancheng.net/thread/vip_8617.html">条件变量</a>实现线程同步，本节讲解如何通过「读写锁」实现线程同步。</p>
+<p>多线程程序中，&#x3D;&#x3D;如果仅有少数线程会对共享数据进行修改（写），多数线程只是读取共享数据的值（读），就适合用读写锁解决“线程间抢夺资源”的问题。&#x3D;&#x3D;</p>
+<p>读写锁的核心思想是：将线程访问共享数据时发出的请求分为两种，分别是：</p>
+<ul>
+<li>读请求：只读取共享数据，不做任何修改；</li>
+<li>写请求：存在修改共享数据的行为。</li>
+</ul>
+<p>当有多个线程发出读请求时，这些线程可以同时执行，也就是说，共享数据的值可以同时被多个发出读请求的线程获取；当有多个线程发出写请求时，这些线程只能一个一个地执行（同步执行）。此外，当发出读请求的线程正在执行时，发出写请求的线程必须等待前者执行完后才能开始执行；当发出写请求的线程正在执行时，发出读请求的线程也必须等待前者执行完后才能开始执行。</p>
+<p>本质上，读写锁就是一个全局变量，发出读请求和写请求的线程都可以访问它。为了区别线程发出的请求类别，当读写锁被发出读请求的线程占用时，我们称它为“<strong>读锁</strong>”；当读写锁被发出写请求的线程占用时，称它为“<strong>写锁</strong>”。</p>
+<p>为了让您更清楚地了解读写锁在多线程程序中发挥的作用，我们制作了下面这张表格：</p>
+<p>表 1 读写锁的作用：</p>
+<table>
+<thead>
+<tr>
+<th>当前读写锁的状态</th>
+<th>线程发出“读”请求</th>
+<th>线程发出“写”请求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>无锁</td>
+<td>允许占用</td>
+<td>允许占用</td>
+</tr>
+<tr>
+<td>读锁</td>
+<td>允许占用</td>
+<td>阻塞线程执行</td>
+</tr>
+<tr>
+<td>写锁</td>
+<td>阻塞线程执行</td>
+<td>阻塞线程执行</td>
+</tr>
+</tbody></table>
+<p>从上表可以看出，不同状态下的读写锁会以不同的方式处理发出读请求或写请求的线程：</p>
+<ol>
+<li><p>当读写锁未被任何线程占用时，发出读请求和写请求的线程都可以占用它。注意，由于读请求和写请求的线程不能同时执行，读写锁默认会优先分配给发出读请求的线程。</p>
+</li>
+<li><p>当读写锁的状态为“读锁”时，表明当前执行的是发出读请求的线程（可能有多个）。此时如果又有线程发出读请求，该线程不会被阻塞，但如果有线程发出写请求，它就会被阻塞，直到读写锁状态改为“无锁”。</p>
+</li>
+<li><p>当读写锁状态为“写锁”时，表明当前执行的是发出写请求的线程（只能有 1 个）。此时无论其它线程发出的是读请求还是写请求，都必须等待读写锁状态改为“无锁”后才能执行。</p>
+</li>
+</ol>
+<p>总的来说，对于进程空间中的共享资源，读写锁允许发出“读”请求的线程共享资源，发出“写”请求的线程必须独占资源，进而实现线程同步。</p>
+<h2 id="读写锁的具体用法"><a href="#读写锁的具体用法" class="headerlink" title="读写锁的具体用法"></a>读写锁的具体用法</h2><p>POSIX 标准中，读写锁用 pthread_rwlock_t 类型的变量表示，此类型定义在<code>&lt;pthread.h&gt;</code>头文件中。举个例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">pthread_rwlock_t</span> myRWLock;</span><br></pre></td></tr></table></figure>
+
+<p>由此，我们就成功创建了一个读写锁。但要想使用 myRWLock 读写锁，还需要进行初始化操作。</p>
+<h4 id="1-初始化读写锁"><a href="#1-初始化读写锁" class="headerlink" title="1) 初始化读写锁"></a>1) 初始化读写锁</h4><p>初始化读写锁的方法有两种，一种是直接将 PTHREAD_RWLOCK_INITIALIZER 宏赋值给读写锁变量，例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">pthread_rwlock_t</span> myRWLock = PTHREAD_RWLOCK_INITIALIZER;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>还可以借助 pthread_rwlock_init() 函数初始化读写锁，此函数的语法格式为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_rwlock_init</span><span class="params">(<span class="type">pthread_rwlock_t</span> *rwlock, <span class="type">const</span> <span class="type">pthread_rwlockattr_t</span> *attr)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>rwlock 参数用于指定要初始化的读写锁变量；attr 参数用于自定义读写锁变量的属性，置为 NULL 时表示以默认属性初始化读写锁。</p>
+<p>当 pthread_rwlock_init() 函数初始化成功时，返回数字 0，反之返回非零数。</p>
+<blockquote>
+<p>当 attr 参数为 NULL 时，以上两种初始化方式完全等价。</p>
+</blockquote>
+<h4 id="2-线程发出“读锁”请求"><a href="#2-线程发出“读锁”请求" class="headerlink" title="2) 线程发出“读锁”请求"></a>2) 线程发出“读锁”请求</h4><p>通过以下两个函数，线程可以向读写锁发出“读锁”请求：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_rwlock_rdlock</span><span class="params">(<span class="type">pthread_rwlock_t</span>* rwlock)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_rwlock_tryrdlock</span><span class="params">(<span class="type">pthread_rwlock_t</span>* rwlock)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>其中，rwlock 参数指的是初始化好的读写锁。</p>
+<p>当读写锁处于“无锁”或者“读锁”状态时，以上两个函数都能成功获得读锁；当读写锁处于“写锁”状态时：</p>
+<ul>
+<li>pthread_rwlock_rdlock() 函数会阻塞当前线程，直至读写锁被释放；</li>
+<li>pthread_rwlock_tryrdlock() 函数不会阻塞当前线程，直接返回 EBUSY。</li>
+</ul>
+<p>以上两个函数如果能成功获得读锁，函数返回数字 0，反之返回非零数。</p>
+<h4 id="3-线程发出“写锁”请求"><a href="#3-线程发出“写锁”请求" class="headerlink" title="3) 线程发出“写锁”请求"></a>3) 线程发出“写锁”请求</h4><p>通过以下两个函数，线程可以向读写锁发出“写锁”请求：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_rwlock_wrlock</span><span class="params">(<span class="type">pthread_rwlock_t</span>* rwlock)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_rwlock_trywrlock</span><span class="params">(<span class="type">pthread_rwlock_t</span>* rwlock)</span>; </span><br></pre></td></tr></table></figure>
+
+<p>rwlock 参数指的是初始化好的读写锁。</p>
+<p>当读写锁处于“无锁”状态时，两个函数都能成功获得写锁；当读写锁处于“读锁”或“写锁”状态时：</p>
+<ul>
+<li>pthread_rwlock_wrlock() 函数将阻塞线程，直至读写锁被释放；</li>
+<li>pthread_rwlock_trywrlock() 函数不会阻塞线程，直接返回 EBUSY。</li>
+</ul>
+<p>以上两个函数如果能成功获得写锁，函数返回数字 0，反之返回非零数。</p>
+<h4 id="4-释放读写锁"><a href="#4-释放读写锁" class="headerlink" title="4) 释放读写锁"></a>4) 释放读写锁</h4><p>无论是处于“无锁”、“读锁”还是“写锁”的读写锁，都可以使用如下函数释放读写锁：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_rwlock_unlock</span> <span class="params">(<span class="type">pthread_rwlock_t</span>* rwlock)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>rwlock 参数表示要释放的读写锁。</p>
+<p>当函数成功释放读写锁时，返回数字 0，反之则返回非零数。注意，由于多个线程可以同时获得“读锁”状态下的读写锁，这种情况下一个线程释放读写锁后，读写锁仍处于“读锁”状态，直至所有线程都释放读写锁，读写锁的状态才为“无锁”状态。</p>
+<h4 id="5-销毁读写锁"><a href="#5-销毁读写锁" class="headerlink" title="5) 销毁读写锁"></a>5) 销毁读写锁</h4><p>当读写锁不再使用时，我们可以借助如下函数将它销毁：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_rwlock_destroy</span><span class="params">(<span class="type">pthread_rwlock_t</span>* rwlock)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>参数 rwlock 表示要销毁的目标读写锁。</p>
+<p>如果函数成功销毁指定的读写锁，返回数字 0，反之则返回非零数。</p>
+<h2 id="读写锁的实际应用"><a href="#读写锁的实际应用" class="headerlink" title="读写锁的实际应用"></a>读写锁的实际应用</h2><p>接下来通过一个实例，给您演示读写锁的用法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="comment">//创建读写锁变量</span></span><br><span class="line"><span class="type">pthread_rwlock_t</span> myrwlock;</span><br><span class="line"><span class="type">void</span>* <span class="title function_">read_thread</span><span class="params">(<span class="type">void</span>* args)</span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;------%u read_thread ready\n&quot;</span>,pthread_self());</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">//请求读锁</span></span><br><span class="line">        pthread_rwlock_rdlock(&amp;myrwlock);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;read_thread: %u,x=%d\n&quot;</span>, pthread_self(), x);</span><br><span class="line">        sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">//释放读写锁</span></span><br><span class="line">        pthread_rwlock_unlock(&amp;myrwlock);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span>* <span class="title function_">write_thread</span><span class="params">(<span class="type">void</span>* param)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;------%u write_thread ready!\n&quot;</span>,pthread_self());</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 请求写锁</span></span><br><span class="line">        pthread_rwlock_wrlock(&amp;myrwlock);</span><br><span class="line">        ++x;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;write_thread: %u,x=%d\n&quot;</span>, pthread_self(), x);</span><br><span class="line">        sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">//释放读写锁</span></span><br><span class="line">        pthread_rwlock_unlock(&amp;myrwlock);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line">    <span class="comment">//初始化读写锁</span></span><br><span class="line">    pthread_rwlock_init(&amp;myrwlock, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="comment">//创建 3 个读 x 变量的线程</span></span><br><span class="line">    <span class="type">pthread_t</span> readThread[<span class="number">3</span>];</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">3</span>; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        pthread_create(&amp;readThread[i], <span class="literal">NULL</span>, read_thread, <span class="literal">NULL</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//创建 1 个修改 x 变量的线程</span></span><br><span class="line">    <span class="type">pthread_t</span> writeThread;</span><br><span class="line">    pthread_create(&amp;writeThread, <span class="literal">NULL</span>, write_thread, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="comment">//等待各个线程执行完成</span></span><br><span class="line">    pthread_join(writeThread, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        pthread_join(readThread[i], <span class="literal">NULL</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//销毁读写锁</span></span><br><span class="line">    pthread_rwlock_destroy(&amp;myrwlock);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设程序编写在 thread.c 文件中，执行过程如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># gcc thread.c -o thread.exe -lpthread</span></span><br><span class="line">[root@localhost ~]<span class="comment"># ./mythread.exe</span></span><br><span class="line">------1134741248 read_thread ready</span><br><span class="line">------1113761536 read_thread ready</span><br><span class="line">------1103271680 write_thread ready!</span><br><span class="line">------1124251392 read_thread ready</span><br><span class="line">read_thread: 1124251392,x=0</span><br><span class="line">read_thread: 1113761536,x=0</span><br><span class="line">read_thread: 1134741248,x=0</span><br><span class="line">write_thread: 1103271680,x=1</span><br><span class="line">read_thread: 1134741248,x=1</span><br><span class="line">read_thread: 1124251392,x=1</span><br><span class="line">read_thread: 1113761536,x=1</span><br><span class="line">write_thread: 1103271680,x=2</span><br><span class="line">read_thread: 1124251392,x=2</span><br><span class="line">read_thread: 1113761536,x=2</span><br><span class="line">read_thread: 1134741248,x=2</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意，此程序会一直执行，按 “Ctrl+Z” 组合键可以使程序停止。</p>
+</blockquote>
+<p>程序中共创建了 4 个子线程，其中 3 个线程用于读取 x 变量的值，读取变量前会先获得“读锁”。剩余的 1 个线程用于修改 x 变量的值，修改前先获得“写锁”。</p>
+<p>通过执行结果不难看到，3 个读取 x 变量的线程总是能够同时获取到 x 变量的值，因为它们能够同时获得“读锁”并同时执行。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag"># 多线程</a>
+          
+            <a href="/tags/C%E8%AF%AD%E8%A8%80%E4%B8%AD%E6%96%87%E7%BD%91/" rel="tag"># C语言中文网</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/02/23/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E7%BA%BF%E7%A8%8B%E5%8F%91%E7%94%9F%E6%AD%BB%E9%94%81%EF%BC%9F/" rel="next" title="如何避免线程发生死锁？">
+                <i class="fa fa-chevron-left"></i> 如何避免线程发生死锁？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/02/23/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/" rel="prev" title="使用条件变量实现线程同步">
+                使用条件变量实现线程同步 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E8%AF%BB%E5%86%99%E9%94%81%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5"><span class="nav-number">1.</span> <span class="nav-text">使用读写锁实现线程同步</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BB%E5%86%99%E9%94%81%E7%9A%84%E5%85%B7%E4%BD%93%E7%94%A8%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">读写锁的具体用法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96%E8%AF%BB%E5%86%99%E9%94%81"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">1) 初始化读写锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E7%BA%BF%E7%A8%8B%E5%8F%91%E5%87%BA%E2%80%9C%E8%AF%BB%E9%94%81%E2%80%9D%E8%AF%B7%E6%B1%82"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">2) 线程发出“读锁”请求</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E7%BA%BF%E7%A8%8B%E5%8F%91%E5%87%BA%E2%80%9C%E5%86%99%E9%94%81%E2%80%9D%E8%AF%B7%E6%B1%82"><span class="nav-number">1.1.0.3.</span> <span class="nav-text">3) 线程发出“写锁”请求</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E9%87%8A%E6%94%BE%E8%AF%BB%E5%86%99%E9%94%81"><span class="nav-number">1.1.0.4.</span> <span class="nav-text">4) 释放读写锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E9%94%80%E6%AF%81%E8%AF%BB%E5%86%99%E9%94%81"><span class="nav-number">1.1.0.5.</span> <span class="nav-text">5) 销毁读写锁</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BB%E5%86%99%E9%94%81%E7%9A%84%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">读写锁的实际应用</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/02/23/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8%E8%AF%BB%E5%86%99%E9%94%81%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/';
+          this.page.identifier = '2023/02/23/多线程 进程/使用读写锁实现线程同步/';
+          this.page.title = '使用读写锁实现线程同步';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

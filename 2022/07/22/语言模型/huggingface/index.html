@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="语言模型," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="huggingface使用 https:&#x2F;&#x2F;github.com&#x2F;huggingface&#x2F;transformers https:&#x2F;&#x2F;github.com&#x2F;tal-tech&#x2F;edu-bert 李理 Huggingface Transformer教程(一) Tokenizer：https:&#x2F;&#x2F;huggingface.co&#x2F;docs&#x2F;transformers&#x2F;tokenizer_summary  用hu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="huggingface使用">
+<meta property="og:url" content="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/huggingface/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="huggingface使用 https:&#x2F;&#x2F;github.com&#x2F;huggingface&#x2F;transformers https:&#x2F;&#x2F;github.com&#x2F;tal-tech&#x2F;edu-bert 李理 Huggingface Transformer教程(一) Tokenizer：https:&#x2F;&#x2F;huggingface.co&#x2F;docs&#x2F;transformers&#x2F;tokenizer_summary  用hu">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-07-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T07:46:58.067Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="语言模型">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/07/22/语言模型/huggingface/"/>
+
+
+
+
+
+  <title>huggingface使用 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/huggingface/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">huggingface使用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-22T00:00:00+08:00">
+                2022-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">语言模型</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/huggingface/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/07/22/语言模型/huggingface/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="huggingface使用"><a href="#huggingface使用" class="headerlink" title="huggingface使用"></a>huggingface使用</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/huggingface/transformers">https://github.com/huggingface/transformers</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/tal-tech/edu-bert">https://github.com/tal-tech/edu-bert</a></p>
+<p>李理 <a target="_blank" rel="noopener" href="http://fancyerii.github.io/2021/05/11/huggingface-transformers-1/">Huggingface Transformer教程(一)</a></p>
+<p>Tokenizer：<a target="_blank" rel="noopener" href="https://huggingface.co/docs/transformers/tokenizer_summary">https://huggingface.co/docs/transformers/tokenizer_summary</a></p>
+</blockquote>
+<p>用huggingface调用好未来预训练模型</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoTokenizer</span><br><span class="line">tokenizer = AutoTokenizer.from_pretrained(<span class="string">&quot;/home/yelong/data/edu-bert/models/TAL-EduBERT&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p>模型文件夹要放：</p>
+<ul>
+<li>配置文件，config.json</li>
+<li>词典文件，vocab.txt</li>
+<li>预训练模型文件，pytorch_model.bin</li>
+<li>额外的文件，tokenizer_config.json、special_tokens_map.json，这是tokenizer需要使用的文件，如果出现的话，也需要保存下来。没有的话，就不必在意。</li>
+</ul>
+</li>
+</ul>
+<p>huggingface的transformers框架主要有三个类model类、configuration类、tokenizer类，这三个类，所有相关的类都衍生自这三个类，他们都有from_pretained()方法和save_pretrained()方法。</p>
+<p>from_pretrained方法的第一个参数都是pretrained_model_name_or_path，这个参数设置为我们下载的文件目录即可。</p>
+<p>用huggingface调用model hub的预训练模型</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">classifier = pipeline(<span class="string">&#x27;sentiment-analysis&#x27;</span>, model=<span class="string">&quot;nlptown/bert-base-multilingual-uncased-sentiment&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>除了通过名字来制定model参数，我们也可以传给model一个包含模型的目录的路径，也可以传递一个模型对象。如果我们想传递模型对象，那么也需要传入tokenizer。</p>
+<p>我们需要两个类，一个是<a target="_blank" rel="noopener" href="https://huggingface.co/transformers/model_doc/auto.html#transformers.AutoTokenizer">AutoTokenizer</a>，我们将使用它来下载和加载与模型匹配的Tokenizer。另一个是<a target="_blank" rel="noopener" href="https://huggingface.co/transformers/model_doc/auto.html#transformers.AutoModelForSequenceClassification">AutoModelForSequenceClassification</a>(如果用TensorFlow则是<a target="_blank" rel="noopener" href="https://huggingface.co/transformers/model_doc/auto.html#transformers.TFAutoModelForSequenceClassification">TFAutoModelForSequenceClassification</a>)。注意：模型类是与任务相关的，我们这里是情感分类的分类任务，所以是AutoModelForSequenceClassification。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoTokenizer, AutoModelForSequenceClassification</span><br><span class="line"></span><br><span class="line">model_name = <span class="string">&quot;nlptown/bert-base-multilingual-uncased-sentiment&quot;</span></span><br><span class="line">model = AutoModelForSequenceClassification.from_pretrained(model_name)</span><br><span class="line">tokenizer = AutoTokenizer.from_pretrained(model_name)</span><br><span class="line">classifier = pipeline(<span class="string">&#x27;sentiment-analysis&#x27;</span>, model=model, tokenizer=tokenizer)</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>Tokenizer和模型</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoTokenizer, AutoModelForSequenceClassification</span><br><span class="line">model_name = <span class="string">&quot;distilbert-base-uncased-finetuned-sst-2-english&quot;</span></span><br><span class="line">pt_model = AutoModelForSequenceClassification.from_pretrained(model_name)</span><br><span class="line">tokenizer = AutoTokenizer.from_pretrained(model_name)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Tokenizer"><a href="#Tokenizer" class="headerlink" title="Tokenizer"></a>Tokenizer</h3><p>其中，Tokenizer的作用大致就是分词，然后把词变成的整数ID，当然有些模型会使用subword。但是不管怎么样，最终的目的是把一段文本变成ID的序列。当然它也必须能够反过来把ID序列变成文本。</p>
+<p>细节见：<a target="_blank" rel="noopener" href="https://huggingface.co/docs/transformers/tokenizer_summary">https://huggingface.co/docs/transformers/tokenizer_summary</a></p>
+<p>Tokenizer对象是callable，因此可以直接传入一个字符串，返回一个dict。最主要的是ID的list，同时也会返回<a target="_blank" rel="noopener" href="https://huggingface.co/transformers/glossary.html#attention-mask">attention mask</a>：</p>
+<p>我们也可以一次传入一个batch的字符串，这样便于批量处理。这时我们需要指定padding为True并且设置最大的长度：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pt_batch = tokenizer(</span><br><span class="line">    [<span class="string">&quot;We are very happy to show you the 🤗 Transformers library.&quot;</span>, <span class="string">&quot;We hope you don&#x27;t hate it.&quot;</span>],</span><br><span class="line">    padding=<span class="literal">True</span>,</span><br><span class="line">    truncation=<span class="literal">True</span>,</span><br><span class="line">    max_length=<span class="number">512</span>,</span><br><span class="line">    return_tensors=<span class="string">&quot;pt&quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><p>Tokenizer的处理结果可以输入给模型，对于TensorFlow来说直接输入就行，而对于PyTorch则需要使用**来展开参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># PyTorch</span></span><br><span class="line">pt_outputs = pt_model(**pt_batch)</span><br><span class="line"><span class="comment"># TensorFlow</span></span><br><span class="line">tf_outputs = tf_model(tf_batch)</span><br></pre></td></tr></table></figure>
+
+<p>Transformers的所有输出都是tuple，即使只有一个结果也会是长度为1的tuple：</p>
+<p>分类任务：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(pt_outputs)</span><br><span class="line">(tensor([[-<span class="number">4.0833</span>,  <span class="number">4.3364</span>],</span><br><span class="line">        [ <span class="number">0.0818</span>, -<span class="number">0.0418</span>]], grad_fn=&lt;AddmmBackward&gt;),)</span><br></pre></td></tr></table></figure>
+
+<p>Transformers的模型默认返回logits，如果需要概率，可以自己加softmax：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>pt_predictions = F.softmax(pt_outputs[<span class="number">0</span>], dim=-<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<p>得到和前面一样的结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(pt_predictions)</span><br><span class="line">tensor([[<span class="number">2.2043e-04</span>, <span class="number">9.9978e-01</span>],</span><br><span class="line">        [<span class="number">5.3086e-01</span>, <span class="number">4.6914e-01</span>]], grad_fn=&lt;SoftmaxBackward&gt;)</span><br></pre></td></tr></table></figure>
+
+<p>如果我们有输出分类对应的标签，那么也可以传入，这样它除了会计算logits还会loss：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> torch</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>pt_outputs = pt_model(**pt_batch, labels = torch.tensor([<span class="number">1</span>, <span class="number">0</span>]))</span><br></pre></td></tr></table></figure>
+
+<p>输出为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SequenceClassifierOutput(loss=tensor(<span class="number">0.3167</span>, grad_fn=&lt;NllLossBackward&gt;), logits=tensor([[-<span class="number">4.0833</span>,  <span class="number">4.3364</span>],</span><br><span class="line">        [ <span class="number">0.0818</span>, -<span class="number">0.0418</span>]], grad_fn=&lt;AddmmBackward&gt;), hidden_states=<span class="literal">None</span>, attentions=<span class="literal">None</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="语言模型-MLM【没用上，可以不看】"><a href="#语言模型-MLM【没用上，可以不看】" class="headerlink" title="语言模型 MLM【没用上，可以不看】"></a>语言模型 MLM【没用上，可以不看】</h3><p>和前面的任务相比，语言模型本身一般很少作为一个独立的任务。它的作用通常是用来预训练基础的模型，然后也可以使用领域的未标注数据来fine-tuning语言模型。比如我们的任务是一个文本分类任务，我们可以基于基础的BERT模型在我们的分类数据上fine-tuning模型。但是BERT的基础模型是基于wiki这样的语料库进行预训练的，不一定和我们的任务很match。而且标注的成本通常很高，我们的分类数据量通常不大。但是领域的未标注数据可能不少。这个时候我们我们可以用领域的未标注数据对基础的BERT用语言模型这个任务进行再次进行pretraining，然后再用标注的数据fine-tuning分类任务。</p>
+<p>如果我们需要fine-tuning MLM，可以参考 run_mlm.py。下面是用pipeline的例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> transformers <span class="keyword">import</span> pipeline</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nlp = pipeline(<span class="string">&quot;fill-mask&quot;</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> pprint <span class="keyword">import</span> pprint</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>pprint(nlp(<span class="string">f&quot;HuggingFace is creating a <span class="subst">&#123;nlp.tokenizer.mask_token&#125;</span> that the community uses to solve NLP tasks.&quot;</span>))</span><br><span class="line">[&#123;<span class="string">&#x27;score&#x27;</span>: <span class="number">0.1792745739221573</span>,</span><br><span class="line">  <span class="string">&#x27;sequence&#x27;</span>: <span class="string">&#x27;&lt;s&gt;HuggingFace is creating a tool that the community uses to &#x27;</span></span><br><span class="line">              <span class="string">&#x27;solve NLP tasks.&lt;/s&gt;&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;token&#x27;</span>: <span class="number">3944</span>,</span><br><span class="line">  <span class="string">&#x27;token_str&#x27;</span>: <span class="string">&#x27;Ġtool&#x27;</span>&#125;,</span><br><span class="line"> &#123;<span class="string">&#x27;score&#x27;</span>: <span class="number">0.11349421739578247</span>,</span><br><span class="line">  <span class="string">&#x27;sequence&#x27;</span>: <span class="string">&#x27;&lt;s&gt;HuggingFace is creating a framework that the community uses &#x27;</span></span><br><span class="line">              <span class="string">&#x27;to solve NLP tasks.&lt;/s&gt;&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;token&#x27;</span>: <span class="number">7208</span>,</span><br><span class="line">  <span class="string">&#x27;token_str&#x27;</span>: <span class="string">&#x27;Ġframework&#x27;</span>&#125;,</span><br><span class="line"> &#123;<span class="string">&#x27;score&#x27;</span>: <span class="number">0.05243554711341858</span>,</span><br><span class="line">  <span class="string">&#x27;sequence&#x27;</span>: <span class="string">&#x27;&lt;s&gt;HuggingFace is creating a library that the community uses to &#x27;</span></span><br><span class="line">              <span class="string">&#x27;solve NLP tasks.&lt;/s&gt;&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;token&#x27;</span>: <span class="number">5560</span>,</span><br><span class="line">  <span class="string">&#x27;token_str&#x27;</span>: <span class="string">&#x27;Ġlibrary&#x27;</span>&#125;,</span><br><span class="line"> &#123;<span class="string">&#x27;score&#x27;</span>: <span class="number">0.03493533283472061</span>,</span><br><span class="line">  <span class="string">&#x27;sequence&#x27;</span>: <span class="string">&#x27;&lt;s&gt;HuggingFace is creating a database that the community uses &#x27;</span></span><br><span class="line">              <span class="string">&#x27;to solve NLP tasks.&lt;/s&gt;&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;token&#x27;</span>: <span class="number">8503</span>,</span><br><span class="line">  <span class="string">&#x27;token_str&#x27;</span>: <span class="string">&#x27;Ġdatabase&#x27;</span>&#125;,</span><br><span class="line"> &#123;<span class="string">&#x27;score&#x27;</span>: <span class="number">0.02860250137746334</span>,</span><br><span class="line">  <span class="string">&#x27;sequence&#x27;</span>: <span class="string">&#x27;&lt;s&gt;HuggingFace is creating a prototype that the community uses &#x27;</span></span><br><span class="line">              <span class="string">&#x27;to solve NLP tasks.&lt;/s&gt;&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;token&#x27;</span>: <span class="number">17715</span>,</span><br><span class="line">  <span class="string">&#x27;token_str&#x27;</span>: <span class="string">&#x27;Ġprototype&#x27;</span>&#125;]</span><br></pre></td></tr></table></figure>
+
+<p>上面会用到nlp.tokenizer.mask_token，它就是特殊的这个token。我们也可以自己构造Tokenizer和模型，步骤为：</p>
+<ul>
+<li>构造Tokenizer和模型。比如可以使用DistilBERT从checkpoint加载预训练的模型</li>
+<li>构造输入序列，把需要mask的词替换成tokenizer.mask_token</li>
+<li>用tokenizer把输入变成ID list</li>
+<li>获取预测的结果，它的size是词典大小，表示预测某个词的概率</li>
+<li>获取topk个概率最大的词</li>
+</ul>
+<p>代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoModelWithLMHead, AutoTokenizer</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>tokenizer = AutoTokenizer.from_pretrained(<span class="string">&quot;distilbert-base-cased&quot;</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>model = AutoModelWithLMHead.from_pretrained(<span class="string">&quot;distilbert-base-cased&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>sequence = <span class="string">f&quot;Distilled models are smaller than the models they mimic. Using them instead of the large versions would help <span class="subst">&#123;tokenizer.mask_token&#125;</span> our carbon footprint.&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">input</span> = tokenizer.encode(sequence, return_tensors=<span class="string">&quot;pt&quot;</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>mask_token_index = torch.where(<span class="built_in">input</span> == tokenizer.mask_token_id)[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>token_logits = model(<span class="built_in">input</span>).logits</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>mask_token_logits = token_logits[<span class="number">0</span>, mask_token_index, :]</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>top_5_tokens = torch.topk(mask_token_logits, <span class="number">5</span>, dim=<span class="number">1</span>).indices[<span class="number">0</span>].tolist()</span><br></pre></td></tr></table></figure>
+
+<p>注意这里需要使用AutoModelWithLMHead构造模型。</p>
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> token <span class="keyword">in</span> top_5_tokens:</span><br><span class="line"><span class="meta">... </span>    <span class="built_in">print</span>(sequence.replace(tokenizer.mask_token, tokenizer.decode([token])))</span><br><span class="line">Distilled models are smaller than the models they mimic. Using them instead of the large versions would <span class="built_in">help</span> reduce our carbon footprint.</span><br><span class="line">Distilled models are smaller than the models they mimic. Using them instead of the large versions would <span class="built_in">help</span> increase our carbon footprint.</span><br><span class="line">Distilled models are smaller than the models they mimic. Using them instead of the large versions would <span class="built_in">help</span> decrease our carbon footprint.</span><br><span class="line">Distilled models are smaller than the models they mimic. Using them instead of the large versions would <span class="built_in">help</span> offset our carbon footprint.</span><br><span class="line">Distilled models are smaller than the models they mimic. Using them instead of the large versions would <span class="built_in">help</span> improve our carbon footprint.</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="语言模型"><a href="#语言模型" class="headerlink" title="语言模型"></a>语言模型</h3><blockquote>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/383585103">huggingface获取生成模型的输出概率</a></p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoModelForCausalLM</span><br><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoTokenizer</span><br><span class="line">model1 = AutoModelForCausalLM.from_pretrained(<span class="string">&quot;/home/yelong/data/edu-bert/models/TAL-EduBERT&quot;</span>, return_dict_in_generate=<span class="literal">True</span>,is_decoder=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="input"><a href="#input" class="headerlink" title="input"></a>input</h2><p>输入一般会包含开头的[CLS]和结尾的[SEP]，如果不想要这两个，可以通过添加<code>add_special_tokens=False</code>来去掉</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tokenizer = BertTokenizer.from_pretrained(path_to_TAL_EduBERT)</span><br><span class="line"></span><br><span class="line">inputs = tokenizer(<span class="string">&quot;today is a nice day&quot;</span>, return_tensors=<span class="string">&quot;pt&quot;</span>)  <span class="comment"># [1, 7]</span></span><br><span class="line">inputs = tokenizer(<span class="string">&quot;today is a nice day&quot;</span>, return_tensors=<span class="string">&quot;pt&quot;</span>, add_special_tokens=<span class="literal">False</span>)  <span class="comment"># [1, 5]</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="输出语言模型概率"><a href="#输出语言模型概率" class="headerlink" title="输出语言模型概率"></a>输出语言模型概率</h2><p>我们要用到每个单词的概率，以及整句话的概率分数，输出的不是概率，最后一层没有softmax，要加softmax才是概率（没有log的概率，纯概率值）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">model = BertForMaskedLM.from_pretrained(path_to_TAL_EduBERT)</span><br><span class="line">inputs = tokenizer(<span class="string">&quot;today is a nice day&quot;</span>, return_tensors=<span class="string">&quot;pt&quot;</span>, add_special_tokens=<span class="literal">False</span>) </span><br><span class="line">outputs = model(**inputs).logits	<span class="comment"># [1,3,21128]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 详细：</span></span><br><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> BertTokenizer,BertForMaskedLM</span><br><span class="line">path_to_TAL_EduBERT = <span class="string">&quot;/home/yelong/data/edu-bert/models/TAL-EduBERT&quot;</span></span><br><span class="line">tokenizer = BertTokenizer.from_pretrained(path_to_TAL_EduBERT)</span><br><span class="line">model = BertForMaskedLM.from_pretrained(path_to_TAL_EduBERT)</span><br><span class="line">inputs=tokenizer(<span class="string">&quot;today is a good day&quot;</span>, return_tensors=<span class="string">&quot;pt&quot;</span>, add_special_tokens=<span class="literal">False</span>)</span><br><span class="line">outputs=model(**inputs).logits</span><br><span class="line">logit = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(outputs[<span class="number">0</span>])):</span><br><span class="line">    <span class="comment"># print(outputs[0][i][inputs[&#x27;input_ids&#x27;][0][i]])</span></span><br><span class="line">    logit = logit + outputs[<span class="number">0</span>][i][inputs[<span class="string">&#x27;input_ids&#x27;</span>][<span class="number">0</span>][i]].item()</span><br><span class="line"><span class="built_in">print</span>(logit)</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="联调"><a href="#联调" class="headerlink" title="联调"></a>联调</h1><p>和CTC decoder输出的句子进行联调，看wer改进</p>
+<ol>
+<li>CTC出来n-best文本，经过lm选lm概率大的一条路径，见10.22.24.2：&#x2F;home&#x2F;yelong&#x2F;data&#x2F;wenet&#x2F;examples&#x2F;aishell&#x2F;s0&#x2F;compute-wer-lm.py</li>
+<li>CTC出来n-best文本以及分数，经过lm选lm概率+CTC分数加权求和最大的一条路径</li>
+</ol>
+<h2 id="用自有数据pretrain-LM"><a href="#用自有数据pretrain-LM" class="headerlink" title="用自有数据pretrain LM"></a>用自有数据pretrain LM</h2><blockquote>
+<p>&#x2F;home&#x2F;yelong&#x2F;data&#x2F;transformers&#x2F;examples&#x2F;pytorch&#x2F;language-modeling&#x2F;run_mlm.py</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/huggingface/transformers/tree/main/examples/pytorch/language-modeling">https://github.com/huggingface/transformers/tree/main/examples/pytorch/language-modeling</a></p>
+</blockquote>
+<p>官方例子：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">python run_mlm.py \</span><br><span class="line">    --model_name_or_path roberta-base \</span><br><span class="line">    --dataset_name wikitext \</span><br><span class="line">    --dataset_config_name wikitext-2-raw-v1 \</span><br><span class="line">    --per_device_train_batch_size 8 \</span><br><span class="line">    --per_device_eval_batch_size 8 \</span><br><span class="line">    --do_train \</span><br><span class="line">    --do_eval \</span><br><span class="line">    --output_dir /tmp/test-mlm</span><br></pre></td></tr></table></figure>
+
+<p>要在您自己的训练和验证文件上运行，请使用以下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">python run_mlm.py \</span><br><span class="line">    --model_name_or_path roberta-base \</span><br><span class="line">    --train_file path_to_train_file \</span><br><span class="line">    --validation_file path_to_validation_file \</span><br><span class="line">    --per_device_train_batch_size 8 \</span><br><span class="line">    --per_device_eval_batch_size 8 \</span><br><span class="line">    --do_train \</span><br><span class="line">    --do_eval \</span><br><span class="line">    --output_dir /tmp/test-mlm</span><br></pre></td></tr></table></figure>
+
+<p>具体例子为：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">python run_mlm.py \</span><br><span class="line">    --model_name_or_path /home/yelong/data/edu-bert/models/TAL-EduBERT \</span><br><span class="line">    --train_file data/train/data.txt \</span><br><span class="line">    --validation_file data/dev/data.txt \</span><br><span class="line">    --per_device_train_batch_size 1 \</span><br><span class="line">    --per_device_eval_batch_size 1 \</span><br><span class="line">    --do_train \</span><br><span class="line">    --do_eval \</span><br><span class="line">    --output_dir test-mlm2 \</span><br><span class="line">    --num_train_epochs 5</span><br></pre></td></tr></table></figure>
+
+<p>其中，data&#x2F;train&#x2F;data.txt就是纯文本</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" rel="tag"># 语言模型</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/jieba%E5%88%86%E8%AF%8D/" rel="next" title="jieba分词">
+                <i class="fa fa-chevron-left"></i> jieba分词
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/code-switch%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" rel="prev" title="code-switch语言模型">
+                code-switch语言模型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#huggingface%E4%BD%BF%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">huggingface使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">1.1.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tokenizer"><span class="nav-number">1.1.1.</span> <span class="nav-text">Tokenizer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B-MLM%E3%80%90%E6%B2%A1%E7%94%A8%E4%B8%8A%EF%BC%8C%E5%8F%AF%E4%BB%A5%E4%B8%8D%E7%9C%8B%E3%80%91"><span class="nav-number">1.1.3.</span> <span class="nav-text">语言模型 MLM【没用上，可以不看】</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.1.4.</span> <span class="nav-text">语言模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#input"><span class="nav-number">1.2.</span> <span class="nav-text">input</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%87%BA%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E6%A6%82%E7%8E%87"><span class="nav-number">1.3.</span> <span class="nav-text">输出语言模型概率</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%81%94%E8%B0%83"><span class="nav-number">2.</span> <span class="nav-text">联调</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E8%87%AA%E6%9C%89%E6%95%B0%E6%8D%AEpretrain-LM"><span class="nav-number">2.1.</span> <span class="nav-text">用自有数据pretrain LM</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/huggingface/';
+          this.page.identifier = '2022/07/22/语言模型/huggingface/';
+          this.page.title = 'huggingface使用';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

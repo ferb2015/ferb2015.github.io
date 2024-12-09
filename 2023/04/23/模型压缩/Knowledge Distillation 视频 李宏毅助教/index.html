@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="深度学习,模型压缩," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Knowledge Distillation 视频 李宏毅助教 PPT：https:&#x2F;&#x2F;slides.com&#x2F;arvinliu&#x2F;model-compression 视频：P49 Network Compression (1_2) - Knowledge Distillation (选学)1:07:53   ReviewNetwork Pruning方法：Network不重要的weight或neur">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Knowledge Distillation 视频 李宏毅助教">
+<meta property="og:url" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="Knowledge Distillation 视频 李宏毅助教 PPT：https:&#x2F;&#x2F;slides.com&#x2F;arvinliu&#x2F;model-compression 视频：P49 Network Compression (1_2) - Knowledge Distillation (选学)1:07:53   ReviewNetwork Pruning方法：Network不重要的weight或neur">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421150506780.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421150704117.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165548774.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165607986.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165645594.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165726920.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165742474.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165804386.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165944076.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170023167.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170043641.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170244286.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170306412.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171514027.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171540203.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230423133246941.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230423133319106.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171705047.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171721784.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171804675.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173108988.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173210990.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173335629.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173401192.png">
+<meta property="og:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421174538615.png">
+<meta property="article:published_time" content="2023-04-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-04-27T07:43:22.668Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="深度学习">
+<meta property="article:tag" content="模型压缩">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421150506780.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/04/23/模型压缩/Knowledge Distillation 视频 李宏毅助教/"/>
+
+
+
+
+
+  <title>Knowledge Distillation 视频 李宏毅助教 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Knowledge Distillation 视频 李宏毅助教</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-04-23T00:00:00+08:00">
+                2023-04-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/" itemprop="url" rel="index">
+                    <span itemprop="name">模型压缩</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/04/23/模型压缩/Knowledge Distillation 视频 李宏毅助教/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Knowledge-Distillation-视频-李宏毅助教"><a href="#Knowledge-Distillation-视频-李宏毅助教" class="headerlink" title="Knowledge Distillation 视频 李宏毅助教"></a>Knowledge Distillation 视频 李宏毅助教</h1><blockquote>
+<p>PPT：<a target="_blank" rel="noopener" href="https://slides.com/arvinliu/model-compression">https://slides.com/arvinliu/model-compression</a></p>
+<p>视频：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1JE411g7XF?p=49">P49 Network Compression (1_2) - Knowledge Distillation (选学)1:07:53</a> </p>
+</blockquote>
+<h2 id="Review"><a href="#Review" class="headerlink" title="Review"></a>Review</h2><h3 id="Network-Pruning"><a href="#Network-Pruning" class="headerlink" title="Network Pruning"></a>Network Pruning</h3><p>方法：Network<strong>不重要</strong>的weight或neuron进行删除，再重train一次（不重train直接测试的话，效果不好，原因是模型还不适应没有那些没用的weight….要稍微重train一下）。</p>
+<p>原因：&#x3D;&#x3D;<strong>大NN有很多冗参数</strong>&#x3D;&#x3D;，而小NN很难train，那就用大NN删成小NN就好了。</p>
+<p>应用：只要他是NN（？）就可以。</p>
+<h3 id="Knowledge-Distillation"><a href="#Knowledge-Distillation" class="headerlink" title="Knowledge Distillation"></a>Knowledge Distillation</h3><p>方法：利用一个&#x3D;&#x3D;<strong>已经学好的大model</strong>&#x3D;&#x3D;，来教小model如何做好任务。</p>
+<p>原因：让学生直接做对题目太难了，可以让他偷看老师是怎么想&#x2F;解出题目的。</p>
+<p>应用：通常只用在Classification，而且学生只能从头学起。</p>
+<h3 id="Architecture-Design"><a href="#Architecture-Design" class="headerlink" title="Architecture Design"></a>Architecture Design</h3><p>方法：使用较少的参数来达到原本某些layer的效果。</p>
+<p>原因：有些layer可能参数就是很冗，比如DNN就是个明显例子。</p>
+<p>应用：就是直接套新的model，或者是利用新的layer来模拟旧的layer。</p>
+<h3 id="Parameter-Quantization"><a href="#Parameter-Quantization" class="headerlink" title="Parameter Quantization"></a>Parameter Quantization</h3><p>方法：将原本NN常用的计算单位：float32&#x2F;float64压缩成更小的单位。</p>
+<p>原因：对NN来说，LSB可能不是那么重要。（* LSB: Least-Significant Bit, 在这里指小数点的后面其含义。）</p>
+<p>应用：对所有已经train好的model使用，或者边train边引诱model去quantize。</p>
+<h3 id="Why-Learn’em-all"><a href="#Why-Learn’em-all" class="headerlink" title="Why Learn’em all?"></a>Why Learn’em all?</h3><h3 id="Mixed-it-把这些方法混合"><a href="#Mixed-it-把这些方法混合" class="headerlink" title="Mixed it !把这些方法混合"></a>Mixed it !把这些方法混合</h3><p>例如这样混合：</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421150506780.png" alt="image-20230421150506780" style="zoom: 80%;">
+
+<h2 id="Knowledge-Distillation-1"><a href="#Knowledge-Distillation-1" class="headerlink" title="Knowledge Distillation"></a>Knowledge Distillation</h2><h3 id="Main-Question-Distill-what"><a href="#Main-Question-Distill-what" class="headerlink" title="Main Question: Distill what?"></a><strong>Main Question: Distill what?</strong></h3><ul>
+<li>Logits（输出值）<ul>
+<li>直接匹配logits</li>
+<li>学习一个batch里面的logits distribution</li>
+<li>…</li>
+</ul>
+</li>
+<li>Feature（中间值）<ul>
+<li>直接匹配中间的Feature</li>
+<li>学习Feature中间如何转换</li>
+<li>…</li>
+</ul>
+</li>
+</ul>
+<h3 id="Before-Logits-KD…"><a href="#Before-Logits-KD…" class="headerlink" title="Before Logits KD…"></a>Before Logits KD…</h3><p>You need to know the magic power of soften label. 为什么知识蒸馏在logit上是有用的</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421150704117.png" alt="image-20230421150704117" style="zoom:80%;">
+
+
+
+<p>下图的训练标签是“猫”，但这是“incompleteness”的，不完整的，因为还有球、牛仔裤等，是不完全的label。然后可能训练出来的概率是0.7是猫，0.2是球，0.1是牛仔裤，这是很好的，但是模型用的one-hot，认为猫概率要更高，就变成造成“overfit”。</p>
+<p>crop是一种augment方法，是取出图片中的一个小片段。举例来说，取出一个矩形，刚好是下图的球，但是label却还是猫，这样就会让model很confuse，造成“inconsistency” 不一致。</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165548774.png" alt="image-20230421165548774" style="zoom:80%;">
+
+
+
+<p>对于上述问题，有改进的方法，称为“&#x3D;&#x3D;label refinery&#x3D;&#x3D;” 精细化。</p>
+<p>步骤：</p>
+<ol>
+<li>train一个model，label是groundtruth</li>
+<li>train一个model，label是上一个model的输出，发现会提高accuracy</li>
+<li>…..重复第2步，直到accuracy不再提高</li>
+</ol>
+<p><strong>label refinery可以学到label间的关系</strong></p>
+<p>注意看这里，每次train的model是一样的，精度却会提高。联想到知识蒸馏，<strong>student model的上界并不是teacher model！！student model的accuracy是有机会超过teacher model的！</strong></p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165607986.png" alt="image-20230421165607986" style="zoom:80%;">
+
+
+
+<h2 id="Logits-Distillation"><a href="#Logits-Distillation" class="headerlink" title="Logits Distillation"></a>Logits Distillation</h2><ol>
+<li><strong>baseline Knowledge Distillation</strong></li>
+</ol>
+<p>除以一个T，让logit不要那么激进，不要和 one-hot一样。</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165645594.png" alt="image-20230421165645594" style="zoom: 80%;">
+
+<ol start="2">
+<li><strong>mutual learning</strong></li>
+</ol>
+<p>train两个model，互相学习logit，当然也要学习真实label。</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165726920.png" alt="image-20230421165726920" style="zoom:80%;">
+
+<p>第1步：先选其中一个net进行参数更新，比如net1，计算y2（teacher）对y1（student）的kl散度，计算y1和真实y的交叉熵。</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165742474.png" alt="image-20230421165742474" style="zoom:80%;">
+
+<p>第2步：选第二个net，net2，计算y1（teacher）对y2（student）的kl散度，以及y2和真实y的交叉熵。</p>
+<p>第3步：重复上述两步。</p>
+<p>效果：</p>
+<ul>
+<li>当net1和net2的结构相同时：net1和net2都会比单独训net1或net2效果好。（类似 label refinery）</li>
+<li>当net1比net2结构大、参数多时：net2会训得比单独训net2效果好，net1也不一定比单独训net1效果差（我们常规会想，net2得acc不高，net1去学，相当于teacher去学student，那应该会造成不好的影响，但实际上不一定会更差，因为net2让net1看见更丰富的东西）</li>
+</ul>
+<blockquote>
+<p>More Details: <a target="_blank" rel="noopener" href="https://slides.com/arvinliu/kd_mutual">https://slides.com/arvinliu/kd_mutual</a></p>
+</blockquote>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165804386.png" alt="image-20230421165804386" style="zoom:80%;">
+
+
+
+<ol start="3">
+<li><strong>born again 再次重生</strong></li>
+</ol>
+<p>Similar with label refinery很像。仅差异于：</p>
+<ul>
+<li>初始Model是KD来的，是训一个teacher，后面都是student。</li>
+<li>born again迭代使用Cross Entropy，而label refinery使用的是kl散度。</li>
+<li>最后Ensemble 所有Student Model。</li>
+</ul>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421165944076.png" alt="image-20230421165944076" style="zoom:80%;">
+
+
+
+<p>什么情况发生时，会让知识蒸馏失败or效果没有想象中的好呢：</p>
+<ul>
+<li>teacher模型参数、架构远大于student模型，student学不来teacher</li>
+</ul>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170023167.png" alt="image-20230421170023167" style="zoom:80%;">
+
+
+
+<ul>
+<li>解决student学不来teacher的方法：用一个参数量介于Teacher&amp;Student的TA（teacher assistant）做中间人来帮助Student学习，以此避免model差距过大学不好。</li>
+</ul>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170043641.png" alt="image-20230421170043641" style="zoom:80%;">
+
+
+
+
+
+
+
+
+
+<h2 id="Feature-Distillation"><a href="#Feature-Distillation" class="headerlink" title="Feature Distillation"></a>Feature Distillation</h2><p>直接让student看teacher的输出，student可能无法理解，于是让student看teacher中间feature 到底在想什么。</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170244286.png" alt="image-20230421170244286" style="zoom:80%;">
+
+<ol>
+<li><strong>FitNet</strong></li>
+</ol>
+<p>先让Student学习如何产生Teacher的中间Feature，之后再使用Baseline KD。</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421170306412.png" alt="image-20230421170306412" style="zoom:80%;">
+
+<p>具体步骤：</p>
+<p>步骤1：fit feature：选出student net前几层的输出，经过一个仿射变换（目的是变换shape），然后与teacher前几层的输出之间做MSE。</p>
+<p>因此student和teacher中间的feature就有了一定关联。</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171514027.png" alt="image-20230421171514027" style="zoom:80%;">
+
+<p>步骤2：fit logit：使用baseline kd，就是让student y学习teacher y。</p>
+<p>实验小结论：teacher和student的结构越接近，效果越好。</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171540203.png" alt="image-20230421171540203" style="zoom:80%;">
+
+<p>fitnet存在的问题：</p>
+<ol>
+<li>Model capacity is different 模型的性能不同，student学中间feature真的能学得会吗？（一般来说feature维度比log高，认为会更难学）</li>
+<li>There’s lots of redundancy in Teacher Net. teacher模型有很多冗余。</li>
+</ol>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230423133246941.png" alt="image-20230423133246941" style="zoom:80%;">
+
+
+
+<p>解决方法：把teacher net的中间feature相成一个3维的feature map，如果有方法能做knowledge compression，压缩得更小。就能减少冗余，学到更精实的东西、并且好学一点（feature维度少一些）。</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230423133319106.png" alt="image-20230423133319106" style="zoom:80%;">
+
+<p>knowledge compression压缩方法：用<strong>attention map</strong>当作是压缩后的中间feature。</p>
+<p>让teacher不同的中间层输出attention map，比如输出3张attention map，让student也输出3张attention map，让两两的attention map彼此接近。</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171705047.png" alt="image-20230421171705047" style="zoom:80%;">
+
+<p>但是模型里面可能没有attention 层的，那么要怎么获得attention map呢：</p>
+<ul>
+<li>将(W, H, C)的weight各自平方后加成(W, H)的矩阵 T。（？）</li>
+<li>Attention map &#x3D;T&#x2F;norm(M)。归一化一下。</li>
+</ul>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171721784.png" alt="image-20230421171721784" style="zoom:80%;">
+
+
+
+<h3 id="Can-we-learn-something-from-batch"><a href="#Can-we-learn-something-from-batch" class="headerlink" title="Can we learn something from batch?"></a>Can we learn something from batch?</h3><p>前面讲的logit或feature都是一对一的，如何在batch里做？</p>
+<h3 id="Relational-Distillation-关系上的蒸馏"><a href="#Relational-Distillation-关系上的蒸馏" class="headerlink" title="Relational Distillation 关系上的蒸馏"></a>Relational Distillation 关系上的蒸馏</h3><p>对batch里样本之间进行蒸馏</p>
+<ul>
+<li>Individual KD : 以每个sample为单位做知识蒸馏。</li>
+<li>Relational KD: 以sample之间的关系做知识蒸馏。</li>
+</ul>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421171804675.png" alt="image-20230421171804675" style="zoom:80%;">
+
+<p>样本和样本之间的关系是某种“知识”。</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173108988.png" alt="image-20230421173108988" style="zoom:80%;">
+
+
+
+<p>实现relational kd：</p>
+<ul>
+<li>Distance-wise KD 以距离为取样去蒸馏。 s1与sn的距离要接近 t1与tn的距离（L1、L2距离）</li>
+<li>Angle-wise KD。以角度为取样去蒸馏。s1到si与sj的角度要接近t1到ti于tj的角度。（t13向量与t23向量的cos值，与s13向量与s23向量的cos值之间的huber损失函数）</li>
+</ul>
+<p>达到整个结构性的蒸馏。</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173210990.png" alt="image-20230421173210990" style="zoom:80%;">
+
+<h3 id="Why-not-distill-relational-information-between-feature-所以feature蒸馏也同理，可以对不同样本之间feature的关系蒸馏"><a href="#Why-not-distill-relational-information-between-feature-所以feature蒸馏也同理，可以对不同样本之间feature的关系蒸馏" class="headerlink" title="Why not distill relational information between feature? 所以feature蒸馏也同理，可以对不同样本之间feature的关系蒸馏"></a>Why not distill relational information between feature? 所以feature蒸馏也同理，可以对不同样本之间feature的关系蒸馏</h3><p>Of course you can.</p>
+<p>假设model中有两个feature，分别是circle和vertical line数量。feature当作是向量，计算不同样本的feature向量之间的<strong>余弦相似度</strong>。</p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173335629.png" alt="image-20230421173335629" style="zoom:80%;">
+
+<p>student学习teacher的<strong>cosine similarity table</strong> </p>
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421173401192.png" alt="image-20230421173401192" style="zoom:80%;">
+
+
+
+
+
+<img src="/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/image-20230421174538615.png" alt="image-20230421174538615" style="zoom:80%;">
+
+
+
+
+
+
+
+<h2 id="Paper-Reference"><a href="#Paper-Reference" class="headerlink" title="Paper Reference"></a>Paper Reference</h2><ul>
+<li>Knowledge Distillation<ul>
+<li>Distilling the Knowledge in a Neural Network (NIPS 2014)</li>
+<li>Deep Mutual Learning (CVPR 2018)</li>
+<li>Born Again Neural Networks (ICML 2018)</li>
+<li>Label Refinery: Improving ImageNet Classification through Label Progression</li>
+<li>Improved Knowledge Distillation via Teacher Assistant (AAAI 2020)</li>
+<li>FitNets : Hints for Thin Deep Nets (ICLR2015)</li>
+<li>Paying More Attention to Attention: Improving the Performance of Convolutional Neural Networks via Attention Transfer (ICLR 2017)</li>
+<li>Relational Knowledge Distillation (CVPR 2019)</li>
+<li>Similarity-Preserving Knowledge Distillation (ICCV 2019)</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
+          
+            <a href="/tags/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/" rel="tag"># 模型压缩</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/04/21/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Compression%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/" rel="next" title="Network Compression 视频 李宏毅">
+                <i class="fa fa-chevron-left"></i> Network Compression 视频 李宏毅
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/04/24/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Network%20Pruning%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%20%E5%8A%A9%E6%95%99/" rel="prev" title="Network Pruning 视频 李宏毅助教">
+                Network Pruning 视频 李宏毅助教 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Knowledge-Distillation-%E8%A7%86%E9%A2%91-%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99"><span class="nav-number">1.</span> <span class="nav-text">Knowledge Distillation 视频 李宏毅助教</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Review"><span class="nav-number">1.1.</span> <span class="nav-text">Review</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Network-Pruning"><span class="nav-number">1.1.1.</span> <span class="nav-text">Network Pruning</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Knowledge-Distillation"><span class="nav-number">1.1.2.</span> <span class="nav-text">Knowledge Distillation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Architecture-Design"><span class="nav-number">1.1.3.</span> <span class="nav-text">Architecture Design</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Parameter-Quantization"><span class="nav-number">1.1.4.</span> <span class="nav-text">Parameter Quantization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Why-Learn%E2%80%99em-all"><span class="nav-number">1.1.5.</span> <span class="nav-text">Why Learn’em all?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mixed-it-%E6%8A%8A%E8%BF%99%E4%BA%9B%E6%96%B9%E6%B3%95%E6%B7%B7%E5%90%88"><span class="nav-number">1.1.6.</span> <span class="nav-text">Mixed it !把这些方法混合</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Knowledge-Distillation-1"><span class="nav-number">1.2.</span> <span class="nav-text">Knowledge Distillation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Main-Question-Distill-what"><span class="nav-number">1.2.1.</span> <span class="nav-text">Main Question: Distill what?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Before-Logits-KD%E2%80%A6"><span class="nav-number">1.2.2.</span> <span class="nav-text">Before Logits KD…</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Logits-Distillation"><span class="nav-number">1.3.</span> <span class="nav-text">Logits Distillation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Feature-Distillation"><span class="nav-number">1.4.</span> <span class="nav-text">Feature Distillation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Can-we-learn-something-from-batch"><span class="nav-number">1.4.1.</span> <span class="nav-text">Can we learn something from batch?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Relational-Distillation-%E5%85%B3%E7%B3%BB%E4%B8%8A%E7%9A%84%E8%92%B8%E9%A6%8F"><span class="nav-number">1.4.2.</span> <span class="nav-text">Relational Distillation 关系上的蒸馏</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Why-not-distill-relational-information-between-feature-%E6%89%80%E4%BB%A5feature%E8%92%B8%E9%A6%8F%E4%B9%9F%E5%90%8C%E7%90%86%EF%BC%8C%E5%8F%AF%E4%BB%A5%E5%AF%B9%E4%B8%8D%E5%90%8C%E6%A0%B7%E6%9C%AC%E4%B9%8B%E9%97%B4feature%E7%9A%84%E5%85%B3%E7%B3%BB%E8%92%B8%E9%A6%8F"><span class="nav-number">1.4.3.</span> <span class="nav-text">Why not distill relational information between feature? 所以feature蒸馏也同理，可以对不同样本之间feature的关系蒸馏</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Paper-Reference"><span class="nav-number">1.5.</span> <span class="nav-text">Paper Reference</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/04/23/%E6%A8%A1%E5%9E%8B%E5%8E%8B%E7%BC%A9/Knowledge%20Distillation%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85%E5%8A%A9%E6%95%99/';
+          this.page.identifier = '2023/04/23/模型压缩/Knowledge Distillation 视频 李宏毅助教/';
+          this.page.title = 'Knowledge Distillation 视频 李宏毅助教';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

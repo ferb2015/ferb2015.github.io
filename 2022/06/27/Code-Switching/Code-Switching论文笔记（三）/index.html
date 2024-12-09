@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Code-Switching," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Code-Switching中文论文 &#x3D;&#x3D;端到端的中英文混合语音识别声学建模算法研究_周心远.caj&#x3D;&#x3D; 2021 硕士论文 上海师范大学 Xinyuan  Zhou,  Grandee  Lee,  Emre  Yilmaz,  Yanhua  Long,  Jiaen  Liang  and  Haizhou  Li.  “Self-and-Mixed">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Code-Switching论文笔记（三）中文论文">
+<meta property="og:url" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="Code-Switching中文论文 &#x3D;&#x3D;端到端的中英文混合语音识别声学建模算法研究_周心远.caj&#x3D;&#x3D; 2021 硕士论文 上海师范大学 Xinyuan  Zhou,  Grandee  Lee,  Emre  Yilmaz,  Yanhua  Long,  Jiaen  Liang  and  Haizhou  Li.  “Self-and-Mixed">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220527170358448.png">
+<meta property="og:image" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220527171643821.png">
+<meta property="og:image" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220528154657717.png">
+<meta property="og:image" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220528155234596.png">
+<meta property="og:image" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220612155642450.png">
+<meta property="og:image" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220612155729885.png">
+<meta property="og:image" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220612163555584.png">
+<meta property="og:image" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220612163522103.png">
+<meta property="og:image" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220605160510235.png">
+<meta property="og:image" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220605163659641.png">
+<meta property="og:image" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220605163721340.png">
+<meta property="og:image" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220605164650257.png">
+<meta property="article:published_time" content="2022-06-26T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T07:46:15.979Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="Code-Switching">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220527170358448.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/06/27/Code-Switching/Code-Switching论文笔记（三）/"/>
+
+
+
+
+
+  <title>Code-Switching论文笔记（三）中文论文 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Code-Switching论文笔记（三）中文论文</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-06-27T00:00:00+08:00">
+                2022-06-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Code-Switching/" itemprop="url" rel="index">
+                    <span itemprop="name">Code-Switching</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/06/27/Code-Switching/Code-Switching论文笔记（三）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Code-Switching中文论文"><a href="#Code-Switching中文论文" class="headerlink" title="Code-Switching中文论文"></a>Code-Switching中文论文</h1><blockquote>
+<p>&#x3D;&#x3D;端到端的中英文混合语音识别声学建模算法研究_周心远.caj&#x3D;&#x3D; 2021 硕士论文 上海师范大学</p>
+<p>Xinyuan  Zhou,  Grandee  Lee,  Emre  Yilmaz,  Yanhua  Long,  Jiaen  Liang  and  Haizhou  Li.  “Self-and-Mixed Attention  Decoder  with  Deep Acoustic  Structure  for  Transformer-based  LVCSR.”  in  Proc.  of  the  21st  Annual  Conference  of  the  International Speech Communication Association (INTERSPEECH). ISCA, 2020</p>
+<p>Xinyuan Zhou, Emre Yilmaz, Yanhua Long, Yijie Li and Haizhou Li.  “Multi- Encoder-Decoder Transformer for Codeswitching Speech Recognition.” in Proc. of the  21st  Annual  Conference  of  the  International  Speech  Communication  Association  (INTERSPEECH). ISCA, 2020.</p>
+</blockquote>
+<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><ul>
+<li>DNN-HMM框架的局限：<ul>
+<li>常规 DNN-HMM语音识别系统是基于拼音、音标等一些声学单元建模，在不同语言之间的声学单元相互独立，且声学属性不同。通过多种不同语言的独立发音字典无法很好地建<br>模不同语言声学属性之间的联系。</li>
+<li>其次由于混合语言语音的特殊性，语言转换处训练数据稀疏，DNN-HMM 系统无法有效建模两种语言相接处的声学属性。</li>
+</ul>
+</li>
+</ul>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
+<li><p>提出基于 Transformer 框架和联合 CTC 训练的端到端中英文混合语音识别系统，基于字符建模；</p>
+</li>
+<li><p>基于 Transformer 框架提出基于自注意力与混合注意力机制的声学建模方法；</p>
+</li>
+<li><p>为了更好挖掘中英文两种语言之间声学上的共性和区分性，本文提出“多编码器-解码器 Transformer”结构。 </p>
+</li>
+<li><p>端到端模型通常基于字符建模，建模单元不再完全与声学单元一一对应，能够模糊建模单元与声学属性之间的关联，使得网络能够自动平衡不同语言语音之间的相似性与区分性；同时由于端到端模型摆脱了独立性假设，能够学习到语言切换处的声学属性。</p>
+</li>
+<li><p>基于 Transformer 结构，文章[70]对如何更高效地建模输入与输出关系展开 了进一步的研究。其对在 Transformer 中使用解码器在每一层都将目标序列与同 一编码器输出计算依赖这一做法提出质疑，并提出 layer-wise coordination 的思 想：即编码器与解码器之间，每层相互计算依赖，并共享编码器与解码器的参数。 通过 layer-wise coordination，网络能够学习源序列与目标序列将在底层表征时的 对齐信息；并且通过参数共享，能够确保编码器与解码器的隐状态处在同一语义 级别，还能减小模型参数量。</p>
+<p>受到 Transformer 以及 layer-wise coordination 的启发，提出下图模型结构：</p>
+<p>使用基于自注意力与混合注意力机制的解码器(Self-and-Mixed  Attention  Decoder,  SMAD) 以 及 深层声学结构 (Deep  Acoustic Structure, DAS)，以改进基于 Transformer 语音识别模型的声学表征提取。</p>
+<p>在原始 Speech-Transformer 的解码器中，首先使用自注意力子层提取语言学的表 征。然后传至另一个 source-target 注意力子层中，与编码器输出一同计算。在每 一层解码器中，使用的是同一个编码器的输出，来学习声学表征与目标间的关系。 本章提出一种统一上述两个注意力机制的模块：自注意力与混合注意力机制 (Self-and-Mixed Attention,  SMA)，作为解码器中唯一的注意力子层。与标准 Transformer 不同，在 SMAD 的输入端，&#x3D;&#x3D;将编码器的声学表征与词向量拼接作为 输入&#x3D;&#x3D;。通过这种方式，SMA &#x3D;&#x3D;可以将输入音频的声学与语言学表征投影至同一子空间，强化声学与语言学之间的关系学习&#x3D;&#x3D;。  （原始论文里，先做了self attention才又做了mix attention，这里其实就是把attention的输入，变为encoder输出和词向量输入拼接起来，只是把输入拼接而已，然后做attention）</p>
+</li>
+</ul>
+<h4 id="基于自注意力与混合注意力机制的-Transformer结构："><a href="#基于自注意力与混合注意力机制的-Transformer结构：" class="headerlink" title="基于自注意力与混合注意力机制的 Transformer结构："></a>基于自注意力与混合注意力机制的 Transformer结构：</h4><img src="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220527170358448.png" alt="image-20220527170358448" style="zoom:80%;">  
+
+<p>query用的词向量（target），key和value是concat了词向量和encoder输出的，然后key和value乘的W矩阵是一样的，文章说是为了将声学与语言<br>学表征向量投影至同一子空间，拼接后使用同一投影矩阵𝑊；</p>
+<img src="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220527171643821.png" alt="image-20220527171643821" style="zoom:80%;">
+
+<ul>
+<li><p>提出深 层 声 学 结 构 (Deep  Acoustic Structure, DAS)，相比于标准 Transformer 中，每层解码器使用相同的编码器输出。<br>本章提出的&#x3D;&#x3D;解码器通过DAS，声学表征在编码器中逐层与语言学表征一同更新&#x3D;&#x3D;。</p>
+<p>（就是decoder输出了一部分是来自encoder的信息，把这部分输出作为下一个decoder中的transformer的encoder信息，这和原始transformer不同）<br>该做法的目的如下：</p>
+<ul>
+<li>声学表征在解码器中再编码，利于进一步提取有效信息。 </li>
+<li>将声学与语言学表征投影至同一子空间，利于计算其相互关系与对齐。</li>
+</ul>
+</li>
+<li><p>第二个创新点：</p>
+</li>
+</ul>
+<h4 id="多编码器-解码器-Transformer-的预训练机制"><a href="#多编码器-解码器-Transformer-的预训练机制" class="headerlink" title="多编码器-解码器 Transformer 的预训练机制"></a>多编码器-解码器 Transformer 的预训练机制</h4><p>背景：由于包含中英文混合的语音及文本数据稀缺，中英文混合语音识别被视为典型的低资源任务。在多语言语音识别任务中，为解决声学建模过程中的数据稀缺 问题，可以使用&#x3D;&#x3D;迁移学习  (Transfer Learning)  将预训练的高资源语言声学模 型迁移至目标低资源任务&#x3D;&#x3D;。类似地，在中英混合 ASR 中，也可以使两个预 训练的声学模型适应至资源较少的混合语言条件中。另一种策略是应用&#x3D;&#x3D;多任务学习技术&#x3D;&#x3D;，通过联合训练 ASR 声学模型和语言识别分类器，来发掘混合语言 ASR 中的语言特定属性并减轻数据稀疏性。  但在这些工作中，&#x3D;&#x3D;仅在<strong>解码器或模型的输出层</strong>中捕获了特定于语言的信息&#x3D;&#x3D;。  </p>
+<p>入下图所示，结合了两个特定于语言的encoder（在图中分别用蓝色标记为英文相关，和橙 色标记为中文相关），以学习各个语言的属性。目的是通过为每种混合语言使用单独的模块来增强在每个encoder的输出处给出的声学表征向量之间的差异性。</p>
+<img src="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220528154657717.png" alt="image-20220528154657717" style="zoom:80%;">
+
+<p>​	分别使用大型单语英文和中文语料库对特定语言的编码器和相应的注意力模块进行预训练</p>
+<ul>
+<li><p>预训练：</p>
+<p>其实就是中英文分别训练，然后拼起来，就是中英文asr系统，分别训好的模型作为初始化模型</p>
+</li>
+</ul>
+<img src="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220528155234596.png" alt="image-20220528155234596" style="zoom:80%;">
+
+<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><ul>
+<li>数据集：国际公开的中英文混合语音识别数据集 SEAME，该数据集和中国人说英文（夹杂英语）不同，是新加坡人说中文夹杂英文，很多都是英语长句，比起我们说的只有夹杂一两个英语单词还不太一样；</li>
+</ul>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;基于LAS模型的中英文混杂语音识别研究_马夺.caj&#x3D;&#x3D; 西北民族大学 2020  硕士论文</p>
+<p>Ma,  Duo,  Guanyu  Li,  Haihua  Xu,  and  Eng  Siong  Chng.  “Improving  code-switching  speech  recognition with data augmentation and system combination.” In 2019 Asia-Pacific Signal and  Information  Processing  Association  Annual  Summit  and  Conference  (APSIPA  ASC),  pp.  1308-1312. IEEE, 2019.</p>
+</blockquote>
+<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><ul>
+<li><p>训练过程用了计划抽样（schedule sample）[61]：这是由于训练attention过程用的标签训练的（teacher forcing），没有用任何输出概率的预测来影响网络，但是推理时无标签，用的是预测值来作为下一个符号的输入，因此模型泛化性不好；因此用了计划抽样，前期训练用标签，后期训练抽一些预测值作为输入；</p>
+<p>Samy  Bengio,  Oriol  Vinyals,  Navdeep  Jaitly,  and  Noam  Shazeer.  Scheduled  Sampling  for  Sequence  Prediction  with  Recurrent  Neural  Networks.  In  <a target="_blank" rel="noopener" href="http://arxiv.org/abs/1506.03099">http://arxiv.org/abs/1506.03099</a>,  2015</p>
+<p>计划抽样：具体做法是在网络训练时以一定的概率选取网络预测输出标签作为预测下一个标签的条件；</p>
+</li>
+<li><p>Attention：基于注意力机制的 软对齐方式实现文本层次信息和音频层次信息的对齐。</p>
+</li>
+<li><p>CTC：基于帧级别的严格单调对齐的连接时序分布网络，直接从语音特征转换到帧级别的标签序列，然后对帧级别的标签序列进行后处理得到文本序列。</p>
+</li>
+<li><p>▁表示一个空格，中文英文都用bpe建模，</p>
+</li>
+</ul>
+<img src="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220612155642450.png" alt="image-20220612155642450" style="zoom:80%;">
+
+<ul>
+<li>要查看用子词建模的语言模型的困惑度</li>
+</ul>
+<img src="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220612155729885.png" alt="image-20220612155729885" style="zoom:80%;">
+
+<ul>
+<li>介绍了多种注意力机制：<ul>
+<li>点乘注意力机制</li>
+<li>加性注意力机制</li>
+<li>位置感知注意力机制[比较好]</li>
+<li>收敛的注意力机制</li>
+<li>基于LSTM的位置感知注意力机制</li>
+<li>基于位置感知的收敛的注意力机制</li>
+<li>加性的多头注意力机制</li>
+</ul>
+</li>
+</ul>
+<h3 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h3><ul>
+<li>数据集：国际公开的中英文混合语音识别数据集 SEAME；</li>
+<li>模型变大时，梯度累加策略也要加大，多累计几步再更新！这个比较重要，不然可能负优化；</li>
+</ul>
+<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><ul>
+<li>调参：</li>
+</ul>
+<img src="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220612163555584.png" alt="image-20220612163555584" style="zoom:80%;">
+
+<ul>
+<li>SEAME 的两个测试集上，词错误率（WER）分别为 24.4%和 17.6%；</li>
+</ul>
+<img src="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220612163522103.png" alt="image-20220612163522103" style="zoom:80%;">
+
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;中英文混合语音识别数据选择与数据增广方法研究_张皓博.caj&#x3D;&#x3D; 新疆大学 硕士论文 2021</p>
+<p>Monolingual Data Selection Analysis for English-Mandarin Hybrid Code-Switching Speech Recognition</p>
+</blockquote>
+<h3 id="思想"><a href="#思想" class="headerlink" title="思想"></a>思想</h3><h4 id="声学模型："><a href="#声学模型：" class="headerlink" title="声学模型："></a>声学模型：</h4><ul>
+<li><p>数据增广可以增加语音识别模型的鲁棒性，但是<strong>语料的内容</strong>并没有进行相应的扩充，因此在准确度上的收益并不明显。 </p>
+</li>
+<li><p>最近几年，出现了使用语音<strong>合成</strong>作为语音识别的一种数据增广方式[49] [50] [51] [52]；其中包含了将合成的语音加入训练集的方式，还有使用语音识别、语音合成模型联合训练。</p>
+<p>用中英文混合的语音<strong>合成</strong>系统为中英混合语音识别做数据增广；阿里巴巴使用跨语种语音转换（Cross-lingual Voice Conversion）的方式构建了中英文混杂语音识别系统[96]；</p>
+<p>（之前雷博说不可行，因为合成的音是确定的，没有上下文信息，那么现在用一个声学模型部分已经挺好的识别模型，再用合成数据，能否改善语言模型那部分（decoder）），感觉是可能可行的，虽然没有改善声学模型，但是改善了语言模型decoder部分？。</p>
+</li>
+<li><p>使用中文、英文数据训练一个预训练模型， 利用迁移学习的方式[ 55]，构建中英文混杂语音识别系统。当任务中成对的有标签 数据较少，而无标签数据较多时，还可以使用半监督学习构建中英文混杂语音识别 系统[56]。</p>
+</li>
+</ul>
+<h4 id="语言模型："><a href="#语言模型：" class="headerlink" title="语言模型："></a>语言模型：</h4><ul>
+<li>在构建语言模型时，我们可以通过<strong>互联网获取任务相关的文本</strong>。语言模型的构建也可以使用<strong>数据增广</strong>的方式[ 57] [58]，还可以通过<strong>一定的策略生成更多中英文混合的文本</strong>，为大词汇量中英文混杂语音识别构建词汇量充足的中英文混杂的语言模型。例如可以<strong>利用 BERT 模型、或是生成对抗神经网络（GAN）进行文本生成</strong>[ 59] [60]，生成的文本可以构建更大的语言模型，也可以指定领域高频话题语料，来生成特定任务上的语言模型。 </li>
+<li>一般使用神经网络语言模型来提升语音识别的准确率还需要第二步重打分（Rescore）操作，即在解码器解码出的最有可能的一组结果中，利用神经网络语言模型，对每个结果重打分，选取最优可能的结果；通常重打分的操作<strong>可以在 Lattice 上进行，也可以在 N-best 的结果上进行</strong>，但是<strong>在 Lattice 上解码的结果通常要好于 N-best，因为 Lattice 可以表示更大的假设空间</strong>。 </li>
+<li>也有人尝试<strong>不使用重打分的方式让识别过程分两个阶段，他们提出更高效的方式尝试在解码时就使用神经网络语言模</strong>型[84] [85] [86] [87] [88]。</li>
+</ul>
+<h4 id="解码器："><a href="#解码器：" class="headerlink" title="解码器："></a>解码器：</h4><ul>
+<li>为中英文混杂模型构建解码器时，可以将原来单语的解码器中，为那些常发生 翻译替换的中文词添加英文标签，从而来构建混合语音识别的解码器[ 61]。另外，基 于 n-gram 的语言模型，相较于神经网络的语言模型来说，建模能力相对较弱。使 用 RNNLM（Recurrent Neural Network Language Model）构建语音识别的语言模型， 对混合语音识别系统的 n-best 识别结果进行重打分，性能有明显提升[62]；</li>
+</ul>
+<h4 id="词典"><a href="#词典" class="headerlink" title="词典"></a>词典</h4><ul>
+<li>英文：2019 年 Facebook 提出有效的方案，可以让英文词典可直接通过上下文相关的英文字母加边界标记来表示每个词的发音，以此作为声学模型的建模单元[92]；每个字母的开头和结尾使用词边界标志 WB（Word Boundary）标记，大写保持，单词中的部分符号保持。 <ul>
+<li>但英文数据很少时（在中英混里占的比例很少），该方法还不如只用音素建模的识别系统！！[该方法会略微变差]</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220605160510235.png" alt="image-20220605160510235" style="zoom:80%;">
+
+<h4 id="端到端混合语音识别系统：TODO（感觉不错，可以好好看看）"><a href="#端到端混合语音识别系统：TODO（感觉不错，可以好好看看）" class="headerlink" title="端到端混合语音识别系统：TODO（感觉不错，可以好好看看）"></a>端到端混合语音识别系统：TODO（感觉不错，可以好好看看）</h4><ul>
+<li>中英文混杂的端到端语音识别系统也不断被提出[63] [64] [65] [66]。</li>
+<li>（1）数据增广：由于混杂数据相较于纯中文、纯英文 数据较少，训练过程中非常容易过拟合，需要进行数据增广、数据生成的方式防止 模型过拟合，同时提升模型的鲁棒性。因此，数据增广对于中英文混合的端到端语 音识别也是至关重要的[ 67][68]。</li>
+<li>（2）语言模型：端到端模型需要大量有标签数据，可 以训练独立的语言模型，然后对端到端模型进行融合，以达到学习足够的文本规则。 但是语言模型的融合、重打分对模型性能地提升还不算高效。</li>
+<li>（3）基于深度学习的 端到端模型灵活复杂，相较于传统语音识别，融合多任务学习也能够提升模型性能。例如中英文混杂识别联合语种识别[69] [70] [71]、口音识别 [72] [70] [73]、说话人识别 [74]等都 提出了不同的多任务 ASR 模型。</li>
+</ul>
+<h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><ul>
+<li>HMM-TDNN-F ，chain model</li>
+</ul>
+<h3 id="实验-2"><a href="#实验-2" class="headerlink" title="实验"></a>实验</h3><ul>
+<li>数据：数据堂ASRU 2019比赛，200小时中英混+500小时中文；</li>
+<li>发音词典： 210 个普通话音素，以及 42 个英文音素，两个音素集不存在共用音素；<ul>
+<li>改进：发现数据堂的发音词典里面中文部分有很多标注错误的？因此从网上爬取发音，重新做了词典；</li>
+<li>改进：中文重新从网上爬；英文用facebook的上下文相关的音素建模，不是用的上下文无关的音素；【但是效果会变差！】</li>
+<li>改进：由于比赛给定了语言模型，因此按语言模型的词语，重新对文本进行分词（之前是jieba分词），这个效果挺显著；【发音词典和语言模型若更加匹配，就能构建更优的图网络】</li>
+</ul>
+</li>
+<li>添加中文数据对系统的影响：<ul>
+<li><ol>
+<li>使用更多的普通话数据，识别结果的中文部分有明显的改善；识别性能的提升主要来自单个英语单词的语句，从这个角度看来，是符合数据匹配猜测的；（数据中只有一个&#x2F;两个英文的文本居多）</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>更多的普通话数据不会明显影响英语部分的识别；对于那些包含更多英文单词的语句，添加中文单语数据对性能的提升作用有限，甚至是负面影响</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>当添加中文数据超过某个点时，可能会伤害整体的性能，测试集上使用大约 400 小时的普通话数据时，可以获得最佳性能</li>
+</ol>
+</li>
+<li>结果的改善归因于 Man500 数据集合 CS200 数据集在中文方面的紧密的相似性；</li>
+</ul>
+</li>
+<li>数据匹配很关键；</li>
+</ul>
+<h4 id="基于语音转换（VC）的方法进行数据增广："><a href="#基于语音转换（VC）的方法进行数据增广：" class="headerlink" title="基于语音转换（VC）的方法进行数据增广："></a>基于语音转换（VC）的方法进行数据增广：</h4><ul>
+<li>合成只有单个音色，单个说话人，用语音转换的方法扩充不同说话人，就相当于给识别做数据增广；</li>
+</ul>
+<img src="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220605163659641.png" alt="image-20220605163659641" style="zoom:80%;">
+
+<ul>
+<li>Tacotron2-VC 多说话人语音转换系统</li>
+</ul>
+<img src="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220605163721340.png" alt="image-20220605163721340" style="zoom:80%;">
+
+
+
+
+
+
+
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;基于中英文混合模型的语音识别研究&#x3D;&#x3D; 李伟 语音技术 中国电子科技集团公司 第四十三研究所 2011</p>
+</blockquote>
+<p>太早的论文了，没什么参考价值；</p>
+<h3 id="思想-1"><a href="#思想-1" class="headerlink" title="思想"></a>思想</h3><ul>
+<li><p>根据发音学的一些先验知识，提出一种基于主元音及英文音素序列混合的声学模型</p>
+<p>就是把中文和英文的音素混在一起，并且做了一些合并的操作；</p>
+<p>中文的主元音大概有 40 多个，加上英文的 40多个音素，一共 80 多个音素；</p>
+<p>考虑到汉语的声调问题，主元音的音素扩展到 98 个，例如 a 的发音，扩展成a1，a2，a3，a4；</p>
+<p>辅音（21 个）都是无调的，不做扩展。</p>
+<p>考虑到中文和英文的音素有些发音相同，就把这些音素合并到一起，例如 b，p 等。最终得到的音素个数为126 个；</p>
+</li>
+</ul>
+<img src="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220605164650257.png" alt="image-20220605164650257" style="zoom:80%;">
+
+<h3 id="结果-1"><a href="#结果-1" class="headerlink" title="结果"></a>结果</h3><ul>
+<li>比起纯中文和纯英文模型，准确度下降各自从80%下降到70%，但是中英混合从40%上升到70%</li>
+</ul>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;论网络流行语中中英文混合语的语码转换现象&#x3D;&#x3D; 程迎新 渤海大学 2015 六盘水师范学院学报</p>
+</blockquote>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Code-Switching/" rel="tag"># Code-Switching</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/06/27/Code-Switching/TLG%EF%BC%88%E4%B9%9D%EF%BC%89/" rel="next" title="TLG（九）">
+                <i class="fa fa-chevron-left"></i> TLG（九）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="prev" title="Code-Switching论文笔记（二）网上资料">
+                Code-Switching论文笔记（二）网上资料 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Code-Switching%E4%B8%AD%E6%96%87%E8%AE%BA%E6%96%87"><span class="nav-number">1.</span> <span class="nav-text">Code-Switching中文论文</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.0.1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.0.2.</span> <span class="nav-text">思路</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E8%87%AA%E6%B3%A8%E6%84%8F%E5%8A%9B%E4%B8%8E%E6%B7%B7%E5%90%88%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6%E7%9A%84-Transformer%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="nav-number">1.0.2.1.</span> <span class="nav-text">基于自注意力与混合注意力机制的 Transformer结构：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E7%BC%96%E7%A0%81%E5%99%A8-%E8%A7%A3%E7%A0%81%E5%99%A8-Transformer-%E7%9A%84%E9%A2%84%E8%AE%AD%E7%BB%83%E6%9C%BA%E5%88%B6"><span class="nav-number">1.0.2.2.</span> <span class="nav-text">多编码器-解码器 Transformer 的预训练机制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">1.0.3.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-1"><span class="nav-number">1.0.4.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C-1"><span class="nav-number">1.0.5.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C"><span class="nav-number">1.0.6.</span> <span class="nav-text">结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E6%83%B3"><span class="nav-number">1.0.7.</span> <span class="nav-text">思想</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B%EF%BC%9A"><span class="nav-number">1.0.7.1.</span> <span class="nav-text">声学模型：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%EF%BC%9A"><span class="nav-number">1.0.7.2.</span> <span class="nav-text">语言模型：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E7%A0%81%E5%99%A8%EF%BC%9A"><span class="nav-number">1.0.7.3.</span> <span class="nav-text">解码器：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%8D%E5%85%B8"><span class="nav-number">1.0.7.4.</span> <span class="nav-text">词典</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AB%AF%E5%88%B0%E7%AB%AF%E6%B7%B7%E5%90%88%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E7%B3%BB%E7%BB%9F%EF%BC%9ATODO%EF%BC%88%E6%84%9F%E8%A7%89%E4%B8%8D%E9%94%99%EF%BC%8C%E5%8F%AF%E4%BB%A5%E5%A5%BD%E5%A5%BD%E7%9C%8B%E7%9C%8B%EF%BC%89"><span class="nav-number">1.0.7.5.</span> <span class="nav-text">端到端混合语音识别系统：TODO（感觉不错，可以好好看看）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.0.8.</span> <span class="nav-text">模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C-2"><span class="nav-number">1.0.9.</span> <span class="nav-text">实验</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E8%AF%AD%E9%9F%B3%E8%BD%AC%E6%8D%A2%EF%BC%88VC%EF%BC%89%E7%9A%84%E6%96%B9%E6%B3%95%E8%BF%9B%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%A2%9E%E5%B9%BF%EF%BC%9A"><span class="nav-number">1.0.9.1.</span> <span class="nav-text">基于语音转换（VC）的方法进行数据增广：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E6%83%B3-1"><span class="nav-number">1.0.10.</span> <span class="nav-text">思想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C-1"><span class="nav-number">1.0.11.</span> <span class="nav-text">结果</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/06/27/Code-Switching/Code-Switching%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/';
+          this.page.identifier = '2022/06/27/Code-Switching/Code-Switching论文笔记（三）/';
+          this.page.title = 'Code-Switching论文笔记（三）中文论文';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="语言模型," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="4000万条做语言模型G1，中英700万条做语言模型G2，模型融合，融合比例通过测试集整体的ppl来确定G1、G2分别对测试集计算ppl  &#x3D;&#x3D;用词做&#x3D;&#x3D;  123456789101112131415161718192021222324252627282930313233# 700万条中英文训练LM：local&#x2F;train_lms_1gram.sh ngra">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ngram LM实验（二）">
+<meta property="og:url" content="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%20LM%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="4000万条做语言模型G1，中英700万条做语言模型G2，模型融合，融合比例通过测试集整体的ppl来确定G1、G2分别对测试集计算ppl  &#x3D;&#x3D;用词做&#x3D;&#x3D;  123456789101112131415161718192021222324252627282930313233# 700万条中英文训练LM：local&#x2F;train_lms_1gram.sh ngra">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-07-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T07:47:19.556Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="语言模型">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/07/22/语言模型/ngram LM（二）/"/>
+
+
+
+
+
+  <title>Ngram LM实验（二） | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%20LM%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Ngram LM实验（二）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-22T00:00:00+08:00">
+                2022-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">语言模型</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%20LM%EF%BC%88%E4%BA%8C%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/07/22/语言模型/ngram LM（二）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="4000万条做语言模型G1，中英700万条做语言模型G2，模型融合，融合比例通过测试集整体的ppl来确定"><a href="#4000万条做语言模型G1，中英700万条做语言模型G2，模型融合，融合比例通过测试集整体的ppl来确定" class="headerlink" title="4000万条做语言模型G1，中英700万条做语言模型G2，模型融合，融合比例通过测试集整体的ppl来确定"></a>4000万条做语言模型G1，中英700万条做语言模型G2，模型融合，融合比例通过测试集整体的ppl来确定</h2><p>G1、G2分别对测试集计算ppl</p>
+<ul>
+<li>&#x3D;&#x3D;用词做&#x3D;&#x3D;</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">700万条中英文训练LM：</span></span><br><span class="line">local/train_lms_1gram.sh ngram_7g_train_eng_word/lexicon ngram_7g_train_eng_word/text ngram_7g_train_eng_word/lm</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试ppl：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ngram_testset/text_word是1.4万条文本，进行jieba分词</span></span><br><span class="line">ngram -unk -map-unk &quot;嫫&quot; -order 3 -debug 2 -lm ngram_7g_train_eng_word/lm/srilm/srilm.o3g.kn.gz -ppl ngram_testset/text_word &gt;  ngram_testset/ppl/lm1.ppl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 2316918 1-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 61085443 2-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 50367347 3-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">0 zeroprobs, logprob= -979696.3 ppl= 536.1027 ppl1= 699.4325</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">4000万中文、中英文训练LM：（词典来自ngram_train_word/lexicon_word）</span></span><br><span class="line">ngram_7g_train_word/lm_train/srilm/srilm.o3g.kn.gz</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试ppl：</span></span><br><span class="line">ngram -unk -map-unk &quot;嫫&quot; -order 3 -debug 2 -lm ngram_7g_train_word/lm_train/srilm/srilm.o3g.kn.gz -ppl ngram_testset/text_word &gt;  ngram_testset/ppl/lm2.ppl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 767195 1-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 81671836 2-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 91884948 3-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">0 zeroprobs, logprob= -971651.7 ppl= 509.14 ppl1= 662.8064</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">计算合并比例</span></span><br><span class="line">compute-best-mix ngram_testset/ppl/* &gt; ngram_testset/ppl/best_mix</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ngram_testset/ppl/best_mix：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">3596414 non-oov words, best lambda (0.447615 0.552385)</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">pairwise cumulative lambda (1 0.552385)</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">合并模型</span></span><br><span class="line">ngram -order 3 -lm ngram_7g_train_eng_word/lm/srilm/srilm.o3g.kn.gz -lambda 0.447615 -mix-l`m ngram_7g_train_word/lm_train/srilm/srilm.o3g.kn.gz -write-lm ngram_merge_from_7g_train_eng_word_and_7g_train_word/merge_lm.arpa</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">合并后的模型，测试ppl</span></span><br><span class="line">ngram -unk -map-unk &quot;龢&quot; -order 3 -debug 2 -lm ngram_merge_from_7g_train_eng_word_and_7g_train_word/merge_lm.arpa -ppl ngram_testset/text_word &gt;  ngram_testset/ppl/lm_merge.ppl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">0 zeroprobs, logprob= -1.013367e+07 ppl= 657.2279 ppl1= 864.3976</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">python compute_wer_lm_logprob.py --char=1 --v=1 data/xueyuan/text exp/seewo/conformer/test_xueyuan2/ppl_ngram_7g_train_eng_word &gt; exp/seewo/conformer/test_xueyuan2/wer_am_lm_alpha_1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">wer_am_lm_alpha_0.7</span></span><br><span class="line">Overall -&gt; 4.23 % N=591056 C=569560 S=15493 D=6003 I=3529</span><br><span class="line">Mandarin -&gt; 3.77 % N=587425 C=568766 S=14212 D=4447 I=3497</span><br><span class="line">English -&gt; 78.88 % N=3608 C=794 S=1278 D=1536 I=32</span><br><span class="line">Other -&gt; 100.00 % N=23 C=0 S=3 D=20 I=0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">原来</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">wer_am</span></span><br><span class="line">Overall -&gt; 4.59 % N=591056 C=568410 S=18137 D=4509 I=4499</span><br><span class="line">Mandarin -&gt; 4.15 % N=587425 C=567509 S=16695 D=3221 I=4449</span><br><span class="line">English -&gt; 76.41 % N=3608 C=901 S=1437 D=1270 I=50</span><br><span class="line">Other -&gt; 100.00 % N=23 C=0 S=5 D=18 I=0</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<ul>
+<li><p>&#x3D;&#x3D;用字做&#x3D;&#x3D;</p>
+<p>用花哥的声学模型的字典，来作为语言模型的字典，一般来说是语言模型字典大于声学模型，包含了声学模型所有字，以防OOV，并且可以覆盖以后的字，但是我这边先用一样的好了，或者更多，训练集所有字，总之英文的bpe要换一下，先bpe搞一波</p>
+<p>路径：（port 60000）10.22.24.4：&#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;librispeech1&#x2F;s5、（port 51720）10.22.22.2：&#x2F;home&#x2F;yelong&#x2F;data&#x2F;wenet&#x2F;examples&#x2F;multi_cn&#x2F;s0</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">10.22.24.2：~/data/wenet/examples/multi_cn/s0/data_4000_add_we/test_7g_train/text_space	这个把句子用空格分开了，但是英文还没有bpe分词</span></span><br><span class="line">[不靠谱！]tools/text2token.py -s 0 -n 1 data_4000_add_we/test_7g_train/text.... --trans_type phn &gt; data_4000_add_we/test_7g_train/text_space</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">去除行首空格：sed -i <span class="string">&#x27;s/^ *//&#x27;</span> ....</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">然后，把英文之间的空格变成▁	！！[新] 用 split_sentence.py 的话，不需要把英文之间的空格变成▁！！！就是下面这步不用做了</span></span><br><span class="line">sed &#x27;s/\([A-Z]\) \([A-Z]\)/\1▁\2/g&#x27; data_4000_add_we/test_7g_train/text_space_eng | sed &#x27;s/\([A-Z]\) \([A-Z]\)/\1▁\2/g&#x27; | sed &#x27;s/\xEF\xBB\xBF//&#x27; &gt; data_4000_add_we/test_7g_train/text_space_eng_add_line</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">做bpe：</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">tools/text2token.py -s 0 -n 1 -m /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c007/100-101_unigram5000.model <span class="comment">#data_4000_add_we/test_7g_train/text_space_eng_add_line --trans_type cn_char_en_bpe &gt; data_4000_add_we/test_7g_train/text_space_eng_bpe_100-101_unigram5000</span></span></span><br><span class="line">    [旧]tools/text2token.py -s 0 -n 1 -m /home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/bpe.model data_4000_add_we/test_7g_train/text_space_eng_add_line --trans_type cn_char_en_bpe &gt; data_4000_add_we/test_7g_train/text_space_eng_bpe_aban_c009</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">去除行首空格：sed -i <span class="string">&#x27;s/^ *//&#x27;</span> ....</span></span><br><span class="line">[更新]用tools/text2token.py不靠谱，还是用自己写的split_sentence.py！</span><br><span class="line">[新]python split_sentence.py &gt; data_4000_add_we/test_7g_train/text_space_eng_bpe_aban_c009</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">有一些space，乱码，要删除</span></span><br><span class="line">sed -i &#x27;/space/d&#x27;  data_4000_add_we/test_7g_train/text_space_eng_bpe_aban_c009</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">然后和中文一起</span></span><br><span class="line">cat data_4000_add_we/test_7g_train/text_space_cn data_4000_add_we/test_7g_train/text_space_eng_bpe_aban_c009 &gt; data_4000_add_we/test_7g_train/text_space_eng_bpe_aban_c009_and_cn</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试集同样也要做;</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">700万条中英文训练LM（英文用bpe子词、中文用字）：</span></span><br><span class="line">local/train_lms_1gram.sh ngram_7g_train_hua_lexicon_eng/lexicon ngram_7g_train_hua_lexicon_eng/text_space_eng_bpe_aban_c009 ngram_7g_train_hua_lexicon_eng/lm</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试ppl：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这里 ngram_testset_char/text 是1.4万条文本</span></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_hua_lexicon_eng/lm/srilm/srilm.o3g.kn.gz -ppl ngram_testset_char/text_space_eng_bpe_aban_c009 &gt;  ngram_testset_char/ppl/lm1.ppl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 12358 1-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 5639846 2-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 31839516 3-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">0 zeroprobs, logprob= -1052204 ppl= 54.52272 ppl1= 60.16961</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">4000万中文、中英文训练LM（英文用bpe子词、中文用字）：</span></span><br><span class="line">local/train_lms_1gram.sh ngram_7g_train_hua_lexicon/lexicon ngram_7g_train_hua_lexicon/text_space_eng_bpe_aban_c009_and_cn ngram_7g_train_hua_lexicon/lm</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试ppl：</span></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_hua_lexicon/lm/srilm/srilm.o3g.kn.gz -ppl ngram_testset_char/text_space_eng_bpe_aban_c009 &gt;  ngram_testset_char/ppl/lm2.ppl</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">在xueyuan test_20best（已经是带▁的） 上测试ppl（为了rescore）</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">首先对得到的带bpe的解码结果（没有空格）进行加空格，并且bpe分词：</span></span><br><span class="line">tools/text2token.py -s 0 -n 1 -m /home/data/yelong/wenet/examples/aishell/s0/aban-c009/bpe.model /ngram_testset_char/aban_c009_xueyuan/text --trans_type cn_char_en_bpe &gt; /ngram_testset_char/aban_c009_xueyuan/text_space_eng_bpe_aban_c009</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">去除行首空格：sed -i <span class="string">&#x27;s/^ *//&#x27;</span> ....</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">计算测试集ppl：</span></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_hua_lexicon_eng/lm/srilm/srilm.o3g.kn.gz -ppl ngram_testset_char/aban_c009_xueyuan/text_space_eng_bpe_aban_c009 &gt; ngram_7g_train_hua_lexicon_eng/lm/ppl_aban_c009_xueyuan</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">计算wer</span></span><br><span class="line">python compute_wer_lm.py --char=1 --v=1 data/xueyuan/text exp/aban-c009/test_xueyuan/ppl_value_aban_c009_xueyuan_test &gt; exp/aban-c009/test_xueyuan/wer_am_lm_alpha_0.1</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p> split_sentence.py：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sentencepiece <span class="keyword">as</span> spm</span><br><span class="line">sp = spm.SentencePieceProcessor()</span><br><span class="line"><span class="comment">#sp.load(&quot;/home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/bpe.model&quot;)</span></span><br><span class="line">sp.load(<span class="string">&quot;/home/data/yelong/wenet/examples/aishell/s0/aban-c009/bpe.model&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">__tokenize_by_bpe_model</span>(<span class="params">sp, txt</span>):</span><br><span class="line">    tokens = []</span><br><span class="line">    <span class="comment"># CJK(China Japan Korea) unicode range is [U+4E00, U+9FFF], ref:</span></span><br><span class="line">    <span class="comment"># https://en.wikipedia.org/wiki/CJK_Unified_Ideographs_(Unicode_block)</span></span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;([\u4e00-\u9fff])&#x27;</span>)</span><br><span class="line">    <span class="comment"># Example:</span></span><br><span class="line">    <span class="comment">#   txt   = &quot;你好 ITS&#x27;S OKAY 的&quot;</span></span><br><span class="line">    <span class="comment">#   chars = [&quot;你&quot;, &quot;好&quot;, &quot; ITS&#x27;S OKAY &quot;, &quot;的&quot;]</span></span><br><span class="line">    chars = pattern.split(txt.upper())</span><br><span class="line">    mix_chars = [w <span class="keyword">for</span> w <span class="keyword">in</span> chars <span class="keyword">if</span> <span class="built_in">len</span>(w.strip()) &gt; <span class="number">0</span>]</span><br><span class="line">    <span class="keyword">for</span> ch_or_w <span class="keyword">in</span> mix_chars:</span><br><span class="line">        <span class="comment"># ch_or_w is a single CJK charater(i.e., &quot;你&quot;), do nothing.</span></span><br><span class="line">        <span class="keyword">if</span> pattern.fullmatch(ch_or_w) <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            tokens.append(ch_or_w)</span><br><span class="line">        <span class="comment"># ch_or_w contains non-CJK charaters(i.e., &quot; IT&#x27;S OKAY &quot;),</span></span><br><span class="line">        <span class="comment"># encode ch_or_w using bpe_model.</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">for</span> p <span class="keyword">in</span> sp.encode_as_pieces(ch_or_w):</span><br><span class="line">                tokens.append(p)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> tokens</span><br><span class="line"><span class="comment"># txt=&quot;你好▁LET&#x27;S▁GO你 好&quot;</span></span><br><span class="line"><span class="comment"># print(&quot; &quot;.join(__tokenize_by_bpe_model(sp,txt)))</span></span><br><span class="line"><span class="comment">#src_file=&#x27;data_4000_add_we/test_7g_train/text_space_eng_add_line&#x27;</span></span><br><span class="line"><span class="comment">#src_file=&#x27;data_4000_add_we/test_7g_train/text_space_eng&#x27;</span></span><br><span class="line"><span class="comment">#src_file=&#x27;ngram_testset_char/text&#x27;</span></span><br><span class="line"><span class="comment">#src_file=&#x27;ngram_testset_char/text_add_line&#x27;</span></span><br><span class="line"><span class="comment">#src_file=&#x27;ngram_testset_char/aban_c009_xueyuan/text&#x27;</span></span><br><span class="line">src_file=<span class="string">&#x27;ngram_testset_char/aban_c009_xueyuan/text_bpe&#x27;</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(src_file, <span class="string">&quot;r&quot;</span>, encoding=<span class="string">&quot;utf8&quot;</span>) <span class="keyword">as</span> fs:</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fs:</span><br><span class="line">        line = line.strip()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot; &quot;</span>.join(__tokenize_by_bpe_model(sp,line)))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>结果分析：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">对比加不加ngram rescore：</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">baseline：aban-c009 ctc prefix beam search</span></span><br><span class="line">Overall -&gt; 4.47 % N=591030 C=569205 S=17387 D=4438 I=4594</span><br><span class="line">Mandarin -&gt; 4.28 % N=587425 C=566713 S=16692 D=4020 I=4405</span><br><span class="line">English -&gt; 36.01 % N=3599 C=2492 S=694 D=413 I=189</span><br><span class="line">Other -&gt; 100.00 % N=6 C=0 S=1 D=5 I=0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">预期能达到最好的情况（rescore能改善的空间）：</span></span><br><span class="line">python compute_wer_best.py --char=1 --v=1 data/xueyuan/text exp/aban-c009/test_xueyuan/text &gt; exp/aban-c009/test_xueyuan/wer_20best</span><br><span class="line"></span><br><span class="line">Overall -&gt; 2.56 % N=591032 C=578565 S=9711 D=2756 I=2678</span><br><span class="line">Mandarin -&gt; 2.43 % N=587425 C=575731 S=9235 D=2459 I=2571</span><br><span class="line">English -&gt; 24.27 % N=3601 C=2834 S=475 D=292 I=107</span><br><span class="line">Other -&gt; 100.00 % N=6 C=0 S=1 D=5 I=0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">rescore结果：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ngram_7g_train_hua_lexicon_eng/text2token/lm：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ngram_7g_train_hua_lexicon_eng_lm_text2token/wer_am_lm_alpha_0.2</span></span><br><span class="line">Overall -&gt; 4.12 % N=591032 C=571202 S=14610 D=5220 I=4515</span><br><span class="line">Mandarin -&gt; 3.93 % N=587425 C=568694 S=14035 D=4696 I=4364</span><br><span class="line">English -&gt; 34.55 % N=3601 C=2508 S=574 D=519 I=151</span><br><span class="line">Other -&gt; 100.00 % N=6 C=0 S=1 D=5 I=0</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>上面的比如 LET’S没有分开，优点问题，现在重新做了一次，用的split_sentence.py，现在是新的结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">700万条中英文训练LM（英文用bpe子词、中文用字）：</span></span><br><span class="line">local/train_lms_1gram.sh ngram_7g_train_hua_lexicon_eng/lexicon ngram_7g_train_hua_lexicon_eng/text_space_eng_bpe_aban_c009 ngram_7g_train_hua_lexicon_eng/lm</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试ppl：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这里 ngram_testset_char/text 是1.4万条文本</span></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_hua_lexicon_eng/lm/srilm/srilm.o3g.kn.gz -ppl ngram_testset_char/text_space_eng_bpe_aban_c009 &gt;  ngram_testset_char/ppl/lm1.ppl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 12358 1-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 5641167 2-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 31842760 3-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">0 zeroprobs, logprob= -1052185 ppl= 54.49828 ppl1= 60.1414</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">4000万中文、中英文训练LM（英文用bpe子词、中文用字）：</span></span><br><span class="line">local/train_lms_1gram.sh ngram_7g_train_hua_lexicon/lexicon ngram_7g_train_hua_lexicon/text_space_eng_bpe_aban_c009_and_cn ngram_7g_train_hua_lexicon/lm</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试ppl：</span></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_hua_lexicon/lm/srilm/srilm.o3g.kn.gz -ppl ngram_testset_char/text_space_eng_bpe_aban_c009 &gt;  ngram_testset_char/ppl/lm2.ppl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 12358 1-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 6916323 2-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 50028207 3-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">0 zeroprobs, logprob= -1036973 ppl= 51.43724 ppl1= 56.6826</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">计算测试集ppl：</span></span><br><span class="line">python word_sentence.py &gt; ngram_testset_char/aban_c009_xueyuan/text_space_eng_bpe_aban_c009</span><br><span class="line"></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_hua_lexicon_eng/lm/srilm/srilm.o3g.kn.gz -ppl ngram_testset_char/aban_c009_xueyuan/text_space_eng_bpe_aban_c009 &gt; ngram_7g_train_hua_lexicon_eng/lm/ppl_aban_c009_xueyuan</span><br><span class="line"></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_hua_lexicon/lm/srilm/srilm.o3g.kn.gz -ppl ngram_testset_char/aban_c009_xueyuan/text_space_eng_bpe_aban_c009 &gt; ngram_7g_train_hua_lexicon/lm/ppl_aban_c009_xueyuan</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ngram_7g_train_hua_lexicon_eng_lm：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">wer_am_lm_alpha_0.2</span></span><br><span class="line">Overall -&gt; 4.12 % N=591032 C=571208 S=14605 D=5219 I=4515</span><br><span class="line">Mandarin -&gt; 3.93 % N=587425 C=568695 S=14034 D=4696 I=4364</span><br><span class="line">English -&gt; 34.41 % N=3601 C=2513 S=570 D=518 I=151</span><br><span class="line">Other -&gt; 100.00 % N=6 C=0 S=1 D=5 I=0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ngram_7g_train_hua_lexicon_lm：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">wer_am_lm_alpha_0.18</span></span><br><span class="line">Overall -&gt; 4.10 % N=591032 C=571249 S=14659 D=5124 I=4453</span><br><span class="line">Mandarin -&gt; 3.91 % N=587425 C=568747 S=14077 D=4601 I=4303</span><br><span class="line">English -&gt; 34.68 % N=3601 C=2502 S=581 D=518 I=150</span><br><span class="line">Other -&gt; 100.00 % N=6 C=0 S=1 D=5 I=0</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>​	</p>
+<ul>
+<li><p>&#x3D;&#x3D;中文用字，英文用词，这样就不用因为bpe.model而每次要重新训练LM&#x3D;&#x3D;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">把测试集句子分成中文空格分开的字、英文空格分开的词</span></span><br><span class="line">python split_sentence_nobpe.py  &gt; ngram_testset_char/text_space</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">700万条中英文训练LM（英文用词、中文用字）：</span></span><br><span class="line">local/train_lms_1gram.sh ngram_7g_train_char/lexicon ngram_7g_train_char/text_space_eng ngram_7g_train_char/lm_eng</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试ppl：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这里 ngram_testset_char/text_space 是1.4万条文本</span></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_char/lm_eng/srilm/srilm.o3g.kn.gz -ppl ngram_testset_char/text_space &gt; ngram_testset_char/ppl_char/lm1.ppl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 34111 1-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 6114244 2-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 31739092 3-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">0 zeroprobs, logprob= -1051788 ppl= 54.54516 ppl1= 60.19802</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">4000万中文、中英文训练LM（英文用bpe子词、中文用字）：</span></span><br><span class="line">local/train_lms_1gram.sh ngram_7g_train_char/lexicon ngram_7g_train_char/text_space ngram_7g_train_char/lm_eng_cn</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试ppl：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这里 ngram_testset_char/text_space 是1.4万条文本</span></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_char/lm_eng_cn/srilm/srilm.o3g.kn.gz -ppl ngram_testset_char/text_space &gt; ngram_testset_char/ppl_char/lm2.ppl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 34111 1-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 7389346 2-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 49923410 3-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">0 zeroprobs, logprob= -1036779 ppl= 51.5195 ppl1= 56.77883</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">计算测试集ppl（20best）（29w条）</span></span><br><span class="line">python split_sentence_nobpe.py &gt; ngram_testset_char/aban_c009_xueyuan/text_space</span><br><span class="line"></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_char/lm_eng/srilm/srilm.o3g.kn.gz -ppl ngram_testset_char/aban_c009_xueyuan/text_space &gt; ngram_7g_train_char/lm_eng/ppl_aban_c009_xueyuan</span><br><span class="line"></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_char/lm_eng_cn/srilm/srilm.o3g.kn.gz -ppl ngram_testset_char/aban_c009_xueyuan/text_space &gt; ngram_7g_train_char/lm_eng_cn/ppl_aban_c009_xueyuan</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">有些地方是没有输出结果，计算ngram没有返回值，这些句子要手动空行</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">qq是只有一行的y空行</span></span><br><span class="line">sed -i &#x27;5600 r qq&#x27; ppl_value_aban_c009_xueyuan</span><br><span class="line">sed -i &#x27;11812 r qq&#x27; ppl_value_aban_c009_xueyuan</span><br><span class="line">sed -i &#x27;35862 r qq&#x27; ppl_value_aban_c009_xueyuan</span><br><span class="line">sed -i &#x27;58228 r qq&#x27; ppl_value_aban_c009_xueyuan</span><br><span class="line">sed -i &#x27;107511 r qq&#x27; ppl_value_aban_c009_xueyuan</span><br><span class="line">sed -i &#x27;117260 r qq&#x27; ppl_value_aban_c009_xueyuan</span><br><span class="line">sed -i &#x27;121642 r qq&#x27; ppl_value_aban_c009_xueyuan</span><br><span class="line">sed -i &#x27;208564 r qq&#x27; ppl_value_aban_c009_xueyuan</span><br><span class="line">sed -i &#x27;245827 r qq&#x27; ppl_value_aban_c009_xueyuan</span><br><span class="line">sed -i &#x27;290460 r qq&#x27; ppl_value_aban_c009_xueyuan</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">对比加不加ngram rescore：</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">baseline：aban-c009 ctc prefix beam search</span></span><br><span class="line">Overall -&gt; 4.47 % N=591030 C=569205 S=17387 D=4438 I=4594</span><br><span class="line">Mandarin -&gt; 4.28 % N=587425 C=566713 S=16692 D=4020 I=4405</span><br><span class="line">English -&gt; 36.01 % N=3599 C=2492 S=694 D=413 I=189</span><br><span class="line">Other -&gt; 100.00 % N=6 C=0 S=1 D=5 I=0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">预期能达到最好的情况（rescore能改善的空间）：</span></span><br><span class="line">python compute_wer_best.py --char=1 --v=1 data/xueyuan/text exp/aban-c009/test_xueyuan/text &gt; exp/aban-c009/test_xueyuan/wer_20best</span><br><span class="line"></span><br><span class="line">Overall -&gt; 2.56 % N=591032 C=578565 S=9711 D=2756 I=2678</span><br><span class="line">Mandarin -&gt; 2.43 % N=587425 C=575731 S=9235 D=2459 I=2571</span><br><span class="line">English -&gt; 24.27 % N=3601 C=2834 S=475 D=292 I=107</span><br><span class="line">Other -&gt; 100.00 % N=6 C=0 S=1 D=5 I=0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ngram_7g_train_char/lm_eng：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ngram_7g_train_char_lm_eng/wer_am_lm_alpha_0.2</span></span><br><span class="line">Overall -&gt; 4.12 % N=591032 C=571210 S=14609 D=5213 I=4518</span><br><span class="line">Mandarin -&gt; 3.93 % N=587425 C=568703 S=14030 D=4692 I=4363</span><br><span class="line">English -&gt; 34.68 % N=3601 C=2507 S=578 D=516 I=155</span><br><span class="line">Other -&gt; 100.00 % N=6 C=0 S=1 D=5 I=0</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">英文没有bpe分词的好，说明按英文word单词数还是有点太多，但是只变差一丢丢，计算方便了很多，所以用词直接建模也是OK的！！！！！！！！！！！；</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ngram_7g_train_char/lm_eng_cn：</span></span><br><span class="line">Overall -&gt; 4.10 % N=591032 C=571281 S=14582 D=5169 I=4470</span><br><span class="line">Mandarin -&gt; 3.91 % N=587425 C=568779 S=13999 D=4647 I=4319</span><br><span class="line">English -&gt; 34.71 % N=3601 C=2502 S=582 D=517 I=151</span><br><span class="line">Other -&gt; 100.00 % N=6 C=0 S=1 D=5 I=0</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>&#x3D;&#x3D;小结&#x3D;&#x3D;：</p>
+<ul>
+<li><p>英文直接用词做LM没有bpe分词的好，说明按英文word单词数还是有点太多，但是只变差一丢丢，计算方便了很多，所以用词直接建模也是OK的！！！！！！！！！！！</p>
+<p>但是，英文直接用词，会有可能出现测试集里有词典没有的词，OOV的出现！！用bpe就没有这个问题！！</p>
+</li>
+<li><p>训练LM纯中文文本多了（700中英 -&gt; 4000纯中文+中英），中文部分结果会变好，英文只变差了一丢丢；</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h1><ol>
+<li>字建模的ngram LM比词建模的ngram LM的wer更低</li>
+<li>只用3500小时对应的文本不够，7G垂直领域文本有用，比其他领域更多的中英数据还有用；</li>
+<li>wer改善其实很小，对于英文的改善更小；</li>
+<li>做按字的分词估计有点问题</li>
+</ol>
+<h1 id="原因分析"><a href="#原因分析" class="headerlink" title="原因分析"></a>原因分析</h1><ol>
+<li><p>为什么字建模比词建模效果好？</p>
+<ol>
+<li>先排除oov的干扰，确认不是词的oov后，ngram建模出发来看，2gram的概率公式为$\large P(w_i|w_{i-1})&#x3D;\frac{count(w_{i-1}w_i)}{count(w_{i-1})}$，分子是同时发生的频次，分母是前一个词发生的频次，因此，以词建模的ngram有一下几个问题：<ol>
+<li>词数多（几十万个），在比如“我”后面，可以接的词太多，概率都很低？</li>
+<li>训练数据不够多，统计量分到词组少，就很少了，造成概率都偏低，nbest区分不明显；</li>
+<li>错误词分词拆成字，反而概率更高：比如“黝黑”logprob-4，但是“呦 嘿”的logprob反而更大，造成错别字的ppl更小</li>
+</ol>
+</li>
+<li>oov的影响：oov较多，概率不准确：ngram直接计算oov，oov对应logprob是-inf，但计算句子的logprob时这个-inf并没有加上，会造成错误</li>
+</ol>
+</li>
+<li><p>（花哥教）从识别出nbest的角度进行解释：LM可以判断一句话像不像话，他的“顺序”判别能力 优于错别字的判别能力；而识别出来的nbest可能只是错一两个字，语序的错误并不多，因此难判断，还有就是比如“中国人民共和国”是一个词，如果nbest里错了一个字，则不是一个词了，该词的概率就没有了，就分词分成更小的了，这样它的概率优势就凸显不了了；</p>
+</li>
+<li><p>原理出发，来衡量n-best哪句话最像话，是否可以用ppl来衡量？</p>
+<p>ppl适合来比较语言模型对某个数据集的匹配程度，能比较出来，比如这个语言模型比起另一个语言模型更匹配某个数据集；</p>
+<p>可能它不适合在同一个语言模型下，比较两句话的ppl，来衡量哪句话更像话；</p>
+</li>
+</ol>
+<p>ngram -unk  -map-unk “<UNK>“ -lm 11&#x2F;srilm&#x2F;srilm.o3g.kn.gz -order 2 -ppl 2 -debug 2</UNK></p>
+<h2 id="用更多数据"><a href="#用更多数据" class="headerlink" title="用更多数据"></a>用更多数据</h2><p>用贤祥给的2400万条中英文本，还有7g_train一共700万条中英文本，一共3100万条（ngram_7g_train_30w_2017_seewo_eng_word&#x2F;text）24.4 &#x2F;home&#x2F;data&#x2F;yelong&#x2F;kaldi&#x2F;egs&#x2F;librispeech1&#x2F;s5&#x2F;</p>
+<p>琳姐的词典，做一个LM</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">cat ngram_7g_train_eng_word/text 30w_2017_seewo/30w_2017_seewo_nopunc_freq_cn_en &gt; ngram_7g_train_30w_2017_seewo_eng_word/text</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">再把am的词典的字，合并进琳姐词典中（有600个生字是琳姐词典里没有的），得到ngram_7g_train_30w_2017_seewo_eng_word/lexicon</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">训练LM</span></span><br><span class="line">local/train_lms_1gram.sh ngram_7g_train_30w_2017_seewo_eng_word/lexicon ngram_7g_train_30w_2017_seewo_eng_word/text ngram_7g_train_30w_2017_seewo_eng_word/lm</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 测试1.4w测试集ppl</span></span></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_30w_2017_seewo_eng_word/lm/srilm/srilm.o3g.kn.gz -ppl ngram_testset/text_word &gt;  ngram_testset/ppl_word/lm1.ppl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 134090 1-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 43612597 2-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 55833679 3-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">0 zeroprobs, logprob= -1066023 ppl= 514.9295 ppl1= 654.8651</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">计算测试集ppl：</span></span><br><span class="line">python word_segment_again.py &gt; ngram_testset/aban_c009_xueyuan/text_word</span><br><span class="line">sed -i &#x27;s/ &#x27;\&#x27;&#x27;/&#x27;\&#x27;&#x27;/g&#x27; ngram_testset/aban_c009_xueyuan/text_word</span><br><span class="line">sed -i &#x27;s/&#x27;\&#x27;&#x27; /&#x27;\&#x27;&#x27;/g&#x27; ngram_testset/aban_c009_xueyuan/text_word</span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_30w_2017_seewo_eng_word/lm/srilm/srilm.o3g.kn.gz -ppl ngram_testset/aban_c009_xueyuan/text_word &gt; ngram_7g_train_30w_2017_seewo_eng_word/lm/ppl_aban_c009_xueyuan</span><br><span class="line"></span><br><span class="line">for alpha in 0.02 0.005 0.01 0.015 0.018 0.022 0.03 0.04 0.05 0.06 0.07 0.08 0.09; do</span><br><span class="line">    python compute_wer_lm.py --char=1 --v=1 data/xueyuan/text exp/aban-c009/test_xueyuan/ngram_7g_train_30w_2017_seewo_eng_word_lm/ppl_value_aban_c009_xueyuan_test $alpha &gt; exp/aban-c009/test_xueyuan/ngram_7g_train_30w_2017_seewo_eng_word_lm/wer_am_lm_alpha_$alpha</span><br><span class="line">done</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">baseline：aban-c009 ctc prefix beam search</span></span><br><span class="line">Overall -&gt; 4.47 % N=591030 C=569205 S=17387 D=4438 I=4594</span><br><span class="line">Mandarin -&gt; 4.28 % N=587425 C=566713 S=16692 D=4020 I=4405</span><br><span class="line">English -&gt; 36.01 % N=3599 C=2492 S=694 D=413 I=189</span><br><span class="line">Other -&gt; 100.00 % N=6 C=0 S=1 D=5 I=0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ngram_7g_train_30w_2017_seewo_eng_word_lm：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">wer_am_lm_alpha_0.007</span></span><br><span class="line">Overall -&gt; 4.32 % N=591032 C=570190 S=15903 D=4939 I=4702</span><br><span class="line">Mandarin -&gt; 4.14 % N=587425 C=567617 S=15300 D=4508 I=4521</span><br><span class="line">English -&gt; 33.55 % N=3601 C=2573 S=602 D=426 I=180</span><br><span class="line">Other -&gt; 116.67 % N=6 C=0 S=1 D=5 I=1</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">中文提升3%，英文提升6%，加中英数据，英文变好了一点点，但是中文提升没之前多了，但是中文已经很好了</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>对比三种词建模在1.4w条的ppl：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">ngram -unk -map-unk &quot;嫫&quot; -order 3 -debug 2 -lm ngram_7g_train_eng_word/lm/srilm/srilm.o3g.kn.gz -ppl ngram_testset/text_word &gt;  ngram_testset/ppl/lm1.ppl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 2316918 1-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 61085443 2-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 50367347 3-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">0 zeroprobs, logprob= -1099945 ppl= 628.1117 ppl1= 804.9393</span></span><br><span class="line"></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_word/lm_train/srilm/srilm.o3g.kn.gz -ppl ngram_testset/text_word &gt;  ngram_testset/ppl/lm2.ppl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 767195 1-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 81671836 2-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 91884948 3-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">0 zeroprobs, logprob= -1087195 ppl= 582.9138 ppl1= 744.8724</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ngram -unk -map-unk &quot;厶&quot; -order 3 -debug 2 -lm ngram_7g_train_30w_2017_seewo_eng_word/lm/srilm/srilm.o3g.kn.gz -ppl ngram_testset/text_word &gt;  ngram_testset/ppl_word/lm1.ppl</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 134090 1-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 43612597 2-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">reading 55833679 3-grams</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">0 zeroprobs, logprob= -1066023 ppl= 514.9295 ppl1= 654.8651</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+<h2 id="一些脚本"><a href="#一些脚本" class="headerlink" title="一些脚本"></a>一些脚本</h2><p>把句子拆成空格间隔，bpe分词</p>
+<p>（用text2token进行bpe分词，LET’S是拆不开的）</p>
+<p>split_sentence.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sentencepiece <span class="keyword">as</span> spm</span><br><span class="line">sp = spm.SentencePieceProcessor()</span><br><span class="line">sp.load(<span class="string">&quot;/home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/bpe.model&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">__tokenize_by_bpe_model</span>(<span class="params">sp, txt</span>):</span><br><span class="line">    tokens = []</span><br><span class="line">    <span class="comment"># CJK(China Japan Korea) unicode range is [U+4E00, U+9FFF], ref:</span></span><br><span class="line">    <span class="comment"># https://en.wikipedia.org/wiki/CJK_Unified_Ideographs_(Unicode_block)</span></span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;([\u4e00-\u9fff])&#x27;</span>)</span><br><span class="line">    <span class="comment"># Example:</span></span><br><span class="line">    <span class="comment">#   txt   = &quot;你好 ITS&#x27;S OKAY 的&quot;</span></span><br><span class="line">    <span class="comment">#   chars = [&quot;你&quot;, &quot;好&quot;, &quot; ITS&#x27;S OKAY &quot;, &quot;的&quot;]</span></span><br><span class="line">    chars = pattern.split(txt.upper())</span><br><span class="line">    mix_chars = [w <span class="keyword">for</span> w <span class="keyword">in</span> chars <span class="keyword">if</span> <span class="built_in">len</span>(w.strip()) &gt; <span class="number">0</span>]</span><br><span class="line">    <span class="keyword">for</span> ch_or_w <span class="keyword">in</span> mix_chars:</span><br><span class="line">        <span class="comment"># ch_or_w is a single CJK charater(i.e., &quot;你&quot;), do nothing.</span></span><br><span class="line">        <span class="keyword">if</span> pattern.fullmatch(ch_or_w) <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            tokens.append(ch_or_w)</span><br><span class="line">        <span class="comment"># ch_or_w contains non-CJK charaters(i.e., &quot; IT&#x27;S OKAY &quot;),</span></span><br><span class="line">        <span class="comment"># encode ch_or_w using bpe_model.</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">for</span> p <span class="keyword">in</span> sp.encode_as_pieces(ch_or_w):</span><br><span class="line">                tokens.append(p)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> tokens</span><br><span class="line"><span class="comment"># txt=&quot;你好▁LET&#x27;S▁GO你 好&quot;</span></span><br><span class="line"><span class="comment"># print(&quot; &quot;.join(__tokenize_by_bpe_model(sp,txt)))</span></span><br><span class="line">src_file=<span class="string">&#x27;....&#x27;</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(src_file, <span class="string">&quot;r&quot;</span>, encoding=<span class="string">&quot;utf8&quot;</span>) <span class="keyword">as</span> fs:</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fs:</span><br><span class="line">        line = line.strip()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot; &quot;</span>.join(__tokenize_by_bpe_model(sp,line)))</span><br></pre></td></tr></table></figure>
+
+
+
+<p>把句子拆成空格间隔，英文也拆开，没有bpe分词（假设没有标点符号）</p>
+<p>split_sentence_nobpe.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="comment">#import sentencepiece as spm</span></span><br><span class="line"><span class="comment">#sp = spm.SentencePieceProcessor()</span></span><br><span class="line"><span class="comment">#sp.load(&quot;/home/yelong/data/wenet/examples/aishell/s0/exp/aban-c009/bpe.model&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">__tokenize_by_bpe_model</span>(<span class="params">txt</span>):</span><br><span class="line">    tokens = []</span><br><span class="line">    <span class="comment"># CJK(China Japan Korea) unicode range is [U+4E00, U+9FFF], ref:</span></span><br><span class="line">    <span class="comment"># https://en.wikipedia.org/wiki/CJK_Unified_Ideographs_(Unicode_block)</span></span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;([\u4e00-\u9fff])&#x27;</span>)</span><br><span class="line">    <span class="comment"># Example:</span></span><br><span class="line">    <span class="comment">#   txt   = &quot;你好 ITS&#x27;S OKAY 的&quot;</span></span><br><span class="line">    <span class="comment">#   chars = [&quot;你&quot;, &quot;好&quot;, &quot; ITS&#x27;S OKAY &quot;, &quot;的&quot;]</span></span><br><span class="line">    chars = pattern.split(txt.upper())</span><br><span class="line">    mix_chars = [w <span class="keyword">for</span> w <span class="keyword">in</span> chars <span class="keyword">if</span> <span class="built_in">len</span>(w.strip()) &gt; <span class="number">0</span>]</span><br><span class="line">    <span class="keyword">for</span> ch_or_w <span class="keyword">in</span> mix_chars:</span><br><span class="line">        <span class="comment"># ch_or_w is a single CJK charater(i.e., &quot;你&quot;), do nothing.</span></span><br><span class="line">        <span class="comment">#if pattern.fullmatch(ch_or_w) is not None:</span></span><br><span class="line">        tokens.append(ch_or_w)</span><br><span class="line">        <span class="comment"># ch_or_w contains non-CJK charaters(i.e., &quot; IT&#x27;S OKAY &quot;),</span></span><br><span class="line">        <span class="comment"># encode ch_or_w using bpe_model.</span></span><br><span class="line">        <span class="comment">#else:</span></span><br><span class="line">            <span class="comment">#for p in sp.encode_as_pieces(ch_or_w):</span></span><br><span class="line">            <span class="comment">#    tokens.append(p)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> tokens</span><br><span class="line"><span class="comment"># txt=&quot;你好▁LET&#x27;S▁GO你 好&quot;</span></span><br><span class="line"><span class="comment"># print(&quot; &quot;.join(__tokenize_by_bpe_model(sp,txt)))</span></span><br><span class="line"><span class="comment">#src_file=&#x27;data_4000_add_we/test_7g_train/text_space_eng_add_line&#x27;</span></span><br><span class="line"><span class="comment">#src_file=&#x27;data_4000_add_we/test_7g_train/text_space_eng&#x27;</span></span><br><span class="line">src_file=<span class="string">&#x27;ngram_testset_char/text&#x27;</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(src_file, <span class="string">&quot;r&quot;</span>, encoding=<span class="string">&quot;utf8&quot;</span>) <span class="keyword">as</span> fs:</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fs:</span><br><span class="line">        line = line.strip()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot; &quot;</span>.join(__tokenize_by_bpe_model(line)))</span><br><span class="line">        <span class="comment">#print(&quot; &quot;.join(__tokenize_by_bpe_model(sp,line)))</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" rel="tag"># 语言模型</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/%E5%9B%B0%E6%83%91%E5%BA%A6/" rel="next" title="困惑度 PPL perplexity">
+                <i class="fa fa-chevron-left"></i> 困惑度 PPL perplexity
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%E7%BB%8F%E9%AA%8C/" rel="prev" title="ngram经验">
+                ngram经验 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#4000%E4%B8%87%E6%9D%A1%E5%81%9A%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8BG1%EF%BC%8C%E4%B8%AD%E8%8B%B1700%E4%B8%87%E6%9D%A1%E5%81%9A%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8BG2%EF%BC%8C%E6%A8%A1%E5%9E%8B%E8%9E%8D%E5%90%88%EF%BC%8C%E8%9E%8D%E5%90%88%E6%AF%94%E4%BE%8B%E9%80%9A%E8%BF%87%E6%B5%8B%E8%AF%95%E9%9B%86%E6%95%B4%E4%BD%93%E7%9A%84ppl%E6%9D%A5%E7%A1%AE%E5%AE%9A"><span class="nav-number">1.</span> <span class="nav-text">4000万条做语言模型G1，中英700万条做语言模型G2，模型融合，融合比例通过测试集整体的ppl来确定</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C"><span class="nav-number"></span> <span class="nav-text">结果</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90"><span class="nav-number"></span> <span class="nav-text">原因分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%9B%B4%E5%A4%9A%E6%95%B0%E6%8D%AE"><span class="nav-number">1.</span> <span class="nav-text">用更多数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E8%84%9A%E6%9C%AC"><span class="nav-number">2.</span> <span class="nav-text">一些脚本</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/07/22/%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/ngram%20LM%EF%BC%88%E4%BA%8C%EF%BC%89/';
+          this.page.identifier = '2022/07/22/语言模型/ngram LM（二）/';
+          this.page.title = 'Ngram LM实验（二）';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="计算机组成," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="计算机科学速成课（三） 2022.12.29 b站 【计算机科学速成课】[40集全&#x2F;精校] - Crash Course Computer Science  20. 文件系统-Files &amp; File Systems文件（比如txt、wav、bmp）在底层全是一样的，一长串二进制，为了知道文件是什么，文件格式至关重要。 元数据 meta data，就是数据头header，写数据的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机科学速成课（三）">
+<meta property="og:url" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="计算机科学速成课（三） 2022.12.29 b站 【计算机科学速成课】[40集全&#x2F;精校] - Crash Course Computer Science  20. 文件系统-Files &amp; File Systems文件（比如txt、wav、bmp）在底层全是一样的，一长串二进制，为了知道文件是什么，文件格式至关重要。 元数据 meta data，就是数据头header，写数据的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229155456876.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229155716320.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229160055376.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229160311205.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229164251003.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229164901465.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229164838329.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229165943601.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229165916051.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229171941945.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229181048214.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230110828008.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230110936985.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230111153237.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230112129035.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230112407564.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230115023741.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230115442227.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230121201963.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230121116431.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230123145005.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230144646123.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230145234823.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230162037668.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230162438942.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230162609656.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230163346522.png">
+<meta property="og:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230164318470.png">
+<meta property="article:published_time" content="2022-12-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-01-05T04:26:59.105Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="计算机组成">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229155456876.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/12/29/计算机组成/计算机科学速成课（三）/"/>
+
+
+
+
+
+  <title>计算机科学速成课（三） | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">计算机科学速成课（三）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-29T00:00:00+08:00">
+                2022-12-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/" itemprop="url" rel="index">
+                    <span itemprop="name">计算机组成</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/12/29/计算机组成/计算机科学速成课（三）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="计算机科学速成课（三）"><a href="#计算机科学速成课（三）" class="headerlink" title="计算机科学速成课（三）"></a>计算机科学速成课（三）</h1><blockquote>
+<p>2022.12.29</p>
+<p>b站 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1EW411u7th/?spm_id_from=333.999.0.0&vd_source=5e9891722f2b62adca440a5e92121b5b">【计算机科学速成课】[40集全&#x2F;精校] - Crash Course Computer Science</a></p>
+</blockquote>
+<h2 id="20-文件系统-Files-amp-File-Systems"><a href="#20-文件系统-Files-amp-File-Systems" class="headerlink" title="20. 文件系统-Files &amp; File Systems"></a>20. 文件系统-Files &amp; File Systems</h2><p>文件（比如txt、wav、bmp）在底层全是一样的，一长串二进制，为了知道文件是什么，文件格式至关重要。</p>
+<p>元数据 meta data，就是数据头header，写数据的一些信息、属性，比如文件有多长。</p>
+<p>为了存多个文件（为了知道不同文件的开头和结尾在哪里，因为存储器只是存大量的bit，没有文件概念），需要一个特殊文件，记录其他文件的位置，这个特殊文件叫“目录文件”。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229155456876.png" alt="image-20221229155456876" style="zoom:50%;">
+
+
+
+<p>目录文件会存每个文件的信息，比如创造时间、开始位置、结束位置。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229155716320.png" alt="image-20221229155716320" style="zoom:50%;">
+
+
+
+<p>增加某文件内存可能会影响后面文件，因此现代文件系统会做两件事：1.把空间分成一块块，有一些“预留空间” slack space 可以方便改动、方便管理。因此目录文件还要记录文件在哪些块里；2.拆分文件，存在多个块里，因此只要分配块，文件可以轻松增大缩小。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229160055376.png" alt="image-20221229160055376" style="zoom:50%;">
+
+
+
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229160311205.png" alt="image-20221229160311205" style="zoom:50%;">
+
+
+
+<p>文件在不同块block里，叫做“碎片” framentation。碎片整理。</p>
+<h2 id="21-压缩-Compression"><a href="#21-压缩-Compression" class="headerlink" title="21. 压缩-Compression"></a>21. 压缩-Compression</h2><p>压缩来减少文件的字节数。</p>
+<p>无损压缩：没有丢失任何数据，解压缩后，数据和压缩前的完全一样。无损压缩的格式有：GIF，PNG，PDF，ZIP。游程编码、字典编码。</p>
+<p>压缩方法：</p>
+<ol>
+<li>游程编码 run-length encoding 减少重复信息，适合经常出现相同值的文件。<strong>消除冗余</strong>。</li>
+</ol>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229164251003.png" alt="image-20221229164251003" style="zoom: 67%;">
+
+<ol start="2">
+<li>字典编码 dictionary encoding 。霍夫曼树 huffman tree。选<strong>频率</strong>最低的两个，放在一起，记录总频率，再重复上述操作。<strong>用更紧凑的表示方法</strong>。</li>
+</ol>
+<p>按频率排列，频率高的在上面。这种<strong>编码不会冲突</strong>，因为树的每条路径唯一，也就是不会出现某个编码是另一个编码的前缀的情况，称为“无前缀” prefix-free。</p>
+<p><img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229164901465.png" alt="image-20221229164901465"></p>
+<p>压缩：</p>
+<p><img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229164838329.png" alt="image-20221229164838329"></p>
+<p>原本是：</p>
+<p><img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229165943601.png" alt="image-20221229165943601"></p>
+<p>变成：</p>
+<p><img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229165916051.png" alt="image-20221229165916051"></p>
+<p>有损压缩 lossy compression 丢掉那些人类区分不出的数据。</p>
+<p>音频压缩，用不同精度编码不同频段。感知编码 perceptual coding。</p>
+<p>图片压缩，人类对物体边缘、尖锐对比敏感，对颜色细微变化不敏感。JPEG</p>
+<p>视频压缩，时间冗余 temporal redundancy 视频中不用每一帧都存这些像素，可以只存变化的部分。这是利用了帧和帧之间的相似性 inter-frame similarity。进一步地，可以找出帧和帧之间相似地补丁，通过比如移动和旋转、变亮和变暗，就也不需要保存像素，只需要对之前帧做操作。MPEG-4。</p>
+<p>但视频中有时会出现补丁错了：这是因为压缩太严重，没有足够容量更新补丁内的像素。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229171941945.png" alt="image-20221229171941945" style="zoom:50%;">
+
+
+
+<h2 id="22-命令行界面-Keyboards-amp-Command-Line-Interfaces"><a href="#22-命令行界面-Keyboards-amp-Command-Line-Interfaces" class="headerlink" title="22. 命令行界面-Keyboards &amp; Command Line Interfaces"></a>22. 命令行界面-Keyboards &amp; Command Line Interfaces</h2><p>人类和计算机交互，早期是电传打字机。命令行交互。后来屏幕代替电传打字机。</p>
+<h2 id="23-屏幕-amp-2D-图形显示-Screens-amp-2D-Graphics"><a href="#23-屏幕-amp-2D-图形显示-Screens-amp-2D-Graphics" class="headerlink" title="23. 屏幕&amp;2D 图形显示-Screens&amp;2D Graphics"></a>23. 屏幕&amp;2D 图形显示-Screens&amp;2D Graphics</h2><p>CRT：阴极射线显像管，原理基于电子打到磷上会发光，然后磁可以控制电子走向，于是可以控制达到屏幕的图案，再通过光栅扫描（沿着行、列，一行行扫描，在某些地方有电子，有些地方没电子），持续重复扫描，图案就可以持续显示在屏幕上。</p>
+<p>字符生成器。早期屏幕上不用像素来呈像，而是只显示字符，这样省内存。</p>
+<p>后来出现 CRT上的“矢量模型”。认为所有图形都由线条组成。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221229181048214.png" alt="image-20221229181048214" style="zoom:50%;">
+
+
+
+<p><strong>Sketchpad</strong> ，一个交互式图形界面，用途是计算机辅助设计 (CAD)。</p>
+<p><strong>光笔</strong>，就是一个有线连着电脑的触控笔，有了它们，用户可以画出很完美的线条并进行缩放等操作。</p>
+<p>像素：内存中的位（bit）对应屏幕中的像素，这叫“位图显示”。把图形想成一个巨大的像素值矩阵。计算机把像素数据会缓存起来，存在“帧缓存区”，在显卡上，因此访问速度快。</p>
+<h2 id="24-冷战和消费主义-The-Cold-War-and-Consumerism"><a href="#24-冷战和消费主义-The-Cold-War-and-Consumerism" class="headerlink" title="24. 冷战和消费主义-The Cold War and Consumerism"></a>24. 冷战和消费主义-The Cold War and Consumerism</h2><h2 id="25-个人计算机革命-The-Personal-Computer-Revolution"><a href="#25-个人计算机革命-The-Personal-Computer-Revolution" class="headerlink" title="25. 个人计算机革命-The Personal Computer Revolution"></a>25. 个人计算机革命-The Personal Computer Revolution</h2><p>microcomputer。</p>
+<p>personal computer 。个人计算机。</p>
+<p>解释器 interpreter。解释器和编译器很像，区别是解释器运行时转换（把某种代码转换成可执行机器码），编译器提前转换。</p>
+<h2 id="26-图形用户界面-Graphical-User-Interfaces"><a href="#26-图形用户界面-Graphical-User-Interfaces" class="headerlink" title="26. 图形用户界面-Graphical User Interfaces"></a>26. 图形用户界面-Graphical User Interfaces</h2><p>GUI是“事件驱动编程” event-driver programming ，代码可以在任意时间执行以响应事件。</p>
+<h2 id="27-3D-图形-3D-Graphics"><a href="#27-3D-图形-3D-Graphics" class="headerlink" title="27. 3D 图形-3D Graphics"></a>27. 3D 图形-3D Graphics</h2><p>3D投影 projection：图形算法把3D坐标“拍平”显示到2D屏幕上，就是把所有点从3D转成2D，然后用画2D线段的函数来连接这些点，这叫“<strong>线框渲染</strong>” wireframe rendering。</p>
+<p>3D投影有好多种：正交投影 orthographic projection，各个边在投影钟互相平行；透视投影 perspective projection 平行线段在远处收敛于一点。</p>
+<p>在3D图形学中把三角形称为“多边形”polygons。由多边形组成的茶壶：</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230110828008.png" alt="image-20221230110828008" style="zoom:50%;">
+
+<p>一堆多边形的集合叫“网格”mesh。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230110936985.png" alt="image-20221230110936985" style="zoom:50%;">
+
+<p>用三角形的原因是空间中三个点定义一个平面，只要给3个3D坐标点，就可以画出一个平面。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230111153237.png" alt="image-20221230111153237" style="zoom: 33%;">
+
+
+
+<p>3D图像需要填充，填充图形的经典算法叫“扫描线渲染”scanline rendering。填充就是要把多边形转成一块填满像素的区域。</p>
+<p>扫描线渲染的原理：先铺一层像素网格，找到多边形的三个点的最大和最小的Y值，只在这两点间工作，算法从上往下，一次处理一行，计算每行和多边形相交的两个点（然后因为是三角形，如果相交一条边，必然相交另一条边），扫描线算法会填满2个相交点之间的像素。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230112129035.png" alt="image-20221230112129035" style="zoom:50%;">
+
+<p>填充速率叫fillrate。</p>
+<p>但是这样边缘会有锯齿，一种减轻锯齿的方法叫“抗锯齿”anti-aliasing。通过判断多边形切过像素的程度，来调整颜色。如果像素在多边形内部，就直接涂颜色；如果多边形划过像素，颜色就浅一些。这种边缘羽化的效果，看着更舒服。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230112407564.png" alt="image-20221230112407564" style="zoom:50%;">
+
+
+
+<p>遮挡 occlusion：在3D场景中，由于距离远近不同，多边形往往只有一部分能看见，因为其它的被挡住了。</p>
+<p>实现遮挡的方法：1. 画家算法 painter’s algorithm ，排序算法，从远到近排列，然后从远到近渲染。和画家画画一样，画家也是先画背景，然后再画更近的东西。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230115023741.png" alt="image-20221230115023741" style="zoom:50%;">
+
+<ol start="2">
+<li>深度缓冲 Z-buffering。事先生成一个“缓冲区”网格，里面距离都是无穷远，然后并不排序，依次把三角形填充，发现三角形的距离比缓冲区更小时，缓冲区变成该距离，如果某些地方没有比缓冲区里的值小，则不填充。</li>
+</ol>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230115442227.png" alt="image-20221230115442227" style="zoom: 67%;">
+
+
+
+<p>3D游戏中有个优化叫“背面剔除”back-face culling，因为平面是有两面的，正面和背面，有些物体只需要渲染一面，另一面不渲染，节省处理时间。</p>
+<p>灯光，也叫“明暗处理” shading。3D场景中，物体表面应该有明暗变化。三角形面对的方向叫“表面法线”surface normal，这个方向是垂直于表面的。根据灯光和法线的关系，进行着色。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230121201963.png" alt="image-20221230121201963" style="zoom:50%;">
+
+
+
+<p>纹理 texture 在图形学中指的是“外观”（而不是手感），各种花哨效果。纹理映射 texture mapping。就是把多边形坐标和纹理坐标对应起来，扫描线算法填充颜色时，纹理算法会查询纹理，从响应区域取平均颜色，并填充多边形。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230121116431.png" alt="image-20221230121116431" style="zoom:50%;">
+
+
+
+<p>再大的场景，过程都是一遍又一遍地处理所有多边形。扫描线填充，抗锯齿，光照，纹理化。</p>
+<p>加速渲染：1.用专门的硬件来加速运算；2.把3D场景分成多个小部分，并行渲染。GPU 图形处理单元，GPU在显卡上，周围有专用的RAM（保存网格和纹理），让GPU的多个核心可以高速访问。</p>
+<h2 id="28-计算机网络-Computer-Networks"><a href="#28-计算机网络-Computer-Networks" class="headerlink" title="28. 计算机网络-Computer Networks"></a>28. 计算机网络-Computer Networks</h2><p>局域网 LAN ，以太网。以太网的原理：很多台电脑都用电缆连接（一条以太网电线能连接到彼此各个电脑），当一台电脑要传数据给另一台电脑时，以电信号形式将数据传入电缆，最早因为电缆是共享的，连在同一个网络里的其他计算机也能看见数据，后来以太网需要每台计算机都有唯一的媒体访问控制地址（MAC地址），这个唯一的地址放在头部，作为数据的前缀发送到网络中，所以计算机只需要监听以太网电缆，只有看见自己的MAC地址，才处理数据。</p>
+<p>以太网、无线网络（WIFI）都用的这个机制。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230123145005.png" alt="image-20221230123145005" style="zoom:50%;">
+
+
+
+<p>多台电脑共享一个传输媒介，很多计算机同时侦听载体，这种方法叫“载波侦听多路访问”，carrier sense multiple access，CSMA，载体（carrier）指运输数据的共享媒介，以太网的“载体”是铜线（电缆），WiFi的“载体”是传播无线电波的空气。载体传输数据的速度叫“带宽” bandwidth。</p>
+<p>冲突 collision，多台计算机同时传输数据，会在载体里产生冲突，网络阻塞。解决的方法是遇到冲突，计算机会等待1秒+随机数，也就是1点多秒，然后再看看载体是不是空的，如果是空的就传输，如果不是空的，就等2s，再不是空的就等4s，…，8s，…，这种指数级增加等待时间的方法叫“指数退避” exponential backoff。</p>
+<p>同一个载体连接的设备叫“冲突域”collision domain（可能发生冲突的范围）。为了减少冲突，可以通过“交换机”把一个冲突域拆成两个冲突域。交换机会记录一个列表，写着哪个mac地址在哪边网络（哪个域）。 </p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230144646123.png" alt="image-20221230144646123" style="zoom:50%;">
+
+
+
+<p>计算机网络从一个地点到另一个地点之间通常有多条线路，叫“路由”routing。两个地点之间是专有线路。</p>
+<p>传输数据的另一种方法叫“报文交换”message switching。消息会经过好几个站点。报文交换的好处是 可以用不同路由，使通信更可靠更能容错falut-tolerant。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230145234823.png" alt="image-20221230145234823" style="zoom:50%;">
+
+<p>消息沿着路由跳转的次数，叫“跳数”hop count。通过检测跳数，可以看出报文传输正不正常。</p>
+<p>很大的报文传输会阻塞网络，使得后面的报文传输很慢（因为要等前面的大报文传完，或者选择效率低的路由路线），解决方法是将大报文分成很多小块，叫“数据包”packet。</p>
+<p>报文的具体格式由“互联网协议“（IP）定义。</p>
+<p>同一个报文的数据包可能会经过不同线路，因此到达目的地的顺序不同。TCP&#x2F;IP可以解决乱序问题。</p>
+<p>分组交换 packet switching：将数据包拆分成多个小数据包，然后通过灵活的路由传递。</p>
+<h2 id="29-互联网-The-Internet"><a href="#29-互联网-The-Internet" class="headerlink" title="29. 互联网-The Internet"></a>29. 互联网-The Internet</h2><p>个人计算机和一个巨大的分布式网络连在一起（互联网）。网络传输的过程是这样的，比如手机或电脑要看一个视频，首先要连接到局域网（LAN）上，家庭路由器连着的所有设备，组成了局域网。局域网再连到广域网（WAN），WAN的路由器一般属于在互联网服务提供商（ISP），比如电信联通，广域网里，先连到一个区域路由器，比如覆盖一个街区的路由器，然后连到更大的路由器，比如覆盖一个城市，可能再<strong>跳</strong>几次，达到互联网主干，沿着主干到达视频文件的服务器，比如youtube的服务器。（可以用traceroute来看数据包传输过程中跳了几次）。</p>
+<p>IP是底层协议，只记录了地址，数据传到某地址的计算机之后，不知道要传给哪个程序用，因此还有上层协议，比如”用户数据报协议“UDP。UDP的头header里有<strong>端口号</strong>信息。每个想访问网络的程序都要向操作系统申请一个端口号。</p>
+<ul>
+<li>IP负责把数据包送到正确的计算机；</li>
+<li>UDP负责把数据包送到正确的程序；</li>
+</ul>
+<p>UDP的header里还有校验和。但是UDP也不会修复数据包，也不会让数据重发，接收方遇到数据损坏一般只是扔掉。UDP无法得知数据包是否到达目的地，<strong>发送方</strong>发了数据之后，无法得知数据包是否到达目的地。适用于比如视频通话，速度快，简单。</p>
+<p>TCP，传输控制协议，所有数据必须到达，适合发邮件等不能缺失数据的场景。</p>
+<p>TCP&#x2F;IP。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230162037668.png" alt="image-20221230162037668" style="zoom:50%;">
+
+
+
+<p>TCP的数据包有序号，因此接收方即使收到的数据包的到达时间不同，也可以根据序号把数据包排成正确的顺序；</p>
+<p>TCP要求接收方的电脑收到数据包，并且校验和检查无误后（数据没有损坏），给发送方发一个确认码 ACK，代表收到了。得知上一个数据包成功抵达后，发送方会发下一个数据包。</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230162438942.png" alt="image-20221230162438942" style="zoom:50%;">
+
+
+
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230162609656.png" alt="image-20221230162609656" style="zoom:50%;">
+
+
+
+<p>TCP可以处理乱序和丢失数据包，丢了就重发，还可以根据拥挤程度自动调整传输速率。</p>
+<p>互联网有个服务，负责把域名和IP地址一一对应，就像互联网的电话簿，叫”<strong>域名系统</strong>“，<strong>DNS</strong>，比如输入某个IP+端口号能访问谷歌网址，输入google.com也能访问谷歌。</p>
+<p>域名结构用树形表示：</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230163346522.png" alt="image-20221230163346522" style="zoom:50%;">
+
+
+
+<p>物理层 physical layer：线路里的电信号，无线网络里的无线信号，这些叫”物理层“ physical layer。</p>
+<p>数据链路层 data link layer：媒体访问控制地址（MAC)，冲突检测，指数退避，以及底层协议。 ”数据链路层“负责操控”物理层“。</p>
+<p>网络层 network layer ：负责各种报文交换和路由。</p>
+<p>传输层 transport layer：比如UDP和TCP协议，负责在计算机之间进行点到点的传输，还会检测和修复错误。</p>
+<p>会话层 session layer：会话层会使用TCP和UDP来创建连接，传递信息，然后关掉连接。这一整套叫”会话“。</p>
+<p>OSI：</p>
+<img src="/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/image-20221230164318470.png" alt="image-20221230164318470" style="zoom:50%;">
+
+<p>上面还有”表示层“ presentation layer和”应用程序层“ application layer。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/" rel="tag"># 计算机组成</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/12/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="next" title="计算机科学速成课（二）">
+                <i class="fa fa-chevron-left"></i> 计算机科学速成课（二）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/12/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E5%9B%9B%EF%BC%89/" rel="prev" title="计算机科学速成课（四）">
+                计算机科学速成课（四） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">计算机科学速成课（三）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#20-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F-Files-amp-File-Systems"><span class="nav-number">1.1.</span> <span class="nav-text">20. 文件系统-Files &amp; File Systems</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#21-%E5%8E%8B%E7%BC%A9-Compression"><span class="nav-number">1.2.</span> <span class="nav-text">21. 压缩-Compression</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%95%8C%E9%9D%A2-Keyboards-amp-Command-Line-Interfaces"><span class="nav-number">1.3.</span> <span class="nav-text">22. 命令行界面-Keyboards &amp; Command Line Interfaces</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#23-%E5%B1%8F%E5%B9%95-amp-2D-%E5%9B%BE%E5%BD%A2%E6%98%BE%E7%A4%BA-Screens-amp-2D-Graphics"><span class="nav-number">1.4.</span> <span class="nav-text">23. 屏幕&amp;2D 图形显示-Screens&amp;2D Graphics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#24-%E5%86%B7%E6%88%98%E5%92%8C%E6%B6%88%E8%B4%B9%E4%B8%BB%E4%B9%89-The-Cold-War-and-Consumerism"><span class="nav-number">1.5.</span> <span class="nav-text">24. 冷战和消费主义-The Cold War and Consumerism</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#25-%E4%B8%AA%E4%BA%BA%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%9D%A9%E5%91%BD-The-Personal-Computer-Revolution"><span class="nav-number">1.6.</span> <span class="nav-text">25. 个人计算机革命-The Personal Computer Revolution</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#26-%E5%9B%BE%E5%BD%A2%E7%94%A8%E6%88%B7%E7%95%8C%E9%9D%A2-Graphical-User-Interfaces"><span class="nav-number">1.7.</span> <span class="nav-text">26. 图形用户界面-Graphical User Interfaces</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#27-3D-%E5%9B%BE%E5%BD%A2-3D-Graphics"><span class="nav-number">1.8.</span> <span class="nav-text">27. 3D 图形-3D Graphics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#28-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-Computer-Networks"><span class="nav-number">1.9.</span> <span class="nav-text">28. 计算机网络-Computer Networks</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#29-%E4%BA%92%E8%81%94%E7%BD%91-The-Internet"><span class="nav-number">1.10.</span> <span class="nav-text">29. 互联网-The Internet</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/12/29/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E9%80%9F%E6%88%90%E8%AF%BE%EF%BC%88%E4%B8%89%EF%BC%89/';
+          this.page.identifier = '2022/12/29/计算机组成/计算机科学速成课（三）/';
+          this.page.title = '计算机科学速成课（三）';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="深度学习," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Flow 【李宏毅深度学习】P59 Flow-based Generative Model   李宏毅的视频中说的生成器： 输入z，输出生成的样本x，比如人脸生成，经过生成器输出的是一张人脸（x是高维向量，里面每个元素是pixel）；（我们常见的network一般是x到y之间的映射，输出的是p(y|x)，这里的network（generator）代表的是概率分布p，输出的是x）；  Math ba">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flow 视频 李宏毅">
+<meta property="og:url" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="Flow 【李宏毅深度学习】P59 Flow-based Generative Model   李宏毅的视频中说的生成器： 输入z，输出生成的样本x，比如人脸生成，经过生成器输出的是一张人脸（x是高维向量，里面每个元素是pixel）；（我们常见的network一般是x到y之间的映射，输出的是p(y|x)，这里的network（generator）代表的是概率分布p，输出的是x）；  Math ba">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170650732.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170211549.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170154700.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170145425.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170135548.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170038835.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129165952183.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129171236957.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129222418689.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221130002350890.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221130004025703.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201094831393.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201095626840.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201100050032.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201102620104.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201103039247.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201104051509.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201105512654.png">
+<meta property="og:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201110234981.png">
+<meta property="article:published_time" content="2022-11-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-12-01T03:54:04.072Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="深度学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170650732.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/12/01/深度学习/Flow 视频 李宏毅/"/>
+
+
+
+
+
+  <title>Flow 视频 李宏毅 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Flow 视频 李宏毅</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-01T00:00:00+08:00">
+                2022-12-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/12/01/深度学习/Flow 视频 李宏毅/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Flow"><a href="#Flow" class="headerlink" title="Flow"></a>Flow</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Gb411n7dE?p=59">【李宏毅深度学习】P59 Flow-based Generative Model </a></p>
+</blockquote>
+<p>李宏毅的视频中说的生成器：</p>
+<p>输入z，输出生成的样本x，比如人脸生成，经过生成器输出的是一张人脸（x是高维向量，里面每个元素是pixel）；（我们常见的network一般是x到y之间的映射，输出的是p(y|x)，这里的network（generator）代表的是概率分布p，输出的是x）；</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170650732.png" alt="image-20221129170650732"></p>
+<h2 id="Math-background"><a href="#Math-background" class="headerlink" title="Math background"></a>Math background</h2><h3 id="Jacobian"><a href="#Jacobian" class="headerlink" title="Jacobian"></a>Jacobian</h3><p>如果 $f$ 和 $f^{-1}$ 是可逆关系Invertible  ，即 $ff^{-1}&#x3D;I$ ，则他们各自的jacobian也有可逆关系，即 $J_fJ_{f^{-1}}&#x3D;I$ 。</p>
+<p>jacobian定义是，输入z向量，输出x向量（输入输出维度不用相同），则jacobian为每个输出对每个输入的偏导数，jacobian的不同行是不同输出，不同列是不同输入；</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170211549.png" alt="image-20221129170211549"></p>
+<h3 id="Determinant"><a href="#Determinant" class="headerlink" title="Determinant"></a>Determinant</h3><p>行列式的关系有 $det(A)&#x3D;1&#x2F;det(A^{-1})$ ，因此jacobian矩阵也适用，得到 $det(J_f)&#x3D;1&#x2F;det(J_{f^{-1}})$ ；</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170154700.png" alt="image-20221129170154700"></p>
+<p><strong>行列式物理意义</strong>：行列式绝对值 想象成<strong>高维空间的体积</strong></p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170145425.png" alt="image-20221129170145425"></p>
+<h3 id="Change-of-Variable-Theorem"><a href="#Change-of-Variable-Theorem" class="headerlink" title="Change of Variable Theorem"></a>Change of Variable Theorem</h3><p>样本z（服从 $\pi(z)$ 分布）送入生成器&#x2F;变换后得到样本x，$x&#x3D;f(z)$，x也有一个分布，叫$p(x)$，我们想知道 $p(x)$ 与 $\pi(z)$ 之间有什么关系。</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170135548.png" alt="image-20221129170135548"></p>
+<p>假设z服从简单的均匀分布（这里上下界为0和1，也就是在[0,1]之间有值）；</p>
+<p>这里 $p(x)$ 与 $\pi(z)$ 是概率密度函数；</p>
+<p>积分&#x3D;1；</p>
+<h4 id="想知道一维-p-x-与-pi-z-之间的关系："><a href="#想知道一维-p-x-与-pi-z-之间的关系：" class="headerlink" title="想知道一维 $p(x)$ 与 $\pi(z)$ 之间的关系："></a>想知道一维 $p(x)$ 与 $\pi(z)$ 之间的关系：</h4><p>矩形面积为 $p(x’)\Delta x$ ，当 $\Delta x$ 很小时，写为 $\delta x$，因此可以得到 $\large p(x’)&#x3D;\pi(z’)|\frac{dz}{dx}|$ ；</p>
+<p>加绝对值是因为微分出来可能有正有负，但是 $p(x)$ 与 $\pi(z)$关系不变，因此就直接加绝对值了；</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129170038835.png" alt="image-20221129170038835"></p>
+<p>上述是x、z一维的情况；当x、z是二维时：</p>
+<h4 id="想知道二维-p-x-与-pi-z-之间的关系："><a href="#想知道二维-p-x-与-pi-z-之间的关系：" class="headerlink" title="想知道二维 $p(x)$ 与 $\pi(z)$ 之间的关系："></a>想知道二维 $p(x)$ 与 $\pi(z)$ 之间的关系：</h4><p>积分这里看成体积，等于面积乘以概率密度（想成是高），这里面积就是行列式，左右两边积分都等于1，所以有：<br>$$<br>p\left(x^{\prime}\right)\left|\operatorname{det}\left[\begin{array}{ll}<br>\Delta x_{11} &amp; \Delta x_{21} \<br>\Delta x_{12} &amp; \Delta x_{22}<br>\end{array}\right]\right|&#x3D;\pi\left(z^{\prime}\right) \Delta z_1 \Delta z_2<br>$$<br>原始分布还是均匀分布（矩形）</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129165952183.png" alt="image-20221129165952183"></p>
+<p>其中，$\Delta x_{11}$ 表示 $z_1$ 改变时，$x_1$ 的改变量；$\Delta x_{21}$ 表示 $z_1$ 改变时，$x_2$ 的改变量；$\Delta x_{12}$ 表示 $z_1$ 改变时，$x_2$ 的改变量；$\Delta x_{22}$ 表示 $z_2$ 改变时，$x_2$ 的改变量；</p>
+<p><strong>想知道 $p(x)$ 与 $\pi(z)$ 之间的关系：</strong></p>
+<p>矩阵做转置transpose，不会改变行列式</p>
+<p>公式变换后：</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129171236957.png" alt="image-20221129171236957"></p>
+<p>$p(x)$ 与 $\pi(z)$ 之间的关系为：<br>$$<br>p(x’)|det(J_f)|&#x3D;\pi(z’)<br>$$</p>
+<p>$$<br>p(x’)&#x3D;\pi(z’)|det(J_{f^-1})|<br>$$</p>
+<h2 id="Flow-1"><a href="#Flow-1" class="headerlink" title="Flow"></a>Flow</h2><p>Flow-based generative models 目标是最大似然估计，根据变量变换关系，可以得到：</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221129222418689.png" alt="image-20221129222418689"></p>
+<p>（i是第i个样本）</p>
+<p>但是这里有一个问题，就是维度一高，计算行列式会很困难，我们虽然能知道jacobian（就是z的变换对x的影响），但是行列式很难求；因此需要好好设计生成器，让生成器的jacobian很容易求行列式；</p>
+<p>因为要用到 $G^{-1}$ 所以生成器要是可逆的，并且是好算的、能算的；为了确保G是可逆的，输入z和输出w的维度要是一样的；</p>
+<p>因此生成器的条件为：</p>
+<ol>
+<li>生成器的jacobian很容易求行列式；</li>
+<li>生成器要是可逆的；</li>
+<li>生成器的输入输出维度相同；（其他生成模型，比如GAN、VAE都是输入维度小于输出的，低维映射到高维）</li>
+</ol>
+<p>可以看出，对生成器G的限制是很多的，这样子生成器的能力就很有限了；</p>
+<p>为了克服该缺点，采用叠加多个G的方法，增大G的能力：</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221130002350890.png" alt="image-20221130002350890">
+
+<p>其中， $z^i$ 并不是等于 $G_1^{-1}(x^i)$ ，而是等于  $z^i&#x3D;G_1^{-1}(\cdots G_K^{-1})(x^i))$ ，因为x是最终输出，只有两个G的话是 $x&#x3D;G_2(G_1(z))$ ，因此  $z&#x3D;G_1^{-1}G_2^{-1}(x)$ ；</p>
+<p>先考虑一个G的情况：</p>
+<p>实际上训练（目标）的是G的逆，而不是G，训练的时候，从真实数据中采样的x作为输入，简单的分布采样z作为输出，训练x到z的映射，然后实际用时，生成器取逆，输入简单分布z，输出样本x；</p>
+<p>要最大化似然，第一项、第二项都要最大。第一项最大发生在 $\pi(z)$ 等于0，由于是正态分布（normal distribution）（这里z是正态分布，也是简单分布，不是前面例子的均匀分布），当z等于0时，概率密度 $\pi(z)$ 最大。当z是0向量时，不管输入x是什么，输出z都是0，那么就没有梯度回传，因此G逆的jacobian $J_{G^{-1}}$ 等于0矩阵，因此行列式等于0，$log|det(J_{G^{-1}})|$ 等于负无穷大。</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221130004025703.png" alt="image-20221130004025703"></p>
+<p>因此，要给予某种限制，使得第二项 $log|det(J_{G^{-1}})|$  不会接近负无穷大，也就是 $det(J_{G^{-1}})$ 不接近0；</p>
+<h3 id="Coupling-layer"><a href="#Coupling-layer" class="headerlink" title="Coupling layer"></a>Coupling layer</h3><p>这里有两篇论文（NICE、Real NVP）提出了解决思路：通过一个coupling layer，其中，这个coupling layer是这样的：z的第1维到第d维直接copy到x，作为x的第1维到第d维，同时也通过两个变换 F 和 H ，得到和z的第d+1维到D维同样维度大小的两个向量，记作 $\beta$ 和 $\gamma$ ，再将z的第d+1维到D维与 $\beta$ element-wise 乘，再加上 $\gamma$，也是element-wise 加，得到x的第d+1维到第D维；</p>
+<p><img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201094831393.png" alt="image-20221201094831393"></p>
+<p>其中，z有一部分直接复制给x，因此是可逆的，F和H不要求是不是可逆，可以非常复杂；</p>
+<p>因此，从x推到z的表达式为：<br>$$<br>\begin{aligned}<br>z_{i\le d}&#x3D;&amp; x_i \<br>z_{i&gt; d}&#x3D;&amp;\frac{x_i-\gamma_i}{\beta_i}<br>\end{aligned}<br>$$</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201095626840.png" alt="image-20221201095626840" style="zoom:50%;">
+
+
+
+
+
+
+
+<p>求该coupling layer的jacobian：</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201100050032.png" alt="image-20221201100050032" style="zoom:50%;">
+
+<p>左上角直接copy的，因此是jacobian为单位阵；</p>
+<p>右上角 $x_1$ 到 $x_d$ 与 $z_{d+1}$ 到 $z_D$ 无关，因此x对z的偏导等于0，jacobian为0矩阵；</p>
+<p>左下角我们先不关注，这是因为jacobian有这么一个性质，一个矩阵的jacobian，当左上角是单位阵时，该矩阵的jacobian与右下角的jacobian等价，因此我们只需要求右下角的jacobian；</p>
+<p>右下角是对角阵，因为 $x_{i&gt;d}&#x3D;\beta_i z_i+\gamma_i$ ，因此 $x_i$ 只和 $z_i$ 有关，和其他维度无关，因此只有对角线有值，其他都是0，是对角阵；</p>
+<p><strong>当一个矩阵是对角阵，该矩阵的行列式计算方法是把对角线的元素乘起来</strong>，因此该coupling layer jacobian的行列式为：<br>$$<br>\begin{aligned}<br>\operatorname{det}\left(J_G\right)<br>&amp;&#x3D;\frac{\partial x_{d+1}}{\partial z_{d+1}} \frac{\partial x_{d+2}}{\partial z_{d+2}} \cdots \frac{\partial x_{\mathrm{D}}}{\partial z_{\mathrm{D}}} \<br>&amp;&#x3D;\beta_{d+1} \beta_{d+2} \cdots \beta_D<br>\end{aligned}<br>$$<br>因此，尽管F、H可能是很复杂的网络，但是最后需要的行列式计算是很容易计算得到的，这才是能够实用的（如果计算公式太复杂，就不实用了）</p>
+<p>模型使用coupling layer时，经常是堆叠多个coupling layer，如下图所示。</p>
+<p>上面这种堆叠方法是直接堆叠，会造成上半部分的z直接copy到最后，因此简单分布也会被带到末尾，这是我们不希望的。</p>
+<p>因此采用下面这种堆叠方法，交替堆叠，使得copy的简单分布部分不会被传到末尾；</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201102620104.png" alt="image-20221201102620104" style="zoom:50%;">
+
+
+
+<p>还有其他做法，如下图所示：</p>
+<p>图片生成过程，如何把图片拆为一半copy、一半transform呢？可以有两种拆法：</p>
+<ol>
+<li>image的横轴+纵轴&#x3D;偶数时，copy；等于奇数时，transform；（奇偶可以换）；</li>
+<li>image的channel某几个做copy，某几个做transform；</li>
+</ol>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201103039247.png" alt="image-20221201103039247" style="zoom:50%;">
+
+
+
+<h3 id="1×1-Convolution"><a href="#1×1-Convolution" class="headerlink" title="1×1 Convolution"></a>1×1 Convolution</h3><p>可以<strong>调换不同位置</strong>，这个调换是模型自己调换的（通过weight），不是人为的。</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201104051509.png" alt="image-20221201104051509" style="zoom:50%;">
+
+<p>将同一位置，不同channel的元素z组成向量，乘以W矩阵，得到对应位置的输出x；</p>
+<p>举例：比如z的同一个位置的不同channel组成向量 $[1,2,3]^T$ ，（这个故意对应channel顺序），经过3×3矩阵W后输出x为 $[3,1,2]^T$ ，因此channel顺序就打乱了、调换了。因此说通过一个1×1卷积，可以起到调换位置的作用，shuffle channel。（这里1×1的我理解的是卷积核大小为1×1，channel等于输入的channel）</p>
+<p>1×1conv作用后的jacobian：</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201105512654.png" alt="image-20221201105512654" style="zoom:50%;">
+
+
+
+<p>z输入是d维，输出d维，他们的jacobian矩阵为d×d维，由多个3×3的W组成，只有对角，因为对应位置的z只与相同位置的x相关，与其他位置不相关。</p>
+<p>根据线性代数，行列式表达式为 $(det(W))^{d\times d}$ ；</p>
+<img src="/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/image-20221201110234981.png" alt="image-20221201110234981" style="zoom:50%;">
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/" rel="next" title="端到端合成论文——声码器——Melgan">
+                <i class="fa fa-chevron-left"></i> 端到端合成论文——声码器——Melgan
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/12/02/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Glow%E8%AE%BA%E6%96%87/" rel="prev" title="GLOW论文">
+                GLOW论文 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Flow"><span class="nav-number">1.</span> <span class="nav-text">Flow</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Math-background"><span class="nav-number">1.1.</span> <span class="nav-text">Math background</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Jacobian"><span class="nav-number">1.1.1.</span> <span class="nav-text">Jacobian</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Determinant"><span class="nav-number">1.1.2.</span> <span class="nav-text">Determinant</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Change-of-Variable-Theorem"><span class="nav-number">1.1.3.</span> <span class="nav-text">Change of Variable Theorem</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%83%B3%E7%9F%A5%E9%81%93%E4%B8%80%E7%BB%B4-p-x-%E4%B8%8E-pi-z-%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9A"><span class="nav-number">1.1.3.1.</span> <span class="nav-text">想知道一维 $p(x)$ 与 $\pi(z)$ 之间的关系：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%83%B3%E7%9F%A5%E9%81%93%E4%BA%8C%E7%BB%B4-p-x-%E4%B8%8E-pi-z-%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9A"><span class="nav-number">1.1.3.2.</span> <span class="nav-text">想知道二维 $p(x)$ 与 $\pi(z)$ 之间的关系：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flow-1"><span class="nav-number">1.2.</span> <span class="nav-text">Flow</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Coupling-layer"><span class="nav-number">1.2.1.</span> <span class="nav-text">Coupling layer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1%C3%971-Convolution"><span class="nav-number">1.2.2.</span> <span class="nav-text">1×1 Convolution</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/12/01/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Flow%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/';
+          this.page.identifier = '2022/12/01/深度学习/Flow 视频 李宏毅/';
+          this.page.title = 'Flow 视频 李宏毅';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="多线程,C语言中文网," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="使用条件变量实现线程同步 C语言中文网：使用条件变量实现线程同步   假设一个进程中包含多个线程，这些线程共享变量 x，我们希望某个（或某些）线程等待 “x&#x3D;&#x3D;10’ 条件成立后再执行后续的代码，该如何实现呢？ 您可能想到用 while 循环实现，例如： 123456void* threadFun(void * args)&amp;#123;    while(x !&#x3D; 10)&amp;#12">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用条件变量实现线程同步">
+<meta property="og:url" content="http://example.com/2023/02/23/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="使用条件变量实现线程同步 C语言中文网：使用条件变量实现线程同步   假设一个进程中包含多个线程，这些线程共享变量 x，我们希望某个（或某些）线程等待 “x&#x3D;&#x3D;10’ 条件成立后再执行后续的代码，该如何实现呢？ 您可能想到用 while 循环实现，例如： 123456void* threadFun(void * args)&amp;#123;    while(x !&#x3D; 10)&amp;#12">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-02-23T08:06:40.437Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="多线程">
+<meta property="article:tag" content="C语言中文网">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/02/23/多线程 进程/使用条件变量实现线程同步/"/>
+
+
+
+
+
+  <title>使用条件变量实现线程同步 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/02/23/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用条件变量实现线程同步</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-02-23T00:00:00+08:00">
+                2023-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">多线程</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/02/23/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/02/23/多线程 进程/使用条件变量实现线程同步/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="使用条件变量实现线程同步"><a href="#使用条件变量实现线程同步" class="headerlink" title="使用条件变量实现线程同步"></a>使用条件变量实现线程同步</h1><blockquote>
+<p>C语言中文网：<a target="_blank" rel="noopener" href="http://c.biancheng.net/thread/vip_8617.html">使用条件变量实现线程同步</a> </p>
+</blockquote>
+<p>假设一个进程中包含多个线程，这些线程共享变量 x，我们希望某个（或某些）线程等待 “x&#x3D;&#x3D;10’ 条件成立后再执行后续的代码，该如何实现呢？</p>
+<p>您可能想到用 while 循环实现，例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span>* <span class="title function_">threadFun</span><span class="params">(<span class="type">void</span> * args)</span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(x != <span class="number">10</span>)&#123;</span><br><span class="line">        sleep(<span class="number">5</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 待条件成立后，执行后续的代码</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当线程执行此函数时，会判断 x 的值是否等于 10，如果不等则间隔 5 秒后再重复判断，直到 x 的值等于 10 ，线程才能执行后续的代码。</p>
+<p>直观上看，while 循环确实能够阻塞线程，但这种方法存在严重的效率问题。当线程因条件不成立进入等待状态时，如果此时恰好有另一个线程将 x 的值改为 10，该线程必须等待 5 秒后才能继续执行。如果我们将等待时间缩短（或者直接将 sleep(5) 注释掉），线程将反复判断 x 的值是否等于 10，它可能会一直霸占着 CPU 资源，导致其它线程无法执行，x 变量的值会出现“长时间不改变”的情况。</p>
+<p>针对类似的场景，我们推荐您用<strong>条件变量</strong>来实现。和互斥锁、信号量类似，&#x3D;&#x3D;条件变量本质也是一个全局变量，它的功能是阻塞线程，直至接收到“条件成立”的信号后，被阻塞的线程才能继续执行。&#x3D;&#x3D;</p>
+<p><strong>一个条件变量可以阻塞多个线程，这些线程会组成一个等待队列。当条件成立时，条件变量可以解除线程的“被阻塞状态”。</strong>也就是说，条件变量可以完成以下两项操作：</p>
+<ul>
+<li>阻塞线程，直至接收到“条件成立”的信号；</li>
+<li>向等待队列中的一个或所有线程发送“条件成立”的信号，解除它们的“被阻塞”状态。</li>
+</ul>
+<p>为了避免多线程之间发生“抢夺资源”的问题，条件变量在使用过程中必须和一个互斥锁搭配使用。</p>
+<h2 id="条件变量的具体用法"><a href="#条件变量的具体用法" class="headerlink" title="条件变量的具体用法"></a>条件变量的具体用法</h2><p>POSIX 标准中，条件变量用 pthread_cond_t 类型的变量表示，此类型定义在<code>&lt;pthread.h&gt;</code>头文件中。举个例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="type">pthread_cond_t</span> myCond;</span><br></pre></td></tr></table></figure>
+
+<p>由此，我们就成功创建了一个条件变量。要想使用 myCond 条件变量，还需要进行初始化操作。</p>
+<h4 id="1-初始化条件变量"><a href="#1-初始化条件变量" class="headerlink" title="1) 初始化条件变量"></a>1) 初始化条件变量</h4><p>初始化条件变量的方式有两种，一种是直接将 PTHREAD_COND_INITIALIZER 赋值给条件变量，例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">pthread_cond_t</span> myCond = PTHREAD_COND_INITIALIZER;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>还可以借助 pthread_cond_init() 函数初始化条件变量，语法格式如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_cond_init</span><span class="params">(<span class="type">pthread_cond_t</span> * cond, <span class="type">const</span> <span class="type">pthread_condattr_t</span> * attr)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>参数 cond 用于指明要初始化的条件变量；参数 attr 用于自定义条件变量的属性，通常我们将它赋值为 NULL，表示以系统默认的属性完成初始化操作。</p>
+<p>pthread_cond_init() 函数初始化成功时返回数字 0，反之函数返回非零数。</p>
+<blockquote>
+<p>当 attr 参数为 NULL 时，以上两种初始化方式完全等价。</p>
+</blockquote>
+<h4 id="2-阻塞当前线程，等待条件成立"><a href="#2-阻塞当前线程，等待条件成立" class="headerlink" title="2) 阻塞当前线程，等待条件成立"></a>2) 阻塞当前线程，等待条件成立</h4><p>当条件不成立时，条件变量可以阻塞当前线程，所有被阻塞的线程会构成一个等待队列。</p>
+<p>阻塞线程可以借助以下两个函数实现：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_cond_wait</span><span class="params">(<span class="type">pthread_cond_t</span>* cond, <span class="type">pthread_mutex_t</span>* mutex)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_cond_timedwait</span><span class="params">(<span class="type">pthread_cond_t</span>* cond, <span class="type">pthread_mutex_t</span>* mutex, <span class="type">const</span> <span class="keyword">struct</span> timespec* abstime)</span>; </span><br></pre></td></tr></table></figure>
+
+<p>cond 参数表示已初始化好的条件变量；mutex 参数表示与条件变量配合使用的互斥锁；abstime 参数表示阻塞线程的时间。</p>
+<blockquote>
+<p>注意，abstime 参数指的是绝对时间，例如您打算阻塞线程 5 秒钟，那么首先要得到当前系统的时间，然后再加上 5 秒，最终得到的时间才是传递的实参值。</p>
+</blockquote>
+<p>调用两个函数之前，我们必须先创建好一个互斥锁并完成“加锁”操作，然后才能作为实参传递给 mutex 参数。两个函数会完成以下两项工作：</p>
+<ul>
+<li>阻塞线程，直至接收到“条件成立”的信号；</li>
+<li>当线程被添加到等待队列上时，将互斥锁“解锁”。</li>
+</ul>
+<p>也就是说，函数尚未接收到“条件成立”的信号之前，它将一直阻塞线程执行。注意，当函数接收到“条件成立”的信号后，它并不会立即结束对线程的阻塞，而是先完成对互斥锁的“加锁”操作，然后才解除阻塞。</p>
+<blockquote>
+<p>两个函数都以“原子操作”的方式完成“阻塞线程+解锁”或者“重新加锁+解除阻塞”这两个过程。所谓“原子操作”，即当有多个线程执行相同的某个过程时，虽然它们都会访问互斥锁和条件变量，但之间不会相互干扰。</p>
+</blockquote>
+<p>以上两个函数都能用来阻塞线程，它们的区别在于：</p>
+<ul>
+<li>pthread_cond_wait() 函数可以永久阻塞线程，直到条件变量成立的那一刻；</li>
+<li>pthread_cond_timedwait() 函数只能在 abstime 参数指定的时间内阻塞线程，超出时限后，该函数将重新对互斥锁执行“加锁”操作，并解除对线程的阻塞，函数的返回值为 ETIMEDOUT。</li>
+</ul>
+<p>如果函数成功接收到了“条件成立”的信号，重新对互斥锁完成了“加锁”并使线程继续执行，函数返回数字 0，反之则返回非零数。</p>
+<blockquote>
+<p>POSIX 标准规定，pthread_cond_wait() 和 pthread_cond_timedwait() 函数是可以作为“取消点”的函数。当线程接收到“强制终止执行”的信号后，执行到这两个函数时，线程就会终止执行。有关强制终止执行线程和“取消点”的具体含义，您可以阅读《<a target="_blank" rel="noopener" href="http://c.biancheng.net/thread/vip_8613.html">线程间相互终止执行，这个坑千万别踩！</a>》一文。</p>
+</blockquote>
+<h4 id="3-解除线程的“阻塞”状态"><a href="#3-解除线程的“阻塞”状态" class="headerlink" title="3) 解除线程的“阻塞”状态"></a>3) 解除线程的“阻塞”状态</h4><p>对于被 pthread_cond_wait() 或 pthread_cond_timedwait() 函数阻塞的线程，我们可以借助如下两个函数向它们发送“条件成立”的信号，解除它们的“被阻塞”状态：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_cond_signal</span><span class="params">(<span class="type">pthread_cond_t</span>* cond)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_cond_broadcast</span><span class="params">(<span class="type">pthread_cond_t</span>* cond)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>cond 参数表示初始化好的条件变量。当函数成功解除线程的“被阻塞”状态时，返回数字 0，反之返回非零数。</p>
+<p>两个函数都能解除线程的“被阻塞”状态，区别在于：</p>
+<ul>
+<li>pthread_cond_signal() 函数至少解除一个线程的“被阻塞”状态，如果等待队列中包含多个线程，优先解除哪个线程将由操作系统的线程调度程序决定；</li>
+<li>pthread_cond_broadcast() 函数可以解除等待队列中所有线程的“被阻塞”状态。</li>
+</ul>
+<p>由于互斥锁的存在，解除阻塞后的线程也不一定能立即执行。当互斥锁处于“加锁”状态时，解除阻塞状态的所有线程会组成等待互斥锁资源的队列，等待互斥锁“解锁”。</p>
+<h4 id="4-销毁条件变量"><a href="#4-销毁条件变量" class="headerlink" title="4) 销毁条件变量"></a>4) 销毁条件变量</h4><p>对于初始化好的条件变量，我们可以调用 pthread_cond_destory() 函数销毁它。</p>
+<p>pthread_cond_destory() 函数的语法格式如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">pthread_cond_destroy</span><span class="params">(<span class="type">pthread_cond_t</span> *cond)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>cond 参数表示要销毁的条件变量。如果函数成功销毁 cond 参数指定的条件变量，返回数字 0，反之返回非零数。</p>
+<p>值得一提的是，销毁后的条件变量还可以调用 pthread_cond_init() 函数重新初始化后使用。</p>
+<h2 id="条件变量的实际应用"><a href="#条件变量的实际应用" class="headerlink" title="条件变量的实际应用"></a>条件变量的实际应用</h2><p>接下来，通过一个实例给您演示条件变量的具体用法。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="comment">//初始化互斥锁</span></span><br><span class="line"><span class="type">pthread_mutex_t</span> myMutex = PTHREAD_MUTEX_INITIALIZER;</span><br><span class="line"><span class="comment">//初始化条件变量</span></span><br><span class="line"><span class="type">pthread_cond_t</span> myCond = PTHREAD_COND_INITIALIZER;</span><br><span class="line"><span class="comment">//设置全局变量</span></span><br><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="comment">//线程执行的函数</span></span><br><span class="line"><span class="type">void</span> * <span class="title function_">waitForTrue</span><span class="params">(<span class="type">void</span> *args)</span> &#123;</span><br><span class="line">    <span class="type">int</span> res;</span><br><span class="line">    <span class="comment">//条件变量阻塞线程之前，先对互斥锁执行“加锁”操作</span></span><br><span class="line">    res = pthread_mutex_lock(&amp;myMutex);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;waitForTrue 加锁失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;------等待 x 的值为 10\n&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (pthread_cond_wait(&amp;myCond, &amp;myMutex) == <span class="number">0</span>) &#123;	<span class="comment">//遇到pthread_cond_wait 就会卡住，直到另一个线程遇到pthread_cond_signal，这里才会执行下一步</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;x = %d\n&quot;</span>, x);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//最终将互斥锁解锁</span></span><br><span class="line">    pthread_mutex_unlock(&amp;myMutex);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//线程执行的函数</span></span><br><span class="line"><span class="type">void</span> * <span class="title function_">doneForTrue</span><span class="params">(<span class="type">void</span> *args)</span> &#123;</span><br><span class="line">    <span class="type">int</span> res;</span><br><span class="line">    <span class="keyword">while</span> (x != <span class="number">10</span>) &#123;</span><br><span class="line">        <span class="comment">//对互斥锁执行“加锁”操作</span></span><br><span class="line">        res = pthread_mutex_lock(&amp;myMutex);</span><br><span class="line">        <span class="keyword">if</span> (res == <span class="number">0</span>) &#123;</span><br><span class="line">            x++;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;doneForTrue：x = %d\n&quot;</span>, x);</span><br><span class="line">            sleep(<span class="number">1</span>);</span><br><span class="line">            <span class="comment">//对互斥锁“解锁”</span></span><br><span class="line">            pthread_mutex_unlock(&amp;myMutex);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//发送“条件成立”的信号，解除 mythread1 线程的“被阻塞”状态</span></span><br><span class="line">    res = pthread_cond_signal(&amp;myCond);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;解除阻塞失败\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> res;</span><br><span class="line">    <span class="type">pthread_t</span> mythread1, mythread2;</span><br><span class="line">    res = pthread_create(&amp;mythread1, <span class="literal">NULL</span>, waitForTrue, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;mythread1线程创建失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    res = pthread_create(&amp;mythread2, <span class="literal">NULL</span>, doneForTrue, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;mythread2线程创建失败\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//等待 mythread1 线程执行完成</span></span><br><span class="line">    res = pthread_join(mythread1, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;1：等待线程失败\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//等待 mythread2 线程执行完成</span></span><br><span class="line">    res = pthread_join(mythread2, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (res != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;2：等待线程失败\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//销毁条件变量</span></span><br><span class="line">    pthread_cond_destroy(&amp;myCond);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设程序编写在 thread.c 文件中，执行过程如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># gcc thread.c -o thread.exe -lpthread</span></span><br><span class="line">[root@localhost ~]<span class="comment"># ./thread.exe</span></span><br><span class="line">------等待 x 的值为 10</span><br><span class="line">doneForTrue：x = 1</span><br><span class="line">doneForTrue：x = 2</span><br><span class="line">doneForTrue：x = 3</span><br><span class="line">doneForTrue：x = 4</span><br><span class="line">doneForTrue：x = 5</span><br><span class="line">doneForTrue：x = 6</span><br><span class="line">doneForTrue：x = 7</span><br><span class="line">doneForTrue：x = 8</span><br><span class="line">doneForTrue：x = 9</span><br><span class="line">doneForTrue：x = 10</span><br><span class="line">x = 10</span><br></pre></td></tr></table></figure>
+
+<p>程序中共创建了 2 个线程 mythread1 和 mythread2，其中 mythread1 线程借助条件变量实现了“直到变量 x 的值为 10 时，才继续执行后续代码”的功能，mythread1 线程用于将 x 的变量修改为 10，同时向 mythread1 线程发送“条件成立”的信号，唤醒 mythread1 线程并继续执行。</p>
+<p>某一个线程遇到pthread_cond_wait 就会卡住，直到另一个线程遇到pthread_cond_signal，前一个线程这里才会继续执行下一步。</p>
+<h2 id="std-condition-variable-native-handle"><a href="#std-condition-variable-native-handle" class="headerlink" title="std::condition_variable::native_handle"></a>std::condition_variable::native_handle</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://zh.cppreference.com/w/cpp/thread/condition_variable/native_handle">https://zh.cppreference.com/w/cpp/thread/condition_variable/native_handle</a></p>
+</blockquote>
+<p>用于linux系统、posix系统</p>
+<p>此函数结果的含义和类型是实现定义的。 POSIX 系统上，这可以是 pthread_cond_t* 类型值。 Windows 系统上，这可以是 PCONDITION_VARIABLE 。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag"># 多线程</a>
+          
+            <a href="/tags/C%E8%AF%AD%E8%A8%80%E4%B8%AD%E6%96%87%E7%BD%91/" rel="tag"># C语言中文网</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/02/23/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8%E8%AF%BB%E5%86%99%E9%94%81%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/" rel="next" title="使用读写锁实现线程同步">
+                <i class="fa fa-chevron-left"></i> 使用读写锁实现线程同步
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/02/23/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8%E4%BA%92%E6%96%A5%E9%94%81%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/" rel="prev" title="使用互斥锁实现线程同步">
+                使用互斥锁实现线程同步 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5"><span class="nav-number">1.</span> <span class="nav-text">使用条件变量实现线程同步</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F%E7%9A%84%E5%85%B7%E4%BD%93%E7%94%A8%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">条件变量的具体用法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">1) 初始化条件变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E9%98%BB%E5%A1%9E%E5%BD%93%E5%89%8D%E7%BA%BF%E7%A8%8B%EF%BC%8C%E7%AD%89%E5%BE%85%E6%9D%A1%E4%BB%B6%E6%88%90%E7%AB%8B"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">2) 阻塞当前线程，等待条件成立</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E8%A7%A3%E9%99%A4%E7%BA%BF%E7%A8%8B%E7%9A%84%E2%80%9C%E9%98%BB%E5%A1%9E%E2%80%9D%E7%8A%B6%E6%80%81"><span class="nav-number">1.1.0.3.</span> <span class="nav-text">3) 解除线程的“阻塞”状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E9%94%80%E6%AF%81%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F"><span class="nav-number">1.1.0.4.</span> <span class="nav-text">4) 销毁条件变量</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F%E7%9A%84%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">条件变量的实际应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#std-condition-variable-native-handle"><span class="nav-number">1.3.</span> <span class="nav-text">std::condition_variable::native_handle</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/02/23/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20%E8%BF%9B%E7%A8%8B/%E4%BD%BF%E7%94%A8%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/';
+          this.page.identifier = '2023/02/23/多线程 进程/使用条件变量实现线程同步/';
+          this.page.title = '使用条件变量实现线程同步';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

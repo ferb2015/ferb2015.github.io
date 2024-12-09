@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="语音合成," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="端到端合成论文——声学模型——Tacotron &#x3D;&#x3D;Wang, Yuxuan, et al. “Tacotron: Towards end-to-end speech synthesis.” arXiv preprint arXiv:1703.10135 (2017).&#x3D;&#x3D; Google  citations: 1430 知乎 Tacotron&amp;Ta">
+<meta property="og:type" content="article">
+<meta property="og:title" content="端到端合成论文——声学模型——Tacotron">
+<meta property="og:url" content="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="端到端合成论文——声学模型——Tacotron &#x3D;&#x3D;Wang, Yuxuan, et al. “Tacotron: Towards end-to-end speech synthesis.” arXiv preprint arXiv:1703.10135 (2017).&#x3D;&#x3D; Google  citations: 1430 知乎 Tacotron&amp;Ta">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221107153002024.png">
+<meta property="og:image" content="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108170533821.png">
+<meta property="og:image" content="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108104125133.png">
+<meta property="og:image" content="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108173745272.png">
+<meta property="og:image" content="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108174036419.png">
+<meta property="og:image" content="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108174727511.png">
+<meta property="og:image" content="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108110927345.png">
+<meta property="og:image" content="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108123420015.png">
+<meta property="og:image" content="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221109102922783.png">
+<meta property="og:image" content="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221109104613410.png">
+<meta property="og:image" content="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108175319842.png">
+<meta property="article:published_time" content="2022-11-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T07:51:42.188Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="语音合成">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221107153002024.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/11/14/合成/合成论文笔记(1)/"/>
+
+
+
+
+
+  <title>端到端合成论文——声学模型——Tacotron | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">端到端合成论文——声学模型——Tacotron</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-14T00:00:00+08:00">
+                2022-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90/" itemprop="url" rel="index">
+                    <span itemprop="name">语音合成</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/11/14/合成/合成论文笔记(1)/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="端到端合成论文——声学模型——Tacotron"><a href="#端到端合成论文——声学模型——Tacotron" class="headerlink" title="端到端合成论文——声学模型——Tacotron"></a>端到端合成论文——声学模型——Tacotron</h1><blockquote>
+<p>&#x3D;&#x3D;Wang, Yuxuan, et al. “Tacotron: Towards end-to-end speech synthesis.” <em>arXiv preprint arXiv:1703.10135</em> (2017).&#x3D;&#x3D; Google  citations: 1430</p>
+<p>知乎 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/101064153">Tacotron&amp;Tacotron2——基于深度学习的端到端语音合成模型</a></p>
+<p>语音合成-从入门到放弃.pdf 第 5 章 声学模型  </p>
+</blockquote>
+<h5 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
+<li>语音合成有很多组件（pipelines）（前端文本处理、声学模型、声码器）（multi-stage model），通常构建、设计这些组件难度较高。而一个集成的端到端TTS系统（single model）有很多好处：<ul>
+<li>可以减轻了费力的特征工程的需要；</li>
+<li>可以用更多的属性、特征（比如说话人id特征、语种特征、情感特征），因为可以在模型输入用这些特征，使得整个模型都有这个特征信息，而不是只在某些component用到，其他component没用到；</li>
+<li>适应新数据也可能更容易；</li>
+<li>multi-stage model的每个component都可能会出错（预测错），只要一个组件错误，就会影响整个系统的，使得整个系统的出错可能性比起single model来得更高；</li>
+<li></li>
+</ul>
+</li>
+</ul>
+<h5 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
+<li>提出端到端语音合成模型，直接从characters 合成语音，该模型叫 tacotron。只要给&lt;文本，音频&gt;训练对pair，就能训练得到一个效果较好的语音合成器。逐帧生成语音（帧级别），因此比样本级别自回归方法生成语音来得快得多。</li>
+</ul>
+<h5 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
+<li><p>直接输入的是文本characters，直接预测输出的是逐帧的音频谱raw linear spectrogram；</p>
+</li>
+<li><p>英语MOS分3.82，自然度naturalness方面优于工业上的参数系统；</p>
+</li>
+<li><p>很好训练，随机初始化去训练就能得到不错的模型；</p>
+</li>
+<li><p>改进了原始端到端结构（vanilla seq2seq paradigm  ）</p>
+</li>
+</ul>
+<h5 id="存在什么问题"><a href="#存在什么问题" class="headerlink" title="存在什么问题"></a>存在什么问题</h5><ul>
+<li>效果相比于wavenet没有明显提升；</li>
+</ul>
+<h2 id="模型总体结构"><a href="#模型总体结构" class="headerlink" title="模型总体结构"></a>模型总体结构</h2><p>输入文本characters（不是音素序列，是字符序列），输出预测的逐帧的谱 raw linear spectrogram。</p>
+<p>模型总体结构包括一个encoder，一个attention-based 的 decoder，一个后处理网络post-processing net；</p>
+<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221107153002024.png" alt="image-20221107153002024"></p>
+<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108170533821.png" alt="image-20221108170533821"></p>
+<h3 id="ENCODER"><a href="#ENCODER" class="headerlink" title="ENCODER"></a>ENCODER</h3><p>输入文本序列characters，one-hot -&gt; embedding -&gt; pre-net -&gt; CBHG module -&gt; attention</p>
+<h3 id="Encoder-pre-net"><a href="#Encoder-pre-net" class="headerlink" title="Encoder pre-net"></a>Encoder pre-net</h3><p>输入character序列，做embedding，经过非线性变换（激活函数），经过dropout，bottleneck层（加速收敛，减少过拟合，提高泛化性）；</p>
+<h3 id="CBHG-MODULE"><a href="#CBHG-MODULE" class="headerlink" title="CBHG MODULE"></a>CBHG MODULE</h3><p>CBHG是conv bank highway gru</p>
+<p>CBHG模块作为encoder的其中一部分，提取pre-net的输出序列（一些非线性变换后的特征），到更高阶特征；</p>
+<p>CBHC模块包括一组一维卷积，然后残差连接，然后highway层，作为双向GRU的输入；</p>
+<h4 id="1-D-convolutional-filters-一维卷积"><a href="#1-D-convolutional-filters-一维卷积" class="headerlink" title="1-D convolutional  filters 一维卷积"></a>1-D convolutional  filters 一维卷积</h4><p>作用类似unigram、bigram，K-grams，用来提取上下文信息，提取局部信息；</p>
+<p>实现是用$K$个滤波器，其中第$k$个滤波器长度是$k$；举例：$k&#x3D;1$，只卷当前的字符；$k&#x3D;2$，卷前后两个字符；$k&#x3D;K$，卷前后范围$K$个字符，因此就是一组滤波器长度不一样的卷积组；</p>
+<p>每个滤波器卷积都对应一个输出（步长为1（保持原始的时间分辨率）），把所有滤波器卷积输出都堆叠（stack）在一起，相当于提取了不同范围上下文信息了（multi-scale那意思）；再沿着时间轴做max-pooling，相当于做了smooth平滑操作，让相邻帧更像一点；</p>
+<blockquote>
+<p>highway networks (Srivastava et al., 2015)  </p>
+</blockquote>
+<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108104125133.png" alt="image-20221108104125133"></p>
+<h3 id="DECODER"><a href="#DECODER" class="headerlink" title="DECODER"></a>DECODER</h3><p>自回归</p>
+<p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108173745272.png" alt="image-20221108173745272"></p>
+<h3 id="Decoder-RNN"><a href="#Decoder-RNN" class="headerlink" title="Decoder RNN"></a>Decoder RNN</h3><p>输入是 Attention RNN的输出 和 context vector 拼接起来的向量，经过GRU，得到输出；</p>
+<p>而context vector来自Attention RNN的输出作为query，encoder作为key，做attention操作得到的向量；</p>
+<p>预测输出是80维的mel谱。不是直接输出频谱spectrogram，因为波形谱的可能性很多，size很大，256维？生成很耗时，而mel-spectrogram虽然损失了信息，但是相比spectrogram就小了很多，且由于它是针对人耳来设计的，因此对最终生成的波形的质量不会有很多影响。</p>
+<p>&#x3D;&#x3D;每个decoder step，不是预测一帧，而是预测多帧！输出多帧，并且是不重叠的帧；&#x3D;&#x3D;这样做的好处是可以大大缩减计算量（不减少的话，一个样本得输出几百帧），并且发现可以加速模型收敛（因为用的RNN预测，RNN对于几百帧的输出不友好，对于较少帧数的输出比较友好，并且帧数长了，产生需要的时间也是线性增加的）；每次预测r帧，decoder的序列长度变为1&#x2F;r长；</p>
+<p>&#x3D;&#x3D;推理过程开dropout&#x3D;&#x3D;模拟推理过程可能出错的情况！！不是每次都用RNNR概率最大的那个值，而是需要增加随机性；（其他比如GPT2，是通过在输出的概率分布的采样，来作为输出，来增加随机性）；</p>
+<p>怎么知道合成完了？通过一个二分类器（输出一个标量数值，通过阈值判断），每次把RNN输出送进分类器，判断是否结束；</p>
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108174036419.png" alt="image-20221108174036419" style="zoom:50%;">
+
+
+
+<h3 id="post-processing-network-and-waveform-synthesis"><a href="#post-processing-network-and-waveform-synthesis" class="headerlink" title="post-processing network  and waveform synthesis"></a>post-processing network  and waveform synthesis</h3><p>输入整个mel谱序列，通过decoder的non casual CBHG生成linear-scale spectrogram，linear spectrogram和waveform相比只少了一个phase信息（只差一个linear transform），因此不用很强的再后处理(vocoder)，只用一个较为简单的Griffin-Lim algorithm，来增加相位信息，输出幅度谱；</p>
+<p>用Griffin-Lim algorithm 进行相位估计，然后做逆短时傅里叶变换（STFT）；</p>
+<p>decoder CBHG可以替换成其他module来生成其他东西，比如换成wavnet那样的vocoder，就是直接输出波形了；</p>
+<p>之所以需要post-processing，而不是靠RNN来输出linear spectrogram，是因为RNN是从前向后的（单向）（预测到某一个step时，可能发现前面预测错了，但是没法改了），然后加一个CBHG，可以看从前向后和从后向前的信息，这样会更好；</p>
+<p>两个loss，都要最小化</p>
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108174727511.png" alt="image-20221108174727511" style="zoom:50%;">
+
+<p>这里voceder理解成不在主模型外的，是单独的一个模块（单独训练好的）；</p>
+<h2 id="细节参数"><a href="#细节参数" class="headerlink" title="细节参数"></a>细节参数</h2><h3 id="模型参数"><a href="#模型参数" class="headerlink" title="模型参数"></a>模型参数</h3><p><img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108110927345.png" alt="image-20221108110927345"></p>
+<h3 id="训练参数"><a href="#训练参数" class="headerlink" title="训练参数"></a>训练参数</h3><h3 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h3><p>tacotron相比于wavenet，主要是在输入上需要的信息少了，也能起到好的效果，这对于人们训练一个语音合成系统减少了很多工作量，输入只要字符序列就可以了（训练时只要字符序列和音频pair）；</p>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Shen, Jonathan, et al. “Natural tts synthesis by conditioning wavenet on mel spectrogram predictions.” <em>2018 IEEE international conference on acoustics, speech and signal processing (ICASSP)</em>. IEEE, 2018.&#x3D;&#x3D; citations：1958</p>
+</blockquote>
+<h5 id="解决什么问题-1"><a href="#解决什么问题-1" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><p>- </p>
+<h5 id="用了什么方法-1"><a href="#用了什么方法-1" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
+<li>提出Tacotron2，在tacotron基础上输出mel谱，再用改进的wavenet vocoder来生成波形；</li>
+</ul>
+<h5 id="效果如何-1"><a href="#效果如何-1" class="headerlink" title="效果如何"></a>效果如何</h5><p>- </p>
+<p>- </p>
+<h5 id="存在什么问题-1"><a href="#存在什么问题-1" class="headerlink" title="存在什么问题"></a>存在什么问题</h5><p>- </p>
+<h2 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h2><p>主要有两部分组成，Spectrogram Prediction Network  和 WaveNet Vocoder  。</p>
+<p>Spectrogram Prediction Network类似tacotron的结构，然后把tacotron的decoder重的CBHG替换成了wavenet vocoder；</p>
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108123420015.png" alt="image-20221108123420015" style="zoom:67%;">
+
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221109102922783.png" alt="image-20221109102922783" style="zoom: 67%;">
+
+<h3 id="Spectrogram-Prediction-Network"><a href="#Spectrogram-Prediction-Network" class="headerlink" title="Spectrogram Prediction Network"></a>Spectrogram Prediction Network</h3><p>可以理解为声学模型</p>
+<h4 id="encoder"><a href="#encoder" class="headerlink" title="encoder"></a>encoder</h4><p>输入字符序列 👉 embedding(512维) 👉 固定滤波器长度的卷积(512个滤波器，滤波器长度5*1，3层卷积，(每次看5个character)) 👉 BN ReLu 👉 BLSTM</p>
+<p>这里没有采用tacotron1中的CHBG模块，也能取得好效果，看来卷积滤波器长度变化不是特别重要？</p>
+<p>再送入注意力机制生成编码向量，这里用的是location-sensitive attention(LSA)位置敏感注意力，该注意力机制的对齐函数为：<br>$$<br>\operatorname{score}\left(s_{i-1}, h_j\right)&#x3D;v_a^T \tanh \left(W s_{i-1}+V h_j+U f_{i, j}+b\right)<br>$$<br>其中, $v_a, W, V, U$ 为待训练参数, $b$ 是偏置值, $s_{i-1}$ 为上一时间步 $i-1$ 的解码器隐状态, $h_j$ 为当前时间步 $j$ 的编码器隐状态, $f_{i, j}$ 为上一个解码步的注意力权重 $\alpha_{i-1}$ 经卷积获得的位置特征, 如下式<br>$$<br>f_{i, j}&#x3D;F * \alpha_{i-1}<br>$$</p>
+<p>其中，$\alpha_{i-1}$是经过 softmax 的注意力权重的累加和。  </p>
+<h4 id="decoder"><a href="#decoder" class="headerlink" title="decoder"></a>decoder</h4><p>自回归循环神经网络，每个step输出<strong>一帧</strong>；</p>
+<p><strong>pre-net</strong> ：2层FC + relu，作为信息瓶颈对学习注意力至关重要；</p>
+<p>pre-net输出 和 attention context进行拼接，作为LSTM的输入；</p>
+<p>LSTM输出再与 attention context进行拼接，通过线性变换进行投影，来预测一帧的target谱；</p>
+<p>LSTM 的输出用来计算新的编码向量，最后新计算出来的编码向量与 LSTM 输出做拼接，送入映射层以计算输出。  ？</p>
+<p>（attention context在decoder中用了两次）</p>
+<p>输出有两种形式，一种是频谱帧，另一种是停止符的概率，后者是一个简单二分类问题，决定解码过程是否结束。为了能够有效加速计算，减小内存占用，引入缩减因子 r（Reduction Factor），即每一个时间步允许解码器预测 r 个频谱帧进行输出。解码完成后，送入后处理网络处理以生成最终的梅尔频谱；<br>$$<br>s_{f i n a l}&#x3D;s_i+s_i^{\prime}<br>$$<br>其中, $s_i$ 是解码器输出, $s_{\text {final }}$ 表示最终输出的梅尔频谱, $s_i^{\prime}$ 是后处理网络的输出, 解码器的输出经过后处 理网络之后获得 $s_i^{\prime}$ ；</p>
+<p>预测的target谱（mel谱）经过post-net(5层卷积)，生成频谱帧；</p>
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221109104613410.png" alt="image-20221109104613410" style="zoom:67%;">
+
+<p>推理时，对decoder的pre-net开dropout！（本来网络里这个地方没有加dropout的，但是在推理过程中加了！）目的是为了在推理时输出能有变化；</p>
+<p>没有用tacotron1中的reduction factor  （$r$）</p>
+<h3 id="WaveNet-vocoder"><a href="#WaveNet-vocoder" class="headerlink" title="WaveNet vocoder"></a>WaveNet vocoder</h3><p>在 Tacotron-2 原始论文中，直接将梅尔频谱送入声码器 WaveNet 生成最终的时域波形。但是 WaveNet 计算复杂度过高，几乎无法实际使用，因此可以使用其它声码器，比如 Griffin-Lim、 HiFiGAN 等 。</p>
+<ul>
+<li><input disabled type="checkbox"> [TODO] [声码器还不是很懂，这块还要再看一下]</li>
+</ul>
+<h3 id="loss-function"><a href="#loss-function" class="headerlink" title="loss function"></a>loss function</h3><ol>
+<li>进入后处理网络 post-net **前后 **的平方损失mse loss：</li>
+</ol>
+<p>$$<br>MselLoss &#x3D;\frac{1}{n} \sum_{i&#x3D;1}^n\left(y_{\text {real }, i}^{\text {mel }}-y_{b e f \text { ore }, i}^{\text {mel }}\right)^2+\frac{1}{n} \sum_{i&#x3D;1}^n\left(y_{\text {real }, i}^{\text {mel }}-y_{a f \text { ter }, i}^{\text {mel }}\right)^2<br>$$</p>
+<p>​	其中，$y_{\text {real }, i}^{\text {mel }}$ 表示从音频中提取的真实频谱  ，$y_{b e f \text { ore }, i}^{\text {mel }}$， $y_{a f \text { ter }, i}^{\text {mel }}$ 分别为进入后处理网络前、后的解码器输出，$n$  为每批的样本数。  </p>
+<ol start="2">
+<li>从 CBHG 模块中输出<strong>线性谱</strong>的平方损失：</li>
+</ol>
+<p>$$<br>LinearLoss &#x3D;\frac{1}{n} \sum_{i&#x3D;1}^n\left(y_{\text {real }, i}^{\text {linear }}-y_i^{\text {linear }}\right)^2<br>$$</p>
+<p>​	其中, $y_{\text {real }, i}^{\text {linear }}$ 是从真实语音中计算获得的线性谱, $y_i^{\text {linear }}$ 是从 CBHG 模块输出的线性谱。</p>
+<ol start="3">
+<li><p>停止符交叉熵<br>$$<br>StopTokenLoss &#x3D;-[y \cdot \log (p)+(1-y) \cdot \log (1-p)]<br>$$</p>
+<p>其中，$y$为停止符真实概率分布，  $p$ 是解码器线性映射输出的预测分布。  </p>
+</li>
+<li><p>$L2$ 正则化？？<br>$$<br>RegulationLoss $&#x3D;\frac{1}{K} \sum_{k&#x3D;1}^K w_k^2<br>$$<br>其中$K$ 为参数总数, $w_k$为模型中的参数，这里排除偏置值、 RNN 以及线性映射中的参数。</p>
+<p>最终的损失函数为上述 4 个部分的损失之和，如下式：</p>
+</li>
+</ol>
+<p>$$<br>Loss &#x3D; MelLoss + LinearLoss + StopTokenLoss + RegulationLoss<br>$$</p>
+<h2 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h2><p>wavenet最好是用tacotron产生的谱作为输入进行训练，会比用真实谱进行训练的效果好（让wavenet知道tacotron产生的谱长什么样，才能得到最好的结果）；</p>
+<img src="/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/image-20221108175319842.png" alt="image-20221108175319842" style="zoom: 67%;">
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90/" rel="tag"># 语音合成</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/11/14/%E7%AE%97%E6%B3%95/C++%20vector/" rel="next" title="C++ vector">
+                <i class="fa fa-chevron-left"></i> C++ vector
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/11/16/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(4)/" rel="prev" title="端到端合成论文——声学模型——FastSpeech">
+                端到端合成论文——声学模型——FastSpeech <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AB%AF%E5%88%B0%E7%AB%AF%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E2%80%94%E2%80%94%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94Tacotron"><span class="nav-number">1.</span> <span class="nav-text">端到端合成论文——声学模型——Tacotron</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.0.0.1.</span> <span class="nav-text">解决什么问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%A8%E4%BA%86%E4%BB%80%E4%B9%88%E6%96%B9%E6%B3%95"><span class="nav-number">1.0.0.0.2.</span> <span class="nav-text">用了什么方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%88%E6%9E%9C%E5%A6%82%E4%BD%95"><span class="nav-number">1.0.0.0.3.</span> <span class="nav-text">效果如何</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AD%98%E5%9C%A8%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.0.0.4.</span> <span class="nav-text">存在什么问题</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E6%80%BB%E4%BD%93%E7%BB%93%E6%9E%84"><span class="nav-number">1.1.</span> <span class="nav-text">模型总体结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ENCODER"><span class="nav-number">1.1.1.</span> <span class="nav-text">ENCODER</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Encoder-pre-net"><span class="nav-number">1.1.2.</span> <span class="nav-text">Encoder pre-net</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CBHG-MODULE"><span class="nav-number">1.1.3.</span> <span class="nav-text">CBHG MODULE</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-D-convolutional-filters-%E4%B8%80%E7%BB%B4%E5%8D%B7%E7%A7%AF"><span class="nav-number">1.1.3.1.</span> <span class="nav-text">1-D convolutional  filters 一维卷积</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DECODER"><span class="nav-number">1.1.4.</span> <span class="nav-text">DECODER</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Decoder-RNN"><span class="nav-number">1.1.5.</span> <span class="nav-text">Decoder RNN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#post-processing-network-and-waveform-synthesis"><span class="nav-number">1.1.6.</span> <span class="nav-text">post-processing network  and waveform synthesis</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%86%E8%8A%82%E5%8F%82%E6%95%B0"><span class="nav-number">1.2.</span> <span class="nav-text">细节参数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E5%8F%82%E6%95%B0"><span class="nav-number">1.2.1.</span> <span class="nav-text">模型参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83%E5%8F%82%E6%95%B0"><span class="nav-number">1.2.2.</span> <span class="nav-text">训练参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%84%E4%BB%B7"><span class="nav-number">1.2.3.</span> <span class="nav-text">评价</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98-1"><span class="nav-number">1.2.3.0.1.</span> <span class="nav-text">解决什么问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%A8%E4%BA%86%E4%BB%80%E4%B9%88%E6%96%B9%E6%B3%95-1"><span class="nav-number">1.2.3.0.2.</span> <span class="nav-text">用了什么方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%88%E6%9E%9C%E5%A6%82%E4%BD%95-1"><span class="nav-number">1.2.3.0.3.</span> <span class="nav-text">效果如何</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AD%98%E5%9C%A8%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98-1"><span class="nav-number">1.2.3.0.4.</span> <span class="nav-text">存在什么问题</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E7%BB%93%E6%9E%84"><span class="nav-number">1.3.</span> <span class="nav-text">模型结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Spectrogram-Prediction-Network"><span class="nav-number">1.3.1.</span> <span class="nav-text">Spectrogram Prediction Network</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#encoder"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">encoder</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#decoder"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">decoder</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WaveNet-vocoder"><span class="nav-number">1.3.2.</span> <span class="nav-text">WaveNet vocoder</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#loss-function"><span class="nav-number">1.3.3.</span> <span class="nav-text">loss function</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C"><span class="nav-number">1.4.</span> <span class="nav-text">实验结果</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/11/14/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(1)/';
+          this.page.identifier = '2022/11/14/合成/合成论文笔记(1)/';
+          this.page.title = '端到端合成论文——声学模型——Tacotron';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

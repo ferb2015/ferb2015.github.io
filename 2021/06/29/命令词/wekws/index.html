@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="命令词," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="WeKws https:&#x2F;&#x2F;github.com&#x2F;wenet-e2e&#x2F;wekws Mining Effective Negative Training Samples for Keyword Spotting (github, paper) Max-pooling Loss Training of Long Short-term Memory Networks for Small-footprin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WeKws">
+<meta property="og:url" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="WeKws https:&#x2F;&#x2F;github.com&#x2F;wenet-e2e&#x2F;wekws Mining Effective Negative Training Samples for Keyword Spotting (github, paper) Max-pooling Loss Training of Long Short-term Memory Networks for Small-footprin">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/image-20220112174511263.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/image-20220112174541188.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/image-20220111101914418.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/image-20220111105457343.png">
+<meta property="og:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/image-20220111141741028.png">
+<meta property="article:published_time" content="2021-06-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T07:51:27.799Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="命令词">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/image-20220112174511263.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2021/06/29/命令词/wekws/"/>
+
+
+
+
+
+  <title>WeKws | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">WeKws</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-29T00:00:00+08:00">
+                2021-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%91%BD%E4%BB%A4%E8%AF%8D/" itemprop="url" rel="index">
+                    <span itemprop="name">命令词</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2021/06/29/命令词/wekws/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="WeKws"><a href="#WeKws" class="headerlink" title="WeKws"></a>WeKws</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/wenet-e2e/wekws">https://github.com/wenet-e2e/wekws</a></p>
+<p>Mining Effective Negative Training Samples for Keyword Spotting (<a target="_blank" rel="noopener" href="https://github.com/jingyonghou/KWS_Max-pooling_RHE">github</a>, <a target="_blank" rel="noopener" href="http://lxie.nwpu-aslp.org/papers/2020ICASSP_HJY.pdf">paper</a>)</p>
+<p>Max-pooling Loss Training of Long Short-term Memory Networks for Small-footprint Keyword Spotting (<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1705.02411.pdf">paper</a>)</p>
+<p>A depthwise separable convolutional neural network for keyword spotting on an embedded system (<a target="_blank" rel="noopener" href="https://github.com/PeterMS123/KWS-DS-CNN-for-embedded">github</a>, <a target="_blank" rel="noopener" href="https://asmp-eurasipjournals.springeropen.com/track/pdf/10.1186/s13636-020-00176-2.pdf">paper</a>)</p>
+<p>Hello Edge: Keyword Spotting on Microcontrollers (<a target="_blank" rel="noopener" href="https://github.com/ARM-software/ML-KWS-for-MCU">github</a>, <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1711.07128.pdf">paper</a>)</p>
+<p>An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling (<a target="_blank" rel="noopener" href="http://github.com/locuslab/TCN">github</a>, <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1803.01271.pdf">paper</a>)</p>
+</blockquote>
+<h2 id="代码结构梳理"><a href="#代码结构梳理" class="headerlink" title="代码结构梳理"></a>代码结构梳理</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">train_dataset = Dataset(args.train_data, train_conf)</span><br><span class="line">train_data_loader = DataLoader(train_dataset,</span><br><span class="line">                                   batch_size=<span class="literal">None</span>,</span><br><span class="line">                                   pin_memory=args.pin_memory,</span><br><span class="line">                                   num_workers=args.num_workers,</span><br><span class="line">                                   prefetch_factor=args.prefetch)</span><br></pre></td></tr></table></figure>
+
+<p>其中，kws&#x2F;dataset&#x2F;dataset.py里的Dataset函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">Dataset</span>(<span class="params">data_list_file, conf, partition=<span class="literal">True</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot; Construct dataset from arguments</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        We have two shuffle stage in the Dataset. The first is global</span></span><br><span class="line"><span class="string">        shuffle at shards tar/raw file level. The second is global shuffle</span></span><br><span class="line"><span class="string">        at training samples level.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Args:</span></span><br><span class="line"><span class="string">            data_type(str): raw/shard</span></span><br><span class="line"><span class="string">            partition(bool): whether to do data partition in terms of rank</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    lists = read_lists(data_list_file)</span><br><span class="line">    shuffle = conf.get(<span class="string">&#x27;shuffle&#x27;</span>, <span class="literal">True</span>)</span><br><span class="line">    dataset = DataList(lists, shuffle=shuffle, partition=partition)</span><br><span class="line">    dataset = Processor(dataset, processor.parse_raw)</span><br><span class="line">    filter_conf = conf.get(<span class="string">&#x27;filter_conf&#x27;</span>, &#123;&#125;)</span><br><span class="line">    dataset = Processor(dataset, processor.<span class="built_in">filter</span>, **filter_conf)</span><br><span class="line"></span><br><span class="line">    resample_conf = conf.get(<span class="string">&#x27;resample_conf&#x27;</span>, &#123;&#125;)</span><br><span class="line">    dataset = Processor(dataset, processor.resample, **resample_conf)</span><br><span class="line"></span><br><span class="line">    speed_perturb = conf.get(<span class="string">&#x27;speed_perturb&#x27;</span>, <span class="literal">False</span>)</span><br><span class="line">    <span class="keyword">if</span> speed_perturb:</span><br><span class="line">        dataset = Processor(dataset, processor.speed_perturb)</span><br><span class="line">    feature_extraction_conf = conf.get(<span class="string">&#x27;feature_extraction_conf&#x27;</span>, &#123;&#125;)</span><br><span class="line">    <span class="keyword">if</span> feature_extraction_conf[<span class="string">&#x27;feature_type&#x27;</span>] == <span class="string">&#x27;mfcc&#x27;</span>:</span><br><span class="line">        dataset = Processor(dataset, processor.compute_mfcc,</span><br><span class="line">                            **feature_extraction_conf)</span><br><span class="line">    <span class="keyword">elif</span> feature_extraction_conf[<span class="string">&#x27;feature_type&#x27;</span>] == <span class="string">&#x27;fbank&#x27;</span>:</span><br><span class="line">        dataset = Processor(dataset, processor.compute_fbank,</span><br><span class="line">                            **feature_extraction_conf)</span><br><span class="line">    spec_aug = conf.get(<span class="string">&#x27;spec_aug&#x27;</span>, <span class="literal">True</span>)</span><br><span class="line">    <span class="keyword">if</span> spec_aug:</span><br><span class="line">        spec_aug_conf = conf.get(<span class="string">&#x27;spec_aug_conf&#x27;</span>, &#123;&#125;)</span><br><span class="line">        dataset = Processor(dataset, processor.spec_aug, **spec_aug_conf)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> shuffle:</span><br><span class="line">        shuffle_conf = conf.get(<span class="string">&#x27;shuffle_conf&#x27;</span>, &#123;&#125;)</span><br><span class="line">        dataset = Processor(dataset, processor.shuffle, **shuffle_conf)</span><br><span class="line"></span><br><span class="line">    batch_conf = conf.get(<span class="string">&#x27;batch_conf&#x27;</span>, &#123;&#125;)</span><br><span class="line">    dataset = Processor(dataset, processor.batch, **batch_conf)</span><br><span class="line">    dataset = Processor(dataset, processor.padding)</span><br><span class="line">    <span class="keyword">return</span> dataset</span><br></pre></td></tr></table></figure>
+
+<p>给dataset按if添加了很多项，写法比较规范</p>
+<p>examples&#x2F;hi_xiaowen&#x2F;s0&#x2F;kws&#x2F;dataset&#x2F;processor.py，有点看不懂这里是怎么jump的</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">shuffle</span>(<span class="params">data, shuffle_size=<span class="number">1000</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot; Local shuffle the data</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Args:</span></span><br><span class="line"><span class="string">            data: Iterable[&#123;key, feat, label&#125;]</span></span><br><span class="line"><span class="string">            shuffle_size: buffer size for shuffle</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns:</span></span><br><span class="line"><span class="string">            Iterable[&#123;key, feat, label&#125;]</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    buf = []</span><br><span class="line">    <span class="keyword">for</span> sample <span class="keyword">in</span> data:</span><br><span class="line">        buf.append(sample)</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(buf) &gt;= shuffle_size:</span><br><span class="line">            random.shuffle(buf)</span><br><span class="line">            <span class="keyword">for</span> x <span class="keyword">in</span> buf:</span><br><span class="line">                <span class="keyword">yield</span> x</span><br><span class="line">            buf = []</span><br><span class="line">    <span class="comment"># The sample left over</span></span><br><span class="line">    random.shuffle(buf)</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> buf:</span><br><span class="line">        <span class="keyword">yield</span> x</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">batch</span>(<span class="params">data, batch_size=<span class="number">16</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot; Static batch the data by `batch_size`</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Args:</span></span><br><span class="line"><span class="string">            data: Iterable[&#123;key, feat, label&#125;]</span></span><br><span class="line"><span class="string">            batch_size: batch size</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns:</span></span><br><span class="line"><span class="string">            Iterable[List[&#123;key, feat, label&#125;]]</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    buf = []</span><br><span class="line">    <span class="keyword">for</span> sample <span class="keyword">in</span> data:</span><br><span class="line">        buf.append(sample)</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(buf) &gt;= batch_size:</span><br><span class="line">            <span class="keyword">yield</span> buf</span><br><span class="line">            buf = []</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(buf) &gt; <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">yield</span> buf</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="max-pooling-loss"><a href="#max-pooling-loss" class="headerlink" title="max pooling loss"></a>max pooling loss</h3><p>max_pooling loss是取正样本某帧的最大正类概率值，让这帧概率越大越好，取负样本某帧的最小负类概率值，让这帧的概率越大越好</p>
+<ul>
+<li><p>二分类时：</p>
+<p>target &#x3D; filler时：$loss&#x3D;\min\limits_T(1-P_{keyword})$	（min pooling）</p>
+<p>target &#x3D; keyword时：$loss&#x3D;\max\limits_TP_{keyword}$	（max pooling）</p>
+</li>
+<li><p>三分类时（两个keyword）</p>
+<p>target &#x3D; filler时：$loss&#x3D;\min\limits_T(1-P_{keyword1})+\min\limits_T(1-P_{keyword2})$	（min pooling）</p>
+<p>target &#x3D; keyword1时：$loss&#x3D;\max\limits_TP_{keyword1}+\min\limits_T(1-P_{keyword2})$	（max pooling）</p>
+<p>target &#x3D; keyword2时：$loss&#x3D;\max\limits_TP_{keyword2}+\min\limits_T(1-P_{keyword1})$	（max pooling）</p>
+</li>
+<li><p>目标：$\max_Wloss$</p>
+</li>
+<li><p><strong>这里我一开始有个误区，$\min\limits_T(1-P_{keyword})$其实不等价为$\max\limits_T(P_{keyword}-1)$！！！而是$\min\limits_T(1-P_{keyword})&#x3D;-\max\limits_T(P_{keyword}-1)$</strong></p>
+</li>
+<li><p>最小化loss（代码里取负号后是最小化loss，不取负号是最大化loss，我这里先不取负号进行解释），因此要最大化target&#x3D;keyword时 $P_{keyword}$的概率，因为只要有一帧大于阈值就算唤醒，所以取max-pooling对应最大keyword概率帧的概率，同时也要最小化nonkeyword的概率，这里希望最难训练的一帧nonkeyword也要尽可能小，最难训练一帧对应的min-pooling的$1-P_{nonkeyword}$，使得$\min\limits_T(1-P_{nonkeyword})$尽可能大作为loss function，随着迭代该值能够越来越大，意味着最难训练的nonkeyword的概率越来越小</p>
+</li>
+<li><p>[&#x3D;&#x3D;TODO&#x3D;&#x3D;]稳定之后，尝试focal loss？尽可能让所有的keyword的概率都要大，试试$\min\limits_TP_{keyword}$使之尽可能大</p>
+<p>推理时<strong>只考虑keyword帧是否大于阈值</strong>（只要有一帧大于阈值就算唤醒）</p>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">max_pooling_loss</span>(<span class="params">logits: torch.Tensor,</span></span><br><span class="line"><span class="params">                     target: torch.Tensor,</span></span><br><span class="line"><span class="params">                     lengths: torch.Tensor,</span></span><br><span class="line"><span class="params">                     min_duration: <span class="built_in">int</span> = <span class="number">0</span></span>):</span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27; Max-pooling loss</span></span><br><span class="line"><span class="string">        For keyword, select the frame with the highest posterior.</span></span><br><span class="line"><span class="string">            The keyword is triggered when any of the frames is triggered.</span></span><br><span class="line"><span class="string">        For none keyword, select the hardest frame, namely the frame</span></span><br><span class="line"><span class="string">            with lowest filler posterior(highest keyword posterior).</span></span><br><span class="line"><span class="string">            the keyword is not triggered when all frames are not triggered.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Attributes:</span></span><br><span class="line"><span class="string">        logits: (B, T, D), D is the number of keywords</span></span><br><span class="line"><span class="string">        target: (B)</span></span><br><span class="line"><span class="string">        lengths: (B)</span></span><br><span class="line"><span class="string">        min_duration: min duration of the keyword</span></span><br><span class="line"><span class="string">    Returns:</span></span><br><span class="line"><span class="string">        (float): loss of current batch</span></span><br><span class="line"><span class="string">        (float): accuracy of current batch</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    mask = padding_mask(lengths)</span><br><span class="line">    num_utts = logits.size(<span class="number">0</span>)</span><br><span class="line">    num_keywords = logits.size(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">    target = target.cpu()</span><br><span class="line">    loss = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(num_utts):</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(num_keywords):</span><br><span class="line">            <span class="comment"># Add entropy loss CE = -(t * log(p) + (1 - t) * log(1 - p))</span></span><br><span class="line">            <span class="keyword">if</span> target[i] == j:</span><br><span class="line">                <span class="comment"># For the keyword, do max-polling</span></span><br><span class="line">                prob = logits[i, :, j]</span><br><span class="line">                m = mask[i].clone().detach()</span><br><span class="line">                m[:min_duration] = <span class="literal">True</span></span><br><span class="line">                prob = prob.masked_fill(m, <span class="number">0.0</span>)</span><br><span class="line">                prob = torch.clamp(prob, <span class="number">1e-8</span>, <span class="number">1.0</span>)</span><br><span class="line">                max_prob = prob.<span class="built_in">max</span>()</span><br><span class="line">                loss += -torch.log(max_prob)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="comment"># For other keywords or filler, do min-polling</span></span><br><span class="line">                prob = <span class="number">1</span> - logits[i, :, j]</span><br><span class="line">                prob = prob.masked_fill(mask[i], <span class="number">1.0</span>)</span><br><span class="line">                prob = torch.clamp(prob, <span class="number">1e-8</span>, <span class="number">1.0</span>)</span><br><span class="line">                min_prob = prob.<span class="built_in">min</span>()</span><br><span class="line">                loss += -torch.log(min_prob)</span><br><span class="line">    loss = loss / num_utts</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<ul>
+<li>kws&#x2F;bin&#x2F;average_model.py：把最后保存的N个模型里面的参数求和取平均</li>
+<li>kws&#x2F;bin&#x2F;score.py：计算声学模型输出，保存到文件中</li>
+<li>kws&#x2F;bin&#x2F;compute_det.py：计算FRR&#x2F;FAR：对于某个分类，看它的分数是否大于阈值，大于就唤醒，小于没唤醒；（而不是在不同分类之间比较大小，从而确定是哪个分类唤醒，这是因为这里的输出没有filler分类，只有keyword分类）</li>
+</ul>
+<h2 id="hi-xiaowen数据集替换为自己的数据集"><a href="#hi-xiaowen数据集替换为自己的数据集" class="headerlink" title="hi_xiaowen数据集替换为自己的数据集"></a>hi_xiaowen数据集替换为自己的数据集</h2><p>。。。</p>
+<h3 id="生成data-list："><a href="#生成data-list：" class="headerlink" title="生成data.list："></a>生成data.list：</h3><p>用shell直接从现有文件中生成了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">awk &#x27;&#123;print&quot;&#123;\&quot;key\&quot;: \&quot;&quot;$1&quot;\&quot;,&quot;&#125;&#x27; feats.scp &gt; 1</span><br><span class="line">awk &#x27;&#123;print&quot;\&quot;txt\&quot;: &quot;$2&quot;,&quot;&#125;&#x27; text &gt; 2</span><br><span class="line">awk &#x27;&#123;print&quot;\&quot;duration\&quot;: &quot;$2&quot;,&quot;&#125;&#x27; utt2dur &gt; 3</span><br><span class="line">awk &#x27;&#123;print&quot;\&quot;wav\&quot;: \&quot;&quot;$2&quot;\&quot;&#125;&quot;&#125;&#x27; feats.scp &gt; 4</span><br><span class="line">paste -d &#x27; &#x27; 1 2 3 4 &gt; data.list</span><br><span class="line">rm 1 2 3 4</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;print&quot;&#123;\&quot;key\&quot;: \&quot;&quot;$1&quot;\&quot;,&quot;&#125;&#x27;</span> feats_offline_cmvn.scp &gt; 1</span><br><span class="line">awk <span class="string">&#x27;&#123;print&quot;\&quot;txt\&quot;: &quot;$2&quot;,&quot;&#125;&#x27;</span> text &gt; 2</span><br><span class="line">awk <span class="string">&#x27;&#123;print&quot;\&quot;duration\&quot;: &quot;$2&quot;,&quot;&#125;&#x27;</span> utt2dur &gt; 3</span><br><span class="line">awk <span class="string">&#x27;&#123;print&quot;\&quot;wav\&quot;: \&quot;&quot;$2&quot;\&quot;&#125;&quot;&#125;&#x27;</span> feats_offline_cmvn.scp &gt; 4</span><br><span class="line"><span class="built_in">paste</span> -d <span class="string">&#x27; &#x27;</span> 1 2 3 4 &gt; data_after_offline_cmvn.list</span><br><span class="line"><span class="built_in">rm</span> 1 2 3 4</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="不用代码统计global-cmvn，用kaldi的"><a href="#不用代码统计global-cmvn，用kaldi的" class="headerlink" title="不用代码统计global cmvn，用kaldi的"></a>不用代码统计global cmvn，用kaldi的</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">matrix-sum --binary=false scp:data/train_p400h_n4000h/cmvn.scp - &gt; data/train_p400h_n4000h/global_cmvn.stats</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h2><p>num_worker&#x3D;1</p>
+<h3 id="输出模型步长"><a href="#输出模型步长" class="headerlink" title="输出模型步长"></a>输出模型步长</h3><p>之前是一个epoch输出一个模型，现在改成1000次迭代输出一个模型</p>
+<h2 id="mdtc-small："><a href="#mdtc-small：" class="headerlink" title="mdtc_small："></a>mdtc_small：</h2><p>dilation：低层到高层的值逐渐增长 1，2，4，8</p>
+<p>self.receptive_fields感受野（非kernel size）大小与dilation有关，这个变量是为了给卷积补零用的，统计一共需要多少补零的长度</p>
+<p>如果causal&#x3D;True，就不能卷（计算）当前时间帧后面帧的信息，只能给过去帧补零，以达到能够计算的长度</p>
+<p>如果causal&#x3D;False，前后帧补零（除以2）$\left\lfloor\frac{\text{len(pad)}}{2}\right\rfloor$</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.receptive_fields = dilation * (kernel_size - <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>补零的不计算？：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> self.causal:</span><br><span class="line">    inputs = inputs[:, :, self.receptive_fields:]</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    inputs = inputs[:, :, self.</span><br><span class="line">                    half_receptive_fields:-self.half_receptive_fields]</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>[TODO] 补零，可以用复制代替？？</p>
+<p>preprocessor预测里后的特征分别经过stack_num个TCN Stack，得到stack_num个输出 </p>
+<p>结构：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br></pre></td><td class="code"><pre><span class="line">the number of model params: 33201</span><br><span class="line">Receptive Fields: 184</span><br><span class="line">KWSModel(</span><br><span class="line">  (global_cmvn): GlobalCMVN()</span><br><span class="line">  (preprocessing): NoSubsampling()</span><br><span class="line">  (backbone): MDTC(</span><br><span class="line">    (preprocessor): TCNBlock(</span><br><span class="line">      (conv1): DSDilatedConv1d(</span><br><span class="line">        (conv): Conv1d(50, 50, kernel_size=(5,), stride=(1,), <span class="built_in">groups</span>=50)</span><br><span class="line">        (bn): BatchNorm1d(50, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">        (pointwise): Conv1d(50, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">      )</span><br><span class="line">      (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">      (relu1): ReLU()</span><br><span class="line">      (conv2): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">      (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">      (relu2): ReLU()</span><br><span class="line">    )</span><br><span class="line">    (relu): ReLU()</span><br><span class="line">    (blocks): ModuleList(</span><br><span class="line">      (0): TCNStack(</span><br><span class="line">        (res_blocks): Sequential(</span><br><span class="line">          (0): TCNBlock(</span><br><span class="line">            (conv1): DSDilatedConv1d(</span><br><span class="line">              (conv): Conv1d(32, 32, kernel_size=(5,), stride=(1,), <span class="built_in">groups</span>=32)</span><br><span class="line">              (bn): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">              (pointwise): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            )</span><br><span class="line">            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu1): ReLU()</span><br><span class="line">            (conv2): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu2): ReLU()</span><br><span class="line">          )</span><br><span class="line">          (1): TCNBlock(</span><br><span class="line">            (conv1): DSDilatedConv1d(</span><br><span class="line">              (conv): Conv1d(32, 32, kernel_size=(5,), stride=(1,), dilation=(2,), <span class="built_in">groups</span>=32)</span><br><span class="line">              (bn): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">              (pointwise): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            )</span><br><span class="line">            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu1): ReLU()</span><br><span class="line">            (conv2): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu2): ReLU()</span><br><span class="line">          )</span><br><span class="line">          (2): TCNBlock(</span><br><span class="line">            (conv1): DSDilatedConv1d(</span><br><span class="line">              (conv): Conv1d(32, 32, kernel_size=(5,), stride=(1,), dilation=(4,), <span class="built_in">groups</span>=32)</span><br><span class="line">              (bn): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">              (pointwise): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            )</span><br><span class="line">            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu1): ReLU()</span><br><span class="line">            (conv2): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu2): ReLU()</span><br><span class="line">          )</span><br><span class="line">          (3): TCNBlock(</span><br><span class="line">            (conv1): DSDilatedConv1d(</span><br><span class="line">              (conv): Conv1d(32, 32, kernel_size=(5,), stride=(1,), dilation=(8,), <span class="built_in">groups</span>=32)</span><br><span class="line">              (bn): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">              (pointwise): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            )</span><br><span class="line">            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu1): ReLU()</span><br><span class="line">            (conv2): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu2): ReLU()</span><br><span class="line">          )</span><br><span class="line">        )</span><br><span class="line">      )</span><br><span class="line">      (1): TCNStack(</span><br><span class="line">        (res_blocks): Sequential(</span><br><span class="line">          (0): TCNBlock(</span><br><span class="line">            (conv1): DSDilatedConv1d(</span><br><span class="line">              (conv): Conv1d(32, 32, kernel_size=(5,), stride=(1,), <span class="built_in">groups</span>=32)</span><br><span class="line">              (bn): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">              (pointwise): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            )</span><br><span class="line">            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu1): ReLU()</span><br><span class="line">            (conv2): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu2): ReLU()</span><br><span class="line">          )</span><br><span class="line">          (1): TCNBlock(</span><br><span class="line">            (conv1): DSDilatedConv1d(</span><br><span class="line">              (conv): Conv1d(32, 32, kernel_size=(5,), stride=(1,), dilation=(2,), <span class="built_in">groups</span>=32)</span><br><span class="line">              (bn): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">              (pointwise): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            )</span><br><span class="line">            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu1): ReLU()</span><br><span class="line">            (conv2): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu2): ReLU()</span><br><span class="line">          )</span><br><span class="line">          (2): TCNBlock(</span><br><span class="line">            (conv1): DSDilatedConv1d(</span><br><span class="line">              (conv): Conv1d(32, 32, kernel_size=(5,), stride=(1,), dilation=(4,), <span class="built_in">groups</span>=32)</span><br><span class="line">              (bn): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">              (pointwise): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            )</span><br><span class="line">            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu1): ReLU()</span><br><span class="line">            (conv2): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu2): ReLU()</span><br><span class="line">          )</span><br><span class="line">          (3): TCNBlock(</span><br><span class="line">            (conv1): DSDilatedConv1d(</span><br><span class="line">              (conv): Conv1d(32, 32, kernel_size=(5,), stride=(1,), dilation=(8,), <span class="built_in">groups</span>=32)</span><br><span class="line">              (bn): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">              (pointwise): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            )</span><br><span class="line">            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu1): ReLU()</span><br><span class="line">            (conv2): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu2): ReLU()</span><br><span class="line">          )</span><br><span class="line">        )</span><br><span class="line">      )</span><br><span class="line">      (2): TCNStack(</span><br><span class="line">        (res_blocks): Sequential(</span><br><span class="line">          (0): TCNBlock(</span><br><span class="line">            (conv1): DSDilatedConv1d(</span><br><span class="line">              (conv): Conv1d(32, 32, kernel_size=(5,), stride=(1,), <span class="built_in">groups</span>=32)</span><br><span class="line">              (bn): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">              (pointwise): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            )</span><br><span class="line">            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu1): ReLU()</span><br><span class="line">            (conv2): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu2): ReLU()</span><br><span class="line">          )</span><br><span class="line">          (1): TCNBlock(</span><br><span class="line">            (conv1): DSDilatedConv1d(</span><br><span class="line">              (conv): Conv1d(32, 32, kernel_size=(5,), stride=(1,), dilation=(2,), <span class="built_in">groups</span>=32)</span><br><span class="line">              (bn): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">              (pointwise): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            )</span><br><span class="line">            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu1): ReLU()</span><br><span class="line">            (conv2): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu2): ReLU()</span><br><span class="line">          )</span><br><span class="line">          (2): TCNBlock(</span><br><span class="line">            (conv1): DSDilatedConv1d(</span><br><span class="line">              (conv): Conv1d(32, 32, kernel_size=(5,), stride=(1,), dilation=(4,), <span class="built_in">groups</span>=32)</span><br><span class="line">              (bn): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">              (pointwise): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            )</span><br><span class="line">            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu1): ReLU()</span><br><span class="line">            (conv2): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu2): ReLU()</span><br><span class="line">          )</span><br><span class="line">          (3): TCNBlock(</span><br><span class="line">            (conv1): DSDilatedConv1d(</span><br><span class="line">              (conv): Conv1d(32, 32, kernel_size=(5,), stride=(1,), dilation=(8,), <span class="built_in">groups</span>=32)</span><br><span class="line">              (bn): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">              (pointwise): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            )</span><br><span class="line">            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu1): ReLU()</span><br><span class="line">            (conv2): Conv1d(32, 32, kernel_size=(1,), stride=(1,))</span><br><span class="line">            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)</span><br><span class="line">            (relu2): ReLU()</span><br><span class="line">          )</span><br><span class="line">        )</span><br><span class="line">      )</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">  (classifier): LinearClassifier(</span><br><span class="line">    (linear): Linear(in_features=32, out_features=1, bias=True)</span><br><span class="line">    (quant): QuantStub()</span><br><span class="line">    (dequant): DeQuantStub()</span><br><span class="line">  )</span><br><span class="line">  (activation): Sigmoid()</span><br><span class="line">)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>参数图：</p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/image-20220112174511263.png" alt="image-20220112174511263"></p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/image-20220112174541188.png" alt="image-20220112174541188"></p>
+<h1 id="修改代码"><a href="#修改代码" class="headerlink" title="修改代码"></a>修改代码</h1><h3 id="在log中把train的learning-rate也打印出来"><a href="#在log中把train的learning-rate也打印出来" class="headerlink" title="在log中把train的learning rate也打印出来"></a>在log中把train的learning rate也打印出来</h3><p>在kws&#x2F;utils&#x2F;executor.py中，修改logging代码为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">logging.debug(</span><br><span class="line">    <span class="string">&#x27;TRAIN Batch &#123;&#125;/&#123;&#125; loss &#123;:.8f&#125; acc &#123;:.8f&#125; lr &#123;:.8f&#125;&#x27;</span>.<span class="built_in">format</span>(</span><br><span class="line">        epoch, batch_idx, loss.item(), acc, optimizer.param_groups[<span class="number">0</span>][<span class="string">&#x27;lr&#x27;</span>]))</span><br><span class="line"><span class="comment"># logging.debug(</span></span><br><span class="line"><span class="comment">#     &#x27;TRAIN Batch &#123;&#125;/&#123;&#125; loss &#123;:.8f&#125; acc &#123;:.8f&#125;&#x27;.format(</span></span><br><span class="line"><span class="comment">#         epoch, batch_idx, loss.item(), acc))</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="打印model结构图-x2F-可视化"><a href="#打印model结构图-x2F-可视化" class="headerlink" title="打印model结构图&#x2F;可视化"></a>打印model结构图&#x2F;可视化</h3><h4 id="法一：tensorboard-可视化不太明显"><a href="#法一：tensorboard-可视化不太明显" class="headerlink" title="法一：tensorboard[可视化不太明显]"></a>法一：tensorboard[可视化不太明显]</h4><p>在kws&#x2F;model&#x2F;kws_model.py中，添加代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">   kws_model = KWSModel(input_dim, output_dim, hidden_dim, global_cmvn,</span><br><span class="line">                        preprocessing, backbone, classifier, activation)</span><br><span class="line">   <span class="comment"># 添加：</span></span><br><span class="line">   <span class="keyword">from</span> tensorboardX <span class="keyword">import</span> SummaryWriter</span><br><span class="line">dummy_input = torch.rand(<span class="number">128</span>,<span class="number">100</span>,<span class="number">40</span>)</span><br><span class="line">   <span class="keyword">with</span> SummaryWriter(comment=<span class="string">&#x27;KWSModel&#x27;</span>)<span class="keyword">as</span> w:</span><br><span class="line">       w.add_graph(kws_model, (dummy_input,))</span><br></pre></td></tr></table></figure>
+
+
+
+<p>在路径runs&#x2F;下，tensorboard打开</p>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/image-20220111101914418.png" alt="image-20220111101914418"></p>
+<p>可以展开看细节。但是这样可视化程度不是很强。[tensorboard可视化模型结构并不友好]</p>
+<h4 id="法二：torchviz"><a href="#法二：torchviz" class="headerlink" title="法二：torchviz"></a>法二：torchviz</h4><p>在kws&#x2F;model&#x2F;kws_model.py中，添加代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torchviz <span class="keyword">import</span> make_dot</span><br><span class="line">    kws_model = KWSModel(input_dim, output_dim, hidden_dim, global_cmvn,</span><br><span class="line">                         preprocessing, backbone, classifier, activation)</span><br><span class="line">    <span class="comment"># 添加</span></span><br><span class="line">    x = torch.rand(<span class="number">128</span>,<span class="number">100</span>,<span class="number">40</span>)</span><br><span class="line">    y=kws_model(x)</span><br><span class="line">    <span class="comment"># g = make_dot(y)</span></span><br><span class="line">    g = make_dot(y, params=<span class="built_in">dict</span>(<span class="built_in">list</span>(kws_model.named_parameters()) + [(<span class="string">&#x27;x&#x27;</span>, x)]))</span><br><span class="line">    g.view()</span><br><span class="line">    g.render(<span class="string">&#x27;espnet_model&#x27;</span>, view=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/image-20220111105457343.png" alt="image-20220111105457343"></p>
+<h4 id="法三：tensorwatch"><a href="#法三：tensorwatch" class="headerlink" title="法三：tensorwatch"></a>法三：tensorwatch</h4><p>支持的网络不够多</p>
+<p>在kws&#x2F;model&#x2F;kws_model.py中，添加代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorwatch <span class="keyword">as</span> tw</span><br><span class="line"></span><br><span class="line">	<span class="comment"># 这个是debug出来发现发现的</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x: torch.Tensor</span>) -&gt; torch.Tensor:</span><br><span class="line">        <span class="keyword">if</span> self.global_cmvn <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            x = self.global_cmvn(x)</span><br><span class="line">        x = self.preprocessing(x)</span><br><span class="line">        <span class="comment"># 添加一行unsqueeze，在第0维，扩充1维度，维度为1</span></span><br><span class="line">        x = torch.unsqueeze(x, dim=<span class="number">0</span>)</span><br><span class="line">        x, _ = self.backbone(x)</span><br><span class="line">        <span class="comment"># 添加一行squeeze，把维度为1的维度删掉</span></span><br><span class="line">        x = torch.squeeze(x, dim=<span class="number">0</span>)</span><br><span class="line">        x = self.classifier(x)</span><br><span class="line">        x = self.activation(x)</span><br><span class="line">        <span class="keyword">return</span> x</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    kws_model = KWSModel(input_dim, output_dim, hidden_dim, global_cmvn,</span><br><span class="line">                         preprocessing, backbone, classifier, activation)</span><br><span class="line">    </span><br><span class="line">	<span class="comment"># 添加</span></span><br><span class="line">    <span class="comment"># 查看参数、计算量、flop等</span></span><br><span class="line">    <span class="comment"># module name、input shape、output shape、parameters、infer memory、MAdd、Flops、MemRead、MemWrite、</span></span><br><span class="line">    a = tw.model_stats(kws_model, [<span class="number">100</span>,<span class="number">50</span>])</span><br><span class="line">    <span class="built_in">print</span>(a)</span><br><span class="line">    <span class="comment"># 保存网络结构</span></span><br><span class="line">    img = tw.draw_model(kws_model, [<span class="number">100</span>,<span class="number">50</span>])	<span class="comment"># 有bug，原因是里头有量化.</span></span><br><span class="line">    img.save(<span class="string">&#x27;./ds_tcn.jpg&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>ds_tcn：以batch size&#x3D;1，time&#x3D;1s，40维特征为例的tensorwatch.model_stats</li>
+</ul>
+<p><img src="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/image-20220111141741028.png" alt="image-20220111141741028"></p>
+<h4 id="法四：fvcore"><a href="#法四：fvcore" class="headerlink" title="法四：fvcore"></a>法四：fvcore</h4><blockquote>
+<p>csdn <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_37541097/article/details/117691873">详解Transformer中Self-Attention以及Multi-Head Attention</a></p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fvcore.nn <span class="keyword">import</span> FlopCountAnalysis</span><br><span class="line">flops = FlopCountAnalysis(mdtc, (x,lengths))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Multi-Head Attention FLOPs:&quot;</span>, flops.total()) </span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%91%BD%E4%BB%A4%E8%AF%8D/" rel="tag"># 命令词</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/%E5%91%BD%E4%BB%A4%E8%AF%8D%E4%B8%93%E5%88%A9/" rel="next" title="命令词专利">
+                <i class="fa fa-chevron-left"></i> 命令词专利
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws%EF%BC%88%E4%BA%94%EF%BC%89%E5%A4%9A%E5%91%BD%E4%BB%A4%E8%AF%8D/" rel="prev" title="WeKws（五）基于wekws的多命令词识别">
+                WeKws（五）基于wekws的多命令词识别 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#WeKws"><span class="nav-number">1.</span> <span class="nav-text">WeKws</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84%E6%A2%B3%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">代码结构梳理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#max-pooling-loss"><span class="nav-number">1.1.1.</span> <span class="nav-text">max pooling loss</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hi-xiaowen%E6%95%B0%E6%8D%AE%E9%9B%86%E6%9B%BF%E6%8D%A2%E4%B8%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="nav-number">1.2.</span> <span class="nav-text">hi_xiaowen数据集替换为自己的数据集</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90data-list%EF%BC%9A"><span class="nav-number">1.2.1.</span> <span class="nav-text">生成data.list：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8D%E7%94%A8%E4%BB%A3%E7%A0%81%E7%BB%9F%E8%AE%A1global-cmvn%EF%BC%8C%E7%94%A8kaldi%E7%9A%84"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">不用代码统计global cmvn，用kaldi的</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83"><span class="nav-number">1.3.</span> <span class="nav-text">训练</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%93%E5%87%BA%E6%A8%A1%E5%9E%8B%E6%AD%A5%E9%95%BF"><span class="nav-number">1.3.1.</span> <span class="nav-text">输出模型步长</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mdtc-small%EF%BC%9A"><span class="nav-number">1.4.</span> <span class="nav-text">mdtc_small：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E4%BB%A3%E7%A0%81"><span class="nav-number">2.</span> <span class="nav-text">修改代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8log%E4%B8%AD%E6%8A%8Atrain%E7%9A%84learning-rate%E4%B9%9F%E6%89%93%E5%8D%B0%E5%87%BA%E6%9D%A5"><span class="nav-number">2.0.1.</span> <span class="nav-text">在log中把train的learning rate也打印出来</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%93%E5%8D%B0model%E7%BB%93%E6%9E%84%E5%9B%BE-x2F-%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="nav-number">2.0.2.</span> <span class="nav-text">打印model结构图&#x2F;可视化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%95%E4%B8%80%EF%BC%9Atensorboard-%E5%8F%AF%E8%A7%86%E5%8C%96%E4%B8%8D%E5%A4%AA%E6%98%8E%E6%98%BE"><span class="nav-number">2.0.2.1.</span> <span class="nav-text">法一：tensorboard[可视化不太明显]</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%95%E4%BA%8C%EF%BC%9Atorchviz"><span class="nav-number">2.0.2.2.</span> <span class="nav-text">法二：torchviz</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%95%E4%B8%89%EF%BC%9Atensorwatch"><span class="nav-number">2.0.2.3.</span> <span class="nav-text">法三：tensorwatch</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%95%E5%9B%9B%EF%BC%9Afvcore"><span class="nav-number">2.0.2.4.</span> <span class="nav-text">法四：fvcore</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2021/06/29/%E5%91%BD%E4%BB%A4%E8%AF%8D/wekws/';
+          this.page.identifier = '2021/06/29/命令词/wekws/';
+          this.page.title = 'WeKws';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

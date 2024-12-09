@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="k2,语音识别," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="视频 基于多码本向量量化的蒸馏方案 b站视频：姚增伟 【语音之家】AI产业沙龙—如何应用k2开发语音识别系统  或  https:&#x2F;&#x2F;xjw.h5.xeknow.com&#x2F;sl&#x2F;2yOtKa 22分钟起 Guo, Liyong, et al. “Predicting Multi-Codebook Vector Quantization Indexes for Knowledge Distillati">
+<meta property="og:type" content="article">
+<meta property="og:title" content="视频 基于多码本向量量化的蒸馏方案">
+<meta property="og:url" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="视频 基于多码本向量量化的蒸馏方案 b站视频：姚增伟 【语音之家】AI产业沙龙—如何应用k2开发语音识别系统  或  https:&#x2F;&#x2F;xjw.h5.xeknow.com&#x2F;sl&#x2F;2yOtKa 22分钟起 Guo, Liyong, et al. “Predicting Multi-Codebook Vector Quantization Indexes for Knowledge Distillati">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230315175447111.png">
+<meta property="og:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230315175021656.png">
+<meta property="og:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230315180730882.png">
+<meta property="og:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230316101150352.png">
+<meta property="og:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/640.jpeg">
+<meta property="og:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230315181327346.png">
+<meta property="og:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230315183059172.png">
+<meta property="og:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230315184456112.png">
+<meta property="og:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230316211125538.png">
+<meta property="og:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230316211144202.png">
+<meta property="og:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230316211203576.png">
+<meta property="og:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230316211233218.png">
+<meta property="og:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230316211256390.png">
+<meta property="article:published_time" content="2023-03-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-03-16T13:15:46.907Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="k2">
+<meta property="article:tag" content="语音识别">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230315175447111.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/03/16/k2/视频 基于多码本向量量化的蒸馏方案/"/>
+
+
+
+
+
+  <title>视频 基于多码本向量量化的蒸馏方案 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">视频 基于多码本向量量化的蒸馏方案</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-03-16T00:00:00+08:00">
+                2023-03-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k2/" itemprop="url" rel="index">
+                    <span itemprop="name">k2</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/03/16/k2/视频 基于多码本向量量化的蒸馏方案/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="视频-基于多码本向量量化的蒸馏方案"><a href="#视频-基于多码本向量量化的蒸馏方案" class="headerlink" title="视频 基于多码本向量量化的蒸馏方案"></a>视频 基于多码本向量量化的蒸馏方案</h1><blockquote>
+<p>b站视频：姚增伟 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1xV4y1T7f9/?spm_id_from=333.788.recommend_more_video.13&vd_source=5e9891722f2b62adca440a5e92121b5b">【语音之家】AI产业沙龙—如何应用k2开发语音识别系统</a>  或  <a target="_blank" rel="noopener" href="https://xjw.h5.xeknow.com/sl/2yOtKa">https://xjw.h5.xeknow.com/sl/2yOtKa</a> 22分钟起</p>
+<p>Guo, Liyong, et al. “Predicting Multi-Codebook Vector Quantization Indexes for Knowledge Distillation.” <em>arXiv preprint arXiv:2211.00508</em> (2022). 郭理勇</p>
+<p>微信公众号 新一代Kaldi： <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/XIg8cY82KtoZ6rW-FdVqEQ">新一代 Kaldi 中基于量化的蒸馏实验</a></p>
+<p>相关代码：<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization.git">https://github.com/k2-fsa/multi_quantization.git</a> </p>
+<p>相关代码：<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR/pruned_transducer_stateless6">https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR/pruned_transducer_stateless6</a></p>
+<p>D:\typora\typora笔记\语音\k2\Predicting Multi-Codebook Vector Quantization Indexes for Knowledge Distillation.md</p>
+</blockquote>
+<blockquote>
+<p>以下文字和图片主要来自《微信公众号 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/XIg8cY82KtoZ6rW-FdVqEQ">新一代 Kaldi 中基于量化的蒸馏实验</a>》和《b站视频：姚增伟 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1xV4y1T7f9/?spm_id_from=333.788.recommend_more_video.13&vd_source=5e9891722f2b62adca440a5e92121b5b">【语音之家】AI产业沙龙—如何应用k2开发语音识别系统</a>  22分钟起》</p>
+</blockquote>
+<p>基于多码本向量量化的蒸馏方案，通过将 teacher 模型的高维（如 1280 维）的 float 向量量化为极少数个（如 8 个）uint8 类型的码本索引，显著地降低了存储空间，并基于量化结果进行高效蒸馏。      </p>
+<h2 id="1-动机与方案概述"><a href="#1-动机与方案概述" class="headerlink" title="1 动机与方案概述"></a>1 动机与方案概述</h2><h3 id="1-1-动机"><a href="#1-1-动机" class="headerlink" title="1.1 动机"></a>1.1 动机</h3><p>预训练在语音识别中不断刷新 SOTA，但真正用的时候又会有模型太大、流式等问题；</p>
+<p>可以使用知识蒸馏的方式用预训练模型 hubert 教 ASR 模型。</p>
+<p>假设以 hubert 作为 teacher 模型，其 embedding 将传递给 student 模型用于辅助训练, 传统的蒸馏学习的一种实现方式如下图所示：</p>
+<img src="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230315175447111.png" alt="image-20230315175447111" style="zoom:80%;">
+
+<p>为了获取 teacher embedding, 一般有 online 和 offline 两种方式：</p>
+<ol>
+<li><p>online 的方式需要在训练 student 模型过程中前向 teacher 模型，获取当前 batch 数据对应的 teacher embedding。该方案存在大量重复计算，即每个 epoch 都要把数据过一次 teacher 模型。而且 teacher 模型需要长期驻留显存，如果其参数量过大，还会导致训练过程中只能使用较小的 batch_size， 有可能导致收敛不稳定。</p>
+</li>
+<li><p>offline 的方式需要在训练 student 模型之前，先把所有的训练数据过一次 teacher 模型,将相应的 teacher embedding 全部存储到磁盘之中，在 student 模型训练时直接从磁盘读取。该方案解决了上述 online 方式的问题，缺陷是可能需要很大的磁盘存储空间。以 HuBERT Extra Large 模型为例，输出帧率为50 frame&#x2F;s，输出维度为1280，因此100小时音频对应的 teacher embedding 需要存储空间 4 * 1280 * 50 * 3600 * 100 Byte &#x3D; 92160000000 Byte &#x3D; 85.8G。在 icefal 的实验设置中，一般会再加上<strong>3倍</strong>语音增广，因此全量1000小时数据对应的 teacher embedding 需要的存储空间为 85.8 * 10 * 3 &#x3D; 2.51T。这还只是从 teacher 模型中抽取一层，如果是多层的话，所需存储空间还要相应增大。</p>
+</li>
+</ol>
+<img src="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230315175021656.png" alt="image-20230315175021656" style="zoom:80%;">
+
+<h3 id="1-2-方案概述"><a href="#1-2-方案概述" class="headerlink" title="1.2 方案概述"></a>1.2 方案概述</h3><p>相对于传统的蒸馏方案， Dan哥变革性地提出了使用量化方式进行知识蒸馏。</p>
+<p>对于 offline 方式，我们把一个浮点向量 (float embedding) 量化为一组整数 codebook indexes(CI), 且<strong>每个整数</strong>的范围仅为[0, 255], 因此<strong>每个整数</strong>仅需一个Byte的磁盘空间。比如上述1280维的浮点向量，量化前需要 1280 * 4 Byte空间; 如果我们将浮点向量量化成8个无符号整数，则仅需 8个 Byte（uint8，一个byte是8bit，0-255）, 所需存储空间仅为量化前的 $\frac{1}{640}$ 。</p>
+<p>依托这一组量化所得的整数 codebook index 进行蒸馏实验，降低 student 模型语音识别模型错误率。</p>
+<p>改进后的蒸馏方案如下图所示，其中最大的变化就是把 <strong>teacher embedding 转化为 CI</strong>：</p>
+<img src="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230315180730882.png" alt="image-20230315180730882" style="zoom:80%;">
+
+
+
+
+
+
+
+<h2 id="2-术语字典"><a href="#2-术语字典" class="headerlink" title="2 术语字典"></a>2 术语字典</h2><p>为了消除本文中潜在的歧义，部分关键的高频词汇简介如下：</p>
+<p><strong>浮点向量 (float embedding)</strong> : 一般指 teacher 模型中某层的输出向量，作为量化工具的输入；比如 HuBERT Extra Large 的第36层的输出。</p>
+<p><strong>codebook index（CI）</strong>: 浮点向量(float embedding)对应生成的一组整数，取值范围[0, 255],只需一个Byte存储；如果不专门强调，CI 一般指量化所得的<strong>一组</strong>整数。</p>
+<p><strong>num_codebooks</strong>: codebook index 包含的整数个数，一般为2的幂，比如2，4，8，16，32；在本文实验中，该参数设置为8。</p>
+<p><strong>quantizer</strong>: 量化器；输入一个浮点向量，生成对应的 codebook index；其主要包含 encoder 和 decoder 两大模块；encoder 负责将 float embedding 量化为 CI, decoder 负责将 CI 重构为 float embedding。</p>
+<p><strong>hubert 模型</strong>：在下文蒸馏实验中，用到了 **<a target="_blank" rel="noopener" href="https://github.com/facebookresearch/fairseq/blob/main/examples/hubert/README.md">fairseq 提供的 HuBERT Extra Large Fintuend model</a>**作为 teacher 模型，该模型使用6万小时 Libri-Light <strong>无监督数据</strong>预训练，960小时的 LibriSpeech 做 finetune。为了行文方便，有时候简记为 hubert。</p>
+<p><strong>teacher embedding</strong>: 从 teacher 模型某一层的输出的 float embedding, 此概念着重强调其来自于一个 teacher 模型，用于指导 student 模型的训练。</p>
+<p><strong>cd_init</strong>: codebook_index initialized value，由 quantizer.encoder模块通过(to_logits + argmax) 生成, to_logits 本质上是 nn.linear。</p>
+<p><strong>cd_refined</strong>: codebook_index refined value，由 quantizer.encoder 模块通过函数 _refine_indexes 在 $cd_init$ 的基础上优化生成。最终蒸馏实验用的 CI 一般对应该参数。</p>
+<h2 id="3-代码仓库"><a href="#3-代码仓库" class="headerlink" title="3 代码仓库"></a>3 代码仓库</h2><h3 id="3-1-量化相关代码"><a href="#3-1-量化相关代码" class="headerlink" title="3.1 量化相关代码"></a>3.1 量化相关代码</h3><p>最初的代码仓库为 <strong><a href="Danpovey/quantizaiton">Danpovey&#x2F;quantizaiton</a></strong> 后来在Dan哥的建议下，迁移至 <strong><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization.git">k2-fsa&#x2F;multi_quantization</a></strong> 并发布到 pypi, 因此可以采用两种方式安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pip install git+https:git@github.com:k2-fsa/multi_quantization.git</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line"></span><br><span class="line">pip install multi_quantization</span><br></pre></td></tr></table></figure>
+
+<p>理论上两种方式是等效的，后续我们也会尽量实现二者的同步更新。</p>
+<h3 id="3-2-蒸馏实验相关代码"><a href="#3-2-蒸馏实验相关代码" class="headerlink" title="3.2 蒸馏实验相关代码"></a>3.2 蒸馏实验相关代码</h3><p>主要涉及 icefall 中的 <strong><a href="librispeech/pruned_transducer_stateless6">librispeech&#x2F;pruned_transducer_stateless6</a></strong> 该 recipe 可以分为两大部分：</p>
+<ol>
+<li><p><strong>quantizer 使用示例</strong>，包含数据准备，quantizer 训练，以及 codebook index 提取。</p>
+</li>
+<li><p>使用 codebook index 进行 <strong>ASR 蒸馏实验</strong> 该实验中使用 fairseq 驱动其提供的 HuBERT Extra Large 模型作为 teacher 模型。机器配置资源较低的环境可能需要较长的时间提取相应的 codebook indexes. 因此我们已将提取所得的 codebook indexes 开源出来，有需要的朋友可以在示例脚本**<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/icefall/blob/master/egs/librispeech/ASR/distillation_with_hubert.sh">distillation_with_hubert</a>**中设置 <strong>use_extracted_codebook&#x3D;True</strong>, 跳过提取过程，下载开源的 codebook index 后，进行 ASR 蒸馏实验。</p>
+</li>
+</ol>
+<h2 id="4-quantizer-相关代码解析"><a href="#4-quantizer-相关代码解析" class="headerlink" title="4 quantizer 相关代码解析"></a>4 quantizer 相关代码解析</h2><h3 id="4-1-quantizer-训练代码示例"><a href="#4-1-quantizer-训练代码示例" class="headerlink" title="4.1 quantizer 训练代码示例"></a>4.1 quantizer 训练代码示例</h3><p>在Dan哥给出的 **<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/446920cabcb384d20132c5dd7d97cb5ec8e27aa8/tests/test_train_hdf5.py#L33">quantizer 训练示例代码</a>**中，核心代码及注释如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 初始化一个 QuantizerTrainer,</span></span><br><span class="line"><span class="comment"># 其中dim 为teacher embedding的维度,在hubert模型中为1280;</span></span><br><span class="line"><span class="comment"># bytes_per_frame为压缩后整数的个数，本文实验中为 8；</span></span><br><span class="line"><span class="comment"># 即训练所得的quantizer,</span></span><br><span class="line"><span class="comment"># 可以将一个1280维的teacher embedding 量化后的一组整数</span></span><br><span class="line"><span class="comment"># 共需8个Bytes即可存储。</span></span><br><span class="line">trainer = QuantizerTrainer(dim=dim,</span><br><span class="line">                           bytes_per_frame=bytes_per_frame,</span><br><span class="line">                           device=device)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读训练数据</span></span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> minibatch_generator(train, repeat=<span class="literal">True</span>):</span><br><span class="line">    <span class="comment"># 训练一个batch</span></span><br><span class="line">    trainer.step(x)</span><br><span class="line">    <span class="comment"># 触发终止训练条件； 目前为训练20，000batch终止。</span></span><br><span class="line">    <span class="keyword">if</span> trainer.done():</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">  </span><br><span class="line"><span class="comment"># 获取训练所得quantizer</span></span><br><span class="line">quantizer = trainer.get_quantizer()</span><br><span class="line"><span class="comment"># 存储quantizer, 用于后续将teacher embedding 量化为 codebook indexes.</span></span><br><span class="line">torch.save(quantizer.state_dict(), <span class="string">&#x27;quantizer.pt&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-2-quantizer-对-float-embedding-的量化与反量化示例"><a href="#4-2-quantizer-对-float-embedding-的量化与反量化示例" class="headerlink" title="4.2 quantizer 对 float embedding 的量化与反量化示例"></a>4.2 quantizer 对 float embedding 的量化与反量化示例</h3><p>下述代码片段来自 Dan哥提供的 <strong><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/446920cabcb384d20132c5dd7d97cb5ec8e27aa8/tests/test_train_hdf5.py#L49">示例代码 </a></strong> ,为了便于添加注释，稍做改动：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#  加载训练所得的 quantizer </span></span><br><span class="line">quantizer_fn = <span class="string">&#x27;quantizer.pt&#x27;</span></span><br><span class="line"><span class="comment"># 在codebook_size=256时，num_codebooks 与上文中 bytes_per_frame 值相等, </span></span><br><span class="line"><span class="comment"># 如果仅调用 quantizer 的接口，不深究quantizer的实现原理，可以认为二者就是一个参数；</span></span><br><span class="line"><span class="comment"># codebook_size, CI的分类范围，设置为256类，刚好一个 Byte 就能存储。</span></span><br><span class="line">quantizer2 = Quantizer(dim=dim, num_codebooks=<span class="number">4</span>, codebook_size=<span class="number">256</span>)</span><br><span class="line">quantizer2.load_state_dict(torch.load(quantizer_fn))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 量化</span></span><br><span class="line">codebook_indexes = quantizer2.encode(x)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 反量化（重构）</span></span><br><span class="line">x_approx = quantizer2.decode(codebook_indexes)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-3-quantizer-训练算法解析"><a href="#4-3-quantizer-训练算法解析" class="headerlink" title="4.3 quantizer 训练算法解析"></a>4.3 quantizer 训练算法解析</h3><p>本节主要介绍上述 <code>trainer.step(x)</code>背后的主要算法细节</p>
+<p>强烈建议<strong>结合 quantization.py 源码</strong>看下面的解析</p>
+<p>quantizer 结构如图所示：</p>
+<img src="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230316101150352.png" alt="image-20230316101150352" style="zoom:80%;">
+
+<p>图中RRL对应代码中的 Relative Reconstruction Loss；LH（sp, sc）对应代码中的 logprob_loss; LH(sp) 对应 logits_entropy_loss。如Dan哥在注释中所说，logits_entropy_loss 起的作用较小，有时候甚至不用，本文只重点介绍 RRL 与 logprob_loss。</p>
+<p>从总体框架上看，其核心思想与自编码器（Autoencoder, AE）类似，即<code>encoder</code>把输入 转化为中间表示，<code>decoder</code> 把该中间表示重构为输出 , 通过不断降低输入 和输出 之间的重构误差，使中间表示能够有效的承载输入 中的信息。在Dan哥的 multi_quantion 项目中，使用的是相对重构误差(Relative Reconstruction Loss, RRL), 摘抄dan哥在注释中的定义如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RRL = <span class="built_in">sum</span>-squared of (x - reconstructed_x) / (<span class="built_in">sum</span>-squared of x-x_mean)</span><br></pre></td></tr></table></figure>
+
+<p>相对于上述经典的自编码器autoencoder， Dan哥在 multi_quantizaiton 项目中做出了如下优化：</p>
+<ol>
+<li><p>中间表示 codebook index，取值范围为[0, 255]; 因此由 float embedding 量化所得的每个整数仅需一个 Byte 的存储空间。</p>
+</li>
+<li><p>在训练 quantizer 过程中, 通过 <strong><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/446920cabcb384d20132c5dd7d97cb5ec8e27aa8/multi_quantization/quantization.py#L308">_refine_indexes</a></strong> 函数（迭代搜索 codebook_indexes 全局最优函数），迭代搜索 codebook_indexes 的最佳组合，使 encoder 得到的量化结果接近<strong>全局最优</strong>的效果。</p>
+</li>
+<li><p>在经典重构误差函数（Relative Reconstruction Loss, RRL) 的基础上，添加 <strong><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/446920cabcb384d20132c5dd7d97cb5ec8e27aa8/multi_quantization/quantization.py#L200">logprob_loss</a></strong> （logprob_loss定义）,使得神经网络<code>encoder</code>直接计算出来的codebook_indexes 不断逼近通过迭代搜索的<strong>全局最优</strong>组合。（**<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/446920cabcb384d20132c5dd7d97cb5ec8e27aa8/multi_quantization/quantization.py#L201">Dan哥注释原文</a>**（logprob_loss作用）：This is added to the loss function, so we can select reasonable classes <strong>before</strong> refining the indexes）</p>
+</li>
+</ol>
+<h4 id="4-3-1-quantizer-模块分析"><a href="#4-3-1-quantizer-模块分析" class="headerlink" title="4.3.1 quantizer 模块分析"></a>4.3.1 quantizer 模块分析</h4><p>下述代码抽取于 <strong><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/446920cabcb384d20132c5dd7d97cb5ec8e27aa8/multi_quantization/quantization.py#L38">class Quantizer</a></strong> 定义：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Quantizer</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, dim: <span class="built_in">int</span>,</span></span><br><span class="line"><span class="params">                 codebook_size: <span class="built_in">int</span>,</span></span><br><span class="line"><span class="params">                 num_codebooks: <span class="built_in">int</span></span>):</span><br><span class="line"></span><br><span class="line">        self.to_logits = nn.Linear(dim, codebook_size * num_codebooks)</span><br><span class="line"></span><br><span class="line">        self.centers = nn.Parameter(self.to_logits.weight.detach().clone().reshape(</span><br><span class="line">            num_codebooks, codebook_size, dim))</span><br><span class="line"></span><br><span class="line">        self.logits_scale = nn.Parameter(torch.zeros(()))</span><br><span class="line">        self.centers_scale = nn.Parameter(torch.zeros(()))</span><br><span class="line">        self.scale_speed = <span class="number">10.0</span> <span class="comment"># affects learning rate of scales</span></span><br></pre></td></tr></table></figure>
+
+<p>在上述<code>__init__</code>函数中，有四处值得注意的点：</p>
+<ol>
+<li><p>本质上 Quantize 是一个 nn.Module，所以它本质上是 neural net(nn).</p>
+</li>
+<li><p>其子模块 self.to_logits 是一个 nn.Linear; 该模块是 <strong>encoder</strong> 的主要参数。它将一个输入为<code>dim</code>的向量转化为 <code>codebook_size * num_codebooks</code>;比如 dim &#x3D; 1280; codebook_size * num_codebooks &#x3D; 256 * 8; 在量化过程中，float embedding 转化为 <strong><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/446920cabcb384d20132c5dd7d97cb5ec8e27aa8/multi_quantization/quantization.py#L297">整数codebook_index代码</a></strong> 摘出来即：</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># x  即 float embedding</span></span><br><span class="line"><span class="comment"># _logits 在 to_logits 的基础上增加了一个可学习的scale, 此处功能上可视为nn.Linear</span></span><br><span class="line">logits = self._logits(x) </span><br><span class="line"></span><br><span class="line"><span class="comment"># indexes 即为 cd_init</span></span><br><span class="line">indexes = torch.argmax(logits, dim=-<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<p>argmax 找最大值的索引，作为indexes。</p>
+<ol start="3">
+<li>self.centers 包含了 num_codebooks * codebook_size * dim 个参数，它是 <strong>decoder</strong> 的主要载体，把整数 codebook_index 重构回 float embedding 的代码摘出来即：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chosen_codebooks = torch.gather(centers, dim=<span class="number">1</span>, index=indexes_expanded)</span><br><span class="line">x_approx = chosen_codebooks.<span class="built_in">sum</span>(dim=<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>一些 logits_scale&#x2F;centers_scale 参数，这些 scale 参数与 <strong><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzkyMzI5NTM2Ng==&mid=2247483882&idx=1&sn=2fc14395df62e28b0236fcd12c25efcc&chksm=c1e60a03f69183152bed4fff2e17cc2249e3f59ec21b09b10182562fe6fbe45df0c83d822408&token=1212992197&lang=zh_CN#rd">reworked conformer</a></strong> 中的 scale 参数异曲同工，都起到帮助模型收敛的目的。</li>
+</ol>
+<p>看到上面 encoder 和 decoder 的相关代码，熟悉 pytorch 的朋友可能本能地觉得 “Ah， 就这! encoder 就做个线性变换，取个 argmax 得到个<strong>位置 index</strong> 就说是 <strong>整数 codebook_index</strong>；decoder 用这个 <strong>位置index</strong> 从 parameters 矩阵找到对应的 embedding 加一块“就是重构结果。</p>
+<p>在深入解析Dan哥代码之前，先<strong>算一笔小账</strong>，<strong>encoder 输出的 codebook_indexes 理论上大概有多少种可能？</strong>能够重构出来的向量大概又有多少种？</p>
+<p>假设 codebook_size&#x3D;256，num_codebooks&#x3D;1, (当然实际应用中最好不要这样设置，毕竟这个项目的名字就叫 <strong>multi_quantization</strong>, 让 num_codebooks&#x3D;1 白瞎了这个名字).</p>
+<p>在 num_codebooks&#x3D;1 时，任意的输入向量 $x$ , 最后都被压缩[0, 255]中的一个整数，自然 codebook_indexes 只有 256种可能，而 decoder 重构出来的结果与 codebook_indexes 一一对应，自然也只有256种可能。</p>
+<p>当 num_codebooks&#x3D;2 时，encoder 会输出两个整数，每个数的范围都是[0, 255], 他们的组合有256 * 256 种可能，而 decoder 重构出来的结果与 codebook_indexes 一一对应，自然也有256 * 256种可能。</p>
+<p>当 num_codebooks&#x3D;8 时，encoder 的输出为 种组合，这个数已经相当大了，是不是<strong>1800亿亿</strong>？，姑且记作 $Total$ 吧。</p>
+<p>而接下来我们要探讨的就是如何从这个巨大的 $Total$  个候选中，如何不断逼近<strong>全局最优组合</strong>。</p>
+<h4 id="4-3-2-神奇的-refine-indexes-函数：如何不断逼近全局最优组合"><a href="#4-3-2-神奇的-refine-indexes-函数：如何不断逼近全局最优组合" class="headerlink" title="4.3.2 神奇的 _refine_indexes 函数：如何不断逼近全局最优组合"></a>4.3.2 神奇的 _refine_indexes 函数：如何不断逼近全局最优组合</h4><p>接下来要介绍的_refine_indexes函数 可以说是 multi_quantization 项目中最难的一个函数; 从代码行数可见一斑，算上辅助函数 quantization.py 也只有<strong>820行</strong>，而这个函数独占L308-L547共计<strong>240行</strong>！</p>
+<p>下面解析中假设 num_codebooks&#x3D;8, 即一个 float embedding 被量化为 8 个整数。首先根据 encoder 中的 linear + argmax 可以获得一组 codebook_index, 包含8个属于 $[0,255]$ 的整数, 不 妨记作 $c d _i n i t$, 它必然是上面提到的 Total 个组合之一。假设其对应的重构误差为 $R R L _i n i t$ , 现在需要思考一个问题, cd_init 是 Total 中这么多组合中重构误差最小的那么个吗? 或者 说有没有如何找到一组 codebook_index, 让它的重构误差比 $c d$ init 还要来的小?</p>
+<p>针对这个问题, 先探究一个特别粗䊁的方案, 记为草量级版本。假设 $c d _i n i t&#x3D;\left[i_1, i_2, i_3, i_4, i_5, i_6, i_7, i_8\right] ;$ 其中 $i_k$ 是一个属于 $[0,255]$ 的整数。假设暂时不动 $\left[i_2, \ldots, i_7, i_8\right]$ 这 7 个数, 我们把 $i_1$ 位置上的其余 256 种可能性都尝试一遍, 不妨记这些所有的 可能性为 $c d _a l l{ }_ 2 56$, 它们对应的重构误差记为 $R R L _a l l _256$; 然后对 $R R L _a l l _256$ 进行排 序, 取最小值对应的组合作为优化后的量化结果,记为 $c d _r e f i n e d$, 对应的重构误差为 $R R L _$refined, 很明显 $R R L _refined \leq R R L _i n i t$ 。</p>
+<p>函数 $_refine_index$ 充分发挥上述 <strong>定余求一</strong> 的思想, 在 $c d _i n i t$ 的基础上, 通过多轮迭代优化, 最终获得RRL更低的 $c d _r e f i n e d$ 。</p>
+<p>该函数中有三个关键的变量N， K， L, 下图<strong>自下而上</strong>列出迭代搜索过程中，N-K-L三个数值的变化:</p>
+<img src="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/640.jpeg" alt="640" style="zoom:80%;">
+
+
+
+<p>上图每一层代表一轮搜索的过程。其中<strong>第一层</strong>，可以看做是前述<strong>草量级版本</strong>的 <strong>并行化</strong>，记为<strong>轻量级</strong>版本。其思想在于对于 个位点中的每个 , 穷举其所有的 种可能性，并结合另外7个来自于 的 计算RRL; 对于每个位点，根据RRL的大小对 个候选进行排序，选其中最优的 个进入下一轮迭代。此处对应**<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/446920cabcb384d20132c5dd7d97cb5ec8e27aa8/multi_quantization/quantization.py#L348">Dan哥注释</a>** （K_cutoff注释）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reduce K to K_cutoff by sorting and taking the K_cutoff best possibilities for each choice.</span><br></pre></td></tr></table></figure>
+
+
+
+<p>值得注意的是，每个位点是并行处理的。每个位点在确定自己的最优个 $K_cutoff$ 时，并不知道对方的搜索结果。这就面临一个风险， $i_1$ 位置上的最优个 $K_cutoff$ 个候选是和其余7个来自 $c_init$ 中的 index 一起计算 RRL，但是这7个数在它们对应位置的筛选过程中<strong>可能</strong>被<strong>淘汰掉了</strong>。理论上来说，甚至会出现 $RRL_refined &gt; RRL_init$情况！！！</p>
+<p><strong>举例</strong>：假设 dim&#x3D;1, num_codebooks&#x3D;2;即我们要把一个float <strong>量化</strong>为两个整数，每个整数的分布范围是[0, 4]，self.centers 包含的参数维度[num_codebooks, codebook_size, dim] &#x3D; [2, 5, 1],其值为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> 忽略最后维度1， 即 shape = [2,5]</span><br><span class="line">[</span><br><span class="line">  [0.1 0.2 0.3 0.4 0.5]</span><br><span class="line">  [0.1 0.2 0.3 0.4 0.5]</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+
+
+<p>根据以上假设条件, 如果待量化的输入 $x&#x3D;0.52$, encoder 通过 linear + argmax 得到的 $c d _i n i t&#x3D;[2,2]$; 此时得到的重构结果为 $\hat{x}&#x3D;0.3+0.3&#x3D;0.6$ 。采用上述并行化的轻量级算法, 假设 $K _c u t o f f&#x3D;1$, 对于位点 $i_1$, 由于 $i_2&#x3D;2$, 遍历 $i_1$ 的 5 种全部候选值, 显然最佳结果为 $i_1&#x3D;1$, 即操作 $i_1$ 位置的这部分算法认为它修改后的重构结果应该是 $\hat{x}&#x3D;0.2+0.3&#x3D;0.5$;</p>
+<p>但是此刻还有一个并行的算法在操作位点 $i_2$, 在位点 $i_1$ 做出决定时, 它在 $c d _i n i t$ 中的 $i_1&#x3D;2$ 的 基础上做出了 $i_2&#x3D;1$ 的选择, 即它认为它修改后的的重构结果应该为 $\hat{x}&#x3D;0.3+0.2&#x3D;0.5$;</p>
+<p>由于 $ K_cutoff &#x3D;1$, 它们都返回了一个最佳候选, 两路并行程序给出的结果汇总后, 得到 cd_refine $&#x3D;[1,1]$, 即 $\hat{x}&#x3D;0.2+0.2&#x3D;0.4$.<br>综上, 本来重构结果与目标距离 $-0.08&#x3D;0.52-0.6$, 一番操作猛如虎之后, 与目标距离成了 $0.12&#x3D;0.52-0.4$, 反倒还增大了 $50 %$ 。！！！</p>
+<p>（就像《麦琪的礼物》）</p>
+<p>在实际训练过程中，函数 [_refine_indexes] 一般也不会遇到上面给出的极端反例，一般情况下，$R R L _refined \leq R R L _i n i t$ ， 如下所示为 <strong><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/ecea30b79699e2e6f24d253f2563f78e4c1441fc/multi_quantization/quantization.py#L302">连续5次使用函数</a></strong> _refine_indexes 重构误差RRL的变化：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">loss_per_iter=[0.496, 0.451, 0.439, 0.437, 0.436, 0.435],</span><br><span class="line">loss_per_iter=[0.483, 0.442, 0.432, 0.43, 0.429, 0.429],</span><br><span class="line">loss_per_iter=[0.489, 0.447, 0.434, 0.432, 0.43, 0.43],</span><br><span class="line">loss_per_iter=[0.487, 0.445, 0.434, 0.432, 0.431, 0.431],</span><br><span class="line">loss_per_iter=[0.479, 0.438, 0.428, 0.426, 0.425, 0.425],</span><br><span class="line">loss_per_iter=[0.485, 0.443, 0.433, 0.43, 0.43, 0.43],</span><br><span class="line">loss_per_iter=[0.482, 0.442, 0.431, 0.429, 0.428, 0.428],</span><br></pre></td></tr></table></figure>
+
+
+
+<p>另外引入的 logprob_loss 也可以一定程度上缓解这种情况，详见后文。</p>
+<p>言归正传, 回归到 num_codebooks&#x3D;8, K_cutoff&#x3D;16 的设定, 采用上述<strong>轻量级</strong>算法的搜索之后, $\left[i_1, i_2, \ldots, i_8\right]$ 每个位置都从 256 个候选中挑出了 k_cutoff $&#x3D;16$ 个候选, 他们的排列组合共有 $16^8&#x3D;4,294,967,296$ 个, 确实比最开始的 1800 亿亿个小了很多, 但是依然很大, 而且后续怎 么处理? 要穷举这个 40 亿个潜在结果吗?</p>
+<p>针对上述问题, multi_quantization 项目在<strong>轻量级算法</strong>的基础上新增加一个 &#x3D;&#x3D;<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/446920cabcb384d20132c5dd7d97cb5ec8e27aa8/multi_quantization/quantization.py#L505">Combine pairs of choices</a>&#x3D;&#x3D; 的机制。将引入该机制后的算法记为<strong>重量级算法</strong>。</p>
+<p>假设 $\left[i_1, i_2, \ldots, i_8\right]$ 每个位点已选出的 $K_cutoff$ 个候选, <strong>combine</strong> 机制将<strong>相邻</strong>两个位点分为一 组, 得到 $\frac{N}{2}$, 穷举每组内部的两个位点的所有组合, 共 $K _c u t o f f * K _c u t o f f$ 个; 结合<strong>定余求一</strong>的思想, 结合 $c _i n i t$ 中其它位点的值, 计算这 $K_{-}$cutoff * K_cutoff 个组合对应的 RRL, 并根 据RRL 取较小的 $K$ _cutoff 个进入下一轮排序。由于此时计算 RRL, 参与排序的是两个相邻位点 的组合, 所以在后续的迭代过程中, 这两个位点要一直捆绑在一起, 即此时 $\mathrm{L}&#x3D;2$ 。依此类推, 在下一轮次的<strong>相邻</strong>组 combine 后, $\mathrm{L}$ 会进一步翻倍为 $\mathrm{L}&#x3D;4$ 。上述解析<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/446920cabcb384d20132c5dd7d97cb5ec8e27aa8/multi_quantization/quantization.py#L347">对应Dan哥代码注释</a> （N&#x2F;K&#x2F;L的变化）:</p>
+<p>（如上图所示）</p>
+<p>采用这种相邻配对分组计算, 定余求一的方法, 不需要穷举上文提到的 40 亿种组合, 仅需计 算 $K _$cutoff $* K _$cutoff $* \frac{N}{2}&#x3D;16 * 16 * 4&#x3D;1024$ 种组合，而且它们还可以并行计算, 极大 地提高了搜索效率。</p>
+<p>回顾一下上面迭代 refine 的示意图, 每一层都代表一次<strong>相邻</strong>组配对, 基于<strong>定余求一</strong>的基本思 想, 对于每个配对的组合选出 $K_{-}$cutoff 个最有候选。每次迭代后, 单个组合的元素个数 L 都 会扩大一倍, 最终 L &#x3D; num_codebooks, 此时最小值 RRL 对应的组合即为需要求解的 cd_refined。</p>
+<p>该算法解析即将进入尾声，最后介绍代码中穷举<strong>相邻组</strong>两两配对的 trick,**<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/446920cabcb384d20132c5dd7d97cb5ec8e27aa8/multi_quantization/quantization.py#L517">代码如下</a>**：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">even_indexes = even_indexes.unsqueeze(<span class="number">3</span>).expand(B, new_N, K, K, L).reshape(B, new_N, new_K, L)</span><br><span class="line">odd_indexes = odd_indexes.unsqueeze(<span class="number">2</span>).expand(B, new_N, K, K, L).reshape(B, new_N, new_K, L)</span><br><span class="line">cur_indexes = torch.cat((even_indexes, odd_indexes), dim=<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>这两行代码高度相似，只是 <strong>unsqueeze(3)</strong> 和 <strong>unsqueeze(2)</strong> 的区别，该处差异<strong>刚好穷举</strong>了 even_indexes 和 odd_indexes 的两两组合，简单示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line">even = torch.tensor([<span class="number">2</span>,<span class="number">4</span>,<span class="number">6</span>])</span><br><span class="line">odd = torch.tensor([<span class="number">1</span>,<span class="number">3</span>,<span class="number">5</span>])</span><br><span class="line"></span><br><span class="line">L = <span class="number">1</span></span><br><span class="line">K = <span class="number">3</span></span><br><span class="line">new_K = K * K</span><br><span class="line">even = even.unsqueeze(<span class="number">0</span>).expand(K, K).reshape(new_K, L)</span><br><span class="line">odd = odd.unsqueeze(<span class="number">1</span>).expand(K, K).reshape(new_K, L)</span><br><span class="line">cur = torch.cat((odd, even), dim=<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(cur)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 对应的输出结果为：</span></span><br><span class="line">tensor([[<span class="number">1</span>, <span class="number">2</span>],</span><br><span class="line">        [<span class="number">1</span>, <span class="number">4</span>],</span><br><span class="line">        [<span class="number">1</span>, <span class="number">6</span>],</span><br><span class="line">        [<span class="number">3</span>, <span class="number">2</span>],</span><br><span class="line">        [<span class="number">3</span>, <span class="number">4</span>],</span><br><span class="line">        [<span class="number">3</span>, <span class="number">6</span>],</span><br><span class="line">        [<span class="number">5</span>, <span class="number">2</span>],</span><br><span class="line">        [<span class="number">5</span>, <span class="number">4</span>],</span><br><span class="line">        [<span class="number">5</span>, <span class="number">6</span>]])</span><br></pre></td></tr></table></figure>
+
+
+
+<p>【TODO】我只理解大概意思，需要详细结合代码理解。。。。。。。。。。</p>
+<h4 id="4-3-3-logprob-loss-的作用"><a href="#4-3-3-logprob-loss-的作用" class="headerlink" title="4.3.3 logprob_loss 的作用"></a>4.3.3 logprob_loss 的作用</h4><p>在上文 $c d _r e f i n e d$ 迭代搜索过程中, 一个很重要思想就是定余求一, 也就是说我们在搜索某 一个位点上的较佳候选时, 其余的位点是直接用了用 quantizer.to_logits 对应的 (linear + argmax) 计算出来的 $c d _i n i t$ 的值。万一这个初始值 $c d _i n i t$ 很坑怎么办? 在上文中, 我们也 给出来一个案例, 一通操作之后, 重构出来的结果误差还更大了。在 multi_quantizaiton 库 中, Dan哥给出的优化方案让 quantizer.to_logits 模块去学习 refine 之后的结果, 这样 (linear + argmax）给出的 $c d _i n i t$ 就会不断向 cd_refined 组合逼近。对应的<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/446920cabcb384d20132c5dd7d97cb5ec8e27aa8/multi_quantization/quantization.py#L218">代码为</a> </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Get logprob loss and class-entropy loss</span></span><br><span class="line"><span class="comment"># wasteful.. already computed logits..</span></span><br><span class="line">logits = self._logits(x).reshape(-<span class="number">1</span>, self.num_codebooks, self.codebook_size)</span><br><span class="line">logits = logits.log_softmax(dim=<span class="number">2</span>)</span><br><span class="line"><span class="comment"># chosen_logits: (B, num_codebooks, 1)</span></span><br><span class="line">chosen_logits = torch.gather(logits, dim=<span class="number">2</span>,</span><br><span class="line">                             index=indexes.unsqueeze(<span class="number">2</span>))</span><br><span class="line">logprob_loss = -chosen_logits.mean()</span><br></pre></td></tr></table></figure>
+
+
+
+<p>如Dan哥在注释中所说, 本质上这就是个交叉墒损失函数（Cross-Entropy loss, CE）。从 CE 的 角度看, 相当于以 $c d _r e f i n e d$ 为 label, 去训练 quantizer.to_logits 模块, 从而促使 $c d _i n i t$ 逐 渐接近 $c$ __refined。</p>
+<p>至此，我们浅析了 quantizer 背后的一些关键思想，然而Dan哥的设计前后呼应，非常巧妙；上述解析必然有疏漏之处，读者海涵。</p>
+<h2 id="5-蒸馏方案解析"><a href="#5-蒸馏方案解析" class="headerlink" title="5 蒸馏方案解析"></a>5 蒸馏方案解析</h2><h3 id="5-1-codebook-indexes-对应的损失函数"><a href="#5-1-codebook-indexes-对应的损失函数" class="headerlink" title="5.1 codebook indexes 对应的损失函数"></a>5.1 codebook indexes 对应的损失函数</h3><p>如果跳过层层细节，multi_quantization 的功能就是把一个 <strong>float embedding 转化为一组整数 code bookindex</strong>。在蒸馏实验中，由于teacher embedding 往往是frame-level的，所以对应的codebook indexes 也是 frame-level 的。</p>
+<p>喔，一组 frame-level 的整数，且分布范围是有限的类别（一般在[0， 255]之间)。这看起来和 <strong>alignment</strong> 非常相似！对于这样的 target, 大家的第一想法恐怕都是用 CE 作为损失函数吧。只不过相对于经典的CE,现在每个 frame 对应多个 target（一组包含多个整数的 codebook index.</p>
+<p>在 multi_quantizaiton 库里，提供了一个 <strong><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/multi_quantization/blob/ecea30b79699e2e6f24d253f2563f78e4c1441fc/multi_quantization/prediction.py#L132">JointCodebookLoss</a></strong> 类，当其 is_joint&#x3D;False 时，就是完全标准的CE损失函数，下述实验的结果即采用此配置得到。把CE又重新包装为 JointCodebookLoss(JCL) 是出于两方面的考虑：</p>
+<ol>
+<li><p>在CE之前加一个linear layer,用于连接 student 网络的输出和 codebook index。</p>
+</li>
+<li><p>探索 codebook loss 的除了CE之外的使用方式，比如设置 is_joint&#x3D;True 时，在上述 linear 的基础上，增加了一个利用已知部分CI预测其余位置CI的 regression 分支，目前JCL和CE在不同设置下互有胜负，现阶段暂时推荐使用CE损失函数。</p>
+</li>
+</ol>
+<h3 id="5-2-pruned-transducer-stateless6中的实验配置"><a href="#5-2-pruned-transducer-stateless6中的实验配置" class="headerlink" title="5.2 pruned_transducer_stateless6中的实验配置"></a>5.2 pruned_transducer_stateless6中的实验配置</h3><h4 id="5-2-1-采用-hubert-作为-teacher-模型的配置"><a href="#5-2-1-采用-hubert-作为-teacher-模型的配置" class="headerlink" title="5.2.1 采用 hubert 作为 teacher 模型的配置"></a>5.2.1 采用 hubert 作为 teacher 模型的配置</h4><p>当前的实验使用的是48层的 HuBERT Extra Large finetuned 后的模型，其输入为 raw audio, 没有 fbank&#x2F;mfcc 等特征提取环节，输出帧率为50，即1s的输入音频，可以得到50 frames的 teacher embedding。</p>
+<h4 id="5-2-2-采用-reworked-conformer-作为-studnet-模型"><a href="#5-2-2-采用-reworked-conformer-作为-studnet-模型" class="headerlink" title="5.2.2 采用 reworked conformer 作为 studnet 模型"></a>5.2.2 采用 reworked conformer 作为 studnet 模型</h4><p>其与 stateless4 中的 reworked conformer结构完全一致，只不过它的第6层被链接到 codebook index 对应的蒸馏 loss。</p>
+<p>即实现 hubert 48层模型中的<strong>第36层</strong> “连接“到 conformer 12层模型中的<strong>第6层</strong>的蒸馏方案。</p>
+<p>值得注意的是 conformer 的帧率是25， 为 hubert teacher 模型帧率50的一半。为了解决这种 mismatch, 我们将 hubert 得到的相邻两帧 codebook indexs 拼做一帧。即提取过程中设置的的 num_codebooks &#x3D; 8, 在蒸馏过程中，conformer 每帧对应的其实是16个整数 target.</p>
+<h4 id="5-2-3-quantizer-配置"><a href="#5-2-3-quantizer-配置" class="headerlink" title="5.2.3 quantizer 配置"></a>5.2.3 quantizer 配置</h4><p>quantizer 的训练不需要太多的数据，在该实验配置中，我们选择了 LibriSpeech train-clean-100的前<strong>1000条</strong>语音对应的 teacher embedding 作为 quantizer 的训练数据。值得一提的是，在训练 quantizer 之前这些来自不同语音的 teacher embedding 会完全 <strong>mix</strong> 在一起，充分的 <strong>shuffle</strong>, 避免 quantizer 学习了一些句内信息。</p>
+<p>由于 quantizer 是对 <strong>frame-level</strong> 的 level 的 teacher embedding 做量化，为了保证来自 teacher 模型的 codebook index 与 student 模型的输出在时间上对齐， 使用 codebook index 做蒸馏时<strong>建议关掉 time_warp</strong>。</p>
+<h2 id="6-实验结果"><a href="#6-实验结果" class="headerlink" title="6. 实验结果"></a>6. 实验结果</h2><h3 id="6-1-采用clean-100h实验结果分析"><a href="#6-1-采用clean-100h实验结果分析" class="headerlink" title="6.1 采用clean-100h实验结果分析"></a>6.1 采用clean-100h实验结果分析</h3><p>表格中结果分别是在(test-clean||test-other)的(Word Error Rate, WER)。</p>
+<table>
+<thead>
+<tr>
+<th align="left">-</th>
+<th align="left">epoch-20-avg-10</th>
+<th align="left">epoch-30-avg-10</th>
+<th align="left">epoch-40-avg-10</th>
+<th align="left">epoch-50-avg-10</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">baseline no distillation</td>
+<td align="left">7.09||18.88</td>
+<td align="left">6.83||18.19</td>
+<td align="left">6.73||17.79</td>
+<td align="left">6.75||17.68</td>
+</tr>
+<tr>
+<td align="left">distillation with hubert</td>
+<td align="left">5.82||15.98</td>
+<td align="left">5.52||15.15</td>
+<td align="left">5.45||14.94</td>
+<td align="left">5.50||14.77</td>
+</tr>
+</tbody></table>
+<p>在 icefall中，基于 LibriSpeech 的训练一般不推荐超过30个 epoch。上表中的实验刻意训练了50个epoch。在引入 hubert teacher 模型后，从上表可得出两个比较重要的结论：</p>
+<ol>
+<li><p>由epoch-20&#x2F;30的结果，可以看出收敛速度速度大大加快，</p>
+</li>
+<li><p>由epoch-40&#x2F;50的结果，可以看出其极限WER也更低。</p>
+</li>
+</ol>
+<h3 id="6-2-采用-full-librispeech-960h-实验结果分析"><a href="#6-2-采用-full-librispeech-960h-实验结果分析" class="headerlink" title="6.2 采用 full librispeech 960h 实验结果分析"></a>6.2 采用 full librispeech 960h 实验结果分析</h3><h4 id="6-2-1-non-streaming-teacher-model-结合-non-streaming-student-model-结果分析"><a href="#6-2-1-non-streaming-teacher-model-结合-non-streaming-student-model-结果分析" class="headerlink" title="6.2.1 non-streaming teacher model 结合 non-streaming student model 结果分析"></a>6.2.1 non-streaming teacher model 结合 non-streaming student model 结果分析</h4><p>训练30个 epoch，解码方法为m odified_beam_search</p>
+<table>
+<thead>
+<tr>
+<th align="left">-</th>
+<th align="left">test-clean</th>
+<th align="left">test-other</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">baseline no distillation</td>
+<td align="left">2.63</td>
+<td align="left">6.19</td>
+</tr>
+<tr>
+<td align="left">ditillation with hubert</td>
+<td align="left">2.30</td>
+<td align="left">5.57</td>
+</tr>
+</tbody></table>
+<h4 id="6-2-2-non-streaming-teacher-model-结合-streaming-student-model结果分析"><a href="#6-2-2-non-streaming-teacher-model-结合-streaming-student-model结果分析" class="headerlink" title="6.2.2 non-streaming teacher model 结合 streaming student model结果分析"></a>6.2.2 non-streaming teacher model 结合 streaming student model结果分析</h4><p>训练30个 epoch, 解码配置为 left_context_64, chunk_size&#x3D;16, right_context&#x3D;9;</p>
+<table>
+<thead>
+<tr>
+<th align="left">-</th>
+<th align="left">test-clean</th>
+<th align="left">test-other</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">baseline no distillation</td>
+<td align="left">3.13</td>
+<td align="left">8.06</td>
+</tr>
+<tr>
+<td align="left">ditillation with hubert</td>
+<td align="left">2.93</td>
+<td align="left">7.43</td>
+</tr>
+</tbody></table>
+<p>上述两个全量的实验，可以得出两个比较重要的结论：</p>
+<ol>
+<li><p>一个非流式的 teacher 模型不仅能够提升非流式的 student 模型，也可以提升流式 student 模型。</p>
+</li>
+<li><p>由于该 hubert teacher 模型训练时用到的有标签数据也是 LibriSpeech, 其它数据均为无监督数据。而且该蒸馏方案并没有侵入 student 模型结构，为了蒸馏添加的 JointCodebookLoss 分支在测试和上线的时候可以拿掉。因此该方案给出了一种无需增加标注数据的模型，无需修改已有模型结构，仅使用大量无监督数据即可优化已有模型的方案（可以完全复用已有的模型导出&#x2F;量化&#x2F;产线部署工具）。</p>
+</li>
+</ol>
+<h2 id="7-展望"><a href="#7-展望" class="headerlink" title="7. 展望"></a>7. 展望</h2><p>上文设计的实验仅介绍了该量化工具在 ASR 领域的一些应用实例，然而它的功能远不止于此：</p>
+<ol>
+<li>更为丰富的蒸馏实验设置。</li>
+</ol>
+<p>上文介绍的蒸馏实验仅使用了一个 teacher 模型，一个 student 模型，二者均各取一层。或许拓展为从 teacher 模型中抽取多层的信息甚至使用多个 teacher 模型，共同指导 student 模型不同层的学习，或许能够得到更好地蒸馏效果。</p>
+<ol start="2">
+<li>该方案应该也可以拓展到其他机器学习领域，比如唤醒、声纹、NLP等任何可以用到蒸馏学习的任务。</li>
+</ol>
+<h2 id="8-总结"><a href="#8-总结" class="headerlink" title="8. 总结"></a>8. 总结</h2><p>本文介绍了Dan哥提出的量化工具 multi_quantization 的基本原理及其在 ASR 蒸馏学习领域内的应用。相较于传统的蒸馏方法，该方案能够<strong>大幅度降低</strong>所需的存储空间，同时取得了良好的蒸馏效果。该系统通过结合 hubert 模型，给出了一种在不增加标注数据，不修改模型结构及上线逻辑的情况下，依托海量无监督数据提升产线模型性能的可能性。最后提出了一些潜在的实验方向，希望能够有机会与各位业界同仁一起研究，共同进步。</p>
+<h2 id="9-致谢"><a href="#9-致谢" class="headerlink" title="9. 致谢"></a>9. 致谢</h2><p>感谢小米技术委AI实验室孔玉祥、姚增伟、王全东博士和中科院声学所朱涵博士针对该方案的宝贵建议和辛勤付出。</p>
+<hr>
+<p>encoder作用：将1280维float向量转成8维uint8的整数，每个整数代表每一个码本对应的索引index。</p>
+<p>目标：编码解码重构出的$\hat x$，尽量接近输入的x。</p>
+<p>如左图所示，N表示码本数，K表示embedding维度（这里是6，用的时候是256），x进来会先经过一个logit逻辑回归分类器，作为初始码本embedding选择，然后迭代优化。</p>
+<img src="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230315181327346.png" alt="image-20230315181327346" style="zoom:80%;">
+
+
+
+<p>迭代式的编码策略。</p>
+<img src="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230315183059172.png" alt="image-20230315183059172" style="zoom:80%;">
+
+
+
+<p>分治</p>
+<img src="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230315184456112.png" alt="image-20230315184456112" style="zoom:80%;">
+
+
+
+
+
+<img src="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230316211125538.png" alt="image-20230316211125538" style="zoom:80%;">
+
+
+
+<img src="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230316211144202.png" alt="image-20230316211144202" style="zoom:80%;">
+
+
+
+
+
+<img src="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230316211203576.png" alt="image-20230316211203576" style="zoom:80%;">
+
+
+
+
+
+<img src="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230316211233218.png" alt="image-20230316211233218" style="zoom:80%;">
+
+
+
+<img src="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/image-20230316211256390.png" alt="image-20230316211256390" style="zoom:80%;">
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/k2/" rel="tag"># k2</a>
+          
+            <a href="/tags/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" rel="tag"># 语音识别</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/" rel="next" title="视频 新一代 Kaldi 中的 Reworked Conformer 模型">
+                <i class="fa fa-chevron-left"></i> 视频 新一代 Kaldi 中的 Reworked Conformer 模型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/04/02/C++/C++%E8%AF%AD%E6%B3%95/" rel="prev" title="C++语法">
+                C++语法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%86%E9%A2%91-%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88"><span class="nav-number">1.</span> <span class="nav-text">视频 基于多码本向量量化的蒸馏方案</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%8A%A8%E6%9C%BA%E4%B8%8E%E6%96%B9%E6%A1%88%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">1 动机与方案概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E5%8A%A8%E6%9C%BA"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1 动机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E6%96%B9%E6%A1%88%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.2.</span> <span class="nav-text">1.2 方案概述</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%9C%AF%E8%AF%AD%E5%AD%97%E5%85%B8"><span class="nav-number">1.2.</span> <span class="nav-text">2 术语字典</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E4%BB%A3%E7%A0%81%E4%BB%93%E5%BA%93"><span class="nav-number">1.3.</span> <span class="nav-text">3 代码仓库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E9%87%8F%E5%8C%96%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1 量化相关代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E8%92%B8%E9%A6%8F%E5%AE%9E%E9%AA%8C%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2 蒸馏实验相关代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-quantizer-%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="nav-number">1.4.</span> <span class="nav-text">4 quantizer 相关代码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-quantizer-%E8%AE%AD%E7%BB%83%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1 quantizer 训练代码示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-quantizer-%E5%AF%B9-float-embedding-%E7%9A%84%E9%87%8F%E5%8C%96%E4%B8%8E%E5%8F%8D%E9%87%8F%E5%8C%96%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2 quantizer 对 float embedding 的量化与反量化示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-quantizer-%E8%AE%AD%E7%BB%83%E7%AE%97%E6%B3%95%E8%A7%A3%E6%9E%90"><span class="nav-number">1.4.3.</span> <span class="nav-text">4.3 quantizer 训练算法解析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-1-quantizer-%E6%A8%A1%E5%9D%97%E5%88%86%E6%9E%90"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">4.3.1 quantizer 模块分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-2-%E7%A5%9E%E5%A5%87%E7%9A%84-refine-indexes-%E5%87%BD%E6%95%B0%EF%BC%9A%E5%A6%82%E4%BD%95%E4%B8%8D%E6%96%AD%E9%80%BC%E8%BF%91%E5%85%A8%E5%B1%80%E6%9C%80%E4%BC%98%E7%BB%84%E5%90%88"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">4.3.2 神奇的 _refine_indexes 函数：如何不断逼近全局最优组合</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-3-logprob-loss-%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">4.3.3 logprob_loss 的作用</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88%E8%A7%A3%E6%9E%90"><span class="nav-number">1.5.</span> <span class="nav-text">5 蒸馏方案解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-codebook-indexes-%E5%AF%B9%E5%BA%94%E7%9A%84%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0"><span class="nav-number">1.5.1.</span> <span class="nav-text">5.1 codebook indexes 对应的损失函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-pruned-transducer-stateless6%E4%B8%AD%E7%9A%84%E5%AE%9E%E9%AA%8C%E9%85%8D%E7%BD%AE"><span class="nav-number">1.5.2.</span> <span class="nav-text">5.2 pruned_transducer_stateless6中的实验配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-1-%E9%87%87%E7%94%A8-hubert-%E4%BD%9C%E4%B8%BA-teacher-%E6%A8%A1%E5%9E%8B%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="nav-number">1.5.2.1.</span> <span class="nav-text">5.2.1 采用 hubert 作为 teacher 模型的配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-2-%E9%87%87%E7%94%A8-reworked-conformer-%E4%BD%9C%E4%B8%BA-studnet-%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.5.2.2.</span> <span class="nav-text">5.2.2 采用 reworked conformer 作为 studnet 模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-3-quantizer-%E9%85%8D%E7%BD%AE"><span class="nav-number">1.5.2.3.</span> <span class="nav-text">5.2.3 quantizer 配置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C"><span class="nav-number">1.6.</span> <span class="nav-text">6. 实验结果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E9%87%87%E7%94%A8clean-100h%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90"><span class="nav-number">1.6.1.</span> <span class="nav-text">6.1 采用clean-100h实验结果分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E9%87%87%E7%94%A8-full-librispeech-960h-%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90"><span class="nav-number">1.6.2.</span> <span class="nav-text">6.2 采用 full librispeech 960h 实验结果分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#6-2-1-non-streaming-teacher-model-%E7%BB%93%E5%90%88-non-streaming-student-model-%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90"><span class="nav-number">1.6.2.1.</span> <span class="nav-text">6.2.1 non-streaming teacher model 结合 non-streaming student model 结果分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-2-2-non-streaming-teacher-model-%E7%BB%93%E5%90%88-streaming-student-model%E7%BB%93%E6%9E%9C%E5%88%86%E6%9E%90"><span class="nav-number">1.6.2.2.</span> <span class="nav-text">6.2.2 non-streaming teacher model 结合 streaming student model结果分析</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%B1%95%E6%9C%9B"><span class="nav-number">1.7.</span> <span class="nav-text">7. 展望</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E6%80%BB%E7%BB%93"><span class="nav-number">1.8.</span> <span class="nav-text">8. 总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E8%87%B4%E8%B0%A2"><span class="nav-number">1.9.</span> <span class="nav-text">9. 致谢</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/';
+          this.page.identifier = '2023/03/16/k2/视频 基于多码本向量量化的蒸馏方案/';
+          this.page.title = '视频 基于多码本向量量化的蒸馏方案';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

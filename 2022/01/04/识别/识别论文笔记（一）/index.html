@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="语音识别," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="端到端识别方案 &#x3D;&#x3D;Yao, Zhuoyuan, et al. “Wenet: Production oriented streaming and non-streaming end-to-end speech recognition toolkit.” arXiv preprint arXiv:2102.01547 (2021).&#x3D;&#x3D; github：htt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="识别论文笔记（一）端到端识别方案">
+<meta property="og:url" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="端到端识别方案 &#x3D;&#x3D;Yao, Zhuoyuan, et al. “Wenet: Production oriented streaming and non-streaming end-to-end speech recognition toolkit.” arXiv preprint arXiv:2102.01547 (2021).&#x3D;&#x3D; github：htt">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510111818545.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/mask-encoder-attention.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510111900464.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510123816315.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510164639096.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510164730235.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510171629404.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220511114046236.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220511121210127.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220511142320509.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220511113104350.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220512162312294.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220512165113089.png">
+<meta property="article:published_time" content="2022-01-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T08:18:50.616Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="语音识别">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510111818545.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/01/04/识别/识别论文笔记（一）/"/>
+
+
+
+
+
+  <title>识别论文笔记（一）端到端识别方案 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">识别论文笔记（一）端到端识别方案</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/识别论文笔记（一）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="端到端识别方案"><a href="#端到端识别方案" class="headerlink" title="端到端识别方案"></a>端到端识别方案</h1><blockquote>
+<p>&#x3D;&#x3D;Yao, Zhuoyuan, et al. “Wenet: Production oriented streaming and non-streaming end-to-end speech recognition toolkit.” <em>arXiv preprint arXiv:2102.01547</em> (2021).&#x3D;&#x3D;</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/mobvoi/wenet">https://github.com/mobvoi/wenet</a>  </p>
+<p>chao yang ：<a target="_blank" rel="noopener" href="http://placebokkk.github.io/wenet/2021/06/04/asr-wenet-nn-1.html">Wenet网络设计与实现</a></p>
+</blockquote>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
+<li><p>提出识别框架Wenet</p>
+</li>
+<li><p>解决流式非流式问题方法：用dynamic chunk-based attention策略，提出two-pass方法框架（U2，a unified two-pass joint CTC&#x2F;AED model ）解决流式非流式的统一 （unifying streaming and non-streaming modes）</p>
+</li>
+<li><p>U2：</p>
+<ul>
+<li>Shared Encoder ：多个Transformer和Conformer（只看右context），只看部分输入音频特征长度，因此可以流式；</li>
+<li>CTC Decoder：线性层，CTC loss；</li>
+<li>Attention Decoder：多个Transformer decoder层；</li>
+<li>rescore解码过程：CTC Decoder流式进行一遍解码，Attention Decoder进行第二遍解码；attention rescoring ：CTC prefix beam search输出n-best候选路径，n-best和encoder通过AED decoder得到output，这里n-best（没有blank了）是作为decoder的输入序列（类似于训练时的label序列，可以并行，一次到位，不需要输出作用到下一个输入）；</li>
+<li>rescore：<ul>
+<li>aed的输出并没有用什么beam search，而是直接取和ctc n-best对应位置相同的路径分数</li>
+<li>aed输出的第n条序列分数为：&#x3D;&#x3D;对应ctc 第n条路径分数 * ctc_weight + 在ctc第n条作为输入的前提下 aed的输出的路径分数&#x3D;&#x3D;（recore 分数）</li>
+<li>可能aed rescore的作用是用来校正ctc的n-best的，既然前提是在ctc n-best空间范围内重新选一条，所以ctc n-best一定是很有说服力的；</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510111818545.png" alt="image-20220510111818545" style="zoom: 67%;">
+
+<h3 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h3><ul>
+<li><p>Joint CTC&#x2F;AED training：</p>
+<ul>
+<li>Loss function：$\large L_{combined}(x,y) &#x3D; \lambda L_ {CTC}(x,y) + (1-\lambda) L_{AED} (x,y)$</li>
+<li>优势：加快收敛，提高训练稳定性，得到更好识别结果</li>
+</ul>
+</li>
+<li><p>dynamic chunk training  ：</p>
+<ul>
+<li>训练时每个chunk里，只能看见从音频开头到当前chunk尾的长度信息；chunk大小是随机数，让模型学会预测任意长度chunk输出</li>
+<li>chunk是帧数（这里的帧按下采样后的帧），基于chunk的attention，本质上是去限制attention的作用范围，可以通过attention mask来实现。（QK后接mask后得score，再softmax）</li>
+<li>优势：实现了流式</li>
+<li></li>
+</ul>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/mask-encoder-attention.png" alt="mask-encoder-attention" style="zoom: 67%;">
+
+<h3 id="系统设计"><a href="#系统设计" class="headerlink" title="系统设计"></a>系统设计</h3><ul>
+<li>训练：<ul>
+<li>TorchScript 用来开发models；</li>
+<li>Torchaudio 用来即时on-the-fly特征抽取； </li>
+<li>Distributed Data Parallel (DDP)用来分布式训练；</li>
+</ul>
+</li>
+<li>部署：<ul>
+<li>torch Just In Time (JIT) 用来导出模型；</li>
+<li>PyTorch quantization 用来量化模型；</li>
+<li>LibTorch 用来上线使用 production runtime；</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510111900464.png" alt="image-20220510111900464" style="zoom: 67%;">
+
+<ul>
+<li>Runtime<ul>
+<li>x86 as server runtime  </li>
+<li>Android as on-device runtime</li>
+</ul>
+</li>
+</ul>
+<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><ul>
+<li>数据集：aishell-1，150h train，10h dev，5h test；</li>
+<li>特征：80维mfcc，25ms帧长，10ms帧移，specaugment（numf&#x3D;2，F&#x3D;10，numt&#x3D;2，F&#x3D;50）用来防止过拟合；</li>
+<li>特征先经过两层3* 3 kernel，stride&#x3D;2的卷积，进行下采样，再送入encoder；</li>
+<li>encoder：12个transformer层；decoder：6个transformer层；</li>
+<li>25000步warm-up，adam优化器；</li>
+<li>average top-K 最低cv_loss作为最终模型；</li>
+<li>可以用简单的2gram phone lm代替ctc n-best给attention用吗？？？？？</li>
+<li>CER结果：</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510123816315.png" alt="image-20220510123816315" style="zoom: 67%;">
+
+<ul>
+<li>量化CER对比：可以看出错误率很差得很小</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510164639096.png" alt="image-20220510164639096" style="zoom: 67%;">
+
+<ul>
+<li>RTF：可以看出实时率很不错<ul>
+<li>更小的chunk反而有更高的RTF，因为一条音频分的chunk数变多了，前向计算的次数变多了（chunk越小的好处是时延小）；</li>
+<li>在安卓端上，量化会带来速度的两倍提升；但在x86服务端上提升不大；</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510164730235.png" alt="image-20220510164730235" style="zoom: 67%;">
+
+<ul>
+<li>Latency<ul>
+<li>通过构造WebSocket server&#x2F;client  来仿真测试真实流式应用，来评估时延；</li>
+<li>model latency：由于等待模型计算而引入的延迟，计算为 $(chunk&#x2F;2 * 4 + 6)*10(ms)$，4是下采样率，6是一开始两层cnn要lookahead一些帧（6帧），10是帧移；</li>
+<li>rescoring cost，二遍解码的延迟；</li>
+<li>final latency，用户感受到的时延，是从用户停止说话 到 得到识别结果 之间的时长</li>
+<li>接收到用户停止发语音后，发送到ctc decoder拿到ctc的n-best，给attention decoder；</li>
+<li>网络延迟未考虑（因为测试时server&#x2F;client在同一台机子）</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220510171629404.png" alt="image-20220510171629404" style="zoom: 67%;">
+
+<h3 id="实验2"><a href="#实验2" class="headerlink" title="实验2"></a>实验2</h3><ul>
+<li>数据集15,000-hour  （1.5w小时）普通话数据</li>
+<li>累计4个步长的梯度，才更新，能更稳定地训练</li>
+<li>分析attention rescore对于长音频会有优势（大于5s）</li>
+</ul>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Zhang, Binbin, et al. “WeNet 2.0: More Productive End-to-End Speech Recognition Toolkit.” <em>arXiv preprint arXiv:2203.15455</em> (2022).&#x3D;&#x3D;</p>
+</blockquote>
+<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><ul>
+<li>为了提高ASR识别率，提出U2++（通过双向attention decoder来统一two-pass的框架），<ul>
+<li>训练阶段：双向 从后往前的attention decoder使得获得未来一段时间的信息，</li>
+<li>解码阶段：结合从前和从后的预测结果</li>
+<li>改善了shared encoder，并提高rescore的识别率（比单向提高10%）；</li>
+</ul>
+</li>
+<li><strong>U2++框架</strong>：a unified two-pass joint CTC&#x2F;AED framework   <ul>
+<li>Shared Encoder：给声学特征建模，由多个transformer或conformer组成，only takes limited right contexts into account to keep a balanced latency  </li>
+<li>CTC Decoder：建模声学特征和token单元的帧级别对齐，由一个线性层组成，which transforms the Shared Encoder output to the CTC activation  </li>
+<li>Attention Decoder：<ul>
+<li>Left-to-Right Attention Decoder (L2R) ：models the ordered token sequence from left to right to represent the past contextual information.  </li>
+<li>A Right-to-Left Attention Decoder (R2L) ：models the reversed token sequence from right to left to represent the future contextual information.  </li>
+<li>The L2R and R2L Attention Decoders consist of multiple Transformer decoder layers.   </li>
+<li>用一个超参数调节二者的loss比例：$L_{AED}(x,y)&#x3D;(1-\alpha)L_{L2R}(x,y)+\alpha L_{R2L}(x,y)$</li>
+<li>在dynamic chunk训练里，chunk给特征都是从前往后给的，然后L2R对现有的chunk从前往后做，R2L是从后往前做；</li>
+</ul>
+</li>
+<li>two pass：During the decoding stage, the CTC Decoder runs in the streaming mode in the first pass and the L2R and R2L Attention Decoders do rescore in the non-streaming mode to improve the performance in the second pass.</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220511114046236.png" alt="image-20220511114046236" style="zoom:67%;">
+
+<ul>
+<li><strong>N-gram Language Model</strong> ：在Wenet2.0中引入了基于wfst的<strong>n-gram</strong>语言模型；在CTC解码中加入，提高8%<ul>
+<li>（雷博说）对于垂直领域，训练lm用的通用文本 + 一些垂直领域文本</li>
+<li>TLG：compiles the n-gram LM (G), lexicon (L), and end-to-end modeling CTC topology (T) into a WFST-based decoding graph (TLG)  $TLG&#x3D;T\circ min(det(L\circ G))$</li>
+<li>denoted as CTC WFST beam search in the WeNet 2.0  </li>
+<li>To speedup decoding, blank frame skipping technique is adopted  (参考”Phone synchronous decoding with ctc lattice”)</li>
+<li>用n-gram进行语言模型训练，这是因为更符合工业使用</li>
+<li>解码时为了加速解码，blank符号概率大于0.98的，跳过该帧，就是说 不考虑很可能是blank的帧的概率，可以加速解码，因为blank其实没啥用；</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220511121210127.png" alt="image-20220511121210127">
+
+
+
+
+
+<ul>
+<li><p><strong>Contextual Biasing</strong>  ：设计了一种联合<strong>contextual biasing</strong>框架，更适配特定语境，比如通讯录；【TODO 看三篇论文】</p>
+<ul>
+<li><p>（雷博说）contextual bias是为了解决 &#x3D;&#x3D;热词&#x3D;&#x3D; 问题，用来生成一些热词，但是权重需要经验构造，不是一个非常靠谱的方案；</p>
+</li>
+<li><p>在解码中用，有LM和没有LM的解码过程都可以引入，从而适配语境</p>
+</li>
+<li><p>已知biasing phrases短语，实时构建contextual wfst图；首先，biasing phrases通过词典或模型拆分成biasing unit，把biasing unit的arc权重提高</p>
+</li>
+<li><p>a special failure arc with a negative accumulated boosted score is added ，当只匹配部分bias unit而不是整个bias phrase时，失败弧用于move提高的权重</p>
+<p>（也就是加一条空边（有权重）的弧回去，平衡这个提高的权重）</p>
+</li>
+<li><p>$\large y^*&#x3D;arg\max\limits_y logP(y|x) + \lambda logP_C(y)$，其中$P_C(y)$ 是bias score</p>
+</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220511142320509.png" alt="image-20220511142320509" style="zoom: 80%;">
+
+<ul>
+<li>设计了一种联合Unified  IO（UIO）来支持大规模数据训练<ul>
+<li>对于小数据集，UIO随机访问样本；</li>
+<li>对于大数据集，UIO先把样本聚集在一个块里（类似kaldi的egs）（tar压缩，压缩是为了防止OOM），之后训练、随机访问的就是这个块shard（解压来训练）</li>
+<li>inspired by TFReord (Tensorflow)  and AIStore  </li>
+<li><a target="_blank" rel="noopener" href="https://wenet.org.cn/wenet/UIO.html">https://wenet.org.cn/wenet/UIO.html</a></li>
+<li>Chain IO  [TODO]</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220511113104350.png" alt="image-20220511113104350" style="zoom:67%;">
+
+<h3 id="训练-1"><a href="#训练-1" class="headerlink" title="训练"></a>训练</h3><ul>
+<li>dynamic chunk值选取：在均匀分布$C \sim U(1,maxbatchlengthT)$中随机选取，</li>
+</ul>
+<h3 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h3><ul>
+<li>数据集aishell-1、wenetspeech</li>
+</ul>
+<p>$\large x\in f\times T$</p>
+<p>$\large z\in f’\times T$</p>
+<p>$\large y\in e\times L$</p>
+<hr>
+<h1 id="大规模训练"><a href="#大规模训练" class="headerlink" title="大规模训练"></a>大规模训练</h1><blockquote>
+<p>&#x3D;&#x3D;Kim, Chanwoo, et al. “End-to-end training of a large vocabulary end-to-end speech recognition system.” <em>2019 IEEE Automatic Speech Recognition and Understanding Workshop (ASRU)</em>. IEEE, 2019.&#x3D;&#x3D;</p>
+</blockquote>
+<h5 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><p>- </p>
+<h5 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><p>- </p>
+<h5 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h5><p>- </p>
+<h5 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><p>- </p>
+<h3 id="论文思路"><a href="#论文思路" class="headerlink" title="论文思路"></a>论文思路</h3><ul>
+<li>提出了一个端到端语音识别系统的训练框架，数据读取、数据增广、参数更新都能是on-the-fly（即时）的；</li>
+<li>训练用了Horovod allreduce approach   </li>
+<li>训练CPU部分用的Example Servers (ES) and workers</li>
+</ul>
+<p><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220512162312294.png" alt="image-20220512162312294"></p>
+<ul>
+<li>数据加载，用的tf.data的data queue（没用QueueRunner ）</li>
+<li>训练在Horovod用的allreduce 方法（没用server-worker structure  ）</li>
+<li>模型：</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/image-20220512165113089.png" alt="image-20220512165113089" style="zoom: 67%;">
+
+<h3 id="实验-2"><a href="#实验-2" class="headerlink" title="实验"></a>实验</h3><ul>
+<li>数据集：librispeech、10,000-hr anonymized Bixby English dataset （三星的智能助手） </li>
+<li>机器：Each GPU node of the GPU cluster has eight Nvidia™P-40, P-100 or V-100 GPUs and two Intel E5-2690 v4 CPUs, Each of these CPUs has 14 cores.</li>
+</ul>
+<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><ul>
+<li>AM与transformer LM进行shallow fusion，WER：2.44 %  （librispeech test-clean）</li>
+</ul>
+<p>TODO 没看完</p>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" rel="tag"># 语音识别</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/" rel="next" title="识别论文笔记（三）声学模型">
+                <i class="fa fa-chevron-left"></i> 识别论文笔记（三）声学模型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E6%96%B9%E5%90%91/" rel="prev" title="识别方向">
+                识别方向 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AB%AF%E5%88%B0%E7%AB%AF%E8%AF%86%E5%88%AB%E6%96%B9%E6%A1%88"><span class="nav-number">1.</span> <span class="nav-text">端到端识别方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.0.1.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83"><span class="nav-number">1.0.2.</span> <span class="nav-text">训练</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.0.3.</span> <span class="nav-text">系统设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">1.0.4.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C2"><span class="nav-number">1.0.5.</span> <span class="nav-text">实验2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-1"><span class="nav-number">1.0.6.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83-1"><span class="nav-number">1.0.7.</span> <span class="nav-text">训练</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C-1"><span class="nav-number">1.0.8.</span> <span class="nav-text">实验</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%A7%E8%A7%84%E6%A8%A1%E8%AE%AD%E7%BB%83"><span class="nav-number">2.</span> <span class="nav-text">大规模训练</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">2.0.0.0.1.</span> <span class="nav-text">解决什么问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%A8%E4%BA%86%E4%BB%80%E4%B9%88%E6%96%B9%E6%B3%95"><span class="nav-number">2.0.0.0.2.</span> <span class="nav-text">用了什么方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%88%E6%9E%9C%E5%A6%82%E4%BD%95"><span class="nav-number">2.0.0.0.3.</span> <span class="nav-text">效果如何</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BF%98%E5%AD%98%E5%9C%A8%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">2.0.0.0.4.</span> <span class="nav-text">还存在什么问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BA%E6%96%87%E6%80%9D%E8%B7%AF"><span class="nav-number">2.0.1.</span> <span class="nav-text">论文思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C-2"><span class="nav-number">2.0.2.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C"><span class="nav-number">2.0.3.</span> <span class="nav-text">结果</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/';
+          this.page.identifier = '2022/01/04/识别/识别论文笔记（一）/';
+          this.page.title = '识别论文笔记（一）端到端识别方案';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

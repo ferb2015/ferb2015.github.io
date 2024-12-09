@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="WFST解码,《语音识别原理与应用》," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Lattice解码用到的数据结构 《语音识别原理与应用》 洪青阳 P185 LatticeSimpleDecoder  lattice-faster-decoder  哈希表 HashList&lt;StateId, Token*&gt; 建立状态节点stateid和token之间的映射关系。 链表：token之间用链表连接，以便解码结束时跟踪到更多的匹配路径。前向链接ForwardLink，令牌">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《语音识别原理与应用》洪青阳 第9章 WFST解码器————Lattice解码">
+<meta property="og:url" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="Lattice解码用到的数据结构 《语音识别原理与应用》 洪青阳 P185 LatticeSimpleDecoder  lattice-faster-decoder  哈希表 HashList&lt;StateId, Token*&gt; 建立状态节点stateid和token之间的映射关系。 链表：token之间用链表连接，以便解码结束时跟踪到更多的匹配路径。前向链接ForwardLink，令牌">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112174327147.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112174345697.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112174403847.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112174420361.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112181949416.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112181957182.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112182717450.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112182813944.png">
+<meta property="og:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112183229403.png">
+<meta property="article:published_time" content="2023-01-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-02-06T11:01:54.831Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="WFST解码">
+<meta property="article:tag" content="《语音识别原理与应用》">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112174327147.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/01/10/WFST解码/Lattice解码数据结构/"/>
+
+
+
+
+
+  <title>《语音识别原理与应用》洪青阳 第9章 WFST解码器————Lattice解码 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《语音识别原理与应用》洪青阳 第9章 WFST解码器————Lattice解码</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-10T00:00:00+08:00">
+                2023-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WFST%E8%A7%A3%E7%A0%81/" itemprop="url" rel="index">
+                    <span itemprop="name">WFST解码</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/01/10/WFST解码/Lattice解码数据结构/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Lattice解码用到的数据结构"><a href="#Lattice解码用到的数据结构" class="headerlink" title="Lattice解码用到的数据结构"></a>Lattice解码用到的数据结构</h1><blockquote>
+<p>《语音识别原理与应用》 洪青阳 P185</p>
+<p>LatticeSimpleDecoder </p>
+<p>lattice-faster-decoder</p>
+</blockquote>
+<p>哈希表 HashList&lt;StateId, Token*&gt; 建立状态节点stateid和token之间的映射关系。</p>
+<p>链表：token之间用链表连接，以便解码结束时跟踪到更多的匹配路径。前向链接ForwardLink，令牌列表TokenList</p>
+<p>在语音识别中，经常用 Lattice 来保存多种候选的识别结果（单个回溯是不够的），以便后续进行其地处理（如二次解码)。针对有Latice的解码，需要保存多条搜索路径，包括中同遍历的多条路径信息，因此 Token 之间还需要有链表息，以便解码结束时跟踪到更多的匹配路径。</p>
+<p>参照 Kaldi 的lattice-faster-decoder 写法，我们给出用于 Lattice 解码的 Token和相关的数据结构定义，包括前向链接 ForwardLink 和令牌列表 TokenList。</p>
+<p>ForwardLink 与在快速解码部分定义的转移弧 Arc 不同，它用来链接前后两帧之间的发射转移弧之间的Token，或同一时刻非发射转移弧之间的 Token,ForvardLink 保存的图代价和声学代价更方便后续的 Lattice 剪枝处理。</p>
+<p>TokenList 用来和帧索引建立关联，<strong>每帧对应一个 TokenList</strong>，这样能保证随时访自已解码过的任一时刻创建的 Token 列表，而在快速解码部分（之前的那种解码）定义的 Token 和Arc信息则无法关联时间戳信息，只能利用它们做简单的回溯处理。</p>
+<h2 id="ForwardLink"><a href="#ForwardLink" class="headerlink" title="ForwardLink"></a>ForwardLink</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ForwardLink</span> &#123;</span><br><span class="line">	Token *next_tok;<span class="comment">//链接传到的 roken</span></span><br><span class="line">	<span class="type">int</span> ilabei; <span class="comment">//转移弧的输人标签</span></span><br><span class="line">    <span class="type">int</span> olabel; <span class="comment">//转移弧的输出标签</span></span><br><span class="line">	<span class="type">float</span> graph_ cost; <span class="comment">//遍历图代价（包含语言模型得分）</span></span><br><span class="line">	<span class="type">float</span> acoustic cost; <span class="comment">//声学代价</span></span><br><span class="line">	ForwardLink *next;	<span class="comment">//指向同一时刻的下一个链接</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Token"><a href="#Token" class="headerlink" title="Token"></a>Token</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Token</span> &#123;</span><br><span class="line">	<span class="type">float</span> tot_cost; <span class="comment">//累计的最优代价（包括语言模型和声学代价）</span></span><br><span class="line">	<span class="type">float</span> extra_cost; <span class="comment">//所有Forwardlink 中与最优路径代价的最小差值</span></span><br><span class="line">	Forwardtink *links; <span class="comment">// 前向链接，指向新创建的 Token，用于 Lattice 生成</span></span><br><span class="line">	Token *next;		<span class="comment">//指向同一时刻的下一个 Token</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="TokenList"><a href="#TokenList" class="headerlink" title="TokenList"></a>TokenList</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">TokenList</span> &#123;</span><br><span class="line">	Token *toks; <span class="comment">//指向同一时刻的第一个 Token</span></span><br><span class="line">	<span class="type">bool</span> must_ prune forward_ links; <span class="comment">//用于剪枝，默认为true</span></span><br><span class="line">	<span class="type">bool</span> must_prune_ tokens：<span class="comment">//用于剪枝，默认为 tzue</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h1 id="令牌传播过程"><a href="#令牌传播过程" class="headerlink" title="令牌传播过程"></a>令牌传播过程</h1><p>在进行 Lattice 解码时，从输人语音提取声学特征（T 帧），然后通过令牌(Token）传播，逐帧处理。首先在 WFST 的起始节点，产生一个 Token；然后针对每个活跃节点，把 Token 传播到与该节点相连的转移弧；如果转移弧的输人标签不是 0，则把激活的 Token 对应的帧数加 1，相当于移动到下一帧，实现帧与转移弧（即 HMM 状态的 transition-id）的对齐。</p>
+<p>每个 Token 都记录了累计总代价，即之前最优代价加上转移弧对应的图代价<strong>graph_cost（包含语言模型、转移概率、发音词典三部分的代价）</strong>和声学代价acoustic_cost，其中<strong>acoustic_cost 是根据声学特征和声学模型实时计算得出后验概率，然后取反得出的</strong>，因此原始后验概率越高，acoustic_cost 代价越小。</p>
+<p>由于解码图庞大，因此 Token 的传播可能会有多条路径，对应t时刻的帧会有多个Token。这些 Token 通过 WFST 解码图的节点标号 StateID区分，即通过t和 StateID可以找到唯一的 Token。</p>
+<p>如下图所示，同一时刻的 Token 被汇总到一个 TokenList 保存，T帧则有T个TokenList 来保存，因此 <strong>TokenList构成一个数组</strong>，其中 <strong>数组元素索引与帧索引一一对应</strong>。单个TokenList 元素里面可能包含多个Token，即同一帧对应多个 Token,如第1帧特征 $o_t$,对应 Token 集合 TokenList[1]，由初始状态0转移产生，其包含 4个Token，标为 Token8、Token1、Token9 和 Token2，分别与状态节点8、1、9、2关联，每个Token 都有累计代价cost。其中，<strong>Token2 是状态节点9经非发射转移弧到达状态节点2产生的，注意，其仍然属于第1帧，因此在 Token9 和 Token2之间产生的 ForwardLink 属于同一帧不同 Token 之间的链接</strong>。第2帧、第3帧及后续帧的解码过程依此类推。</p>
+<p>WFST 的 Lattice 解码图：</p>
+<p>第一帧：</p>
+<img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112174327147.png" alt="image-20230112174327147">
+
+
+
+<p>第二帧：</p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112174345697.png" alt="image-20230112174345697"></p>
+<p>第三帧：</p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112174403847.png" alt="image-20230112174403847"></p>
+<p>Lattice 解码会保存不同时刻的 TokenList。 如下图所示，每个 TokenList包含同一时刻的多个Token，TokenList 指向第一个 Token，如 TokenList[1]先指向Token8，然后通过 Token8 的next 指针再链接到同一时刻产生的 Token1，依此类推。其中 Token2 由 Token9 通过非发射较移孤产生，因此同时有 ForwardLink 关联。</p>
+<p>带Lattice解码的令牌传递过程：</p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112174420361.png" alt="image-20230112174420361"></p>
+<p>在下一时刻即第2帧，TokenList[1]]包含的 Token1被传播到 TokenList[2J的Token6 和 Token10，并通过 ForwardLink 保存链接信息，如 Token1 和 Token6之间有一条 Forwardlink，该链接保存了两个 Token 对应状态节点（即 1和6）之间的转移弧输入标签和输出标签，同时还有该转移弧对应的图代价和针对第2帧的声学得分。Token2 由于是Token10 在同一帧通过 PrOcessNonemitting 产生的，因此它们之间有 ForwardLink 链接。</p>
+<p>在第3帧，TokenList[2]的 Token6 被进一步传播到 TokenList[3]的 Token3、Token7 和 Token9， Token10 传播到 Token2， Token2 传播到 Token3 和 Token1,Token3传播到 Token11 和 Token4。注意，TokenList[3]中的 Token3 同时来自TokenList[2]的 Token6 和Token2，此时只会保存 cost 最小的那个Token。</p>
+<p>整个 HCLG 编译的 WFST 是庞大的网络，随着帧数的推进，其他 Token 也可扩张到更多的 Token，同时通过 ForwardLink 建立链接关系。一直到最后一帧结束，才停止 Token 的扩张，此时再从 TokenList 寻求最佳路径对应的最后一个Token。如果指定最优结尾 Token, 一定要从 HCLG 的结尾状态（双圆圈）中选择，对比所有结尾状态对应 Token 的cost，选择值最低的，然后从该 Token 倒推得到最优路径对应的转移弧序列。</p>
+<h1 id="剪枝策略"><a href="#剪枝策略" class="headerlink" title="剪枝策略"></a>剪枝策略</h1><p>随着 Token 的扩张，每一帧可能对应很多个 Token，这样会导致解码变慢。为加快解码速度，需要采用剪枝策略，即事先设定一个剪枝阈值 （ beam），然后针对每一帧动态调整剪枝上限。剪枝的具体步骤如下：</p>
+<ol>
+<li><p>在解码过程中，针对<strong>当前帧找出最低代价（best_cost）的 Token</strong>，即最优的 Token，根据该 Token 设定剪枝上限（cur_cost），其值为 best_cost+beam。同时对该Token 进行后续一帧的扩张，计算每个转移弧新的 cost，结合 beam 阈值得到后续扩张的剪枝上限(next_cost)。</p>
+</li>
+<li><p>第一轮。对同一帧所有Token 做一次剪枝，抑制一批代价超过 cur_cost 的Token，即这批Token 不再扩张，如下图所示的 Token9。</p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112181949416.png" alt="image-20230112181949416"></p>
+</li>
+<li><p>第二轮。对当前帧除了最优 Token 之外的其他 Token，也对后续的转移弧计算更新的cost，如果超过扩张剪枝上限next_cost，则该转移弧不再扩张。如下图所示，Token7到Token3的转移弧被剪枝，实际上是不生成Token3。</p>
+</li>
+</ol>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112181957182.png" alt="image-20230112181957182"></p>
+<p>除了默认剪枝阈值 beam，还可设定最大活跃节点数 max_active。对 Token按cost 排序后只保留max active 个有效节点，对应的剪枝國值为 adaptive_beam。</p>
+<p>WFST 中的每个状态节点和一个Token 对应，后面不同时刻的特征帧也可能对齐到该状态，即对应到相同的 Token。此时需要比较 cost 值，如果新 Token 的cost 值更低，则替换原有 Token。</p>
+<p>以上是通用的剪枝策略，其也适用于上一节的快速解码。对于 Lattice 解码，还可间隔多帧（如25 帧）再做一次基于 ForwardLink 的 Lattice 剪枝。根据每帧TokenList 访问并算出每一条 ForwardLink 和最优路径的cost 差异，如果差值超过Lattice 剪枝阈值就剪掉该 ForwardLink。</p>
+<h1 id="Lattice"><a href="#Lattice" class="headerlink" title="Lattice"></a>Lattice</h1><p>语音识别中，Lattice用来保存多种候选结果，每个节点可对应到具体的时间（帧索引），节点之间的弧包含了候选词信息。HTK用Standard Lattice Format（SLF）保存Lattice，而Kaldi则用FST形式保存，但也可转化成SLF形式。</p>
+<p>Kaldi Lattice是在解码后，通过每个时刻的TokenList包含的Token和与之关联的ForwardLink遍历生成，并用转移弧Arc保存路径信息。具体实现可查看decoder的GetRawLattice函数。</p>
+<p>Lattice的基础结构可以表示为{input, output, weight}，即Lattice包括输入、输出和权重。Lattice每条弧上的状态输入为transition-id，状态输出为words，其中权重weight包含两个值，即图代价（graph_cost）和声学代价（acoustic_cost）。可从ForwardLink参数获取这两个值。</p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112182717450.png" alt="image-20230112182717450"></p>
+<p>Lattice有多条路径，按最后的cost排序，最小的排在前面，即可从Lattice得到最优路径。注意最优路径也可在解码结束时直接获取，无需经过Lattice。</p>
+<p>最优路径只包含一个结果，如图所示，即识别结果为“实现数字化整合营销”。</p>
+<p><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112182813944.png" alt="image-20230112182813944"></p>
+<p>如果要保留多个识别结果，则可采用 lattice-nbest 进行转换，将N条弧从起始状态传播到结尾状态，得到N个最好的不同单词序列。</p>
+<p>利用得到的 Latice 还可进行二次解码，引人更复杂的语言模型，如递归神经网络语言模型，更新 Lattice 中路径上的得分（注意不能简单替换图代价，因为还有词典和转移概率），得到更优的识别结果。</p>
+<p>如果想查看不同输出级别的 Lattice 信息，也可以将词级别的 Lattice 转换成音素级别的 Lattice，但这一步操作会耗费比较多的时间，尤其是在人声嘈杂环境下的识别。</p>
+<p>也可将 Lattice 保存成紧凑形式的CompactLattice（本质上是一种 WFSA)，每条弧的输人和输出都是words，它把可能的输人标签序列 transition-ids 全部放在了权重里面，即权重信息包括 {graph_ cost, acoustic_cost, transition-ids sequence}。 Latice 和 CompactLattice 两者结构稍有不同，如下表所示，但这两者包含了相同的内容，因此可以互相转换。<br><img src="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20230112183229403.png" alt="image-20230112183229403"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/WFST%E8%A7%A3%E7%A0%81/" rel="tag"># WFST解码</a>
+          
+            <a href="/tags/%E3%80%8A%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%E3%80%8B/" rel="tag"># 《语音识别原理与应用》</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/01/10/WFST%E8%A7%A3%E7%A0%81/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E4%B9%8BWFST%E8%A7%A3%E7%A0%81%E5%99%A8/" rel="next" title="《语音识别原理与应用》洪青阳 第9章 WFST解码器————最优路径解码">
+                <i class="fa fa-chevron-left"></i> 《语音识别原理与应用》洪青阳 第9章 WFST解码器————最优路径解码
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/01/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/SVM%20%E8%A7%86%E9%A2%91%20%E6%9D%8E%E5%AE%8F%E6%AF%85/" rel="prev" title="SVM视频 李宏毅">
+                SVM视频 李宏毅 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Lattice%E8%A7%A3%E7%A0%81%E7%94%A8%E5%88%B0%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">Lattice解码用到的数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ForwardLink"><span class="nav-number">1.1.</span> <span class="nav-text">ForwardLink</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Token"><span class="nav-number">1.2.</span> <span class="nav-text">Token</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TokenList"><span class="nav-number">1.3.</span> <span class="nav-text">TokenList</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A4%E7%89%8C%E4%BC%A0%E6%92%AD%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">令牌传播过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%AA%E6%9E%9D%E7%AD%96%E7%95%A5"><span class="nav-number">3.</span> <span class="nav-text">剪枝策略</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lattice"><span class="nav-number">4.</span> <span class="nav-text">Lattice</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/01/10/WFST%E8%A7%A3%E7%A0%81/Lattice%E8%A7%A3%E7%A0%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/';
+          this.page.identifier = '2023/01/10/WFST解码/Lattice解码数据结构/';
+          this.page.title = '《语音识别原理与应用》洪青阳 第9章 WFST解码器————Lattice解码';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

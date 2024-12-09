@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="wenetruntime," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="libtorch下的main脚本 decoder_main路径：wenet&#x2F;runtime&#x2F;libtorch&#x2F;core&#x2F;bin&#x2F;decoder_main.cc 编译：首先之前编译cmake时，没有加可选debug的选项，因此不可调试，在CMakeLists.txt加入 123456# cd wenet&#x2F;runtime&#x2F;libtorchSET(CMAKE_BUILD_TYPE &quot;Debug">
+<meta property="og:type" content="article">
+<meta property="og:title" content="libtorch下的main脚本 decoder_main">
+<meta property="og:url" content="http://example.com/2023/03/03/wenetruntime/libtorch%E4%B8%8B%E7%9A%84decoder_main.cc/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="libtorch下的main脚本 decoder_main路径：wenet&#x2F;runtime&#x2F;libtorch&#x2F;core&#x2F;bin&#x2F;decoder_main.cc 编译：首先之前编译cmake时，没有加可选debug的选项，因此不可调试，在CMakeLists.txt加入 123456# cd wenet&#x2F;runtime&#x2F;libtorchSET(CMAKE_BUILD_TYPE &quot;Debug">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-03-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-03-03T11:01:15.350Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="wenetruntime">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/03/03/wenetruntime/libtorch下的decoder_main.cc/"/>
+
+
+
+
+
+  <title>libtorch下的main脚本 decoder_main | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/03/wenetruntime/libtorch%E4%B8%8B%E7%9A%84decoder_main.cc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">libtorch下的main脚本 decoder_main</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-03-03T00:00:00+08:00">
+                2023-03-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/wenetruntime/" itemprop="url" rel="index">
+                    <span itemprop="name">wenetruntime</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/03/03/wenetruntime/libtorch%E4%B8%8B%E7%9A%84decoder_main.cc/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/03/03/wenetruntime/libtorch下的decoder_main.cc/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="libtorch下的main脚本-decoder-main"><a href="#libtorch下的main脚本-decoder-main" class="headerlink" title="libtorch下的main脚本 decoder_main"></a>libtorch下的main脚本 decoder_main</h1><p>路径：<code>wenet/runtime/libtorch/core/bin/decoder_main.cc</code></p>
+<h3 id="编译："><a href="#编译：" class="headerlink" title="编译："></a>编译：</h3><p>首先之前编译cmake时，没有加可选debug的选项，因此不可调试，在<strong>CMakeLists.txt</strong>加入</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">cd</span> wenet/runtime/libtorch</span></span><br><span class="line"></span><br><span class="line">SET(CMAKE_BUILD_TYPE &quot;Debug&quot;) </span><br><span class="line"></span><br><span class="line">SET(CMAKE_CXX_FLAGS_DEBUG &quot;$ENV&#123;CXXFLAGS&#125; -O0 -Wall -g -ggdb&quot;)</span><br><span class="line">SET(CMAKE_CXX_FLAGS_RELEASE &quot;$ENV&#123;CXXFLAGS&#125; -O3 -Wall&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>重新编译：在build里：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">cd</span> wenet/runtime/libtorch/build</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">cmake clean ..</span></span><br><span class="line">cmake  -DCMAKE_BUILD_TYPE=Debug ..</span><br><span class="line">cmake  -DCMAKE_BUILD_TYPE=Debug --build .</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+
+
+<p>编译出的可执行文件叫 <code>decoder_main</code>，路径在<code>build/bin/decoder_main</code>，是通过cmake编译整个工程得到的，运行于<code>x86</code>平台。</p>
+<h4 id="不可调试版本的编译"><a href="#不可调试版本的编译" class="headerlink" title="不可调试版本的编译"></a>不可调试版本的编译</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> build &amp;&amp; <span class="built_in">cd</span> build &amp;&amp; cmake .. &amp;&amp; cmake --build .</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="调试："><a href="#调试：" class="headerlink" title="调试："></a>调试：</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cd  wenet/runtime/libtorch</span></span><br><span class="line"></span><br><span class="line">cgdb ./build/bin/decoder_main </span><br><span class="line"></span><br><span class="line"><span class="comment"># 打断点</span></span><br><span class="line"></span><br><span class="line">run --chunk_size -1 --wav_path test.wav --model_path /mnt/k/wenet/model/20210601_u2++_conformer_libtorch/final.zip --unit_path /mnt/k/wenet/model/20210601_u2++_conformer_libtorch/units.txt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">run --chunk_size -1 --wav_path test.wav --model_path /mnt/k/wenet/model/20220506_u2pp_conformer_libtorch/final.zip --unit_path /mnt/k/wenet/model/20220506_u2pp_conformer_libtorch/units.txt --output_nbest <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="非调试"><a href="#非调试" class="headerlink" title="非调试"></a>非调试</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> GLOG_logtostderr=1</span><br><span class="line"><span class="built_in">export</span> GLOG_v=2</span><br><span class="line"></span><br><span class="line">./build/bin/decoder_main --chunk_size -1 --wav_path test.wav --model_path /mnt/k/wenet/model/20210601_u2++_conformer_libtorch/final.zip --unit_path /mnt/k/wenet/model/20210601_u2++_conformer_libtorch/units.txt</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+<h3 id="代码解释："><a href="#代码解释：" class="headerlink" title="代码解释："></a>代码解释：</h3><p>这里的代码可能有借鉴了：<a target="_blank" rel="noopener" href="https://github.com/opencv/opencv/blob/4.x/modules/dnn/src/model.cpp">https://github.com/opencv/opencv/blob/4.x/modules/dnn/src/model.cpp</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// wenet/runtime/core/decoder/params.h ：</span></span><br><span class="line"> <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;DecodeResource&gt; <span class="title function_">InitDecodeResourceFromFlags</span><span class="params">()</span> &#123;&#125; </span><br><span class="line"><span class="comment">// 该函数是初始化解码需要的资源，新建一个放资源的对象resource（函数return的对象），要存放的资源分别是：</span></span><br><span class="line"><span class="comment">// 分别是新建一个模型对象（指针），把某路径的模型文件加载进来，模型是用来语音识别的声学模型，模型类型不同（在cmakelists里确定是哪种模型（可选libtorch、onnx、xpu、bpu））不同模型类型是派生类，都继承自 AsrModel，这里新建的对象是基类，基类都加了virtual，就可以用派生类成员函数（派生类不用加virtual，只基类加就行）。</span></span><br><span class="line"><span class="comment">// 我这里用的模型类型是 TorchAsrModel 继承自 AsrModel</span></span><br><span class="line"><span class="comment">// 新建一个字表unit_table对象（指针），把某路径的字表文件加载进来，字表是将声学模型输出类别映射到字</span></span><br><span class="line"><span class="comment">// 如果有传入语言模型fst文件，则新建一个fst，把某路径的lm fst加载进来，用来ctc出来beam search过程加入语言模型分数？，传入fst还要传入dict表，是词表，放在symbol_table里</span></span><br><span class="line"><span class="comment">// 如果有传入上下文表context，则把某路径的上下文词表文件加载进来，用来增加某些词的权重，上下文词要构建成上下文词图，</span></span><br><span class="line"><span class="comment">// 新建后处理模块</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// wenet/runtime/core/bin/decoder_main.cc</span></span><br><span class="line"><span class="comment">// 用线程池  // pool.enqueue(decode, wav, false); 第一个参数是一个函数，第二个参数是某一条音频（音频名 音频路径 的pair），不断入队列</span></span><br><span class="line"><span class="comment">// 每个线程一个锁</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 跳入decode()函数</span></span><br><span class="line">feature_pipeline-&gt;AcceptWaveform(wav_reader.data(), num_samples);计算特征</span><br><span class="line">feature_pipeline-&gt;set_input_finished(); <span class="comment">// feature_pipeline里有一个成员mutex， 用的阻塞队列feature_queue_，这个队列里没有特征 或 输入没全给完时，就不再进行read操作了（read也就是从队列里拿数据去给声学模型识别解码）</span></span><br><span class="line"><span class="comment">// feature_queue_ 的容量是这条音频的长度？？</span></span><br><span class="line"></span><br><span class="line">wenet::AsrDecoder <span class="title function_">decoder</span><span class="params">(feature_pipeline, g_decode_resource, *g_decode_config)</span>; </span><br><span class="line"><span class="comment">// 新建一个 AsrDecoder对象，里面的参数有特征管道，声学模型资源，解码参数配置</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// wenet/runtime/core/decoder/asr_decoder.cc</span></span><br><span class="line">DecodeState <span class="title function_">AsrDecoder::AdvanceDecoding</span><span class="params">(<span class="type">bool</span> block)</span>&#123;&#125; <span class="comment">//在这里函数中进行识别解码</span></span><br><span class="line"><span class="keyword">if</span> (!feature_pipeline_-&gt;Read(num_required_frames, &amp;chunk_feats)) &#123;&#125; <span class="comment">// read进特征，把刚才计算得到的fbank特征都进来，read的时候也上锁</span></span><br><span class="line"></span><br><span class="line">model_-&gt;ForwardEncoder(chunk_feats, &amp;ctc_log_probs); <span class="comment">// 跳入coredecoder/asr_model.cc</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// core/decoder/asr_model.cc</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">AsrModel::ForwardEncoder</span><span class="params">()</span> <span class="comment">// 跳入函数，计算经过模型的输出，这里用的基类，函数内部会跳入不同的派生类</span></span><br><span class="line">this-&gt;<span class="title function_">ForwardEncoderFunc</span><span class="params">(chunk_feats, ctc_prob)</span>; <span class="comment">//这里类型是基类AsrModel，但是指向的是派生类，我这里的派生类是TorchAsrModel类，因此跳进的是派生类的ForwardEncoderFunc和CacheFeature函数</span></span><br><span class="line">this-&gt;CacheFeature(chunk_feats);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// core/decoder/torch_asr_model.cc</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">TorchAsrModel::ForwardEncoderFunc</span><span class="params">()</span> <span class="comment">// 函数，计算经过识别模型的输出概率 前向计算</span></span><br><span class="line">torch::Tensor feats = torch::zeros(&#123;<span class="number">1</span>, num_frames, feature_dim&#125;, torch::kFloat); <span class="comment">//新建tensor类型对象</span></span><br><span class="line">torch::from_blob(const_cast&lt;<span class="type">float</span>*&gt;(chunk_feats[i].data()), &#123;feature_dim&#125;, torch::kFloat).clone(); </span><br><span class="line"><span class="comment">// 把vector&lt;vector&lt;float&gt;&gt;类型特征转成tensor，每次读入一帧</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">auto</span> outputs = model_-&gt;get_method(<span class="string">&quot;forward_encoder_chunk&quot;</span>)(inputs).toTuple()-&gt;elements(); <span class="comment">// 经过模型的输出，三维</span></span><br><span class="line">torch::Tensor chunk_out = outputs[<span class="number">0</span>].toTensor(); <span class="comment">// 就是conformer编码器的输出？？</span></span><br><span class="line">att_cache_ = outputs[<span class="number">1</span>].toTensor();	<span class="comment">// transformer/conformer attention cache，就是attention解码器的输出</span></span><br><span class="line">cnn_cache_ = outputs[<span class="number">2</span>].toTensor();	<span class="comment">// conformer-only conv_module cache，编码器后接简单解码器的输出概率</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 跳回  core/decoder/asr_model.cc</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">AsrModel::CacheFeature</span><span class="params">()</span> <span class="comment">//函数，Cache feature for next chunk   。。。[todo]</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="comment">// 跳回 core/decoder/asr_decoder.cc</span></span><br><span class="line">searcher_-&gt;<span class="title function_">Search</span><span class="params">(ctc_log_probs)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这里又用了基类和派生类，searcher_是SearchInterface基类的智能指针，派生类是CtcPrefixBeamSearch和CtcWfstBeamSearch两种类型，</span></span><br><span class="line"><span class="comment">// 这里用哪一种派生类是在初始化AsrDecoder对象时 确定的（decoder_main.cc里的`AsrDecoder decoder`代码）</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 跳入 core/decoder/ctc_prefix_beam_search.cc</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">CtcPrefixBeamSearch::Search</span><span class="params">(<span class="type">const</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">float</span>&gt;&gt;&amp; logp)</span> &#123;&#125; <span class="comment">//函数</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="ctc-prefix-beam-search-解码过程："><a href="#ctc-prefix-beam-search-解码过程：" class="headerlink" title="ctc_prefix_beam_search 解码过程："></a>ctc_prefix_beam_search 解码过程：</h4><p><code> core/decoder/ctc_prefix_beam_search.cc </code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Please refer https://robin1001.github.io/2020/12/11/ctc-search</span></span><br><span class="line"><span class="comment">// for how CTC prefix beam search works, and there is a simple graph demo in</span></span><br><span class="line"><span class="comment">// it.</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">CtcPrefixBeamSearch::Search</span><span class="params">(<span class="type">const</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">float</span>&gt;&gt;&amp; logp)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (logp.size() == <span class="number">0</span>) <span class="keyword">return</span>;</span><br><span class="line">  <span class="type">int</span> first_beam_size =</span><br><span class="line">      <span class="built_in">std</span>::min(static_cast&lt;<span class="type">int</span>&gt;(logp[<span class="number">0</span>].size()), opts_.first_beam_size); <span class="comment">// 万一输出类别没有beam多</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> t = <span class="number">0</span>; t &lt; logp.size(); ++t, ++abs_time_step_) &#123;</span><br><span class="line">    <span class="type">const</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">float</span>&gt;&amp; <span class="type">logp_t</span> = logp[t];</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">unordered_map</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">int</span>&gt;, PrefixScore, PrefixHash&gt; next_hyps; <span class="comment">//key 是路径id序列，规整字符串，保存的规整字符串的集合</span></span><br><span class="line">    <span class="comment">// 1. First beam prune, only select topk candidates</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">float</span>&gt; topk_score;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">int32_t</span>&gt; topk_index;</span><br><span class="line">    TopK(<span class="type">logp_t</span>, first_beam_size, &amp;topk_score, &amp;topk_index); </span><br><span class="line">    <span class="comment">//选topk的，堆排序，优先级队列，小根堆，概率大的前beam个，其中概率小的在堆顶</span></span><br><span class="line">    <span class="comment">// topk_score：beam个，概率大的在前；</span></span><br><span class="line">    <span class="comment">// 2. Token passing</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; topk_index.size(); ++i) &#123;</span><br><span class="line">      <span class="type">int</span> id = topk_index[i];</span><br><span class="line">      <span class="keyword">auto</span> prob = topk_score[i];</span><br><span class="line">      <span class="keyword">for</span> (<span class="type">const</span> <span class="keyword">auto</span>&amp; it : cur_hyps_) &#123; <span class="comment">//cur_hyps_初始化在 void CtcPrefixBeamSearch::Reset() &#123;&#125;函数里，有一个cur_hyps_[empty] = prefix_score;</span></span><br><span class="line">        <span class="type">const</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">int</span>&gt;&amp; prefix = it.first;   <span class="comment">// 引用 这里就是规整后的路径（id序列，id也就是输出字符，路径也就是字符串）</span></span><br><span class="line">        <span class="type">const</span> PrefixScore&amp; prefix_score = it.second; <span class="comment">// 引用</span></span><br><span class="line">        <span class="comment">// If prefix doesn&#x27;t exist in next_hyps, next_hyps[prefix] will insert</span></span><br><span class="line">        <span class="comment">// PrefixScore(-inf, -inf) by default, since the default constructor</span></span><br><span class="line">        <span class="comment">// of PrefixScore will set fields s(blank ending score) and</span></span><br><span class="line">        <span class="comment">// ns(none blank ending score) to -inf, respectively.</span></span><br><span class="line">        <span class="keyword">if</span> (id == opts_.blank) &#123;</span><br><span class="line">          <span class="comment">// Case 0: *a + ε =&gt; *a</span></span><br><span class="line">          PrefixScore&amp; next_score = next_hyps[prefix]; <span class="comment">//对map类型的next_hyps添加元素prefix（作为key），如果不存在就是添加，如果存在就读？</span></span><br><span class="line">          next_score.s = LogAdd(next_score.s, prefix_score.score() + prob); <span class="comment">// 更新next_score.s，这里要加原本的next_score.s，以blank结尾的，前缀无论以blank还是非blank结尾的分数（prefix_score.score()），加上声学模型输出后验概率prob</span></span><br><span class="line">          next_score.v_s = prefix_score.viterbi_score() + prob;</span><br><span class="line">          next_score.times_s = prefix_score.times();</span><br><span class="line">          <span class="comment">// Prefix not changed, copy the context from prefix.</span></span><br><span class="line">          <span class="keyword">if</span> (context_graph_ &amp;&amp; !next_score.has_context) &#123;</span><br><span class="line">            next_score.CopyContext(prefix_score);</span><br><span class="line">            next_score.has_context = <span class="literal">true</span>;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!prefix.empty() &amp;&amp; id == prefix.back()) &#123;</span><br><span class="line">          <span class="comment">// Case 1: *a + a =&gt; *a</span></span><br><span class="line">          PrefixScore&amp; next_score1 = next_hyps[prefix]; <span class="comment">// 规整字符串不变，还是这个prefix</span></span><br><span class="line">          next_score1.ns = LogAdd(next_score1.ns, prefix_score.ns + prob);</span><br><span class="line">          <span class="keyword">if</span> (next_score1.v_ns &lt; prefix_score.v_ns + prob) &#123;</span><br><span class="line">            next_score1.v_ns = prefix_score.v_ns + prob;</span><br><span class="line">            <span class="keyword">if</span> (next_score1.cur_token_prob &lt; prob) &#123;</span><br><span class="line">              next_score1.cur_token_prob = prob;</span><br><span class="line">              next_score1.times_ns = prefix_score.times_ns;</span><br><span class="line">              CHECK_GT(next_score1.times_ns.size(), <span class="number">0</span>);</span><br><span class="line">              next_score1.times_ns.back() = abs_time_step_;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">if</span> (context_graph_ &amp;&amp; !next_score1.has_context) &#123;</span><br><span class="line">            next_score1.CopyContext(prefix_score);</span><br><span class="line">            next_score1.has_context = <span class="literal">true</span>;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          <span class="comment">// Case 2: *aε + a =&gt; *aa</span></span><br><span class="line">          <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">int</span>&gt; <span class="title function_">new_prefix</span><span class="params">(prefix)</span>;</span><br><span class="line">          new_prefix.emplace_back(id);</span><br><span class="line">          PrefixScore&amp; next_score2 = next_hyps[new_prefix]; <span class="comment">// 规整字符串变了，也就是原规整字符串后接一个相同字符</span></span><br><span class="line">          next_score2.ns = LogAdd(next_score2.ns, prefix_score.s + prob);</span><br><span class="line">          <span class="keyword">if</span> (next_score2.v_ns &lt; prefix_score.v_s + prob) &#123;</span><br><span class="line">            next_score2.v_ns = prefix_score.v_s + prob;</span><br><span class="line">            next_score2.cur_token_prob = prob;</span><br><span class="line">            next_score2.times_ns = prefix_score.times_s;</span><br><span class="line">            next_score2.times_ns.emplace_back(abs_time_step_);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">if</span> (context_graph_ &amp;&amp; !next_score2.has_context) &#123;</span><br><span class="line">            <span class="comment">// Prefix changed, calculate the context score.</span></span><br><span class="line">            next_score2.UpdateContext(context_graph_, prefix_score, id,</span><br><span class="line">                                      prefix.size());</span><br><span class="line">            next_score2.has_context = <span class="literal">true</span>;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="comment">// Case 3: *a + b =&gt; *ab, *aε + b =&gt; *ab</span></span><br><span class="line">          <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">int</span>&gt; new_prefix(prefix);</span><br><span class="line">          new_prefix.emplace_back(id);    <span class="comment">//规整字符串要变了，变成后接新字符的新规整字符串</span></span><br><span class="line">          PrefixScore&amp; next_score = next_hyps[new_prefix]; <span class="comment">//引用，之后next_score更新了，这里next_hyps里面的值也会更新 这个代码是对map类型的next_hyps做了一个插入 添加元素操作，添加一个元素，元素key是new_prefix</span></span><br><span class="line">          next_score.ns = LogAdd(next_score.ns, prefix_score.score() + prob);</span><br><span class="line">          <span class="keyword">if</span> (next_score.v_ns &lt; prefix_score.viterbi_score() + prob) &#123;</span><br><span class="line">            next_score.v_ns = prefix_score.viterbi_score() + prob;</span><br><span class="line">            next_score.cur_token_prob = prob;</span><br><span class="line">            next_score.times_ns = prefix_score.times();</span><br><span class="line">            next_score.times_ns.emplace_back(abs_time_step_);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">if</span> (context_graph_ &amp;&amp; !next_score.has_context) &#123;</span><br><span class="line">            <span class="comment">// Calculate the context score.</span></span><br><span class="line">            next_score.UpdateContext(context_graph_, prefix_score, id,</span><br><span class="line">                                     prefix.size());</span><br><span class="line">            next_score.has_context = <span class="literal">true</span>;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 二次剪枝，只保留second_beam_size条路径</span></span><br><span class="line">    <span class="comment">// 3. Second beam prune, only keep top n best paths</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">pair</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">int</span>&gt;, PrefixScore&gt;&gt; arr(next_hyps.begin(),</span><br><span class="line">                                                              next_hyps.end());</span><br><span class="line">    <span class="type">int</span> second_beam_size =</span><br><span class="line">        <span class="built_in">std</span>::min(static_cast&lt;<span class="type">int</span>&gt;(arr.size()), opts_.second_beam_size);</span><br><span class="line">    <span class="built_in">std</span>::nth_element(arr.begin(), arr.begin() + second_beam_size, arr.end(),</span><br><span class="line">                     PrefixScoreCompare);</span><br><span class="line">    arr.resize(second_beam_size);</span><br><span class="line">    <span class="built_in">std</span>::sort(arr.begin(), arr.end(), PrefixScoreCompare);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 4. Update cur_hyps_ and get new result</span></span><br><span class="line">    UpdateHypotheses(arr);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><code>core/utils/utils.cc</code> ：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">template &lt;typename T&gt;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ValueComp</span> &#123;</span></span><br><span class="line">  <span class="type">bool</span> <span class="title function_">operator</span><span class="params">()</span><span class="params">(<span class="type">const</span> <span class="built_in">std</span>::<span class="built_in">pair</span>&lt;T, <span class="type">int32_t</span>&gt;&amp; lhs,</span></span><br><span class="line"><span class="params">                  <span class="type">const</span> <span class="built_in">std</span>::<span class="built_in">pair</span>&lt;T, <span class="type">int32_t</span>&gt;&amp; rhs)</span> <span class="type">const</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> lhs.first &gt; rhs.first ||</span><br><span class="line">           (lhs.first == rhs.first &amp;&amp; lhs.second &lt; rhs.second);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// We refer the pytorch topk implementation</span></span><br><span class="line"><span class="comment">// https://github.com/pytorch/pytorch/blob/master/caffe2/operators/top_k.cc</span></span><br><span class="line">template &lt;typename T&gt;</span><br><span class="line"><span class="type">void</span> <span class="title function_">TopK</span><span class="params">(<span class="type">const</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;T&gt;&amp; data, <span class="type">int32_t</span> k, <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;T&gt;* values,</span></span><br><span class="line"><span class="params">          <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">int</span>&gt;* indices)</span> &#123;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">pair</span>&lt;T, <span class="type">int32_t</span>&gt;&gt; heap_data;</span><br><span class="line">  <span class="type">int</span> n = data.size();</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int32_t</span> i = <span class="number">0</span>; i &lt; k &amp;&amp; i &lt; n; ++i) &#123;</span><br><span class="line">    heap_data.emplace_back(data[i], i); <span class="comment">// 类别概率 和 所在第几个类 先存前beam个</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">priority_queue</span>&lt;<span class="built_in">std</span>::<span class="built_in">pair</span>&lt;T, <span class="type">int32_t</span>&gt;, <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">pair</span>&lt;T, <span class="type">int32_t</span>&gt;&gt;,</span><br><span class="line">                      ValueComp&lt;T&gt;&gt;</span><br><span class="line">      pq(ValueComp&lt;T&gt;(), <span class="built_in">std</span>::move(heap_data)); <span class="comment">// 重建堆，，把概率最小的往上挪，堆顶的概率最小，小根堆</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int32_t</span> i = k; i &lt; n; ++i) &#123; <span class="comment">// 每次和其它剩余类的概率比较，和堆顶比较，比堆顶概率大，就替换</span></span><br><span class="line">    <span class="keyword">if</span> (pq.top().first &lt; data[i]) &#123;</span><br><span class="line">      pq.pop();</span><br><span class="line">      pq.emplace(data[i], i); <span class="comment">// 插入的过程会重建堆</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  values-&gt;resize(<span class="built_in">std</span>::min(k, n));</span><br><span class="line">  indices-&gt;resize(<span class="built_in">std</span>::min(k, n));</span><br><span class="line">  <span class="type">int32_t</span> cur = values-&gt;size() - <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">while</span> (!pq.empty()) &#123;</span><br><span class="line">    <span class="type">const</span> <span class="keyword">auto</span>&amp; item = pq.top();</span><br><span class="line">    (*values)[cur] = item.first;</span><br><span class="line">    (*indices)[cur] = item.second;</span><br><span class="line">    pq.pop();</span><br><span class="line">    cur -= <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">next_hyps:<span class="built_in">map</span>类型  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">int</span>&gt; PrefixScore</span><br><span class="line">prefix：<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="type">int</span>&gt;</span><br><span class="line">next_hyps[prefix] <span class="comment">//就是查找 prefixscore，这个是一个结构体，它内部成员（分数）初始化的时候都是负无穷大</span></span><br><span class="line"></span><br><span class="line">next_hyps：</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">unordered_map</span> with <span class="number">1</span> element = &#123;[<span class="built_in">std</span>::<span class="built_in">vector</span> of length <span class="number">0</span>, capacity <span class="number">0</span>] = &#123;s = <span class="number">-3.40282347e+38</span>, ns = <span class="number">-3.40282347e+38</span>, v_s = <span class="number">-3.40282347e+38</span>, v_ns = <span class="number">-3.40282347e+38</span>,</span><br><span class="line">    cur_token_prob = <span class="number">-3.40282347e+38</span>, times_s = <span class="built_in">std</span>::<span class="built_in">vector</span> of length <span class="number">0</span>, capacity <span class="number">0</span>, times_ns = <span class="built_in">std</span>::<span class="built_in">vector</span> of length <span class="number">0</span>, capacity <span class="number">0</span>, has_context = <span class="literal">false</span>, context_state = <span class="number">0</span>,</span><br><span class="line">   context_score = <span class="number">0</span>, start_boundaries = <span class="built_in">std</span>::<span class="built_in">vector</span> of length <span class="number">0</span>, capacity <span class="number">0</span>, end_boundaries = <span class="built_in">std</span>::<span class="built_in">vector</span> of length <span class="number">0</span>, capacity <span class="number">0</span>&#125;&#125;    </span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<p>继续主代码<code>decoder_main.cc</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 做attention rescore，就要过一遍 attention(transformer) decoder的模型，此时encoder的输出和nbest ctc output作为attention model的输入，因此要转成torch格式</span></span><br><span class="line">model_-&gt;AttentionRescoring(hypotheses, opts_.reverse_weight, &amp;rescoring_score);</span><br><span class="line"><span class="comment">//跳入 core/decoder/torch_asr_model.cc //这里用的是libtorch派生类</span></span><br><span class="line"></span><br><span class="line">searcher_-&gt;FinalizeSearch();	</span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> outputs = model_-&gt;run_method(<span class="string">&quot;forward_attention_decoder&quot;</span>, hyps_tensor,hyps_length, encoder_out, reverse_weight).toTuple()-&gt;elements();<span class="comment">//这里是在模型的python文件中（wenet/transformer/asr_model.py），有这样写这个函数，然后把模型导出torch.jlt.export，就能通过run_method找到这个函数</span></span><br><span class="line"><span class="comment">// 参考的https://discuss.pytorch.org/t/how-to-get-model-attribute-using-c-api/41486/3</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>多线程解码，在线程池里，默认都做了rescoring。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/wenetruntime/" rel="tag"># wenetruntime</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/03/01/wenetruntime/main%E8%84%9A%E6%9C%AC%E5%AF%B9%E6%AF%94/" rel="next" title="main脚本对比">
+                <i class="fa fa-chevron-left"></i> main脚本对比
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/03/03/wenetruntime/api_main.cc/" rel="prev" title="api_main.cc">
+                api_main.cc <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#libtorch%E4%B8%8B%E7%9A%84main%E8%84%9A%E6%9C%AC-decoder-main"><span class="nav-number">1.</span> <span class="nav-text">libtorch下的main脚本 decoder_main</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%EF%BC%9A"><span class="nav-number">1.0.1.</span> <span class="nav-text">编译：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8D%E5%8F%AF%E8%B0%83%E8%AF%95%E7%89%88%E6%9C%AC%E7%9A%84%E7%BC%96%E8%AF%91"><span class="nav-number">1.0.1.1.</span> <span class="nav-text">不可调试版本的编译</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E8%AF%95%EF%BC%9A"><span class="nav-number">1.0.2.</span> <span class="nav-text">调试：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E8%B0%83%E8%AF%95"><span class="nav-number">1.0.3.</span> <span class="nav-text">非调试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E8%A7%A3%E9%87%8A%EF%BC%9A"><span class="nav-number">1.0.4.</span> <span class="nav-text">代码解释：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ctc-prefix-beam-search-%E8%A7%A3%E7%A0%81%E8%BF%87%E7%A8%8B%EF%BC%9A"><span class="nav-number">1.0.4.1.</span> <span class="nav-text">ctc_prefix_beam_search 解码过程：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">1.0.5.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/03/03/wenetruntime/libtorch%E4%B8%8B%E7%9A%84decoder_main.cc/';
+          this.page.identifier = '2023/03/03/wenetruntime/libtorch下的decoder_main.cc/';
+          this.page.title = 'libtorch下的main脚本 decoder_main';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

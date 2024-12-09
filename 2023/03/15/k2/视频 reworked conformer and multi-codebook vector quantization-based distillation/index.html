@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="k2,语音识别," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="新一代 Kaldi 中的 Reworked Conformer 模型 b站视频：姚增伟 【语音之家】AI产业沙龙—如何应用k2开发语音识别系统  或  https:&#x2F;&#x2F;xjw.h5.xeknow.com&#x2F;sl&#x2F;2yOtKa 微信公众号 语音之家：【语音之家】AI产业沙龙—如何应用k2开发语音识别系统 、沙龙回顾 | AI产业沙龙—如何应用k2开发语音识别系统  微信公众号 新一代Kaldi：Rew">
+<meta property="og:type" content="article">
+<meta property="og:title" content="视频 新一代 Kaldi 中的 Reworked Conformer 模型">
+<meta property="og:url" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="新一代 Kaldi 中的 Reworked Conformer 模型 b站视频：姚增伟 【语音之家】AI产业沙龙—如何应用k2开发语音识别系统  或  https:&#x2F;&#x2F;xjw.h5.xeknow.com&#x2F;sl&#x2F;2yOtKa 微信公众号 语音之家：【语音之家】AI产业沙龙—如何应用k2开发语音识别系统 、沙龙回顾 | AI产业沙龙—如何应用k2开发语音识别系统  微信公众号 新一代Kaldi：Rew">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314163807074.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314164423146.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314164512588.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314164533510.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314171315949.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314172738444.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314172841996.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314173632253.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314195129456.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/640.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314195955639.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314201320249.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314201724738.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315101732428.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315104938005.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315105300673.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315112141554.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315114828715.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315120942533.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315121032817.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315121129113.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315121540860.png">
+<meta property="og:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315121636930.png">
+<meta property="article:published_time" content="2023-03-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-03-15T09:46:13.792Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="k2">
+<meta property="article:tag" content="语音识别">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314163807074.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/03/15/k2/视频 reworked conformer and multi-codebook vector quantization-based distillation/"/>
+
+
+
+
+
+  <title>视频 新一代 Kaldi 中的 Reworked Conformer 模型 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">视频 新一代 Kaldi 中的 Reworked Conformer 模型</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-03-15T00:00:00+08:00">
+                2023-03-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k2/" itemprop="url" rel="index">
+                    <span itemprop="name">k2</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/03/15/k2/视频 reworked conformer and multi-codebook vector quantization-based distillation/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="新一代-Kaldi-中的-Reworked-Conformer-模型"><a href="#新一代-Kaldi-中的-Reworked-Conformer-模型" class="headerlink" title="新一代 Kaldi 中的 Reworked Conformer 模型"></a>新一代 Kaldi 中的 Reworked Conformer 模型</h1><blockquote>
+<p>b站视频：姚增伟 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1xV4y1T7f9/?spm_id_from=333.788.recommend_more_video.13&vd_source=5e9891722f2b62adca440a5e92121b5b">【语音之家】AI产业沙龙—如何应用k2开发语音识别系统</a>  或  <a target="_blank" rel="noopener" href="https://xjw.h5.xeknow.com/sl/2yOtKa">https://xjw.h5.xeknow.com/sl/2yOtKa</a></p>
+<p>微信公众号 语音之家：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/hhFGmWnTZco0HFxGidHoCQ">【语音之家】AI产业沙龙—如何应用k2开发语音识别系统</a> 、<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/TU3vLqaf0GrhI1JsU2nqvA">沙龙回顾 | AI产业沙龙—如何应用k2开发语音识别系统</a> </p>
+<p>微信公众号 新一代Kaldi：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/2WrEh3wHzYE6TCKuw_laLw">Reworked Conformer</a></p>
+<p><a target="_blank" rel="noopener" href="https://medium.com/@nadirapovey/next-gen-kaldi-reworked-conformer-model-8a3828f364af">Next-gen Kaldi: Reworked Conformer Model</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=BXYZI9FEOgU&ab_channel=NadiraPovey">Dan K2 #23 Reworked Conformer Model: BAAI Conference P3</a></p>
+<p>Reworked Conformer模型代码:  github：<a target="_blank" rel="noopener" href="https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR/pruned_transducer_stateless2">https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR/pruned_transducer_stateless2</a> 、 <a target="_blank" rel="noopener" href="https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR/pruned_transducer_stateless5">https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR/pruned_transducer_stateless5</a></p>
+</blockquote>
+<p>本报告将介绍近期新一代 Kaldi 项目的两个核心贡献点。针对 Conformer 模型存在的问题进行改进，实现了训练稳定、性能更优的 Reworked Conformer 模型，其核心思想已拓展应用于 Emformer 和 LSTM 等模型中。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314163807074.png" alt="image-20230314163807074" style="zoom:80%;">
+
+
+
+<p>我们使用的 Conformer 模型包含了 12 个 encoder layer，每个 encoder layer 包含了四个模块：Feed-forward + Self-attention + Convolution + Feed-forward，每个模块的输入处以及 encoder layer 的最后输出处各有一个 LayerNorm。</p>
+<p>通过使用模型分析工具 &#x3D;&#x3D;<strong><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/icefall/blob/master/icefall/diagnostics.py">diagnostics</a></strong>&#x3D;&#x3D; 对 Conformer 进行分析，我们发现了模型存在的一些问题，并针对问题作出改进，得到 <strong>Reworked Conformer</strong>。 </p>
+<blockquote>
+<p>模型分析工具 diagnostics 实现于 <strong><a target="_blank" rel="noopener" href="https://github.com/k2-fsa/icefall/">icefall</a></strong> 中，可用于查看模型的参数、激活值及梯度的多种统计量，方便用户分析模型是否训练正常。</p>
+</blockquote>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314164423146.png" alt="image-20230314164423146" style="zoom: 80%;">
+
+<h3 id="1-将-LayerNorm-替换为-BasicNorm"><a href="#1-将-LayerNorm-替换为-BasicNorm" class="headerlink" title="1. 将 LayerNorm 替换为 BasicNorm"></a>1. 将 LayerNorm 替换为 BasicNorm</h3><p>batchnorm中两个会更新的超参 $\gamma$ 和 $\beta$ 用来缩放和偏置。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314164512588.png" alt="image-20230314164512588" style="zoom:80%;">
+
+<p>BatchNorm 和 LayerNorm的主要区别在于：</p>
+<ul>
+<li>BatchNorm 的统计维度为 $(B,T)$，在训练过程中累计统计量（均值、方差），测试时使用训练中累计的统计量；</li>
+<li>LayerNorm 的统计维度为 $(C)$，无论训练或测试，都要重新计算统计量。</li>
+</ul>
+<p>BatchNorm 假设了 minibatch 中不同的句子（样本）服从独立同分布（iid）。然而，该假设在ASR模型训练过程中，可能会遇到不成立的情况，例如：</p>
+<ul>
+<li>按照句子长度划分 minibatch；</li>
+<li>使用多个数据集训练，在不同 minibatch 使用不同数据集。</li>
+</ul>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314164533510.png" alt="image-20230314164533510" style="zoom:80%;">
+
+<p>因此，我们首先将 Conformer 中所有的 BatchNorm 替换为 LayerNorm。</p>
+<h4 id="为什么需要-LayerNorm"><a href="#为什么需要-LayerNorm" class="headerlink" title="为什么需要 LayerNorm"></a>为什么需要 LayerNorm</h4><p>LayerNorm 的作用主要包括：</p>
+<ul>
+<li>规范化值的范围，避免在训练中因为值太大或太小而导致 loss 出现 nan 或者 inf ；对于任意长度的向量，LayerNorm 会将其长度规范化为 $\sqrt{C}$，其中 $C$ 为特征通道个数。</li>
+<li>利用可学习的参数 $\gamma$，调整对应模块对整体模型的贡献。</li>
+</ul>
+<p>想去除一些layernorm，加快运行。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314171315949.png" alt="image-20230314171315949" style="zoom:80%;">
+
+
+
+
+
+<p>为什么可以去除layernorm：从公式上看：$y&#x3D;\frac{x-\mathrm{E}[x]}{\sqrt{\operatorname{Var}[x]+\epsilon}} * \gamma+\beta$ ， 中的均值 $x-\mathrm{E}[x]$ 是线性操作，可以认为是不必要的。</p>
+<p>分母归一化到 $\sqrt{dim}$ </p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314172738444.png" alt="image-20230314172738444" style="zoom:80%;">
+
+
+
+<ul>
+<li><strong>为什么需要layernorm</strong>：</li>
+</ul>
+<p>防止激活层后值太大或太小。</p>
+<p>$\gamma$ 可以衡量每个模块的激活值对整个模型的贡献程度。</p>
+<p>如果用没有weight decay的adam优化器，会有一个问题，就是和学习率有关，随着训练进行，参数的均方根会变大，模型参数会增大。</p>
+<p>因此 $\gamma$ 可以起到<strong>缩放</strong>越来越大的模型参数的作用。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314172841996.png" alt="image-20230314172841996" style="zoom:80%;">
+
+
+
+
+
+<ul>
+<li><strong>layernorm存在的问题</strong>：</li>
+</ul>
+<ol>
+<li><p><strong>module death</strong></p>
+<p>发现有些模块在训练之后一直输出很小的值（比如1e-6），因为早期训练过程中，这个模块还没work，则 $\gamma$ 会缩放到一个接近0的值，相当于“关掉这个模块了”，则layernorm里的下层模块的梯度会一直振荡，则这个模块难以学会有用信息，整个模型优化点相当于陷入了鞍点。</p>
+</li>
+</ol>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314173632253.png" alt="image-20230314173632253" style="zoom:80%;">
+
+
+
+<ol start="2">
+<li><p><strong>Large constant channel</strong></p>
+<p>对于一个训练好的模型，观测layernorm的输入，发现总是会有一个维度（channel）的输入值（绝对值）特别大，且恒定的值：-51+-1。出现这个现象的原因可能是，模型企图抵抗 LayerNorm 去除向量长度的机制。因为layernorm会规范化归一化掉，它的目的似乎是为了“击败”layernorm，和layernorm对抗一样，变成一个非常大的$\epsilon$，从而保留（除了该channel之外的）长度信息（因为layernorm归一化会去除长度信息）。</p>
+<p>对于这个值特别大的维度，可以认为是“异常值”，需要手动丢掉这个维度。</p>
+</li>
+</ol>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314195129456.png" alt="image-20230314195129456" style="zoom:80%;">
+
+
+
+<p>以下图为例, 向量 $a$ 和向量 $b&#x3D;a \times 3$ 经过长度规范化后, 长度关系丢失; 向量 $c$ 和向量 $d$ 的 最后一个 channel是一个绝对值很大的恒定值 - 51 , 对于除了该 channel 外的所有 channel, 两 者之间的长度关系 $d[:-1]&#x3D;c[:-1] \times 3$ 在长度规范化的同时也得到保留。</p>
+<p>解释一下，这里向量a、b是一个样本，维度是5，5维理解成是长度length为5，长度里的每个元素由channel向量组成，这里channel只有一个元素，长度为1。所以这里的矩阵维度是 [2, 5, 1]，分别是batch、sentence_length、embedding_dim？。。。。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/640.png" alt="640">
+
+
+
+
+
+<h4 id="BasicNorm"><a href="#BasicNorm" class="headerlink" title="BasicNorm"></a>BasicNorm</h4><p>针对上述问题，对 LayerNorm 作出修改，得到 <strong>BasicNorm</strong>：</p>
+<p>去除layernorm，变成“basicnorm”，把分母的方差换成x平方的均值，加一个可学习的值$\epsilon$（起到异常值的作用）</p>
+<p>更新参数通过 $\epsilon .\exp()$ 因此都是正数（前面的 $\gamma$ 不一定正数，可能会在0附近方向振荡，难以学习）</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314195955639.png" alt="image-20230314195955639" style="zoom:80%;">
+
+<h4 id="Learnable-scales"><a href="#Learnable-scales" class="headerlink" title="Learnable scales"></a>Learnable scales</h4><ul>
+<li>首先，去掉了分子中移除向量均值的操作，因为该操作是一个线性变换，其前面接的是线性层，没有必要进行连续的两次线性变换。</li>
+<li>在分母中，**引入一个可学习的参数 $\epsilon$**，充当上述的 large constant channel 的角色，目的是在作长度规范化的同时，保留向量的长度信息。此时，输入的向量长度越大，输出向量的长度就越大。</li>
+<li>$\epsilon$ 初始值为 0.25，学习的是该参数的 log 值，用的时候取 exp，确保是正数。</li>
+</ul>
+<p>现在 BasicNorm 中没有可学习的放缩因子参数 ，为了保留其权衡不同模块贡献的功能，在每个模块中引入可学习的参数 <strong>scales</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">self.weight -&gt; self.weight * self.weight_scale.exp()</span><br><span class="line">self.bias -&gt; self.bias * self.bias_scale.exp()</span><br></pre></td></tr></table></figure>
+
+<p>由于 scales 是在 log 空间学习，使用时取 exp，为正数，避免了上述由于在 0 左右震荡导致的对应模块参数梯度翻转的问题。</p>
+<h3 id="2-ActivationBalancer调整激活值范围"><a href="#2-ActivationBalancer调整激活值范围" class="headerlink" title="2. ActivationBalancer调整激活值范围"></a>2. ActivationBalancer调整激活值范围</h3><p>给swish激活层的输入存在两个激活值异常问题：</p>
+<ol>
+<li><strong>负数问题 Dead neuron</strong>：</li>
+</ol>
+<p>如果feedforward（LayerNorm + Linear + Swish + Linear）模块里，linear输出的特征有很多都是“<strong>负数</strong>”，那么经过下一层激活层时，由于激活层用的是swish激活层，就会有很多值接近于零，这些值也是没用的，浪费的。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314201320249.png" alt="image-20230314201320249" style="zoom:80%;">
+
+
+
+
+
+<ol start="2">
+<li><strong>范围异常问题 Wrong dynamic range</strong>：</li>
+</ol>
+<p>对于一个训练好的模型，给swish激活层的输入的数值应该是<strong>“1”到”3“之间</strong>，（这个是一个比较好的范围）</p>
+<p>观察线性层的输出（也就是下一层激活层的输入）发现，存在两种范围异常的情况：一种是太小，1e-5，swish激活会退化成一个线性函数，就没有起到非线性的效果；一种是太大，swish会退化成relu。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230314201724738.png" alt="image-20230314201724738" style="zoom:80%;">
+
+<p>为了解决上述两个问题，提出activationbalancer模块，放在linear和swish中间，这个模块包含两个函数，forward和backward，继承自autograd function，子类。</p>
+<p>forward pass 前向计算过程中，没有实际做什么操作，只统计记录了哪些通道是有问题的。</p>
+<p>backward pass 反向传播过程中，根据forward pass统计的，对应去修改梯度。比如只有5%的值大于0，接下来就惩罚变成负数。</p>
+<p>要达到这个目的，还有另一个做法：增加一个loss，作为正则项。发现这个方法不work，因为会使得padding的地方变成一个很大的数。</p>
+<p>作者采用的方法是 <strong>在反向过程中修改梯度</strong> ， 将<strong>梯度值放缩</strong>到 $1+\epsilon$ 或 $1-\epsilon$ （加号还是减号取决于激活值符号和梯度符号）。</p>
+<p><strong>没有直接改变数值，而是在梯度值层面上改变！！</strong>好神奇，我没有直接对反向传播的梯度进行过操作。</p>
+<p>例如，当统计发现激活值太小的时候：</p>
+<ul>
+<li>若梯度为负，激活值会朝着数轴的正方向走，这是我们所希望的，此时应当放大梯度；</li>
+<li>若梯度为正，激活值会朝着数轴的负方向走，这不是我们所希望的，此时应当缩小梯度。</li>
+</ul>
+<p>梯度更新要朝着梯度减小的方向走，激活值很小时朝着数轴正方向走才会数值变大，是我们希望的。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315101732428.png" alt="image-20230315101732428" style="zoom:80%;">
+
+
+
+<h3 id="3-效果更好的DoubleSwish"><a href="#3-效果更好的DoubleSwish" class="headerlink" title="3. 效果更好的DoubleSwish"></a>3. 效果更好的DoubleSwish</h3><p>发现使用两次swish能得到更好的效果，于是设计了一个函数，叫doubleswish，函数关系是 $x\sigma (x-1)$ （这里并不是直接swish作用两次）</p>
+<p>并且这里有个好处，省内存，梯度值和函数值 很有关系，要求梯度只需保留两个变量 一个是函数值 <code>doubleswish(x)</code>，一个是 $\sigma(x-1)$。如果用swish，还需保留变量 $x$（三个变量），因此用doubleswish能起到省内存的作用。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315104938005.png" alt="image-20230315104938005" style="zoom:80%;">
+
+
+
+<h3 id="4-固定参数范数，让学习率控制参数相对变化"><a href="#4-固定参数范数，让学习率控制参数相对变化" class="headerlink" title="4. 固定参数范数，让学习率控制参数相对变化"></a>4. 固定参数范数，让学习率控制参数相对变化</h3><p>参数范数会增大的问题，用layernorm或batchnorm可缓解（因为用可学的放缩因子$\gamma$ 来压下来），但是还存在：</p>
+<p>难以直接控制学习率的问题，因为相对变化的大小除以当前模型的范数。。。</p>
+<p>参数值很大，那么$\gamma$要很小，会出现梯度振荡，模型难以学习，训练不稳定。</p>
+<p>随着训练进行，模型参数范数 RMS（Root-Mean-Square）会随之变大，此时学习率无法直接控制模型参数的相对变化大小。尽管，在参数范数 RMS 增大时，LayerNorm 或BatchNorm 中可学习的参数 $\gamma$ 可以通过缩小来控制值的范围，但是  $\gamma$ 太小的时候会导致上述的训练不稳定的问题。</p>
+<p>因此，我们在优化器 <strong><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1711.05101">AdamW</a></strong> 的基础上修改得到优化器 <strong>Eve</strong>，其核心思想是对于每个非标量参数，当其范数 RMS 超过 0.1 时，对其进行 weight decay，缩小参数范数。</p>
+<p>固定参数范数的操作并不会影响模型的性能，原因是我们在每个模块中引入了可学习的参数 scales。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315105300673.png" alt="image-20230315105300673" style="zoom:80%;">
+
+
+
+
+
+<p>解决方法：fixed parameter norms</p>
+<p>限制每个参数向量的rms模到0.1，对adam优化器加惩罚，adamW，</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315112141554.png" alt="image-20230315112141554" style="zoom:80%;">
+
+
+
+<h3 id="5-使用Model-level-Warmup-机制，加快收敛"><a href="#5-使用Model-level-Warmup-机制，加快收敛" class="headerlink" title="5. 使用Model-level Warmup 机制，加快收敛"></a>5. 使用Model-level Warmup 机制，加快收敛</h3><p>在传统的Transformer训练中，通常采用先升后降的学习率 warmup 机制，这是一种在训练深层模型中常用的策略。如下图所示，在前面 80,000 个 iteration 线性地增加学习率，然后再按照 $\frac{1}{\sqrt{t}}$减少学习率。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315114828715.png" alt="image-20230315114828715" style="zoom:80%;">
+
+
+
+
+
+<p>接近残差思想</p>
+<p>我们提出 <strong>model-level warmup</strong> 机制，代替上述的学习率 warmup 机制。在前 3,000 个 iteration 中，逐步将 warmup 值从 0.1 增加到 1.0，在每一个 encoder layer 中，返回值为 $warmup*output+(1-warmup)*input$。&#x3D;&#x3D;该机制相当于在早期的训练阶段，减小模型的有效深度，使得训练更加容易&#x3D;&#x3D;。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315120942533.png" alt="image-20230315120942533" style="zoom:80%;">
+
+
+
+<p>此时，我们不再需要采用先升后降的学习率 warmup 机制。我们在开始的时候使用较大的学习率，然后逐步降低学习率，如下图所示：</p>
+<p>缓解受gpu worker数量影响</p>
+<p>我们采用的学习率更新策略，兼顾了当前的 epoch 计数 $n$ 和 iteration $t$ 计数 ：</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315121032817.png" alt="image-20230315121032817" style="zoom:80%;">
+
+<p>该策略的优势在于，由于同时考虑了 epoch 计数，不再需要因为 minibatch 大小改变而调整学习率更新策略。</p>
+<h2 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h2><p>如下图所示，相比较于原来的模型（橙色），Reworked Conformer（蓝色）在训练开始阶段的收敛速度显著提升，且能收敛到更低的 loss 值。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315121129113.png" alt="image-20230315121129113" style="zoom:80%;">
+
+<p>由于 Reworked Conformer 中移除了大部分 LayerNorm ，对于每个 minibatch，训练速度大约加快了 10%。</p>
+<h3 id="更低的WER"><a href="#更低的WER" class="headerlink" title="更低的WER"></a>更低的WER</h3><p>下面的表格比较了原来的 Conformer 和 Reworked Conformer 的 WER。两者都采用了 Pruned RNN-T 损失函数，在 full-librispeech 数据集上训练了 <strong>26</strong> 个 epoch （avg-8），使用 greedy search 解码方法。可以看出，Reworked Conformer 在 两个测试集上都取得了更低的 WER。</p>
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315121540860.png" alt="image-20230315121540860" style="zoom:80%;">
+
+
+
+<img src="/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/image-20230315121636930.png" alt="image-20230315121636930" style="zoom:80%;">
+
+
+
+<h2 id="总-结"><a href="#总-结" class="headerlink" title="总 结"></a>总 结</h2><p>本文介绍了新一代 Kaldi 改进后的 Corformer 模型 —— Reworked Conformer，该模型目前已被用于 icefall 的多个 recipe 中，经过大量实验验证了其优越性、稳定性和可靠性。其中涉及到的改进思想，不仅限于 Conformer，也可泛化到其他模型，欢迎大家尝试。</p>
+<p><strong>小结</strong>：</p>
+<p>reworked conformer这个工作虽然没有写成论文，但是工作量和想法是很多的，出发点是先观察模型中间层的数值，然后考虑该数值对后续层的影响，要怎么解决这些问题。值得一提的是：</p>
+<ol>
+<li>看出了不同层的输入输出、梯度数值异常；</li>
+<li>分析了数值异常的原因；</li>
+<li>从各种角度解决数值问题；</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/k2/" rel="tag"># k2</a>
+          
+            <a href="/tags/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" rel="tag"># 语音识别</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/03/14/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E6%96%B0%E4%B8%80%E4%BB%A3kaldi%E9%A1%B9%E7%9B%AE%E7%9A%84%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B-%E9%83%AD%E7%90%86%E5%8B%87%20%E5%B0%8F%E7%B1%B3/" rel="next" title="视频 基于新一代kaldi项目的语音识别应用实例-郭理勇 小米">
+                <i class="fa fa-chevron-left"></i> 视频 基于新一代kaldi项目的语音识别应用实例-郭理勇 小米
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/03/16/k2/%E8%A7%86%E9%A2%91%20%E5%9F%BA%E4%BA%8E%E5%A4%9A%E7%A0%81%E6%9C%AC%E5%90%91%E9%87%8F%E9%87%8F%E5%8C%96%E7%9A%84%E8%92%B8%E9%A6%8F%E6%96%B9%E6%A1%88/" rel="prev" title="视频 基于多码本向量量化的蒸馏方案">
+                视频 基于多码本向量量化的蒸馏方案 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%B0%E4%B8%80%E4%BB%A3-Kaldi-%E4%B8%AD%E7%9A%84-Reworked-Conformer-%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">新一代 Kaldi 中的 Reworked Conformer 模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%B0%86-LayerNorm-%E6%9B%BF%E6%8D%A2%E4%B8%BA-BasicNorm"><span class="nav-number">1.0.1.</span> <span class="nav-text">1. 将 LayerNorm 替换为 BasicNorm</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-LayerNorm"><span class="nav-number">1.0.1.1.</span> <span class="nav-text">为什么需要 LayerNorm</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BasicNorm"><span class="nav-number">1.0.1.2.</span> <span class="nav-text">BasicNorm</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Learnable-scales"><span class="nav-number">1.0.1.3.</span> <span class="nav-text">Learnable scales</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-ActivationBalancer%E8%B0%83%E6%95%B4%E6%BF%80%E6%B4%BB%E5%80%BC%E8%8C%83%E5%9B%B4"><span class="nav-number">1.0.2.</span> <span class="nav-text">2. ActivationBalancer调整激活值范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%95%88%E6%9E%9C%E6%9B%B4%E5%A5%BD%E7%9A%84DoubleSwish"><span class="nav-number">1.0.3.</span> <span class="nav-text">3. 效果更好的DoubleSwish</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%9B%BA%E5%AE%9A%E5%8F%82%E6%95%B0%E8%8C%83%E6%95%B0%EF%BC%8C%E8%AE%A9%E5%AD%A6%E4%B9%A0%E7%8E%87%E6%8E%A7%E5%88%B6%E5%8F%82%E6%95%B0%E7%9B%B8%E5%AF%B9%E5%8F%98%E5%8C%96"><span class="nav-number">1.0.4.</span> <span class="nav-text">4. 固定参数范数，让学习率控制参数相对变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E4%BD%BF%E7%94%A8Model-level-Warmup-%E6%9C%BA%E5%88%B6%EF%BC%8C%E5%8A%A0%E5%BF%AB%E6%94%B6%E6%95%9B"><span class="nav-number">1.0.5.</span> <span class="nav-text">5. 使用Model-level Warmup 机制，加快收敛</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C"><span class="nav-number">1.1.</span> <span class="nav-text">实验结果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E4%BD%8E%E7%9A%84WER"><span class="nav-number">1.1.1.</span> <span class="nav-text">更低的WER</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB-%E7%BB%93"><span class="nav-number">1.2.</span> <span class="nav-text">总 结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/03/15/k2/%E8%A7%86%E9%A2%91%20reworked%20conformer%20and%20multi-codebook%20vector%20quantization-based%20distillation/';
+          this.page.identifier = '2023/03/15/k2/视频 reworked conformer and multi-codebook vector quantization-based distillation/';
+          this.page.title = '视频 新一代 Kaldi 中的 Reworked Conformer 模型';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

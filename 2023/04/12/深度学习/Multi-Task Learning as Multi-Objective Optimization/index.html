@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="深度学习," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Multi-Task Learning as Multi-Objective Optimization Sener, Ozan, and Vladlen Koltun. “Multi-task learning as multi-objective optimization.” Advances in neural information processing systems 31 (2018).">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Multi-Task Learning as Multi-Objective Optimization">
+<meta property="og:url" content="http://example.com/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="Multi-Task Learning as Multi-Objective Optimization Sener, Ozan, and Vladlen Koltun. “Multi-task learning as multi-objective optimization.” Advances in neural information processing systems 31 (2018).">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230412100413392.png">
+<meta property="og:image" content="http://example.com/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230411213051491.png">
+<meta property="og:image" content="http://example.com/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230412103646281.png">
+<meta property="og:image" content="http://example.com/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230412103704067.png">
+<meta property="article:published_time" content="2023-04-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-04-12T04:06:22.991Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="深度学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230412100413392.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/04/12/深度学习/Multi-Task Learning as Multi-Objective Optimization/"/>
+
+
+
+
+
+  <title>Multi-Task Learning as Multi-Objective Optimization | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Multi-Task Learning as Multi-Objective Optimization</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-04-12T00:00:00+08:00">
+                2023-04-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/04/12/深度学习/Multi-Task Learning as Multi-Objective Optimization/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Multi-Task-Learning-as-Multi-Objective-Optimization"><a href="#Multi-Task-Learning-as-Multi-Objective-Optimization" class="headerlink" title="Multi-Task Learning as Multi-Objective Optimization"></a>Multi-Task Learning as Multi-Objective Optimization</h1><blockquote>
+<p>Sener, Ozan, and Vladlen Koltun. “Multi-task learning as multi-objective optimization.” <em>Advances in neural information processing systems</em> 31 (2018).</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/isl-org/MultiObjectiveOptimization">https://github.com/isl-org/MultiObjectiveOptimization</a></p>
+<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/68846373">NIPS2018 - 用多目标优化解决多任务学习</a></p>
+</blockquote>
+<h3 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h3><p>多任务学习loss用线性加权的话，对于存在竞争关系的任务的多任务学习来说，并不有效。要找一个多任务loss方程，能让存在或不存在竞争关系的多任务都能有效学习、优化。</p>
+<h3 id="提出什么方法"><a href="#提出什么方法" class="headerlink" title="提出什么方法"></a>提出什么方法</h3><p>提出在<strong>多任务学习</strong>中的<strong>基于梯度</strong>的<strong>多目标优化方法</strong>。</p>
+<p>找Pareto optimal solutions最优解。提出基于frank-wolfe的优化器，可以将MGDA多目标优化算法扩展到能求高维梯度。</p>
+<p>提出MGDA优化目标的上界，可以通过单一的向后传递计算，而没有显式的任务特定梯度。</p>
+<p>相当于解决了MGDA多目标优化算法的两个问题，使得该优化方法能</p>
+<h3 id="本文贡献"><a href="#本文贡献" class="headerlink" title="本文贡献"></a>本文贡献</h3><p>提出基于frank-wolfe、基于梯度的优化器，可以将MGDA多目标优化算法扩展到能求高维梯度。</p>
+<p>提出MGDA优化目标的上界，可以通过单一的向后传递计算，而没有显式的任务特定梯度。</p>
+<p>证明使用提出的这个上界，能产生Pareto 最优解。</p>
+<h3 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h3><p>本文的应用场景是：用MultiMNIST数据集分类不同数字。用CelebA数据集分类不同label。用Cityscapes数据集做semantic segmentation、instance segmentation 和 depth estimation。任务数量2-40个，都明显优于baseline。</p>
+<h3 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h3><h2 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h2><p>multi-objective optimization  多目标优化：在多个条件下求Pareto 最优解的问题 The problem of finding Pareto optimal solutions given multiple criteria；   </p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>之前人们提出了的多目标优化算法：</p>
+<ul>
+<li>multiple-gradient descent algorithm (MGDA)  它使用基于梯度的优化，并可证明收敛到帕累托集中的一点(Désidéri, 2012)  MGDA非常适合用于深度网络的多任务学习。它可以使用每个任务的梯度，并解决优化问题，以决定共享参数的更新。但MGDA存在两个问题：<ul>
+<li>高维梯度不好求。</li>
+<li>该算法需要显式计算每个任务的梯度，这导致向后传递的数量呈线性缩放，并将训练时间大致乘以任务数量。</li>
+</ul>
+</li>
+</ul>
+<p>多任务学习通常通过硬参数共享或软参数共享来实现。在硬参数共享中，一部分参数在任务之间共享，而另一部分参数属于特定任务。在软参数共享中，所有参数都是任务特定的，但它们都通过贝叶斯先验进行联合约束，或者一个联合dictionary。本文关注硬参数共享。</p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>多任务学习之所以比单任务学习效果好，作者认为是多个任务共享了“inductive bias”归纳偏置。</p>
+<p>提出基于frank - wolfe的优化器，可以扩展到高维问题。</p>
+<p>此外，我们为MGDA优化目标提供了一个上界，并表明它可以通过单一的向后传递计算，而没有显式的任务特定梯度，从而使该方法的计算开销可以忽略不计。</p>
+<h3 id="Multi-Task-Learning-as-Multi-Objective-Optimization-1"><a href="#Multi-Task-Learning-as-Multi-Objective-Optimization-1" class="headerlink" title="Multi-Task Learning as Multi-Objective Optimization"></a>Multi-Task Learning as Multi-Objective Optimization</h3><p>经验风险最小化公式：<br>$$<br>\min <em>{\substack{\boldsymbol{\theta}^{s h} \ \boldsymbol{\theta}^1, \ldots, \boldsymbol{\theta}^T}} \sum</em>{t&#x3D;1}^T c^t \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)<br>$$<br>其中，$c^t$是不同任务的权重（ static or dynamically），$\boldsymbol{\theta}^{s h}$ 是共享权重，$\boldsymbol{\theta}^t$ 是任务特定的权重。</p>
+<p>$\hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)$ 是任务 $t$ 的 empirical loss，表达式为：$\hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right) \triangleq \frac{1}{N} \sum_i \mathcal{L}\left(f^t\left(\mathbf{x}_i ; \boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right), y_i^t\right)$。</p>
+<p>（这个定义可以通过用null标签扩展 $y^t$ 来扩展到只有部分标记的情况。）</p>
+<p>但是！训练过程中会出现这么一种情况：共享参数在更新时，某一个参数值下，会变得更适合任务1，而在另一个参数值下，会更适合任务2。某个参数下，在一个任务loss降、另一个任务loss上升。所以要先知道任务之间的重要度（pairwise importance of tasks，两两重要性）</p>
+<p>怎么优化呢？多任务学习可以表述为这样的多目标优化：优化一组可能相互冲突的目标（conflicting objectives）。</p>
+<p>本文也是用这个思路，用向量值损失 $\mathbf{L}$（vector-valued loss）来表示MTL的多目标优化公式：<br>$$<br>\min _{\substack{\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1, \ldots, \boldsymbol{\theta}^T}} \mathbf{L}\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1, \ldots, \boldsymbol{\theta}^T\right)&#x3D;\min _{\substack{\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1, \ldots, \boldsymbol{\theta}^T}}\left(\hat{\mathcal{L}}^1\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1\right), \ldots, \hat{\mathcal{L}}^T\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^T\right)\right)^{\boldsymbol{\top}}<br>$$<br>多目标优化的目标是实现 Pareto 最优。</p>
+<ul>
+<li><strong>定义1</strong> (Pareto optimality for MTL)<ul>
+<li>(a) 如果有解 $\boldsymbol{\theta}$ 优于 $\overline{\boldsymbol{\theta}}$ ，是使得对于所有任务 $t$ ，都有 $\hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right) \leq \hat{\mathcal{L}}^t\left(\overline{\boldsymbol{\theta}}^{\text {sh }}, \overline{\boldsymbol{\theta}}^t\right)$ ，并且 $\mathbf{L}\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1, \ldots, \boldsymbol{\theta}^T\right) \neq \mathbf{L}\left(\overline{\boldsymbol{\theta}}^{s h}, \overline{\boldsymbol{\theta}}^1, \ldots, \overline{\boldsymbol{\theta}}^T\right)$</li>
+<li>(b) 如果没有解 $\boldsymbol{\theta}$ 能优于 $\boldsymbol{\theta}^{\star}$ ，则 $\boldsymbol{\theta}^{\star}$ 称为Pareto 最优。</li>
+</ul>
+</li>
+</ul>
+<p>Pareto 最优解的集合称为Pareto 集合 $\left(\mathcal{P}<em>\theta\right)$ ，image  称为 Pareto front $\left(\mathcal{P}</em>{\mathbf{L}}&#x3D;{\mathbf{L}(\boldsymbol{\theta})}_{\boldsymbol{\theta} \in \mathcal{P}_\theta}\right)$ 。</p>
+<p>本文关注基于梯度的多目标优化，因为它与基于梯度的MTL直接相关。</p>
+<p>在第3.1节中总结如何使用梯度下降来执行多目标优化。然后，我们在第3.2节中建议在非常大的参数空间上执行多目标优化的实用算法。最后，在第3.3节中，我们提出了直接为大容量深度网络设计的多目标优化的有效解决方案。</p>
+<p>我们的方法适用于非常大的模型和大量的任务，开销可以忽略不计。</p>
+<h4 id="Multiple-Gradient-Descent-Algorithm-总结如何使用梯度下降来执行多目标优化"><a href="#Multiple-Gradient-Descent-Algorithm-总结如何使用梯度下降来执行多目标优化" class="headerlink" title="Multiple Gradient Descent Algorithm  总结如何使用梯度下降来执行多目标优化"></a>Multiple Gradient Descent Algorithm  总结如何使用梯度下降来执行多目标优化</h4><p>multiple gradient descent algorithm (MGDA)  利用了 Karush-Kuhn-Tucker (KKT)  条件来优化。</p>
+<p>为任务特定参数和共享参数声明KKT条件：</p>
+<ul>
+<li><p>存在 $\alpha^1, \ldots, \alpha^T \geq 0$ 使得 $\sum_{t&#x3D;1}^T \alpha^t&#x3D;1$ 并且 $\sum_{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)&#x3D;0$</p>
+</li>
+<li><p>对于所有任务 $t, \nabla_{\boldsymbol{\theta}^t} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)&#x3D;0$</p>
+</li>
+</ul>
+<p>任何满足这些条件的解都被称为Pareto 不动点。虽然每一个Pareto 最优点都是Pareto不动点，但反过来可能就不是这样了。</p>
+<p>优化问题：<br>$$<br>\min <em>{\alpha^1, \ldots, \alpha^T}\left{\left|\sum</em>{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|<em>2^2 \mid \sum</em>{t&#x3D;1}^T \alpha^t&#x3D;1, \alpha^t \geq 0 \quad \forall t\right}<br>$$<br>要么 该优化问题的解为0，并且得到的点满足KKT条件；要么 解是能给出一个下降方向，可以改善所有任务的。</p>
+<p>因此，由此产生的MTL算法将对特定任务参数进行梯度下降，然后求解(3)，并将解 $\left(\sum_{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}}\right)$作为共享参数的梯度更新。</p>
+<h4 id="Solving-the-Optimization-Problem-建议在非常大的参数空间上执行多目标优化的实用算法"><a href="#Solving-the-Optimization-Problem-建议在非常大的参数空间上执行多目标优化的实用算法" class="headerlink" title="Solving the Optimization Problem   建议在非常大的参数空间上执行多目标优化的实用算法"></a>Solving the Optimization Problem   建议在非常大的参数空间上执行多目标优化的实用算法</h4><p>这里非常大的参数空间指的是共享参数的维度。</p>
+<p>以两个任务为例，最优化问题可以写成：$\min <em>{\alpha \in[0,1]}\left|\alpha \nabla</em>{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^1\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1\right)+(1-\alpha) \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)\right|_2^2$ 。</p>
+<p>$\alpha$ 有解析解，是一元二次函数。</p>
+<p>也就是上面这个最小化公式对 $\alpha$ 求导等于0，得到 $\alpha$的解析，（其中 $\nabla_{\boldsymbol{\theta}^{s h}} L^1$ 和 $\nabla_{\boldsymbol{\theta}^{s h}} L^2$ 与 $\alpha$ 无关）：<br>$$<br>\hat{\alpha}&#x3D;\left[\frac{\left(\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)-\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^1\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1\right)\right)^{\top} \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)}{\left|\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^1\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^1\right)-\nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^2\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^2\right)\right|<em>2^2}\right]</em>{+, \underset{T}{1}}<br>$$<br>（验证是对的）</p>
+<p>这里的 $\alpha$ 理解成 $\alpha^1$ ，所以是更新 $\alpha^1$ 。</p>
+<p>其中，$[\cdot]<em>{+,{^1_T}}$ 表示剪裁到 $[0,1] ， 当 $$[\alpha]</em>{+,{^1_T}}&#x3D; \max(min(a; 1); 0)  $ 。这里用了 Frank-Wolfe 算法，因为line search有解析解。使用Frank-Wolfe来解决约束优化问题，使用(4)作为line search的一部分（两个任务）。给出了算法2中Frank-Wolfe求解器的所有更新方程：</p>
+<p>$\theta_t$ 的梯度和 $\alpha_t$ 无关， $\alpha_t$ 只作用在 $\theta_{sh}$ 的梯度上。 </p>
+<img src="/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230412100413392.png" alt="image-20230412100413392" style="zoom:67%;">
+
+
+
+
+
+
+
+<img src="/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230411213051491.png" alt="image-20230411213051491" style="zoom:80%;">
+
+
+
+
+
+
+
+
+
+
+
+<h4 id="Efficient-Optimization-for-Encoder-Decoder-Architectures-提出了直接为大容量深度网络设计的多目标优化的有效解决方案。"><a href="#Efficient-Optimization-for-Encoder-Decoder-Architectures-提出了直接为大容量深度网络设计的多目标优化的有效解决方案。" class="headerlink" title="Efficient Optimization for Encoder-Decoder Architectures  提出了直接为大容量深度网络设计的多目标优化的有效解决方案。"></a>Efficient Optimization for Encoder-Decoder Architectures  提出了直接为大容量深度网络设计的多目标优化的有效解决方案。</h4><p>上面方法有一个比较耗时的地方：$\nabla_{\boldsymbol{\theta}^{s h}}\hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)$ 是通过反向传播计算得到的，一直要计算到对共享参数求导，每个任务都要计算，这样就很耗时了。</p>
+<p>作者提出一种只要反向计算一次的方法，就是把优化的公式改了，变成求目标的上界了。</p>
+<p>假设模型表达式为：<br>$$<br>f^t\left(\mathbf{x} ; \boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)&#x3D;\left(f^t\left(\cdot ; \boldsymbol{\theta}^t\right) \circ g\left(\cdot ; \boldsymbol{\theta}^{s h}\right)\right)(\mathbf{x})&#x3D;f^t\left(g\left(\mathbf{x} ; \boldsymbol{\theta}^{s h}\right) ; \boldsymbol{\theta}^t\right)<br>$$<br>其中 $g$ 是共享参数函数，  $f^t$ 是任务特定函数。 表示为 $\mathbf{Z}&#x3D;\left(\mathbf{z}_1, \ldots, \mathbf{z}_N\right)$, 其中 $\mathbf{z}_i&#x3D;g\left(\mathbf{x}_i ; \boldsymbol{\theta}^{\text {sh }}\right)$, 也就是经过共享参数函数的输出向量。</p>
+<p>用链式法则直接推导出下面的上界：<br>$$<br>\left|\sum_{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|<em>2^2 \leq\left|\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}\right|<em>2^2\left|\sum</em>{t&#x3D;1}^T \alpha^t \nabla</em>{\mathbf{Z}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|_2^2<br>$$<br>其中 $\left|\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}\right|_2$ 是 $\mathbf{Z}$ 的雅可比矩阵的矩阵范数。</p>
+<p>这个上界的两个理想性质是：</p>
+<ol>
+<li>$\nabla_{\mathbf{Z}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)$ 只需计算一次后向传播？</li>
+<li>$\left|\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}\right|_2^2$ 不是关于 $\alpha^1, \ldots, \alpha^T$ 的函数，因此当用作优化目标时，可以删除。</li>
+</ol>
+<p>把公式里的 $\left|\sum_{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|_2^2$ 项替换成上界，并且删掉 $\left|\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}\right|_2^2$ 项（因为它不影响优化）</p>
+<p>优化问题变成：<br>$$<br>\min <em>{\alpha^1, \ldots, \alpha^T}\left{\left|\sum</em>{t&#x3D;1}^T \alpha^t \nabla_{\mathbf{Z}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)\right|<em>2^2 \mid \sum</em>{t&#x3D;1}^T \alpha^t&#x3D;1, \alpha^t \geq 0 \quad \forall t\right}<br>$$<br>作者把这个问题称为MGDA-UB（(Multiple Gradient Descent Algorithm – Upper Bound）（多重梯度下降算法-上界）。</p>
+<p>具体使用起来，就是把上面的算法2（Algorithm 2）流程中计算对共享参数的梯度改成计算对$Z$的梯度，然后 $Z$ 对 $\theta^{sh}$ 的梯度只需要求一次。</p>
+<p>作者还证明了一下，这个上界的写法，也是能得到Pareto最优解的（让人们用着放心）：</p>
+<p>定理1 ：假设 $\frac{\partial \mathbf{Z}}{\partial \theta^{\text {sh }}}$ 是满秩的。如果 $\alpha^{1, \ldots, T}$ 是 MGDA-UB 的解，下列情况之一是正确的：</p>
+<ol>
+<li>$\sum_{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)&#x3D;0$ 并且当前参数是 Pareto stationary 不动点。</li>
+<li>$\sum_{t&#x3D;1}^T \alpha^t \nabla_{\boldsymbol{\theta}^{s h}} \hat{\mathcal{L}}^t\left(\boldsymbol{\theta}^{s h}, \boldsymbol{\theta}^t\right)$ 是能减小所有目标的下降方向。</li>
+</ol>
+<p>只要 $\frac{\partial \mathbf{Z}}{\partial \boldsymbol{\theta}^{s h}}$ 是满秩的，优化上界对应于使用定义的Mahalonobis范数最小化梯度凸组合的范数。非奇点假设是合理的，因为奇点意味着任务是线性相关的，没有必要进行权衡。</p>
+<p>总之，本文方法可以证明，可以用可以忽略不计的计算开销找到一个帕累托不动点，并且可以应用于任何具有encoder-decoder模型的深度多目标问题。</p>
+<p>证明如下：</p>
+<img src="/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230412103646281.png" alt="image-20230412103646281" style="zoom: 67%;">
+
+
+
+<img src="/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/image-20230412103704067.png" alt="image-20230412103704067" style="zoom: 67%;">
+
+
+
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>TODO</p>
+<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2><p>用多目标优化来做多任务学习，模型里有共享特征和各个任务所独自的特征。通过多目标最优化目标函数转换为求Pareto最优，要找能使得多个目标都能最小化的权重分配，通过不同任务之间参数梯度的关系，来更新权重。但这样还不够简单，因为目标函数每个任务都要反向传播很长，就是计算量很多，根据链式法则有一些可以优化，复用的地方，也是本文的创新点，通过优化目标变成优化上界，来减少反向传播的计算量（复用了）。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/04/04/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20Using%20Uncertainty%20to%20Weigh%20Losses%20for%20Scene%20Geometry%20and%20Semantics/" rel="next" title="Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics">
+                <i class="fa fa-chevron-left"></i> Multi-Task Learning Using Uncertainty to Weigh Losses for Scene Geometry and Semantics
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/04/17/%E8%AF%86%E5%88%AB/wav2vec%20Unsupervised%20pre-training%20for%20speech%20recognition/" rel="prev" title="wav2vec Unsupervised pre-training for speech recognition">
+                wav2vec Unsupervised pre-training for speech recognition <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Multi-Task-Learning-as-Multi-Objective-Optimization"><span class="nav-number">1.</span> <span class="nav-text">Multi-Task Learning as Multi-Objective Optimization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.1.</span> <span class="nav-text">解决什么问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%90%E5%87%BA%E4%BB%80%E4%B9%88%E6%96%B9%E6%B3%95"><span class="nav-number">1.0.2.</span> <span class="nav-text">提出什么方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E6%96%87%E8%B4%A1%E7%8C%AE"><span class="nav-number">1.0.3.</span> <span class="nav-text">本文贡献</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%88%E6%9E%9C%E5%A6%82%E4%BD%95"><span class="nav-number">1.0.4.</span> <span class="nav-text">效果如何</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%98%E5%AD%98%E5%9C%A8%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.5.</span> <span class="nav-text">还存在什么问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A"><span class="nav-number">1.1.</span> <span class="nav-text">名词解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.2.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.3.</span> <span class="nav-text">思路</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Multi-Task-Learning-as-Multi-Objective-Optimization-1"><span class="nav-number">1.3.1.</span> <span class="nav-text">Multi-Task Learning as Multi-Objective Optimization</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Multiple-Gradient-Descent-Algorithm-%E6%80%BB%E7%BB%93%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%9D%A5%E6%89%A7%E8%A1%8C%E5%A4%9A%E7%9B%AE%E6%A0%87%E4%BC%98%E5%8C%96"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">Multiple Gradient Descent Algorithm  总结如何使用梯度下降来执行多目标优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Solving-the-Optimization-Problem-%E5%BB%BA%E8%AE%AE%E5%9C%A8%E9%9D%9E%E5%B8%B8%E5%A4%A7%E7%9A%84%E5%8F%82%E6%95%B0%E7%A9%BA%E9%97%B4%E4%B8%8A%E6%89%A7%E8%A1%8C%E5%A4%9A%E7%9B%AE%E6%A0%87%E4%BC%98%E5%8C%96%E7%9A%84%E5%AE%9E%E7%94%A8%E7%AE%97%E6%B3%95"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">Solving the Optimization Problem   建议在非常大的参数空间上执行多目标优化的实用算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Efficient-Optimization-for-Encoder-Decoder-Architectures-%E6%8F%90%E5%87%BA%E4%BA%86%E7%9B%B4%E6%8E%A5%E4%B8%BA%E5%A4%A7%E5%AE%B9%E9%87%8F%E6%B7%B1%E5%BA%A6%E7%BD%91%E7%BB%9C%E8%AE%BE%E8%AE%A1%E7%9A%84%E5%A4%9A%E7%9B%AE%E6%A0%87%E4%BC%98%E5%8C%96%E7%9A%84%E6%9C%89%E6%95%88%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E3%80%82"><span class="nav-number">1.3.1.3.</span> <span class="nav-text">Efficient Optimization for Encoder-Decoder Architectures  提出了直接为大容量深度网络设计的多目标优化的有效解决方案。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">1.4.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%84%E4%BB%B7"><span class="nav-number">1.5.</span> <span class="nav-text">评价</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/04/12/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Multi-Task%20Learning%20as%20Multi-Objective%20Optimization/';
+          this.page.identifier = '2023/04/12/深度学习/Multi-Task Learning as Multi-Objective Optimization/';
+          this.page.title = 'Multi-Task Learning as Multi-Objective Optimization';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

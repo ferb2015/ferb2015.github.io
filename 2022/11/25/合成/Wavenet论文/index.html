@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="语音合成," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="端到端合成论文——声码器——Wavenet &#x3D;&#x3D;Oord, Aaron van den, et al. “Wavenet: A generative model for raw audio.” arXiv preprint arXiv:1609.03499 (2016).&#x3D;&#x3D;citations：4826 谷歌 试听音频：https:&#x2F;&#x2F;www.deepmin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="端到端合成论文——声码器——Wavenet">
+<meta property="og:url" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="端到端合成论文——声码器——Wavenet &#x3D;&#x3D;Oord, Aaron van den, et al. “Wavenet: A generative model for raw audio.” arXiv preprint arXiv:1609.03499 (2016).&#x3D;&#x3D;citations：4826 谷歌 试听音频：https:&#x2F;&#x2F;www.deepmin">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/image-20221125151839782.png">
+<meta property="og:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/image-20221125153158301.png">
+<meta property="og:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/image-20221123174942354.png">
+<meta property="og:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/image-20221125165445825.png">
+<meta property="og:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/v2-e232ed4a4df0644255445d575dcafcf0_720w.webp">
+<meta property="og:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/image-20221125173022187.png">
+<meta property="article:published_time" content="2022-11-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-25T09:56:28.919Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="语音合成">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/image-20221125151839782.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/11/25/合成/Wavenet论文/"/>
+
+
+
+
+
+  <title>端到端合成论文——声码器——Wavenet | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">端到端合成论文——声码器——Wavenet</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-11-25T00:00:00+08:00">
+                2022-11-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90/" itemprop="url" rel="index">
+                    <span itemprop="name">语音合成</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/11/25/合成/Wavenet论文/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="端到端合成论文——声码器——Wavenet"><a href="#端到端合成论文——声码器——Wavenet" class="headerlink" title="端到端合成论文——声码器——Wavenet"></a>端到端合成论文——声码器——Wavenet</h1><blockquote>
+<p>&#x3D;&#x3D;Oord, Aaron van den, et al. “Wavenet: A generative model for raw audio.” <em>arXiv preprint arXiv:1609.03499</em> (2016).&#x3D;&#x3D;citations：4826 谷歌</p>
+<p>试听音频：<a target="_blank" rel="noopener" href="https://www.deepmind.com/blog/wavenet-a-generative-model-for-raw-audio">https://www.deepmind.com/blog/wavenet-a-generative-model-for-raw-audio</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1QE411p7z3/?p=16&vd_source=5e9891722f2b62adca440a5e92121b5b">李宏毅《深度学习人类语言处理》国语课程(2020) P16 Vocoder</a> </p>
+<p>知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/285917433">WaveNet结构与推断</a></p>
+</blockquote>
+<h5 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><p>实现了waveform的生成，在tts里是sota，比参数方法和拼接合成方法听起来自然得多；</p>
+<h5 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><p>提出了自回归的神经网络结构生成waveform，叫做wavenet；</p>
+<h5 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h5><p>第一个提出生成waveform的神经网络结构；</p>
+<p>产生的音频质量开始与真实人类语音相媲美，并且已经在一些完整的TTS系统中得到了应用</p>
+<h5 id="存在什么问题"><a href="#存在什么问题" class="headerlink" title="存在什么问题"></a>存在什么问题</h5><p>WaveNet的输入(语言特征，预测log基频(F0)，音素时长)需要大量的领域专业知识来制作，包括复杂的文本分析系统和鲁棒的词典（发音指导）；</p>
+<p>sample-level的自回归方法，只能按样本输出，不能逐帧输出，因此输出的实时性不高；</p>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>提出了自回归的神经网络结构生成waveform，叫做wavenet；</p>
+<p>每个预测的音频样本点分布都是在先前一个样本的前提条件下得到的；</p>
+<p>每秒能训练成千上万个样本点；</p>
+<p>wavenet可以捕捉不同说话人的特征，通过调节说话人id在他们之间切换；</p>
+<p>能生成music片段；</p>
+<p>wavenet不仅能用于生成式模型，也能用于判别式模型，返回音素识别结果；</p>
+<h3 id="主要贡献"><a href="#主要贡献" class="headerlink" title="主要贡献"></a>主要贡献</h3><ul>
+<li>wavenet可以生成语音信号，在TTS领域里的主观自然度是sota水平；</li>
+<li>因为语音生成需要长时依赖，为了模型能实现的长时依赖功能，设计了名叫dilated casual convolution的新结构，它具有很大的感受野；</li>
+<li>在有说话人id为前提条件下，一个单一的模型可以用来生成不同的声音；</li>
+<li>wavenet的网络结构，不仅在TTS任务上有效，并且在生成其他语音任务（比如music）也有效；</li>
+</ul>
+<h2 id="WaveNet模型"><a href="#WaveNet模型" class="headerlink" title="WaveNet模型"></a>WaveNet模型</h2><p>结构用的PixelCNN (van den Oord et al., 2016a;b)  ，生成的波形序列 $x&#x3D;{x_1,…,x_T}$ 的联合概率可以分解为条件概率的乘积<br>$$<br>p(x)&#x3D;\prod_{t&#x3D;1}^Tp(x_t|x_1,..,x_{t-1})<br>$$</p>
+<h3 id="DILATED-CAUSAL-CONVOLUTIONS"><a href="#DILATED-CAUSAL-CONVOLUTIONS" class="headerlink" title="DILATED CAUSAL CONVOLUTIONS"></a>DILATED CAUSAL CONVOLUTIONS</h3><p>因果卷积指的是当前层的当前时刻输入，只与之前层的之前时刻到当前时刻有关，不会和未来时刻有关，不依赖于未来时刻；</p>
+<h4 id="causal-convolution"><a href="#causal-convolution" class="headerlink" title="causal convolution"></a>causal convolution</h4><p>causal convolutional layers 可视化如下：</p>
+<p>图中感受野长度等于5（&#x3D; #layers + filter length - 1  ）</p>
+<p><img src="/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/image-20221125151839782.png" alt="image-20221125151839782"></p>
+<p>因果卷积和图像里的masked卷积表现是一样的，只不过实现masked conv是通过构造一个mask张量并在应用它之前对这个mask与卷积核进行元素乘法来实现。对于1-D数据，如音频，可以通过将正常卷积的输出移动几个时间步来更容易地实现这一点。</p>
+<p>为了增加感受野，提出dilated causal convolution</p>
+<h4 id="dilated-causal-convolution"><a href="#dilated-causal-convolution" class="headerlink" title="dilated causal convolution"></a>dilated causal convolution</h4><p>dilated causal convolution也叫a trous 或 convolution with holes，空洞卷积、带洞卷积；就是滤波器作用在特征上时会按某个确定step进行skip再去作用；它等价于一个由原始滤波器用零填充为更大滤波器的卷积；输入输出size相等，</p>
+<p>dilated causal convolutional   可视化如下：</p>
+<p>图中dilations为1，2，4，8；</p>
+<p><img src="/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/image-20221125153158301.png" alt="image-20221125153158301"></p>
+<p>Dilated convolutions   不是wavenet提出的，在89年信号处理领域中就提出了，15年图像分割领域也提出过；</p>
+<p>本文的空洞率为每层加倍，直到某个限制值，然后重复：$1,2,4,…,512,1,2,4,…,512,1,2,4,…,512$</p>
+<p>每个 $1,2,4,…,512$ block 的感受野为1024  </p>
+<h3 id="SOFTMAX-DISTRIBUTIONS"><a href="#SOFTMAX-DISTRIBUTIONS" class="headerlink" title="SOFTMAX DISTRIBUTIONS"></a>SOFTMAX DISTRIBUTIONS</h3><p>本来输出是一个一个采样点数值，转成one-hot vector；声音信号一般是16bit表示，如果ont-hot vector则向量长度为65536，太大了，因此要通过某种方法减少向量维度，这里通过 $\mu-law$ 算法，不是直接linear矩阵映射，而是用一个公式进行变换，先把[-32768, 32767]通过linear映射到[-1,1]，再用 $\mu-law$ 算法，因为我们希望映射到比如8bit，即256维，因此$\mu&#x3D;255$；</p>
+<p>把16bit（65536）量化到256个可能的值<br>$$<br>f(x_t)&#x3D;\operatorname{sign} (x_t)\frac{ln(1+\mu|x_t|)}{ln(1+\mu)}<br>$$</p>
+<p>​	其中 $-1&lt;x_t&lt;1$ ，$\mu&#x3D;255$ ；这种非线性量化产生的重构效果明显优于简单的线性量化方案。特别是对于语音，发现量化后的重构信号听起来与原始信号非常相似。</p>
+<img src="/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/image-20221123174942354.png" alt="image-20221123174942354" style="zoom:50%;">
+
+
+
+<h3 id="GATED-ACTIVATION-UNITS"><a href="#GATED-ACTIVATION-UNITS" class="headerlink" title="GATED ACTIVATION UNITS"></a>GATED ACTIVATION UNITS</h3><p>门激活函数表达式为：<br>$$<br>\mathbf{z}&#x3D;\tanh \left(W_{f, k} * \mathbf{x}\right) \odot \sigma\left(W_{g, k} * \mathbf{x}\right)<br>$$<br>即x分别经过两个激活函数，再点乘；</p>
+<p>其中，$*$ 表示卷积操作，$\odot$ 表示element-wise 乘法，$\sigma(\cdot)$ 表示sigmoid函数，$k$ 是layer系数，$f$ 表示filter，$g$ 表示gate，$W$ 是卷积层滤波器参数，gate激活函数好于relu（因为语音波形有正有负）；</p>
+<h3 id="RESIDUAL-AND-SKIP-CONNECTIONS"><a href="#RESIDUAL-AND-SKIP-CONNECTIONS" class="headerlink" title="RESIDUAL AND SKIP CONNECTIONS"></a>RESIDUAL AND SKIP CONNECTIONS</h3><p>残差结构组成的block，每个block输出是下一个block的输入，把所有block输出求和（skip-connections）；</p>
+<p>残差结构能加速收敛，让模型能堆得更深；</p>
+<img src="/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/image-20221125165445825.png" alt="image-20221125165445825" style="zoom:67%;">
+
+
+
+<h3 id="CONDITIONAL-WAVENETS"><a href="#CONDITIONAL-WAVENETS" class="headerlink" title="CONDITIONAL WAVENETS"></a>CONDITIONAL WAVENETS</h3><p>上述过程中只讲述了输入是之前语音序列的情况，模型的输入为序列x， x为时间点t之前的语音序列。实际上我们不能单单通过之前的语音预测下一个点，就比方说如果单独输入一个 “我”字，是无法预测到底是“我吃饭”还是“我睡觉”的，所以还需要添加一个条件(Condition)来限制预测方向。</p>
+<p>给额外输入 $h$ ，WaveNets可以对给定输入的音频的条件分布 $p (x|h)$ 进行建模。<br>$$<br>p(x|h)&#x3D;\prod_{t&#x3D;1}^Tp(x_t|x_1,..,x_{t-1},h)<br>$$<br>通过使模型与其他输入变量相适应，我们可以引导WaveNet生成具有所需特征的音频。例如，在多说话人设置中，我们可以通过将说话人身份作为额外输入提供给模型来选择说话人。类似地，对于TTS，我们需要提供关于文本的信息作为额外的输入。</p>
+<p>这里在本文中条件指的是频谱特征，一般是mel谱。这个特征以帧为单位变化。这样就可以正确的指定预测方向了。</p>
+<p>如何添加Conditon：</p>
+<ol>
+<li><p><strong>全局条件 global conditioning</strong> ：</p>
+<ol>
+<li><p>特征是一个单一的潜在表示 $h$   它影响所有时间步的输出分布，比如speaker embedding</p>
+</li>
+<li><p>门激活函数变为：<br>$$<br>\mathbf{z}&#x3D;\tanh \left(W_{f, k} * \mathbf{x}+V_{f, k}^T \mathbf{h}\right) \odot \sigma\left(W_{g, k} * \mathbf{x}+V_{g, k}^T \mathbf{h}\right)<br>$$</p>
+</li>
+</ol>
+</li>
+<li><p><strong>局部条件 local conditioning</strong>  ：</p>
+<ol>
+<li><p>特征是第二个时间序列 $h_t$ ，可能具有比音频信号更低的采样频率，比如linguistic features</p>
+</li>
+<li><p>门激活函数变为：<br>$$<br>\mathbf{z}&#x3D;\tanh \left(W_{f, k} * \mathbf{x}+V_{f, k} *\mathbf{y}\right) \odot \sigma\left(W_{g, k} * \mathbf{x}+V_{g, k} *\mathbf{y}\right)<br>$$</p>
+</li>
+</ol>
+</li>
+</ol>
+<p><img src="/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/v2-e232ed4a4df0644255445d575dcafcf0_720w.webp" alt="img"></p>
+<h3 id="CONTEXT-STACKS"><a href="#CONTEXT-STACKS" class="headerlink" title="CONTEXT STACKS"></a>CONTEXT STACKS</h3><p>意思好像是说和网络结构和输入的context长度有关，短一点就叠少一点，长一点就叠多一点？</p>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>数据集 The North American English dataset  </p>
+<p>MOS分：</p>
+<p><img src="/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/image-20221125173022187.png" alt="image-20221125173022187"></p>
+<p>todo。。。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%AF%AD%E9%9F%B3%E5%90%88%E6%88%90/" rel="tag"># 语音合成</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/11/23/%E5%90%88%E6%88%90/%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0(7)/" rel="next" title="端到端合成论文——声码器——HiFi-GAN">
+                <i class="fa fa-chevron-left"></i> 端到端合成论文——声码器——HiFi-GAN
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/11/25/%E5%90%88%E6%88%90/Melgan%E8%AE%BA%E6%96%87/" rel="prev" title="端到端合成论文——声码器——Melgan">
+                端到端合成论文——声码器——Melgan <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AB%AF%E5%88%B0%E7%AB%AF%E5%90%88%E6%88%90%E8%AE%BA%E6%96%87%E2%80%94%E2%80%94%E5%A3%B0%E7%A0%81%E5%99%A8%E2%80%94%E2%80%94Wavenet"><span class="nav-number">1.</span> <span class="nav-text">端到端合成论文——声码器——Wavenet</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.0.0.1.</span> <span class="nav-text">解决什么问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%A8%E4%BA%86%E4%BB%80%E4%B9%88%E6%96%B9%E6%B3%95"><span class="nav-number">1.0.0.0.2.</span> <span class="nav-text">用了什么方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%88%E6%9E%9C%E5%A6%82%E4%BD%95"><span class="nav-number">1.0.0.0.3.</span> <span class="nav-text">效果如何</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AD%98%E5%9C%A8%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.0.0.4.</span> <span class="nav-text">存在什么问题</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">1.1.</span> <span class="nav-text">摘要</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E8%B4%A1%E7%8C%AE"><span class="nav-number">1.1.1.</span> <span class="nav-text">主要贡献</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WaveNet%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.2.</span> <span class="nav-text">WaveNet模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DILATED-CAUSAL-CONVOLUTIONS"><span class="nav-number">1.2.1.</span> <span class="nav-text">DILATED CAUSAL CONVOLUTIONS</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#causal-convolution"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">causal convolution</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dilated-causal-convolution"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">dilated causal convolution</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SOFTMAX-DISTRIBUTIONS"><span class="nav-number">1.2.2.</span> <span class="nav-text">SOFTMAX DISTRIBUTIONS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GATED-ACTIVATION-UNITS"><span class="nav-number">1.2.3.</span> <span class="nav-text">GATED ACTIVATION UNITS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RESIDUAL-AND-SKIP-CONNECTIONS"><span class="nav-number">1.2.4.</span> <span class="nav-text">RESIDUAL AND SKIP CONNECTIONS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CONDITIONAL-WAVENETS"><span class="nav-number">1.2.5.</span> <span class="nav-text">CONDITIONAL WAVENETS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CONTEXT-STACKS"><span class="nav-number">1.2.6.</span> <span class="nav-text">CONTEXT STACKS</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">1.3.</span> <span class="nav-text">实验</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/11/25/%E5%90%88%E6%88%90/Wavenet%E8%AE%BA%E6%96%87/';
+          this.page.identifier = '2022/11/25/合成/Wavenet论文/';
+          this.page.title = '端到端合成论文——声码器——Wavenet';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

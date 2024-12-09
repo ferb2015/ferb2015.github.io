@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="语音识别," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="声学模型 &#x3D;&#x3D;Vaswani, Ashish, et al. “Attention is all you need.” Advances in neural information processing systems 30 (2017).&#x3D;&#x3D;citations：42175 官方 github tensorflow：https:&#x2F;&#x2F;github.com&#x2F;te">
+<meta property="og:type" content="article">
+<meta property="og:title" content="识别论文笔记（三）声学模型">
+<meta property="og:url" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="声学模型 &#x3D;&#x3D;Vaswani, Ashish, et al. “Attention is all you need.” Advances in neural information processing systems 30 (2017).&#x3D;&#x3D;citations：42175 官方 github tensorflow：https:&#x2F;&#x2F;github.com&#x2F;te">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517152824052.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517154501406.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517160647491.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5be05ou_6LWr,size_20,color_FFFFFF,t_70,g_se,x_16.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220518151014315.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220518150310638.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517164139955.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516120833285.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516162335200.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516162155924.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516162653073.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513112532431.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513112556714.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513112646296.png">
+<meta property="og:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513143125662.png">
+<meta property="article:published_time" content="2022-01-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-11-15T07:57:53.037Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="语音识别">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517152824052.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2022/01/04/识别/识别论文笔记（三）/"/>
+
+
+
+
+
+  <title>识别论文笔记（三）声学模型 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">识别论文笔记（三）声学模型</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-04T00:00:00+08:00">
+                2022-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">语音识别</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/01/04/识别/识别论文笔记（三）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="声学模型"><a href="#声学模型" class="headerlink" title="声学模型"></a>声学模型</h1><blockquote>
+<p>&#x3D;&#x3D;Vaswani, Ashish, et al. “Attention is all you need.” <em>Advances in neural information processing systems</em> 30 (2017).&#x3D;&#x3D;citations：42175</p>
+<p>官方 github tensorflow：<a target="_blank" rel="noopener" href="https://github.com/tensorflow/tensor2tensor">https://github.com/tensorflow/tensor2tensor</a>  </p>
+<p>gihub Chainer：<a target="_blank" rel="noopener" href="https://github.com/soskek/attention_is_all_you_need">https://github.com/soskek/attention_is_all_you_need</a></p>
+<p>github pytorch：<a target="_blank" rel="noopener" href="https://github.com/jadore801120/attention-is-all-you-need-pytorch">https://github.com/jadore801120/attention-is-all-you-need-pytorch</a></p>
+<p>github tensorflow：<a target="_blank" rel="noopener" href="https://github.com/Kyubyong/transformer">https://github.com/Kyubyong/transformer</a></p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/huggingface/transformers">https://github.com/huggingface/transformers</a></p>
+<p>公众号：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI3ODgwODA2MA==&mid=2247503240&idx=3&sn=6a18f24c9a030b4186488f6c51875135&chksm=eb53d91bdc24500d26f17f40953cfdba3a358d92a783fc5b7201f69c108334504cee2b43aae3&mpshare=1&scene=1&srcid=0611Osv6LaxD6g0XcYPZ6EmF&sharer_sharetime=1652854390830&sharer_shareid=7dfde0689a805163a3af5547f5e7bbff&version=4.0.0.6023&platform=win#rd">位置编码在注意机制中的作用</a></p>
+<p>知乎：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/347678607">如何理解Transformer论文中的positional encoding，和三角函数有什么关系？</a></p>
+<p><a target="_blank" rel="noopener" href="https://kazemnejad.com/blog/transformer_architecture_positional_encoding/#the-intuition">https://kazemnejad.com/blog/transformer_architecture_positional_encoding/#the-intuition</a></p>
+<p><a target="_blank" rel="noopener" href="https://nlp.seas.harvard.edu/2018/04/03/attention.html">https://nlp.seas.harvard.edu/2018/04/03/attention.html</a> [待看，据说很好]</p>
+<p><a target="_blank" rel="noopener" href="http://jalammar.github.io/illustrated-transformer/">http://jalammar.github.io/illustrated-transformer/</a></p>
+</blockquote>
+<h5 id="解决什么问题"><a href="#解决什么问题" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
+<li>提出一种新的序列模型，效果好，简单，没用到RNN&#x2F;CNN；</li>
+<li>之前的序列模型想要建模 序列内不同位置的特征之间关系 是 随着特征之间距离远近而计算量大或小的；</li>
+</ul>
+<h5 id="用了什么方法"><a href="#用了什么方法" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
+<li>改变了以往的序列模型结构，采用了self-attention机制，encoder-decoder，point-wise feedward；</li>
+</ul>
+<h5 id="效果如何"><a href="#效果如何" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
+<li>机器翻译任务 28.4 BLEU on the WMT 2014 Englishto-German translation task；</li>
+</ul>
+<h5 id="还存在什么问题"><a href="#还存在什么问题" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><ul>
+<li>由于encoder的attention是注意整个输入，因此非流式</li>
+</ul>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
+<li>提出一种新的简单的序列转换模型（sequence transduction models），Transformer，完全基于注意力机制，没使用递归和卷积；使用stacked self-attention，encoder和decoder只使用position-wise（point-wise）的全连接层；</li>
+<li>Self-attention  ：是一种将单个序列的不同位置联系起来的注意力机制；</li>
+<li>Transformer结构图：</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517152824052.png" alt="image-20220517152824052" style="zoom:80%;">
+
+<ul>
+<li><p><strong>Encoder</strong>：input sequence of symbol representations  X 到sequence of continuous representations  Z 的映射；</p>
+<ul>
+<li>stack堆叠了6层相同的层，每层有两个子层，第一层是多头注意力机制multi-head self-attention mechanism  ，第二层是按位置的全连接前馈层 position-wise fully connected feed-forward network ，子层都用了残差结构，残差相加再layernorm层归一化，$LayerNorm(x + Sublayer(x))  $，再embedding，$\large d_{model}&#x3D;512$，因此encoder输出512维embedding；</li>
+</ul>
+</li>
+<li><p><strong>Decoder</strong>：给定整条Z序列，生成输出序列，一次一个输出，auto-regressive 自回归的；在生成下一个符号时，使用先前生成的符号作为额外的输入</p>
+<ul>
+<li>stack堆叠了6层相同的层，每层有三个子层：</li>
+<li>第一层是多头注意力机制multi-head self-attention mechanism ，masking：decoder里的attention只关注前面的position信息；</li>
+<li>第二层对encoder的embedding做多头注意力机制，叫”encoder-decoder attention” layers  ，query序列来自上一层的deocder层，key和value来自encoder输出的embedding序列；</li>
+<li>第三层也是position-wise fully connected feed-forward network，子层都用了残差结构，残差相加再layernorm层归一化；</li>
+</ul>
+</li>
+<li><p><strong>Attention</strong>函数：对于一个输出，是一个query和一组key，value对的映射关系，获得映射关系叫做attention；</p>
+<ul>
+<li>output：value向量的加权和，其中“权重”表示query和key的相关程度；</li>
+</ul>
+</li>
+<li><p><strong>Scaled Dot-Product Attention</strong> ：transformer里使用的attention叫按比例点乘（Scaled Dot-Product）的attention；query向量维度 $d_k$ ，key向量维度 $d_k$ ， value向量维度 $d_v$ ，</p>
+<p>除以$\sqrt{d_k}$ （scaled），对weight用softmax进行标准化；</p>
+<p>$\large Attention(Q,K,V)&#x3D;softmax(\frac{QK^T}{\sqrt{d_k}})V$</p>
+<p>其中，$\large Q \in \mathbb{R}^{L_q \times d_k}$  ,  $\large K \in \mathbb{R}^{L\times d_k}$,   $\large V \in \mathbb{R}^{L \times d_v}$</p>
+<p>这里Q,K,V对应下面multi-head的Q&#x3D;qW，下面虽然写的QW，但其实是Q&#x3D;qW，或者说Q&#x3D;EW，E是输入，维度是L*d_k</p>
+<p>点乘：对应位置相乘，求和 ：$\large q\cdot k&#x3D;\sum_{i&#x3D;1}^{d_k}q_ik_i$</p>
+<p>不加scaled的话，点乘结果会很大，softmax之后，反向传播梯度很小；</p>
+<p>输出序列z，其中元素 $z_i \in \mathbb{R}^d$  , 输入序列x，其中元素 $x_i\in \mathbb{R}^d$</p>
+<p>对每个元素z_i，是由输入通过线性变换的加权求和得到的：$\large z_i&#x3D;\sum\limits_{j&#x3D;1}^n\alpha_{ij}(x_jW^V)$</p>
+<p>对每个权重系数，是通过softmax函数计算得到：$\large \alpha_{ij}&#x3D;\frac{\exp e_{ij}}{\sum_{k&#x3D;1}^n\exp e_{ik}}$</p>
+<p>对每个$e_{ij}$，是通过compatibility function来比较两个输入元素：$\large e_{ij}&#x3D;\frac{(x_iW^Q)(x_jW^K)^T}{\sqrt{d_z}}$     ，这里的compatibility function用的是Scaled dot product   缩放点乘</p>
+<p>$\large W^Q, W^K, W^V \in \mathbb{R}^{d_x\times d_z}$</p>
+<p>self-attention：把input 经过三个不同的transform W，得到Q,K,V矩阵，然后Q和K点乘（matmul），softmax得到A’，A’与V矩阵想乘（乘完加）得到输出编码向量O</p>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517154501406.png" alt="image-20220517154501406" style="zoom:80%;">
+
+<ul>
+<li><strong>Multi-Head Attention</strong> ：</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517160647491.png" alt="image-20220517160647491" style="zoom:80%;">
+
+<p>举例，multi分开，和只用一个大矩阵确实是不同的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="comment"># x=torch.Tensor([[0.1,0.2],[0.3,0.4]])</span></span><br><span class="line">x=torch.randn([<span class="number">2</span>,<span class="number">2</span>])</span><br><span class="line"><span class="comment"># wq=torch.Tensor([[0.1,0.1],[0.2,0.2]])</span></span><br><span class="line">wq=torch.randn([<span class="number">2</span>,<span class="number">2</span>])</span><br><span class="line">wq1=wq[:,<span class="number">0</span>].unsqueeze(<span class="number">1</span>) <span class="comment">#torch.Tensor([[0.1],[0.2]])</span></span><br><span class="line">wq2=wq[:,<span class="number">1</span>].unsqueeze(<span class="number">1</span>) <span class="comment">#torch.Tensor([[0.1],[0.2]])</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># wk=torch.Tensor([[0.2,0.1],[0.3,0.4]])</span></span><br><span class="line">wk=torch.randn([<span class="number">2</span>,<span class="number">2</span>])</span><br><span class="line">wk1=wk[:,<span class="number">0</span>].unsqueeze(<span class="number">1</span>)</span><br><span class="line">wk2=wk[:,<span class="number">1</span>].unsqueeze(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># wk1=torch.Tensor([[0.2],[0.3]])</span></span><br><span class="line"><span class="comment"># wk2=torch.Tensor([[0.1],[0.4]])</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># wv=torch.Tensor([[0.1,0.4],[0.5,0.4]])</span></span><br><span class="line">wv=torch.randn([<span class="number">2</span>,<span class="number">2</span>])</span><br><span class="line">wv1=wv[:,<span class="number">0</span>].unsqueeze(<span class="number">1</span>)</span><br><span class="line">wv2=wv[:,<span class="number">1</span>].unsqueeze(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># wv1=torch.Tensor([[0.1],[0.5]])</span></span><br><span class="line"><span class="comment"># wv2=torch.Tensor([[0.4],[0.4]])</span></span><br><span class="line"></span><br><span class="line">q=torch.matmul(x,wq)</span><br><span class="line">q1=torch.matmul(x,wq1)</span><br><span class="line">q2=torch.matmul(x,wq2)</span><br><span class="line"></span><br><span class="line">k=torch.matmul(x,wk)</span><br><span class="line">k1=torch.matmul(x,wk1)</span><br><span class="line">k2=torch.matmul(x,wk2)</span><br><span class="line"></span><br><span class="line">v=torch.matmul(x,wv)</span><br><span class="line">v1=torch.matmul(x,wv1)</span><br><span class="line">v2=torch.matmul(x,wv2)</span><br><span class="line"></span><br><span class="line">soft=nn.Softmax(dim=-<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(torch.matmul(soft(torch.matmul(q1,k1.T)),v1))</span><br><span class="line"><span class="built_in">print</span>(torch.matmul(soft(torch.matmul(q2,k2.T)),v2))</span><br><span class="line"><span class="built_in">print</span>(torch.matmul(soft(torch.matmul(q,k.T)),v))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;**********&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(torch.matmul((torch.matmul(q1,k1.T)),v1))</span><br><span class="line"><span class="built_in">print</span>(torch.matmul((torch.matmul(q2,k2.T)),v2))</span><br><span class="line"><span class="built_in">print</span>(torch.matmul((torch.matmul(q,k.T)),v))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出：</span></span><br><span class="line">tensor([[<span class="number">2.0207</span>],</span><br><span class="line">        [<span class="number">1.9740</span>]])</span><br><span class="line">tensor([[-<span class="number">5.3267</span>],</span><br><span class="line">        [-<span class="number">5.5147</span>]])</span><br><span class="line">tensor([[ <span class="number">2.1874</span>, -<span class="number">5.1253</span>],</span><br><span class="line">        [ <span class="number">2.2269</span>, -<span class="number">5.2313</span>]])</span><br><span class="line">**********</span><br><span class="line">tensor([[-<span class="number">3.9927</span>],</span><br><span class="line">        [-<span class="number">6.4066</span>]])</span><br><span class="line">tensor([[-<span class="number">20.5387</span>],</span><br><span class="line">        [-<span class="number">31.8073</span>]])</span><br><span class="line">tensor([[  <span class="number">4.7729</span>, -<span class="number">11.1790</span>],</span><br><span class="line">        [  <span class="number">7.1683</span>, -<span class="number">16.7890</span>]])</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<ul>
+<li><p><strong>Position-wise Feed-Forward Networks</strong>  ：由两个线性层组成，中间的激活函数用relu，不同位置的输入作用都是一样的（就是位置无关），逐位置，</p>
+<ul>
+<li>$\large FFN(x) &#x3D; \max(0; xW_1 + b_1)W_2 + b_2 $ </li>
+<li>输入输出维度都是512，神经元结点2048；</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5be05ou_6LWr,size_20,color_FFFFFF,t_70,g_se,x_16.png" alt="img" style="zoom:80%;">
+
+<ul>
+<li>Feed Forward Module作用：<ul>
+<li>非线性变换，强化模型的表达能力</li>
+<li>输入映射到高维再映射到低维，模型学习到更加抽象的特征</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>Embeddings and Softmax</strong>  ：在embedding层，权重乘以$\sqrt {d_{model}}$</p>
+</li>
+<li><p><strong>Positional Encoding</strong>  ：序列模型要有序列性（就是要有个顺序），而attention是当前帧和其他所有帧点乘，因此其它帧的相对位置信息，attention是考虑不到的，因此要加上位置编码来表示位置信息；</p>
+<ul>
+<li><p>Positional Encoding和token embedding<strong>相加</strong>，作为encoder和decoder的底部输入。Positional Encoding和embedding具有同样的维度$d_{model}$，因此这两者可以直接相加。</p>
+</li>
+<li><p>$\large PE_{(pos,2i)}&#x3D;sin(pos&#x2F;10000^{2i&#x2F;d_{model}})$</p>
+<p>$\large PE_{(pos,2i+1)}&#x3D;cos(pos&#x2F;10000^{2i&#x2F;d_{model}})$</p>
+<p>其中，i是第i维 $i\in[0,d_{model}&#x2F;2)$；pos表示token在序列中的位置，比如第一个token就是0；</p>
+<p>每一维做的操作不一样（sin或cos）</p>
+<p>比如：第二个token，即PE(1)，有$d_{model}$维，比如是512维，表示为：$PE(1)&#x3D;[sin(1&#x2F;10000^0),cos(1&#x2F;10000^0),sin(1&#x2F;10000^{2&#x2F;512}),cos(1&#x2F;10000^{2&#x2F;512}),…]$</p>
+</li>
+<li><p>出发点是三角函数 $sin(a+b) &#x3D; sin(a)cos(b) + cos(b)sin(a)$， b 是一个固定的 offset 也就是常数了，所以 pos+k 的编码就可以通过 pos 的编码来线性表示了。不同位置就是同一个频率的不同相位。</p>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220518151014315.png" alt="image-20220518151014315" style="zoom:80%;">
+</li>
+<li><p>每一组单位向量会随着 pos 的增大而旋转，但是旋转周期不同，按照论文里面的设置，最小的旋转周期是 2pi，最大的旋转周期是 10000 x 2pi。把 position 表示成多组不同旋转周期的单位向量，能有助于泛化到训练时没有见过的长度；</p>
+</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220518150310638.png" alt="image-20220518150310638" style="zoom:80%;">
+
+<ul>
+<li><p>训练的loss：输出符号与真实标签的cross entropy；训练时decoder输入：真实标签groundtruth；输出是词表vocabulary的大小</p>
+</li>
+<li><p>测试时decoder输入：一开始BEIGIN符号，然后一个输出；<br>把第一个输出作为第二个输入，得到第二个输出；<br>把第二个输出作为第三个输入，得到第三个输出……</p>
+</li>
+<li><p>绝对位置编码中，Q、K、V都要加位置编码</p>
+</li>
+<li><p>复杂度比较：</p>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220517164139955.png" alt="image-20220517164139955" style="zoom:80%;">
+
+<h3 id="抽象"><a href="#抽象" class="headerlink" title="抽象"></a>抽象</h3><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.jiqizhixin.com/articles/2017-06-28-5">https://www.jiqizhixin.com/articles/2017-06-28-5</a></p>
+</blockquote>
+<p>self attention：相比 recurrent 不存在梯度消失问题，这点显然。对比 CNN 更加适合文本，因为能够看到更远距离的信息，这点展开说明——因为文本语义的抽象不同于图像语义的抽象，后者看下一层的局部就行，前者经常需要看很远的地方。比如现在 “苹果” 这个词我要对它做一个抽象，按 “苹果公司” 抽象还是按 “水果” 抽象呢？这个选择可能依赖于几十个 step 之外的词。诚然，CNN 叠高了之后可以看到很远的地方，但是 CNN 本来需要等到很高层的时候才能完成的抽象，self attention 在很底层的时候就可以做到，这无疑是非常巨大的优势。</p>
+<p>RNN是指不同 step 之间要顺序执行从影响速度的 recurrence。而这个 decoder 每一层对不同位置的计算是并行的。当前位置的计算不依赖前面位置的计算结果。 当然这也是因为他使用的是 ground truth 做输入，砍掉相邻两步之间 hidden state 这条连接了。 为了并行， 模型的灵活性受到了限制。不过，在测试阶段 decode 下一个词依赖于上一个输出，所以仍然是 recurrence 的。</p>
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Chorowski, Jan K., et al. “Attention-based models for speech recognition.” <em>Advances in neural information processing systems</em> 28 (2015).&#x3D;&#x3D;citations：2267</p>
+</blockquote>
+<h5 id="解决什么问题-1"><a href="#解决什么问题-1" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
+<li>attention用在语音识别任务里效果不好的问题；机器翻译的注意力机制模型 直接用来做语音识别任务时，会出现只对训练集类似的话才识别得好 的问题、它只适用于track跟踪它所识别的内容在输入序列中的绝对位置absolute localtion；</li>
+</ul>
+<h5 id="用了什么方法-1"><a href="#用了什么方法-1" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
+<li><ol>
+<li>在注意力机制中引入location-awareness；2. 改变注意力机制，防止它过多地注意在单个帧上；</li>
+</ol>
+</li>
+</ul>
+<h5 id="效果如何-1"><a href="#效果如何-1" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
+<li>引入location-awareness，PER从18.7%下降到18%；防止只注意单帧，PER下降到17.6%</li>
+</ul>
+<h5 id="还存在什么问题-1"><a href="#还存在什么问题-1" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><p>- </p>
+<h3 id="论文思路"><a href="#论文思路" class="headerlink" title="论文思路"></a>论文思路</h3><ul>
+<li><p>为什么机器翻译和手写识别的attention不能直接用与语音识别任务：</p>
+<ul>
+<li>机器翻译和语音识别任务的区别：机器翻译的输入长度短（只有几十个词），识别是几千帧，因此很多语音片段是相似的，区分它们是一个挑战；</li>
+<li>手写识别和语音识别任务的区别：笔迹和背景区分明显，“噪声小”，语音识别的背景噪声可能很大，信噪比低，没有清晰的结构；</li>
+<li>因此对识别任务的attention model的要求是：<strong>能够处理长输入和带噪输入</strong>；</li>
+</ul>
+</li>
+<li><p>机器翻译模型直接用于语音识别任务会带来的问题：</p>
+<ul>
+<li>长句子错误率高；</li>
+<li>只适用于跟踪它所识别的内容在输入序列中的绝对位置；因此短句尚可，对于长句不可行；</li>
+</ul>
+</li>
+<li><p>修改注意力机制：</p>
+<ul>
+<li>目的：使之能够注意到：1）前一个step的焦点位置（the location of the focus from the previous step ）、2）输入序列的特征（the features of the input sequence）</li>
+<li>如何实现：在注意力机制的输入中，添加辅助卷积特征；该卷积特征是从对前一个step的attention权重进行卷积而来的；（location awareness）</li>
+</ul>
+</li>
+<li><p>早期的注意力机制公式：</p>
+<ul>
+<li>content-based 注意力机制：$\large \alpha_i&#x3D;Attend(s_{i-1},h)$</li>
+</ul>
+<p>**Attend **操作：对h中的每个元素分别打分并将分数标准化：$\large e_{i,j}&#x3D;Score(s_{i-1},h_j)$、     $\large \alpha_{i,j}&#x3D;exp(e_{i,j})&#x2F;\sum\limits_{j&#x3D;1}^Lexp(e_{i,j})$</p>
+<p>可以看出，在不同位置处的$h_j$如果元素值很相似，score分数会很接近，这就是相似语音片段“similar speech fragments” 问题，该问题可通过encoder用 BiRNN，或编码了h的上下文信息的CNN来缓解；但是h能力有限，因此通过上下文进行消歧的可能性是有限的；</p>
+<p>因此，提出 location-based 注意力机制来缓解没考虑h位置的问题：</p>
+<ul>
+<li>location-based 注意力机制：$\large \alpha_i&#x3D;Attend(s_{i-1},\alpha_{i-1})$</li>
+</ul>
+<p>但是，这样也有问题，没依赖输入h，只依赖s，这样得到的距离信息方差很大；</p>
+<p>因此，提出混合location和content的注意力机制：</p>
+<ul>
+<li>hybrid 注意力机制：$\large \alpha_i&#x3D;Attend(s_{i-1},\alpha_{i-1},h)$</li>
+</ul>
+<p>使用前一个的对齐$\alpha_{i−1}$从h中选择一个短的元素列表（content-based attention ）；</p>
+<p>获得注意力机制权重后，神经网络的走向：</p>
+<p>$\large g_i&#x3D;\sum\limits_{j&#x3D;1}^L\alpha_{i,j}h_j$</p>
+<p>$\large y_i \sim Generate(s_{i-1},g_i)$</p>
+<p>$\large s_i&#x3D;Recurrency(s_{i-1},g_i,y_i)$</p>
+<p>其中，$\alpha_i \in R^L$ 是attention权重，称为alignment；$g_i$ ：glimpse；Recurrency  为GRU或LSTM；</p>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516120833285.png" alt="image-20220516120833285" style="zoom: 67%;">
+
+<ul>
+<li><p>attention-based recurrent sequence generator （ARSG）with Convolutional Features  ：</p>
+<p>content-based注意力机制的 <strong>score</strong> 操作：$\large e_{i,j}&#x3D;Score(s_{i-1},h_j)&#x3D;w^Ttanh(Ws_{i-1}+Vh_j)+b$</p>
+<p>将content-based扩展为location-aware：通过考虑前一个step的alignment $\alpha_{i-1}$：对previous alignment $\alpha_{i-1}$的每个位置 $j$ ，通过与矩阵$F$卷积（$F\in R^{k \times r}$），来提取 $k$ 向量（$\large f_{i,j}\in R^k$）:</p>
+<p>$\large f_i&#x3D;F*\alpha_{i-1}$</p>
+<p>因此hybrid的 <strong>score</strong> 操作为：$\large e_{i,j}&#x3D;Score(s_{i-1},\alpha_{i-1},h)&#x3D;w^Ttanh(Ws_{i-1}+Vh_j+Uf_{i,j})+b$</p>
+</li>
+<li><p>Score Normalization: Sharpening and Smoothing</p>
+<p>score操作完，标准化后得到权重α，但是这个标准化 $\large \alpha_{i,j}&#x3D;exp(e_{i,j})&#x2F;\sum\limits_{j&#x3D;1}^Lexp(e_{i,j})$ 有几个问题：</p>
+<ol>
+<li>$h$ 序列很长时，$g_i$会更容易从无关 $h_j$ 获得信息，就是噪声信息了，（因为score $\alpha_{i,j}$总为正数且和为1），这样对于每一帧 $i$ ，都会更不容易关注到与 $i$ 真正相关的帧信息；</li>
+<li>$h$ 序列很长时，计算复杂度会显得很大，注意力机制每帧都要考虑所有帧，$O(LT)$；</li>
+</ol>
+<p>但是用softmax标准化的好处是会只关注于单个特征向量$h_j$，而不是多个不同 j 的h；</p>
+<p>解决noisy glimpse方法：通过 <strong>Sharpening</strong> 化，锐化，具体实现的方法有：</p>
+<ul>
+<li>方法1：让$\alpha$分布更极端，区分更大；通过引入inverse temperature β &gt; 1</li>
+</ul>
+<p>$\large \alpha_{i,j}&#x3D;exp(\beta e_{i,j})&#x2F;\sum\limits_{j&#x3D;1}^Lexp(\beta e_{i,j})$</p>
+<p>或者keep only the top-k frames according to the scores and re-normalize them ，但是复杂度没下降，还可能会更关注更窄的帧；</p>
+<ul>
+<li>方法2：windows attention机制：只看窗口长度的h：$\large \tilde h&#x3D;(h_{p_i-w,…h_{p_i+w-1}})$ ，复杂度$O(L+T)$；训练和推理阶段都能用；</li>
+</ul>
+<p>Sharpening对长句子有效，但是也会降低短句子性能，这个现象，论文作者认为，假设Sharpening的作用是有助于模型从多个得分最高的帧中进行选择。。。。</p>
+<p>把无界的exp函数换成有界的sigmoid函数：称为 <strong>smoothing</strong> 化：</p>
+<ul>
+<li>Smoothing  :   $\large \alpha_{i,j}&#x3D;\sigma(e_{i,j}&#x2F;\sum\limits_{j&#x3D;1}^L\sigma(e_{i,j}))$</li>
+</ul>
+</li>
+</ul>
+<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><ul>
+<li>建模单元phoneme，61个phone，一个eos token，39？</li>
+<li>Timit数据集，这个数据集都是很短的小于5s，测试时会特地把音频拼接构造长句子，输入特征40维，一阶二阶差分120维，3维能量，共123维；</li>
+<li>不同的参数子集被重复使用的次数不同; 编码器的为T次，注意权重为LT, ARSG的所有其他参数为L次。 这使得导数的尺度变化很大，因此用自适应学习率算法<strong>AdaDelta</strong>优化器（两个超参$\epsilon$和$\rho$）</li>
+<li>初始化为标准差0.01的高斯分布，RNN进一步正交初始化；</li>
+<li>batchsize&#x3D;1！由于TIMIT数据集很小，一开始加正则，后面没加正则；100K参数量；</li>
+<li>encoder：3层 Bi GRU，256结点；encoder输出 h：512维；generator ：单层 GRU，256结点，输出64维？；</li>
+</ul>
+<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><p>不同模型结果：</p>
+<p>baseline其实并不差，并且也能学到对齐信息，</p>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516162335200.png" alt="image-20220516162335200" style="zoom:80%;">
+
+<p>锐化里windows方法对齐效果最好：</p>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516162155924.png" alt="image-20220516162155924" style="zoom: 80%;">
+
+
+
+<p>对于repeat phone：</p>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220516162653073.png" alt="image-20220516162653073" style="zoom:80%;">
+
+
+
+
+
+
+
+<hr>
+<blockquote>
+<p>&#x3D;&#x3D;Prabhavalkar, Rohit, et al. “A Comparison of Sequence-to-Sequence Models for Speech Recognition.” <em>Interspeech</em>. 2017.&#x3D;&#x3D; google citations：268</p>
+</blockquote>
+<h5 id="解决什么问题-2"><a href="#解决什么问题-2" class="headerlink" title="解决什么问题"></a>解决什么问题</h5><ul>
+<li>比较了识别模型的性能，对比了多个端到端模型在识别任务的性能；</li>
+</ul>
+<h5 id="用了什么方法-2"><a href="#用了什么方法-2" class="headerlink" title="用了什么方法"></a>用了什么方法</h5><ul>
+<li>不同模型都以字母建模，CTC、RNN-T、attention based、RNNT with attention的端到端识别模型，不加LM；</li>
+</ul>
+<h5 id="效果如何-2"><a href="#效果如何-2" class="headerlink" title="效果如何"></a>效果如何</h5><ul>
+<li>在口述测试集、数值测试集优于baseline，但在有较多专有名词的问答搜索测试集，会比basline差；</li>
+<li>总的来说只用字母建模，没有用语言模型，这个声学模型的建模能力还是非常牛逼的；</li>
+</ul>
+<h5 id="还存在什么问题-2"><a href="#还存在什么问题-2" class="headerlink" title="还存在什么问题"></a>还存在什么问题</h5><ul>
+<li>端到端模型与LM的结合实验；</li>
+</ul>
+<h3 id="论文思路-1"><a href="#论文思路-1" class="headerlink" title="论文思路"></a>论文思路</h3><ul>
+<li><p>比较CTC、RNN-T、attention based、RNNT with attention的端到端识别模型，（比较时它们都是用grapheme字母建模，没有词典、lm）</p>
+</li>
+<li><p>attention based依赖LM，否则在不同数据集上表现差异很大</p>
+</li>
+<li><p>发现端到端模型可以隐式学习从口语到书面形式的映射（比如说”one hundred dollars” 能输出 “$100”）（以前这种问题更多是用正则做的）</p>
+</li>
+<li><p>端到端模型结构：</p>
+<ul>
+<li>RNNT：可流式识别，但用双向encoder，就不流式了；</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513112532431.png" alt="image-20220513112532431" style="zoom:80%;">
+
+<ul>
+<li>attention-based：比如las、</li>
+</ul>
+</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513112556714.png" alt="image-20220513112556714" style="zoom:80%;">
+
+<ul>
+<li><img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513112646296.png" alt="image-20220513112646296" style="zoom: 80%;">
+   - RNN Transducer with Attention :把RNN-T里的prediction network换成las里的attention decoder；和las相同，要添加sos和eos label，</li>
+</ul>
+<h3 id="实验-1"><a href="#实验-1" class="headerlink" title="实验"></a>实验</h3><ul>
+<li>数据集：12500 h</li>
+<li>数据扩展（即使1w小时了也还要数据扩展）目的是对噪声和混响更robust：生成multicondition training (MTR) data：distorted using a room simulator 、by adding in noise samples extracted from YouTube videos and environmental recordings of daily events 、</li>
+<li>the overall SNR is between 0dB and 30dB, with an average of 12dB  ，信噪比不低于0dB，不高于30dB，平均12dB</li>
+<li>log-mel  特征80维，25ms帧长，10ms帧移，送给模型时下采样3倍，</li>
+<li>标签：26个字母a-z，10个数字0-9，空格，标签符号</li>
+<li>ctc：encoder：5层 blstm，350结点（700结点），用这个训好（收敛了）的encoder权重，作为其他端到端模型的初始权重，这可以加速其他模型的收敛；</li>
+<li>rnnt：encoder和上同，prediction network 单层gru，700结点；joint network 单层前馈网络，700结点，tanh激活函数；解码 beam search 的beam&#x3D;15</li>
+<li>attention-based  ：decoder：一或两层gru，700结点；</li>
+<li>baseline：ctc模型，训好用smbr再训，8192 CD phonemes，解码：pruned, first-pass, 5-gram language model   ，再用更大的5-gramLM进行rescore ；词典 包含百万个词</li>
+<li>RNN-T剪枝是走了t步剪枝（frame-synchronous decoding）；attention剪枝是输出u个符号剪枝（label-synchronous decoding）</li>
+<li>为了防止attention-based模型输出非常短的话语，只有当模型输出一个概率大于阈值的<eos>标签时，才允许终止下一个标签预测过程；</eos></li>
+</ul>
+<h3 id="结果-1"><a href="#结果-1" class="headerlink" title="结果"></a>结果</h3><ul>
+<li>CTC直接解码字母时，不接语言模型会非常差</li>
+<li>这样看来attention-based model效果比RNNT好</li>
+<li>在numeric 测试集（从口语映射到书面领域），attention和rnnt相比于baseline有明显改善，认为 the ability to examine the input acoustics in addition to the previous sequence of predicted tokens is particularly helpful</li>
+<li>在voice-search  测试集，比baseline差，分析是因为没加LM；</li>
+<li>发现端到端模型很难识别专有名词proper nouns  （比如地名、实体名）</li>
+</ul>
+<img src="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/image-20220513143125662.png" alt="image-20220513143125662" style="zoom:80%;">
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" rel="tag"># 语音识别</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="next" title="识别论文笔记（二）语言模型融合">
+                <i class="fa fa-chevron-left"></i> 识别论文笔记（二）语言模型融合
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/" rel="prev" title="识别论文笔记（一）端到端识别方案">
+                识别论文笔记（一）端到端识别方案 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A3%B0%E5%AD%A6%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">声学模型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.0.0.1.</span> <span class="nav-text">解决什么问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%A8%E4%BA%86%E4%BB%80%E4%B9%88%E6%96%B9%E6%B3%95"><span class="nav-number">1.0.0.0.2.</span> <span class="nav-text">用了什么方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%88%E6%9E%9C%E5%A6%82%E4%BD%95"><span class="nav-number">1.0.0.0.3.</span> <span class="nav-text">效果如何</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BF%98%E5%AD%98%E5%9C%A8%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.0.0.4.</span> <span class="nav-text">还存在什么问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.0.1.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%BD%E8%B1%A1"><span class="nav-number">1.0.2.</span> <span class="nav-text">抽象</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98-1"><span class="nav-number">1.0.2.0.1.</span> <span class="nav-text">解决什么问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%A8%E4%BA%86%E4%BB%80%E4%B9%88%E6%96%B9%E6%B3%95-1"><span class="nav-number">1.0.2.0.2.</span> <span class="nav-text">用了什么方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%88%E6%9E%9C%E5%A6%82%E4%BD%95-1"><span class="nav-number">1.0.2.0.3.</span> <span class="nav-text">效果如何</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BF%98%E5%AD%98%E5%9C%A8%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98-1"><span class="nav-number">1.0.2.0.4.</span> <span class="nav-text">还存在什么问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BA%E6%96%87%E6%80%9D%E8%B7%AF"><span class="nav-number">1.0.3.</span> <span class="nav-text">论文思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">1.0.4.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C"><span class="nav-number">1.0.5.</span> <span class="nav-text">结果</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98-2"><span class="nav-number">1.0.5.0.1.</span> <span class="nav-text">解决什么问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%A8%E4%BA%86%E4%BB%80%E4%B9%88%E6%96%B9%E6%B3%95-2"><span class="nav-number">1.0.5.0.2.</span> <span class="nav-text">用了什么方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%88%E6%9E%9C%E5%A6%82%E4%BD%95-2"><span class="nav-number">1.0.5.0.3.</span> <span class="nav-text">效果如何</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BF%98%E5%AD%98%E5%9C%A8%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98-2"><span class="nav-number">1.0.5.0.4.</span> <span class="nav-text">还存在什么问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BA%E6%96%87%E6%80%9D%E8%B7%AF-1"><span class="nav-number">1.0.6.</span> <span class="nav-text">论文思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C-1"><span class="nav-number">1.0.7.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C-1"><span class="nav-number">1.0.8.</span> <span class="nav-text">结果</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2022/01/04/%E8%AF%86%E5%88%AB/%E8%AF%86%E5%88%AB%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/';
+          this.page.identifier = '2022/01/04/识别/识别论文笔记（三）/';
+          this.page.title = '识别论文笔记（三）声学模型';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

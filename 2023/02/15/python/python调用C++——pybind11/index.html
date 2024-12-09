@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="python," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="python调用C++——pybind11 官方：https:&#x2F;&#x2F;pybind11.readthedocs.io&#x2F;en&#x2F;stable&#x2F; ；中文翻译：https:&#x2F;&#x2F;github.com&#x2F;charlotteLive&#x2F;pybind11-Chinese-docs  也是一种python调用c++的方式。 具体做法是 在C++代码里要写上要绑定的C++函数，封装、编译成某个python也能用的.so库，供">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python调用C++——pybind11">
+<meta property="og:url" content="http://example.com/2023/02/15/python/python%E8%B0%83%E7%94%A8C++%E2%80%94%E2%80%94pybind11/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="python调用C++——pybind11 官方：https:&#x2F;&#x2F;pybind11.readthedocs.io&#x2F;en&#x2F;stable&#x2F; ；中文翻译：https:&#x2F;&#x2F;github.com&#x2F;charlotteLive&#x2F;pybind11-Chinese-docs  也是一种python调用c++的方式。 具体做法是 在C++代码里要写上要绑定的C++函数，封装、编译成某个python也能用的.so库，供">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-02-15T03:32:34.359Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/02/15/python/python调用C++——pybind11/"/>
+
+
+
+
+
+  <title>python调用C++——pybind11 | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/02/15/python/python%E8%B0%83%E7%94%A8C++%E2%80%94%E2%80%94pybind11/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">python调用C++——pybind11</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-02-15T00:00:00+08:00">
+                2023-02-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/02/15/python/python%E8%B0%83%E7%94%A8C++%E2%80%94%E2%80%94pybind11/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/02/15/python/python调用C++——pybind11/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="python调用C-——pybind11"><a href="#python调用C-——pybind11" class="headerlink" title="python调用C++——pybind11"></a>python调用C++——pybind11</h1><blockquote>
+<p>官方：<a target="_blank" rel="noopener" href="https://pybind11.readthedocs.io/en/stable/">https://pybind11.readthedocs.io/en/stable/</a> ；中文翻译：<a target="_blank" rel="noopener" href="https://github.com/charlotteLive/pybind11-Chinese-docs">https://github.com/charlotteLive/pybind11-Chinese-docs</a></p>
+</blockquote>
+<p>也是一种python调用c++的方式。</p>
+<p>具体做法是 在C++代码里要写上要绑定的C++函数，封装、编译成某个python也能用的.so库，供给python代码import进这个库。</p>
+<p>编译，可以用cmake。</p>
+<p>例子，看官方文档就可以。</p>
+<h1 id="模型部署入门教程（四）阅读笔记一之Pybind11-保姆级教程"><a href="#模型部署入门教程（四）阅读笔记一之Pybind11-保姆级教程" class="headerlink" title="模型部署入门教程（四）阅读笔记一之Pybind11 保姆级教程"></a>模型部署入门教程（四）阅读笔记一之Pybind11 保姆级教程</h1><blockquote>
+<p>b站：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1L341137NP/?spm_id_from=333.337.search-card.all.click">模型部署入门教程（四）阅读笔记一之Pybind11 保姆级教程</a> </p>
+<p>该视频的例子来自youtube：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=FIoGJCUFV4M&ab_channel=CppMonk">Setting up CMake, Pybind11 and QtCreator [Part 3A, Understand &amp; Code a Kalman Filter]</a></p>
+</blockquote>
+<h4 id="第0步-放第三方库"><a href="#第0步-放第三方库" class="headerlink" title="第0步 放第三方库"></a>第0步 放第三方库</h4><p>新建文件夹，记为<code>thirdparty</code>，里面放第三方库，分别放了 <code>eigen</code> 和 <code>pybind11</code> （分别是到官网<code>https://eigen.tuxfamily.org/index.php?title=Main_Page </code>下载 eigen-3.4.0.zip 解压到该路径，和 <code>git clone https://github.com/pybind/pybind11.git</code>）</p>
+<p>（eigen是一个矩阵代数库）</p>
+<h4 id="第1步-创建-CMakeLists-txt，内容为："><a href="#第1步-创建-CMakeLists-txt，内容为：" class="headerlink" title="第1步 创建 CMakeLists.txt，内容为："></a>第1步 创建 <code>CMakeLists.txt</code>，内容为：</h4><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 项目名称</span></span><br><span class="line">project(kf_code)</span><br><span class="line"><span class="comment"># cmake最低版本</span></span><br><span class="line">cmake_minimum_required (VERSION 3.0)</span><br><span class="line"><span class="comment"># 添加子目录</span></span><br><span class="line">add_subdirectory(thirdparty/pybind11)</span><br><span class="line"><span class="comment"># 添加库</span></span><br><span class="line">include_directories(thirdparty/engen-3.4.0) </span><br><span class="line"><span class="comment"># 编译成动态库，名字叫 kf_cpp，动态库的源文件的 wrappers.cpp</span></span><br><span class="line">pybind11_add_module(kf_cpp wrappers.cpp)</span><br></pre></td></tr></table></figure>
+
+<p>（这里kf来自一个kalman filter项目）</p>
+<h4 id="第2步-创建-wrapper-cpp-文件，内容为："><a href="#第2步-创建-wrapper-cpp-文件，内容为：" class="headerlink" title="第2步 创建 wrapper.cpp 文件，内容为："></a>第2步 创建 <code>wrapper.cpp</code> 文件，内容为：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pybind11/pybind11.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line">using namespace <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">add</span><span class="params">(<span class="type">int</span> i, <span class="type">int</span> j)</span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;start&quot;</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> i + j;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">PYBIND11_MODULE(kf_cpp, m)&#123;</span><br><span class="line">    m.doc() = <span class="string">&quot;pybind11 example plugin&quot;</span>;</span><br><span class="line">    m.def(<span class="string">&quot;add&quot;</span>, &amp;add, <span class="string">&quot;a add funciton&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，这里cpp文件名叫wrapper，编译出的名称叫kf_cpp，不一样，如果一样就省事，如果不一样，则需要cmake编译</p>
+<h4 id="第3步-make，生成-kf-cpp-可执行动态库。"><a href="#第3步-make，生成-kf-cpp-可执行动态库。" class="headerlink" title="第3步 make，生成 kf_cpp 可执行动态库。"></a>第3步 make，生成 <code>kf_cpp</code> 可执行动态库。</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> build</span><br><span class="line"><span class="built_in">cd</span> build</span><br><span class="line">cmake ..</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<p>生成 <code>kf_cpp.cpython-39-x86_64-linux-gnu.so</code></p>
+<ul>
+<li><p>如果修改了 <code>wrapper.cpp</code> 文件，修改后，重新执行 <code>make</code> 一下就好。</p>
+</li>
+<li><p>如果一直cmake不好（比如修改过cmakelist.txt），就把build文件夹删除，重新创建一次。</p>
+</li>
+</ul>
+<h4 id="第4步-python里测试"><a href="#第4步-python里测试" class="headerlink" title="第4步 python里测试"></a>第4步 python里测试</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> kf_cpp</span><br><span class="line"></span><br><span class="line">kf_cpp.add(<span class="number">1</span>,<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#输出 3</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h2 id="Setting-up-CMake-Pybind11-and-QtCreator-Part-3A-Understand-amp-Code-a-Kalman-Filter"><a href="#Setting-up-CMake-Pybind11-and-QtCreator-Part-3A-Understand-amp-Code-a-Kalman-Filter" class="headerlink" title="Setting up CMake, Pybind11 and QtCreator [Part 3A, Understand &amp; Code a Kalman Filter]"></a>Setting up CMake, Pybind11 and QtCreator [Part 3A, Understand &amp; Code a Kalman Filter]</h2><blockquote>
+<p>youtube：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=FIoGJCUFV4M&ab_channel=CppMonk">Setting up CMake, Pybind11 and QtCreator [Part 3A, Understand &amp; Code a Kalman Filter]</a></p>
+<p>youtube：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=74yr6hEV-fQ&ab_channel=CppMonk">Python Wrappers for C++ with Pybind11 [Part 3B, Understand &amp; Code a Kalman Filter]</a></p>
+<p>youtube：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=NFth5v38NHc&ab_channel=CppMonk">Kalman Filter in C++ (and Pybind11) [Part 3C, Understand &amp; Code a Kalman Filter]</a></p>
+<p>全系列为：<a target="_blank" rel="noopener" href="https://www.youtube.com/playlist?list=PLvKAPIGzFEr8n7WRx8RptZmC1rXeTzYtA">https://www.youtube.com/playlist?list=PLvKAPIGzFEr8n7WRx8RptZmC1rXeTzYtA</a></p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/cbecker/kalman_python_cpp">kalman_python_cpp</a></p>
+</blockquote>
+<p>第一个视频和上面的b站视频基本一致。</p>
+<ol>
+<li>set up CMake, Eigen &amp; Pybind11</li>
+<li>C++ Skeleton and integrate w&#x2F;tests</li>
+<li>populate KF code in C++ Skeleton</li>
+</ol>
+<p>第二、三个视频：</p>
+<p>验证python里调用C++执行的结果，和python自己的函数执行的结果是否一致。用了命令行指令 <code>pytest</code> （pytest 自动会测试以 <code>test_</code>开头&#x2F;结尾的文件，测试类以<code>Test</code>开头，并且不能带有 init 方法，测试函数以<code>test_</code>开头）</p>
+<p>用一个wrapper.cpp作为绑定到python的中间人，里面写进其它cpp&#x2F;h的类、函数，通过这个cpp来建立python和其它cpp&#x2F;h之间的绑定：</p>
+<p>wrapper.cpp</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kf.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">PYBIND11_MODULE</span>(kf_cpp, m)</span><br><span class="line">&#123;</span><br><span class="line">    m.<span class="built_in">doc</span>() = <span class="string">&quot;C++ KF implementation wrappers&quot;</span>;  <span class="comment">// optional module docstring</span></span><br><span class="line"></span><br><span class="line">    m.<span class="built_in">def</span>(<span class="string">&quot;add&quot;</span>, &amp;add, <span class="string">&quot;A function which adds two numbers&quot;</span>);</span><br><span class="line"></span><br><span class="line">    pybind11::<span class="built_in">class_</span>&lt;KF&gt;(m, <span class="string">&quot;KF&quot;</span>)</span><br><span class="line">        .<span class="built_in">def</span>(pybind11::<span class="built_in">init</span>&lt;<span class="type">double</span>, <span class="type">double</span>, <span class="type">double</span>&gt;())</span><br><span class="line">        .<span class="built_in">def</span>(<span class="string">&quot;predict&quot;</span>, &amp;KF::predict)</span><br><span class="line">        .<span class="built_in">def</span>(<span class="string">&quot;update&quot;</span>, &amp;KF::update)</span><br><span class="line">        .<span class="built_in">def_property_readonly</span>(<span class="string">&quot;cov&quot;</span>, &amp;KF::cov)</span><br><span class="line">        .<span class="built_in">def_property_readonly</span>(<span class="string">&quot;mean&quot;</span>, &amp;KF::mean)</span><br><span class="line">        .<span class="built_in">def_property_readonly</span>(<span class="string">&quot;pos&quot;</span>, &amp;KF::pos)</span><br><span class="line">        .<span class="built_in">def_property_readonly</span>(<span class="string">&quot;vel&quot;</span>, &amp;KF::vel);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中，类KF来自 <code>kf.h  </code> 。</p>
+<p>这里参考的是pybind11官方教程里的写法：</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://pybind11.readthedocs.io/en/stable/classes.html">https://pybind11.readthedocs.io/en/stable/classes.html</a></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">py::<span class="built_in">class_</span>&lt;Pet&gt;(m, <span class="string">&quot;Pet&quot;</span>)</span><br><span class="line">    .<span class="built_in">def</span>(py::<span class="built_in">init</span>&lt;<span class="type">const</span> std::string &amp;&gt;())</span><br><span class="line">    .<span class="built_in">def</span>(<span class="string">&quot;setName&quot;</span>, &amp;Pet::setName)</span><br><span class="line">    .<span class="built_in">def</span>(<span class="string">&quot;getName&quot;</span>, &amp;Pet::getName)</span><br><span class="line">    .<span class="built_in">def</span>(<span class="string">&quot;__repr__&quot;</span>,</span><br><span class="line">        [](<span class="type">const</span> Pet &amp;a) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;&lt;example.Pet named &#x27;&quot;</span> + a.name + <span class="string">&quot;&#x27;&gt;&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    );</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h1 id="Python-Bindings-Calling-C-or-C-From-Python"><a href="#Python-Bindings-Calling-C-or-C-From-Python" class="headerlink" title="Python Bindings: Calling C or C++ From Python"></a>Python Bindings: Calling C or C++ From Python</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://realpython.com/python-bindings-overview/">https://realpython.com/python-bindings-overview/</a> </p>
+<p>翻译：<a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/281506">Python 绑定:从 Python 调用 C 或 C++ |【生长吧！Python!】</a></p>
+</blockquote>
+<p>Python 绑定:从 Python 调用 C 或 C++。</p>
+<p>这篇没看很懂，有点乱。</p>
+<h4 id="编写绑定"><a href="#编写绑定" class="headerlink" title="编写绑定"></a>编写绑定</h4><p>在C++代码中，创建一些代码来告诉该工具如何构建您的 Python 绑定：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// pybind11_wrapper.cpp</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pybind11/pybind11.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;cppmult.hpp&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">PYBIND11_MODULE</span>(pybind11_example, m) &#123;</span><br><span class="line">    m.<span class="built_in">doc</span>() = <span class="string">&quot;pybind11 example plugin&quot;</span>; <span class="comment">// Optional module docstring</span></span><br><span class="line">    m.<span class="built_in">def</span>(<span class="string">&quot;cpp_function&quot;</span>, &amp;add, <span class="string">&quot;A function that multiplies two numbers&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意这里，一般 <code>PYBIND11_MODULE</code> 的第一个参数 模块名，和这个cpp文件的名称相同最好？？，就不需要自己写一个init了。</p>
+<p>（上面这个代码例子，第一个参数模块名是<code>pybind11_example</code>，但是cpp文件名称是<code>pybind11_wrapper</code>）</p>
+<p>让我们一次一个地看，因为<code>PyBind11</code>将大量信息打包成几行。</p>
+<p>前两行包括<code>pybind11.h</code> C++ 库的文件和头文件<code>cppmult.hpp</code> 之后，你就有了<code>PYBIND11_MODULE</code>宏。这将扩展为<code>PyBind11</code>源代码中详细描述的 C++ 代码块：</p>
+<blockquote>
+<p>此宏创建入口点，当 Python 解释器导入扩展模块时将调用该入口点。模块名称作为第一个参数给出，不应用引号引起来。第二个宏参数定义了一个<code>py::module</code>可用于初始化模块的类型变量。（<a target="_blank" rel="noopener" href="https://github.com/pybind/pybind11/blob/1376eb0e518ff2b7b412c84a907dd1cd3f7f2dcd/include/pybind11/detail/common.h#L267">来源</a>）</p>
+</blockquote>
+<p>在本例中，您正在&#x3D;&#x3D;创建一个名为<code>pybind11_example</code>的模块，其余代码将<code>m</code>用作<code>py::module</code>对象的名称&#x3D;&#x3D;。在下一行，在您定义的 C++ 函数中，您为模块创建一个文档字符串。虽然这是可选的，但让您的模块更加Pythonic是一个不错的选择。</p>
+<p>你有<code>m.def()</code>call。这将定义一个由您的新 Python 绑定导出的函数，这意味着它将在 Python 中可见。在此示例中，您将传递三个参数：</p>
+<ul>
+<li>**<code>cpp_function</code>**是您将在 Python 中使用的函数的导出名称。如本例所示，它不需要匹配 C++ 函数的名称。（后面python调用函数，用的这个名称）</li>
+<li><strong><code>&amp;add</code></strong> 获取要导出的函数的地址。（C++函数名的地址）（这里是<code>cppmult.hpp</code>里定义的一个函数<code>add</code>）</li>
+<li><strong><code>&quot;A function...&quot;</code></strong> 是函数的可选文档字符串。</li>
+</ul>
+<p>现在您已经有了 Python 绑定的代码，接下来看看如何将其构建到 Python 模块中。</p>
+<p>这里<code>cppmult.hpp</code>是：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> CPPMULT_HPP</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CPPMULT_HPP</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">()</span></span>;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> </span></span><br></pre></td></tr></table></figure>
+
+<p>这里<code>cppmult.cpp</code>是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;cppmult.hpp&quot;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="构建-Python-绑定"><a href="#构建-Python-绑定" class="headerlink" title="构建 Python 绑定"></a>构建 Python 绑定</h4><p>用于构建 Python 绑定的工具<code>PyBind11</code>是 C++ 编译器本身。您可能需要修改编译器和操作系统的默认值。</p>
+<p>首先，您必须构建要为其创建绑定的 C++ 库。对于这么小的示例，您可以将<code>cppmult</code>库直接构建到 Python 绑定库中。但是，对于大多数实际示例，您将有一个要包装的预先存在的库，因此您将<code>cppmult</code>单独构建该库。构建是对编译器的标准调用以构建共享库：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># tasks.py</span></span><br><span class="line"><span class="keyword">import</span> invoke</span><br><span class="line">invoke.run(</span><br><span class="line">    <span class="string">&quot;g++ -O3 -Wall -Werror -shared -std=c++11 -fPIC cppmult.cpp &quot;</span></span><br><span class="line">    <span class="string">&quot;-o libcppmult.so &quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>运行这个<code>invoke build-cppmult</code>产生<code>libcppmult.so</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ invoke build-cppmult</span><br><span class="line">==================================================</span><br><span class="line">= Building C++ Library</span><br><span class="line">* Complete</span><br></pre></td></tr></table></figure>
+
+<p>另一方面，Python 绑定的构建需要一些特殊的细节：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># tasks.py</span></span><br><span class="line">invoke.run(</span><br><span class="line">    <span class="string">&quot;g++ -O3 -Wall -Werror -shared -std=c++11 -fPIC &quot;</span></span><br><span class="line">    <span class="string">&quot;`python3 -m pybind11 --includes` &quot;</span></span><br><span class="line">    <span class="string">&quot;-I /usr/include/python3.7 -I .  &quot;</span></span><br><span class="line">    <span class="string">&quot;&#123;0&#125; &quot;</span></span><br><span class="line">    <span class="string">&quot;-o &#123;1&#125;`python3-config --extension-suffix` &quot;</span></span><br><span class="line">    <span class="string">&quot;-L. -lcppmult -Wl,-rpath,.&quot;</span>.<span class="built_in">format</span>(cpp_name, extension_name)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>让我们逐行浏览一下。<strong>第 3 行</strong>包含相当标准的 C++ 编译器标志，指示几个细节，包括您希望捕获所有警告并将其视为错误、您需要共享库以及您使用的是 C++11。</p>
+<p><strong>第 4 行</strong>是魔法的第一步。它调用<code>pybind11</code>模块使其<code>include</code>为<code>PyBind11</code>. 您可以直接在控制台上运行此命令以查看它的作用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ python3 -m pybind11 --includes</span><br><span class="line">-I/mnt/k/anaconda3/include/python3<span class="number">.9</span> -I/mnt/k/anaconda3/lib/python3<span class="number">.9</span>/site-packages/pybind11/include</span><br></pre></td></tr></table></figure>
+
+<p>您的输出应该相似但显示不同的路径。</p>
+<p>在编译调用的<strong>第 5 行</strong>，您可以看到您还添加了 Python dev 的路径<code>includes</code>。虽然建议您<em>不要</em>链接 Python 库本身，但源代码需要一些代码<code>Python.h</code>才能发挥其魔力。幸运的是，它使用的代码在 Python 版本中相当稳定。</p>
+<p>第 5 行还用于<code>-I .</code>将当前目录添加到<code>include</code>路径列表中。这允许<code>#include &lt;cppmult.hpp&gt;</code>解析包装器代码中的行。</p>
+<p><strong>第 6 行</strong>指定源文件的名称，即<code>pybind11_wrapper.cpp</code>. 然后，在<strong>第 7 行，</strong>您会看到更多的构建魔法正在发生。此行指定输出文件的名称。Python 在模块命名上有一些特别的想法，包括 Python 版本、机器架构和其他细节。Python 还提供了一个工具来帮助解决这个问题<code>python3-config</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ python3-config --extension-suffix</span><br><span class="line">.cpython-<span class="number">39</span>-x86_64-linux-gnu.so</span><br></pre></td></tr></table></figure>
+
+<p>如果您使用的是不同版本的 Python，则可能需要修改该命令。如果您使用不同版本的 Python 或在不同的操作系统上，您的结果可能会发生变化。</p>
+<p>构建命令的最后一行，<strong>第 8 行</strong>，将链接器指向<code>libcppmult</code>您之前构建的库。该<code>rpath</code>部分告诉链接器向共享库添加信息以帮助操作系统<code>libcppmult</code>在运行时查找。最后，您会注意到此字符串的格式为<code>cpp_name</code>和<code>extension_name</code>。<code>Cython</code>在下一节中构建 Python 绑定模块时，您将再次使用此函数。</p>
+<p>运行此命令以构建绑定：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ invoke build-pybind11</span><br><span class="line">==================================================</span><br><span class="line">= Building C++ Library</span><br><span class="line">* Complete</span><br><span class="line">==================================================</span><br><span class="line">= Building PyBind11 Module</span><br><span class="line">* Complete</span><br></pre></td></tr></table></figure>
+
+<p>就是这样！您已经使用<code>PyBind11</code>. 是时候测试一下了！</p>
+<h4 id="调用你的函数"><a href="#调用你的函数" class="headerlink" title="调用你的函数"></a>调用你的函数</h4><p>与<code>CFFI</code>上面的示例类似，一旦您完成了创建 Python 绑定的繁重工作，调用您的函数看起来就像普通的 Python 代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pybind11_test.py</span></span><br><span class="line"><span class="keyword">import</span> pybind11_example</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># Sample data for your call</span></span><br><span class="line">    x, y = <span class="number">6</span>, <span class="number">2.3</span></span><br><span class="line"></span><br><span class="line">    answer = pybind11_example.cpp_function(x, y)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;    In Python: int: <span class="subst">&#123;x&#125;</span> float <span class="subst">&#123;y:<span class="number">.1</span>f&#125;</span> return val <span class="subst">&#123;answer:<span class="number">.1</span>f&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>由于您<code>pybind11_example</code>在<code>PYBIND11_MODULE</code>宏中用作模块的名称，因此这就是您导入的名称。在<code>m.def()</code>您告诉<code>PyBind11</code>将<code>cppmult</code>函数导出为 的调用中<code>cpp_function</code>，这就是您用来从 Python 调用它的方法。</p>
+<p>你也可以测试它<code>invoke</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ invoke test-pybind11</span><br><span class="line">==================================================</span><br><span class="line">= Testing PyBind11 Module</span><br><span class="line">    In cppmul: int: 6 <span class="built_in">float</span> 2.3 returning  13.8</span><br><span class="line">    In Python: int: 6 <span class="built_in">float</span> 2.3 <span class="built_in">return</span> val 13.8</span><br></pre></td></tr></table></figure>
+
+<p>这就是<code>PyBind11</code>看起来的样子。接下来，您将了解何时以及为何<code>PyBind11</code>是适合该工作的工具。</p>
+<h3 id="长处和短处"><a href="#长处和短处" class="headerlink" title="长处和短处"></a>长处和短处</h3><p><code>PyBind11</code>专注于 C++ 而不是 C，这使得它不同于<code>ctypes</code>和<code>CFFI</code>。它有几个特性使其对 C++ 库非常有吸引力：</p>
+<ul>
+<li>它支持<strong>类</strong>。</li>
+<li>它处理<strong>多态子类化</strong>。</li>
+<li>它允许您从 Python 和许多其他工具向对象添加<strong>动态属性</strong>，而使用您检查过的基于 C 的工具很难做到这一点。</li>
+</ul>
+<p>话虽如此，您需要进行大量设置和配置才能<code>PyBind11</code>启动和运行。正确安装和构建可能有点挑剔，但一旦完成，它似乎相当可靠。此外，<code>PyBind11</code>要求您至少使用 C++11 或更高版本。对于大多数项目来说，这不太可能是一个很大的限制，但它可能是您的一个考虑因素。</p>
+<p>最后，创建 Python 绑定需要编写的额外代码是用 C++ 编写的，而不是用 Python 编写的。这可能是也可能不是你的问题，但它<em>是</em>比你在这里看到的其他工具不同。在下一节中，您将继续讨论<code>Cython</code>，它采用完全不同的方法来解决这个问题。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/02/13/python/python%E8%B0%83%E7%94%A8C++%E2%80%94%E2%80%94ctypes/" rel="next" title="python调用C++——ctypes">
+                <i class="fa fa-chevron-left"></i> python调用C++——ctypes
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/02/15/python/%E8%81%94%E5%90%88%E8%B0%83%E8%AF%95pythonC++/" rel="prev" title="联合调试python/C++">
+                联合调试python/C++ <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#python%E8%B0%83%E7%94%A8C-%E2%80%94%E2%80%94pybind11"><span class="nav-number">1.</span> <span class="nav-text">python调用C++——pybind11</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B%EF%BC%88%E5%9B%9B%EF%BC%89%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0%E4%B8%80%E4%B9%8BPybind11-%E4%BF%9D%E5%A7%86%E7%BA%A7%E6%95%99%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">模型部署入门教程（四）阅读笔记一之Pybind11 保姆级教程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC0%E6%AD%A5-%E6%94%BE%E7%AC%AC%E4%B8%89%E6%96%B9%E5%BA%93"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">第0步 放第三方库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC1%E6%AD%A5-%E5%88%9B%E5%BB%BA-CMakeLists-txt%EF%BC%8C%E5%86%85%E5%AE%B9%E4%B8%BA%EF%BC%9A"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">第1步 创建 CMakeLists.txt，内容为：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC2%E6%AD%A5-%E5%88%9B%E5%BB%BA-wrapper-cpp-%E6%96%87%E4%BB%B6%EF%BC%8C%E5%86%85%E5%AE%B9%E4%B8%BA%EF%BC%9A"><span class="nav-number">2.0.0.3.</span> <span class="nav-text">第2步 创建 wrapper.cpp 文件，内容为：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC3%E6%AD%A5-make%EF%BC%8C%E7%94%9F%E6%88%90-kf-cpp-%E5%8F%AF%E6%89%A7%E8%A1%8C%E5%8A%A8%E6%80%81%E5%BA%93%E3%80%82"><span class="nav-number">2.0.0.4.</span> <span class="nav-text">第3步 make，生成 kf_cpp 可执行动态库。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC4%E6%AD%A5-python%E9%87%8C%E6%B5%8B%E8%AF%95"><span class="nav-number">2.0.0.5.</span> <span class="nav-text">第4步 python里测试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Setting-up-CMake-Pybind11-and-QtCreator-Part-3A-Understand-amp-Code-a-Kalman-Filter"><span class="nav-number">2.1.</span> <span class="nav-text">Setting up CMake, Pybind11 and QtCreator [Part 3A, Understand &amp; Code a Kalman Filter]</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Python-Bindings-Calling-C-or-C-From-Python"><span class="nav-number">3.</span> <span class="nav-text">Python Bindings: Calling C or C++ From Python</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E5%86%99%E7%BB%91%E5%AE%9A"><span class="nav-number">3.0.0.1.</span> <span class="nav-text">编写绑定</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA-Python-%E7%BB%91%E5%AE%9A"><span class="nav-number">3.0.0.2.</span> <span class="nav-text">构建 Python 绑定</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E4%BD%A0%E7%9A%84%E5%87%BD%E6%95%B0"><span class="nav-number">3.0.0.3.</span> <span class="nav-text">调用你的函数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%95%BF%E5%A4%84%E5%92%8C%E7%9F%AD%E5%A4%84"><span class="nav-number">3.0.1.</span> <span class="nav-text">长处和短处</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/02/15/python/python%E8%B0%83%E7%94%A8C++%E2%80%94%E2%80%94pybind11/';
+          this.page.identifier = '2023/02/15/python/python调用C++——pybind11/';
+          this.page.title = 'python调用C++——pybind11';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

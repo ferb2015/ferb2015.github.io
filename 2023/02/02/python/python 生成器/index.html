@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="python," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="python 生成器 Generators How to Use Generators and yield in Python  生成器适合在以下场景中使用：  处理过大到超出机器内存的数据集 有一个复杂的函数，每次调用它时都需要维护一个内部状态，但该函数太小而无法证明创建自己的类是合理的  生成器的特点是不将其内容存储在内存中。生成一个 generator 看起来像函数调用，但不会执行任何函数代">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python 生成器 generators">
+<meta property="og:url" content="http://example.com/2023/02/02/python/python%20%E7%94%9F%E6%88%90%E5%99%A8/index.html">
+<meta property="og:site_name" content="yelong的博客">
+<meta property="og:description" content="python 生成器 Generators How to Use Generators and yield in Python  生成器适合在以下场景中使用：  处理过大到超出机器内存的数据集 有一个复杂的函数，每次调用它时都需要维护一个内部状态，但该函数太小而无法证明创建自己的类是合理的  生成器的特点是不将其内容存储在内存中。生成一个 generator 看起来像函数调用，但不会执行任何函数代">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-02-03T08:53:01.745Z">
+<meta property="article:author" content="Long Ye">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2023/02/02/python/python 生成器/"/>
+
+
+
+
+
+  <title>python 生成器 generators | yelong的博客</title>
+  
+
+
+
+
+
+
+
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yelong的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/02/02/python/python%20%E7%94%9F%E6%88%90%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yelong的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">python 生成器 generators</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-02-02T00:00:00+08:00">
+                2023-02-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/02/02/python/python%20%E7%94%9F%E6%88%90%E5%99%A8/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/02/02/python/python 生成器/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>  阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="python-生成器-Generators"><a href="#python-生成器-Generators" class="headerlink" title="python 生成器 Generators"></a>python 生成器 Generators</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://realpython.com/introduction-to-python-generators/">How to Use Generators and yield in Python</a></p>
+</blockquote>
+<p>生成器适合在以下场景中使用：</p>
+<ol>
+<li>处理过大到超出机器内存的数据集</li>
+<li>有一个复杂的函数，每次调用它时都需要维护一个内部状态，但该函数太小而无法证明创建自己的类是合理的</li>
+</ol>
+<p>生成器的特点是不将其内容存储在内存中。生成一个 generator 看起来像函数调用，但不会执行任何函数代码，直到对其调用 next()（在 for 循环中会自动调用 next()）才开始执行。</p>
+<h3 id="读取大文件"><a href="#读取大文件" class="headerlink" title="读取大文件"></a>读取大文件</h3><p>统计文件的行数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 第一种方法，一次读入</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">csv_reader_1</span>(<span class="params">file_name</span>):</span><br><span class="line">    file = <span class="built_in">open</span>(file_name)</span><br><span class="line">    result = file.read().split(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第二种方法</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">csv_reader_2</span>(<span class="params">file_name</span>):</span><br><span class="line">    <span class="keyword">for</span> row <span class="keyword">in</span> <span class="built_in">open</span>(file_name, <span class="string">&quot;r&quot;</span>):</span><br><span class="line">        <span class="keyword">yield</span> row</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">csv_gen = csv_reader_1(<span class="string">&quot;some_csv.txt&quot;</span>)</span><br><span class="line"><span class="comment"># csv_gen = csv_reader_2(&quot;some_csv.txt&quot;)</span></span><br><span class="line">row_count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> row <span class="keyword">in</span> csv_gen:</span><br><span class="line">    row_count += <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Row count is <span class="subst">&#123;row_count&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>第一种方法中，<code>file.read().split()</code>一次将所有内容加载到内存中，导致<code>MemoryError</code>.</p>
+<p>第二种方法，用了yield。执行顺序是，<code>csv_gen = csv_reader_2(&quot;some_csv.txt&quot;)</code>时，并未跳入<code>csv_reader_2</code>函数！！注意这里还没跳入函数，因为这个函数里面有yield，只是把这个函数赋给一个对象，然后直到<code>for row in csv_gen</code>（等价于<code>next()</code>），才跳入<code>csv_reader_2</code>函数内部，然后执行到yield这条，就返回，然后再遇到<code>for row in csv_gen:</code>，再跳入yield位置的下一条开始执行。</p>
+<h3 id="生成无限序列"><a href="#生成无限序列" class="headerlink" title="生成无限序列"></a>生成无限序列</h3><p>获得有限序列：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="built_in">range</span>(<span class="number">5</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">list</span>(a)</span><br><span class="line">[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br></pre></td></tr></table></figure>
+
+
+
+<p>然而，生成<strong>无限序列</strong>需要使用生成器，因为您的计算机内存是有限的</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">infinite_sequence</span>():</span><br><span class="line">    num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">yield</span> num</span><br><span class="line">        num += <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>除了使用<code>for</code>循环，您还可以<code>next()</code>直接调用生成器对象。这对于在控制台中测试生成器特别有用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen = infinite_sequence()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="number">0</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">next</span>(gen)</span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<p>在这里，您有一个名为 的生成器<code>gen</code>，您可以通过重复调用 来手动迭代它<code>next()</code>。</p>
+<p><strong>注意：</strong>当您使用 时<code>next()</code>，Python 会调用<code>.__next__()</code>您作为参数传入的函数。此参数化允许产生一些特殊效果，但这超出了本文的范围。尝试更改传递给的参数<code>next()</code>，看看会发生什么！</p>
+<h3 id="示例-3：检测回文"><a href="#示例-3：检测回文" class="headerlink" title="示例 3：检测回文"></a>示例 3：检测回文</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">is_palindrome</span>(<span class="params">num</span>):</span><br><span class="line">    <span class="comment"># Skip single-digit inputs</span></span><br><span class="line">    <span class="keyword">if</span> num // <span class="number">10</span> == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    temp = num</span><br><span class="line">    reversed_num = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> temp != <span class="number">0</span>:</span><br><span class="line">        reversed_num = (reversed_num * <span class="number">10</span>) + (temp % <span class="number">10</span>)</span><br><span class="line">        temp = temp // <span class="number">10</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> num == reversed_num:</span><br><span class="line">        <span class="keyword">return</span> num</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+
+<p>该函数接受一个输入数字，将其反转，并检查反转后的数字是否与原始数字相同。现在您可以使用无限序列生成器来获取所有数字回文的运行列表：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> i <span class="keyword">in</span> infinite_sequence():</span><br><span class="line"><span class="meta">... </span>    pal = is_palindrome(i)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">if</span> pal:</span><br><span class="line"><span class="meta">... </span>        <span class="built_in">print</span>(i)</span><br><span class="line">...</span><br><span class="line"><span class="number">11</span></span><br><span class="line"><span class="number">22</span></span><br><span class="line"><span class="number">33</span></span><br><span class="line">[...]</span><br><span class="line"><span class="number">99799</span></span><br><span class="line"><span class="number">99899</span></span><br><span class="line"><span class="number">99999</span></span><br><span class="line"><span class="number">100001</span></span><br><span class="line"><span class="number">101101</span></span><br><span class="line"><span class="number">102201</span></span><br><span class="line">KeyboardInterrupt</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">2</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">5</span>, <span class="keyword">in</span> is_palindrome</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="了解生成器"><a href="#了解生成器" class="headerlink" title="了解生成器"></a>了解生成器</h2><p>生成器函数的外观和行为就像常规函数一样，但具有一个定义特征。生成器函数使用 Python<a target="_blank" rel="noopener" href="https://realpython.com/python-keywords/#returning-keywords-return-yield"><code>yield</code>关键字</a>而不是<code>return</code>. 回想一下您之前编写的生成器函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">infinite_sequence</span>():</span><br><span class="line">    num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">yield</span> num</span><br><span class="line">        num += <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>这看起来像一个典型的<a target="_blank" rel="noopener" href="https://realpython.com/defining-your-own-python-function/">函数定义</a>，除了 Python yield 语句和它后面的代码。<code>yield</code>指示将值发送回调用方的位置，但与 不同的是<code>return</code>，之后您不会退出该函数。</p>
+<p>相反，函数的<strong>状态</strong>会被记住。这样，当在生成器对象上调用（在循环<code>next()</code>中显式或隐式）时，先前生成的变量会递增，然后再次生成。由于生成器函数看起来像其他函数并且与它们的行为非常相似，因此您可以假设生成器表达式与 Python 中可用的其他理解非常相似。</p>
+<h3 id="使用生成器表达式构建生成器"><a href="#使用生成器表达式构建生成器" class="headerlink" title="使用生成器表达式构建生成器"></a>使用生成器表达式构建生成器</h3><p>与列表推导式一样，生成器表达式允许您仅用几行代码即可快速创建生成器对象。它们在使用列表理解的相同情况下也很有用，还有一个额外的好处：您可以创建它们而无需在迭代之前构建并将整个对象保存在内存中。换句话说，当你使用生成器表达式时，你不会有内存损失。以对一些数字进行平方为例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_lc = [num**<span class="number">2</span> <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>)]	<span class="comment"># list 列表</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_gc = (num**<span class="number">2</span> <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>))	<span class="comment"># 生成器</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>执行时：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_lc</span><br><span class="line">[<span class="number">0</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">9</span>, <span class="number">16</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_gc</span><br><span class="line">&lt;generator <span class="built_in">object</span> &lt;genexpr&gt; at <span class="number">0x107fbbc78</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<p>第一个对象使用括号构建列表，而第二个对象使用括号创建生成器表达式。输出确认您已经创建了一个生成器对象并且它不同于列表。</p>
+<p>比较列表和生成器各自生成对象的大小：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> sys</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_lc = [i ** <span class="number">2</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10000</span>)]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>sys.getsizeof(nums_squared_lc)</span><br><span class="line"><span class="number">87624</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nums_squared_gc = (i ** <span class="number">2</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10000</span>))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(sys.getsizeof(nums_squared_gc))</span><br><span class="line"><span class="number">120</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看出，<strong>生成器对象比列表对象小</strong>。</p>
+<p>比较列表和生成器各自求值的速度快慢：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> cProfile</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>cProfile.run(<span class="string">&#x27;sum([i * 2 for i in range(10000)])&#x27;</span>)</span><br><span class="line">         <span class="number">5</span> function calls <span class="keyword">in</span> <span class="number">0.001</span> seconds</span><br><span class="line"></span><br><span class="line">   Ordered by: standard name</span><br><span class="line"></span><br><span class="line">   ncalls  tottime  percall  cumtime  percall filename:lineno(function)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.001</span>    <span class="number">0.001</span>    <span class="number">0.001</span>    <span class="number">0.001</span> &lt;string&gt;:<span class="number">1</span>(&lt;listcomp&gt;)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.001</span> &lt;string&gt;:<span class="number">1</span>(&lt;module&gt;)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.001</span>    <span class="number">0.001</span> &#123;built-<span class="keyword">in</span> method builtins.<span class="built_in">exec</span>&#125;</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span> &#123;built-<span class="keyword">in</span> method builtins.<span class="built_in">sum</span>&#125;</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span> &#123;method <span class="string">&#x27;disable&#x27;</span> of <span class="string">&#x27;_lsprof.Profiler&#x27;</span> objects&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>cProfile.run(<span class="string">&#x27;sum((i * 2 for i in range(10000)))&#x27;</span>)</span><br><span class="line">         <span class="number">10005</span> function calls <span class="keyword">in</span> <span class="number">0.003</span> seconds</span><br><span class="line"></span><br><span class="line">   Ordered by: standard name</span><br><span class="line"></span><br><span class="line">   ncalls  tottime  percall  cumtime  percall filename:lineno(function)</span><br><span class="line">    <span class="number">10001</span>    <span class="number">0.002</span>    <span class="number">0.000</span>    <span class="number">0.002</span>    <span class="number">0.000</span> &lt;string&gt;:<span class="number">1</span>(&lt;genexpr&gt;)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.003</span>    <span class="number">0.003</span> &lt;string&gt;:<span class="number">1</span>(&lt;module&gt;)</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.003</span>    <span class="number">0.003</span> &#123;built-<span class="keyword">in</span> method builtins.<span class="built_in">exec</span>&#125;</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.001</span>    <span class="number">0.001</span>    <span class="number">0.003</span>    <span class="number">0.003</span> &#123;built-<span class="keyword">in</span> method builtins.<span class="built_in">sum</span>&#125;</span><br><span class="line">        <span class="number">1</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span>    <span class="number">0.000</span> &#123;method <span class="string">&#x27;disable&#x27;</span> of <span class="string">&#x27;_lsprof.Profiler&#x27;</span> objects&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看出，<strong>列表求值比生成器求值快</strong>。</p>
+<h1 id="yield"><a href="#yield" class="headerlink" title="yield"></a>yield</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://realpython.com/introduction-to-python-generators/">How to Use Generators and yield in Python</a></p>
+<p>runoob <a target="_blank" rel="noopener" href="https://www.runoob.com/w3cnote/python-yield-used-analysis.html">Python yield 使用浅析</a></p>
+</blockquote>
+<p>调用生成器函数或使用生成器表达式时，会返回一个称为生成器的特殊迭代器。可以将此生成器分配给一个变量以便使用它。当在生成器上调用特殊方法时，例如<code>next()</code>，函数内的代码将执行到<code>yield</code>。</p>
+<p>当命中 Python yield 语句时，程序暂停函数执行并将产生的值返回给调用者。（相反，<code>return</code>完全停止函数执行。）当一个函数被挂起时，该函数的状态被保存。这包括生成器本地的任何变量绑定、指令指针、内部堆栈和任何异常处理。</p>
+<p>这允许在调用生成器的方法之一时恢复函数执行。这样，所有函数评估都会在 之后立即恢复<code>yield</code>。可以通过使用多个 Python yield 语句来查看实际效果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">def</span> <span class="title function_">multi_yield</span>():</span><br><span class="line"><span class="meta">... </span>    yield_str = <span class="string">&quot;This will print the first string&quot;</span></span><br><span class="line"><span class="meta">... </span>    <span class="keyword">yield</span> yield_str</span><br><span class="line"><span class="meta">... </span>    yield_str = <span class="string">&quot;This will print the second string&quot;</span></span><br><span class="line"><span class="meta">... </span>    <span class="keyword">yield</span> yield_str</span><br><span class="line">...</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>multi_obj = multi_yield()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(<span class="built_in">next</span>(multi_obj))</span><br><span class="line">This will <span class="built_in">print</span> the first string</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(<span class="built_in">next</span>(multi_obj))</span><br><span class="line">This will <span class="built_in">print</span> the second string</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(<span class="built_in">next</span>(multi_obj))</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;&lt;stdin&gt;&quot;</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">StopIteration</span><br></pre></td></tr></table></figure>
+
+<p>仔细看看最后一次调用<code>next()</code>. 您可以看到执行已因<a target="_blank" rel="noopener" href="https://realpython.com/python-traceback/">回溯</a>而爆炸。这是因为生成器和所有迭代器一样，可能会被耗尽。除非你的生成器是无限的，否则你只能迭代一次。一旦所有值都被评估，迭代将停止并且<code>for</code>循环将退出。如果您使用<code>next()</code>，那么您将得到一个显式<code>StopIteration</code>异常。</p>
+<p><strong>注意：</strong> <code>StopIteration</code>是一个自然异常，它被引发以表示迭代器结束。<code>for</code>例如，循环是围绕<code>StopIteration</code>. <code>for</code>您甚至可以使用循环来实现自己的<a target="_blank" rel="noopener" href="https://realpython.com/python-while-loop/"><code>while</code>循环</a>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>letters = [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>, <span class="string">&quot;y&quot;</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>it = <span class="built_in">iter</span>(letters)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">try</span>:</span><br><span class="line"><span class="meta">... </span>        letter = <span class="built_in">next</span>(it)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">except</span> StopIteration:</span><br><span class="line"><span class="meta">... </span>        <span class="keyword">break</span></span><br><span class="line"><span class="meta">... </span>    <span class="built_in">print</span>(letter)</span><br><span class="line">...</span><br><span class="line">a</span><br><span class="line">b</span><br><span class="line">c</span><br><span class="line">y</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>一个带有 yield 的函数就是一个 generator，它和普通函数不同，生成一个 generator 看起来像函数调用，但不会执行任何函数代码，直到对其调用 next()（在 for 循环中会自动调用 next()）才开始执行。虽然执行流程仍按函数的流程执行，<strong>但每执行到一个 yield 语句就会中断，并返回一个迭代值，下次执行时从 yield 的下一个语句继续执行</strong>。看起来就好像一个函数在正常执行的过程中被 yield 中断了数次，每次中断都会通过 yield 返回当前的迭代值。</p>
+<p>举例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fab</span>(<span class="params"><span class="built_in">max</span></span>): </span><br><span class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span> </span><br><span class="line">    <span class="keyword">while</span> n &lt; <span class="built_in">max</span>: </span><br><span class="line">        <span class="keyword">yield</span> b      <span class="comment"># 使用 yield</span></span><br><span class="line">        <span class="comment"># print b </span></span><br><span class="line">        a, b = b, a + b </span><br><span class="line">        n = n + <span class="number">1</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> fab(<span class="number">5</span>): </span><br><span class="line">    <span class="built_in">print</span> (n)</span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line">&gt;&gt;&gt;f = fab(<span class="number">5</span>) </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>f.<span class="built_in">next</span>() </span><br><span class="line"><span class="number">1</span> </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>f.<span class="built_in">next</span>() </span><br><span class="line"><span class="number">1</span> </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>f.<span class="built_in">next</span>() </span><br><span class="line"><span class="number">2</span> </span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h2 id="使用高级生成器方法"><a href="#使用高级生成器方法" class="headerlink" title="使用高级生成器方法"></a>使用高级生成器方法</h2><p>除了<code>yield</code>，生成器对象还可以使用以下方法：</p>
+<ul>
+<li><code>.send()</code></li>
+<li><code>.throw()</code></li>
+<li><code>.close()</code></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/02/02/python/python%20%E8%BF%AD%E4%BB%A3%E5%99%A8/" rel="next" title="python 迭代器  iterators">
+                <i class="fa fa-chevron-left"></i> python 迭代器  iterators
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/02/03/python/python%20%E8%A3%85%E9%A5%B0%E5%99%A8/" rel="prev" title="python 装饰器 decorators">
+                python 装饰器 decorators <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">197</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#python-%E7%94%9F%E6%88%90%E5%99%A8-Generators"><span class="nav-number">1.</span> <span class="nav-text">python 生成器 Generators</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%BB%E5%8F%96%E5%A4%A7%E6%96%87%E4%BB%B6"><span class="nav-number">1.0.1.</span> <span class="nav-text">读取大文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E6%97%A0%E9%99%90%E5%BA%8F%E5%88%97"><span class="nav-number">1.0.2.</span> <span class="nav-text">生成无限序列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B-3%EF%BC%9A%E6%A3%80%E6%B5%8B%E5%9B%9E%E6%96%87"><span class="nav-number">1.0.3.</span> <span class="nav-text">示例 3：检测回文</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%86%E8%A7%A3%E7%94%9F%E6%88%90%E5%99%A8"><span class="nav-number">1.1.</span> <span class="nav-text">了解生成器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%94%9F%E6%88%90%E5%99%A8%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%9E%84%E5%BB%BA%E7%94%9F%E6%88%90%E5%99%A8"><span class="nav-number">1.1.1.</span> <span class="nav-text">使用生成器表达式构建生成器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#yield"><span class="nav-number">2.</span> <span class="nav-text">yield</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E9%AB%98%E7%BA%A7%E7%94%9F%E6%88%90%E5%99%A8%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">使用高级生成器方法</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+      
+    </div>
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=000000&w=1&t=n&d=x0EI09H6PL-1VTHANih6elfNIiKGL2U1VQlHq8todc4&co=000000&cmo=000000&cmn=000000&ct=000000'></script>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Long Ye</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://yelong.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://example.com/2023/02/02/python/python%20%E7%94%9F%E6%88%90%E5%99%A8/';
+          this.page.identifier = '2023/02/02/python/python 生成器/';
+          this.page.title = 'python 生成器 generators';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://yelong.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
