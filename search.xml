@@ -19587,4 +19587,44 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>分布式系统</tag>
       </tags>
   </entry>
+  <entry>
+    <title>GPipe</title>
+    <url>/2024/12/20/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/GPipe/</url>
+    <content><![CDATA[<h1 id="GPipe"><a href="#GPipe" class="headerlink" title="GPipe"></a>GPipe</h1><blockquote>
+<p>Huang, Yanping, et al. “Gpipe: Efficient training of giant neural networks using pipeline parallelism.” <em>Advances in neural information processing systems</em> 32 (2019). citations:1695</p>
+<p>李沐 <a href="https://www.bilibili.com/video/BV1v34y1E7zu/?spm_id_from=333.999.0.0&vd_source=78ac87a714420a3f1e255985e582fe9c">GPipe论文精读【论文精读】</a></p>
+<p>开源项目：<a href="https://github.com/kakaobrain/torchgpipe">https://github.com/kakaobrain/torchgpipe</a></p>
+<p>github：<a href="https://github.com/tensorflow/lingvo/blob/master/lingvo/core/gpipe.py">https://github.com/tensorflow/lingvo/blob/master/lingvo/core/gpipe.py</a></p>
+</blockquote>
+<ul>
+<li><p>用了什么方法</p>
+<ul>
+<li>提出流水线并行方法，在对数据切分（和数据并行的思路一样）能提升并行度；模型并行，可用在任意串联、堆叠起来的网络结构中；</li>
+<li>通过re-materialization方法，支持训练更大的模型，但是需要额外付出20%的开销；</li>
+</ul>
+</li>
+</ul>
+<p>re-materialization：训练时把一些中间结果丢掉，下次用到时重新计算，可以减少内存的占有率。</p>
+<p>micro-batches </p>
+<img src="/2024/12/20/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/GPipe/image-20241220014759353.png" alt="image-20241220014759353" style="zoom:80%;">
+
+<p>model parallelism：多层模型拆成多个层放到不同gpu上，每个gpu只执行一部分计算，就把计算结果传输给下一个gpu再计算； </p>
+<p>data parallelism：模型复制放在每个gpu上，batch样本分成子batch分到不同gpu上做前向和保存梯度值。因为每个GPU上复制一份，保存整个模型开销大；</p>
+<img src="/2024/12/20/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/GPipe/image-20241219003319480.png" alt="image-20241219003319480" style="zoom:80%;">
+
+
+<p>activation ：指的不是激活函数，而是中间变量，前向每层的输出值，由于反向传播是链式，所以需要存储这些中间值。因此这些activation占用的内存为 $O(l<em>d</em>n)$ ，l是层数，n是batch大小，d是网络宽度；</p>
+<p>用re-materialization，因此这里 $l$ 为$\frac{l}{k}$ ， k是gpu数；用微批量，因此这里 $n$ 为 $\frac{n}{m}$ ，m是切的小批量数（微批量），流水线指令的长度；</p>
+<p>存储这些activation 内存占用会增加，可以用时间换空间的方法，也就是前向计算后，<strong>就把这些中间变量删掉 释放内存</strong>，由于是用的微批量的方法，等到微批量样本累积到一个批的loss值，需要反向传播时，再进行一次前向计算得到activation；（所以要计算两次forward（可能会带来30%额外开销））</p>
+<img src="/2024/12/20/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/GPipe/image-20241220010649096.png" alt="image-20241220010649096" style="zoom:80%;">
+
+<p>$O(\frac{K-1}{M+K-1})$ ， 当 $M\ge4K$  开销忽略不计</p>
+]]></content>
+      <categories>
+        <category>分布式系统</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+      </tags>
+  </entry>
 </search>
