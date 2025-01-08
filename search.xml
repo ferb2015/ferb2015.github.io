@@ -19627,4 +19627,55 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>分布式系统</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Megatron</title>
+    <url>/2025/01/08/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/Megatron/</url>
+    <content><![CDATA[<h1 id="Megatron"><a href="#Megatron" class="headerlink" title="Megatron"></a>Megatron</h1><blockquote>
+<p>Shoeybi, Mohammad, et al. “Megatron-lm: Training multi-billion parameter language models using model parallelism.” <em>arXiv preprint arXiv:1909.08053</em> (2019). citations：1837</p>
+<p>开源代码：<a href="https://github:com/NVIDIA/Megatron-LM">https://github:com/NVIDIA/Megatron-LM</a>  </p>
+</blockquote>
+<ul>
+<li><p>解决什么问题</p>
+</li>
+<li><p>提出什么方法</p>
+<p>提出一个方法，将transformer层从中间剖开，使得多GPU计算时每一个GPU计算重建的一块。好处是剖起来容易（按head的个数&#x2F;中间隐藏层大小剖开（在层里面切开））ps. gpipe是在层之间切；</p>
+</li>
+<li><p>存在问题：1. 通讯量很大，并且不能和计算做异步，因此要求GPU之间连接要很好（Nvlink）；</p>
+<ol start="2">
+<li>不能扩展到多机（多机要数据并行）</li>
+<li>GPU变多，冗余变多，因为输入输出都要在GPU上存放一遍；</li>
+</ol>
+</li>
+</ul>
+<p>张量并行</p>
+<p>mlp结构模型并行（放在多个GPU上运行不同参数）的切法：</p>
+<ul>
+<li>第一种：对于权重张量A来说，A维度是 $k<em>k’$，假如有2个GPU，沿着行切，每个个GPU放$\frac{k}{2}<em>k’$ 的参数，则输入X（维度$bl</em>k$）也要切分，沿着列切，每个GPU的计算量是$bl</em>\frac{k}{2}*\frac{k}{2}*k’$，然后再求和（all reduce），求和操作需要GPU之间进行通讯。</li>
+</ul>
+<p>GPU之间需要通讯（比如做求和）才能获取完整的输出结果的操作叫all reduce</p>
+<img src="/2025/01/08/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/Megatron/image-20241226001356344.png" alt="image-20241226001356344" style="zoom:80%;">
+
+
+
+<ul>
+<li>第二种：A沿着列切，参数分给不同GPU，则输入X在各个GPU都要复制一份，然后得到输出Y，不需要GPU之间进行通讯，各自保留了一块的结果，就直接输出X*A了。</li>
+</ul>
+<img src="/2025/01/08/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/Megatron/image-20241226002619623.png" alt="image-20241226002619623" style="zoom:80%;">
+
+
+
+<p>mutli-head attention结构的模型并行：</p>
+<p>不同head放不同gpu；如果head很多则一组head放一个GPU。</p>
+<img src="/2025/01/08/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/Megatron/image-20241226003824191.png" alt="image-20241226003824191" style="zoom:80%;">
+
+
+<p>to be continue</p>
+]]></content>
+      <categories>
+        <category>分布式系统</category>
+      </categories>
+      <tags>
+        <tag>分布式系统</tag>
+      </tags>
+  </entry>
 </search>
