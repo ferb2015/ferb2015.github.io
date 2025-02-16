@@ -19806,4 +19806,40 @@ python compute_wer_lm.py --char=1 --v=1 data/xueyuan/wav/text exp/seewo/conforme
         <tag>语音合成</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Rope</title>
+    <url>/2025/02/17/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/rope/</url>
+    <content><![CDATA[<h1 id="Rope"><a href="#Rope" class="headerlink" title="Rope"></a>Rope</h1><blockquote>
+<p>Su, Jianlin, et al. “Roformer: Enhanced transformer with rotary position embedding.” <em>Neurocomputing</em> 568 (2024): 127063. citations: 1827</p>
+<p><a href="https://spaces.ac.cn/archives/8265/comment-page-1">https://spaces.ac.cn/archives/8265/comment-page-1</a></p>
+<p><a href="https://kexue.fm/archives/9675">https://kexue.fm/archives/9675</a></p>
+<p><a href="https://github.com/ZhuiyiTechnology/roformer">https://github.com/ZhuiyiTechnology/roformer</a></p>
+<p><a href="https://www.bilibili.com/video/BV1Mj421R7JQ/?spm_id_from=333.788.player.switch&amp;vd_source=78ac87a714420a3f1e255985e582fe9c">https://www.bilibili.com/video/BV1Mj421R7JQ/?spm_id_from=333.788.player.switch&amp;vd_source=78ac87a714420a3f1e255985e582fe9c</a></p>
+</blockquote>
+<p>旋转位置编码</p>
+<p>embedding与输入$x_i$和所在位置$i$有关，表示为 $ E’<em>N&#x3D;\left{f(x_i,i) \right}^N</em>{i&#x3D;1} $  </p>
+<p>$x’_i&#x3D;f(x,i)$</p>
+<p>做attention时，$Q’$取第m个位置，$K’$取第n个位置时，经过rope表示为：$x_m’&#x3D;W_qx_me^{im\theta}&#x3D;q_me^{im\theta}$   ,  $x_n’&#x3D;W_kx_me^{in\theta}&#x3D;k_me^{in\theta}$ </p>
+<h3 id="二维的情况"><a href="#二维的情况" class="headerlink" title="二维的情况"></a>二维的情况</h3><p> 假设W的维度是2维，则 $x_m^T x_n^{\prime}&#x3D;\left(q_m^1 q_m^2\right)\left(\begin{array}{cc}<br>\cos ((m-n) \theta) &amp; -\sin ((m-n) \theta) \<br>\sin ((m-n) \theta) &amp; \cos ((m-n) \theta)<br>\end{array}\right)\binom{k_n^1}{k_n^2}$</p>
+<p>内积</p>
+<p>​	（因为 二维行向量 ：<br>$$<br>q_me^{im\theta}&#x3D;(q_1+iq_2)(\cos m\theta + i\sin m\theta) &#x3D;\left(\begin{array}{cc}<br>\cos (m \theta) &amp; -\sin (m \theta) \<br>\sin (m \theta) &amp; \cos (m \theta)<br>\end{array}\right)\binom{q_1}{q_2}<br>$$<br>分别将q和k带入，再用三角函数公式<br>$$<br>\begin{aligned}<br>&amp; \sin (m \theta+n \theta)&#x3D;\sin (m \theta) \cos (n \theta)+\cos (m \theta) \sin (n \theta) \<br>&amp; \sin (m \theta-n \theta)&#x3D;\sin (m \theta) \cos (n \theta)-\cos (m \theta) \sin (n \theta) \<br>&amp; \cos (m \theta+n \theta)&#x3D;\cos (m \theta) \cos (n \theta)-\sin (m \theta) \sin (n \theta) \<br>&amp; \cos (m \theta-n \theta)&#x3D;\cos (m \theta) \cos (n \theta)+\sin (m \theta) \sin (n \theta)<br>\end{aligned}<br>$$</p>
+<p>可得到上式 $x_m^Tx_n’$ 的结果；</p>
+<p>rope的公式：</p>
+<p>$g(x_m’,x_n’,m-n)&#x3D;Re(W_qx_m)(W_kx_n)^*e^{i(m-n)\theta}$</p>
+<p>展开：<br>$$<br>g(x_m’,x_n’,m-n)&#x3D;\left.\left(q_m^1 k_n^1+q_m^2 k_n^2\right) \cos ((m-n) \theta)-\left(q_m^2 k_n^1-q_m^1 k_n^2\right)\right) \sin ((m-n) \theta)<br>$$</p>
+<p>和上式表达是等价的</p>
+<h3 id="多维的情况"><a href="#多维的情况" class="headerlink" title="多维的情况"></a>多维的情况</h3><p>二维扩展到多维<br>$$<br>\left(\begin{array}{ccccccc}<br>\cos m \theta_0 &amp; -\sin m \theta_0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 \<br>\sin m \theta_0 &amp; \cos m \theta_0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 \<br>0 &amp; 0 &amp; \cos m \theta_1 &amp; -\sin m \theta_1 &amp; \cdots &amp; 0 &amp; 0 \<br>0 &amp; 0 &amp; \sin m \theta_1 &amp; \cos m \theta_1 &amp; \cdots &amp; 0 &amp; 0 \<br>\vdots &amp; \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots &amp; \vdots \<br>0 &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; \cos m \theta_{d &#x2F; 2-1} &amp; -\sin m \theta_{d &#x2F; 2-1} \<br>0 &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; \sin m \theta_{d &#x2F; 2-1} &amp; \cos m \theta_{d &#x2F; 2-1}<br>\end{array}\right)\left(\begin{array}{c}<br>q_0 \<br>q_1 \<br>q_2 \<br>q_3 \<br>\vdots \<br>q_{d-2} \<br>q_{d-1}<br>\end{array}\right)<br>$$<br>由于矩阵元素中很多0，很多计算是无用的；</p>
+<p>可以把矩阵变为：<br>$$<br>\left(\begin{array}{c}<br>q_0 \<br>q_1 \<br>q_2 \<br>q_3 \<br>\vdots \<br>q_{d-2} \<br>q_{d-1}<br>\end{array}\right) \otimes\left(\begin{array}{c}<br>\cos m \theta_0 \<br>\cos m \theta_0 \<br>\cos m \theta_1 \<br>\cos m \theta_1 \<br>\vdots \<br>\cos m \theta_{d &#x2F; 2-1} \<br>\cos m \theta_{d &#x2F; 2-1}<br>\end{array}\right)+\left(\begin{array}{c}<br>-q_1 \<br>q_0 \<br>-q_3 \<br>q_2 \<br>\vdots \<br>-q_{d-1} \<br>q_{d-2}<br>\end{array}\right) \otimes\left(\begin{array}{c}<br>\sin m \theta_0 \<br>\sin m \theta_0 \<br>\sin m \theta_1 \<br>\sin m \theta_1 \<br>\vdots \<br>\sin m \theta_{d &#x2F; 2-1} \<br>\sin m \theta_{d &#x2F; 2-1}<br>\end{array}\right)<br>$$<br>维度是偶数；</p>
+<p>位置信息（顺序）在这里为 $m\theta$</p>
+<p>其中，$\theta&#x3D;10000^{-2i&#x2F;d}, i \in [1,2,…,\frac{d}{2}] $ </p>
+<img src="/2025/02/17/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/rope/image-20250217001014019.png" alt="image-20250217001014019" style="zoom: 67%;">
+
+]]></content>
+      <categories>
+        <category>深度学习</category>
+      </categories>
+      <tags>
+        <tag>深度学习</tag>
+      </tags>
+  </entry>
 </search>
